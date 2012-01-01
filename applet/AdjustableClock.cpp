@@ -990,7 +990,7 @@ QString AdjustableClock::holiday() const
     const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
     Plasma::DataEngine::Data holidays = dataEngine(QLatin1String("calendar"))->query(key);
 
-    if (holidays.isEmpty())
+    if (holidays.isEmpty() || holidays[key].toList().isEmpty())
     {
         return QString();
     }
