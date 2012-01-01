@@ -1,0 +1,8 @@
+- add multiple timezones in tooltip;
+- allow possessive forms;
+- improve rich text editor;
+- better way to store custom time syntaxes;
+- separate field for reusable CSS definitions (?);
+- allow to display events (?);
+- allow to display weather data (?);
+- allow clickable links (?);

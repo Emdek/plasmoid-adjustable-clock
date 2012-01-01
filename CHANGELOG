@@ -1,0 +1,141 @@
+2.8 (01.01.2012):
+- allow to disable tool tip by setting empty value for toolTipFormat;
+- allow to display holiday string (%h);
+- improved Calendar syntax;
+- always use calendar system selected in configuration dialog;
+- use resize event to update scaling;
+- some code cleanups.
+
+2.7 (01.12.2011):
+- adapted to KDE 4.6 API changes;
+- improved placeholder menu (sorted and grouped);
+- added new Calendar syntax;
+- more friendly install script;
+- removed compile time dependency on gettext.
+
+2.6.1 (30.08.2010):
+- fix clipboard actions row selection.
+
+2.6 (27.08.2010):
+- allow usage of JavaScript in formats;
+- allow to show only part of string using placeholders;
+- some code cleanups.
+
+2.5.2 (26.08.2010):
+- redo "dbClock with reflection" format to fit in panels;
+- added "Verbose" format.
+
+2.5.1 (23.08.2010):
+- fixed sizing in panels.
+
+2.5 (16.08.2010):
+- adapted to KDE 4.5 API changes;
+- improved font size selection;
+- better initial size on desktop;
+- other small fixes.
+
+2.4 (10.10.2009):
+- cleanup of configuration interface:
+ - always scale contents to fit;
+ - do not paint background if background or background-image property is set to none in most top level tag;
+ - option to set custom tool tip is now available only in configuration file;
+ - removed option to set time difference.
+- adapted to kdelibs coding style.
+
+2.3 (20.09.2009):
+- force selection of next character if previous is %.
+
+2.2 (03.09.2009):
+- added sunrise and sunset times (%o and %O respectively);
+- added simple preview in edit tool tip;
+- placeholders dialog replaced by menu with previews;
+- fixed clock freezing after changing settings;
+- attempt to fix crash occurring for some users when opening settings dialog;
+- do not overwrite all contextual actions, only replace clipboard menu;
+- try to preserve default format set;
+- scale to available space by default;
+- other small fixes.
+
+2.1 (01.07.2009):
+- new WebKit based rich text editor;
+- added list of predefined date and time formats;
+- improved configuration dialog;
+- improved calculating of maximum length of date and time formats;
+- adding empty format to list of clipboard actions will create separator;
+- fixed clock or tool tip not updating every second for some formats.
+
+2.0 (21.06.2009):
+- moved to QtWebKit to improve HTML and CSS support;
+- added optional rich text editor;
+- added possibility to automatically rescale contents to best fit available space (experimental);
+- added time zone offset placeholder (%z);
+- painting of applet background is now optional;
+- replaced time zone city placeholder by time zone abbreviation (old value available as %g);
+- other small fixes.
+
+1.4 (20.04.2009):
+- update contents of clipboard menu also when opening it using keyboard;
+- small fixes and changes.
+
+1.3 (29.03.2009):
+- switch time zones (if selected more than one) on mouse wheel event;
+- added German translation by Matthias Fehring;
+- fixed insertion of common clock translations.
+
+1.2 (27.03.2009):
+- copy formatted date and time string on keyboard shortcut activation;
+- do not show tool tip when format set to empty string;
+- added translations support;
+- added Polish translation by me;
+- added install.sh script.
+
+1.1 (01.02.2009):
+- simplified configuration dialog, advanced options now have their own page;
+- contents margin is now set to 12 pixels for desktop (instead of 3 pixels for all cases);
+- fixed timezone settings;
+- clock should not wrapping into multiple lines without using line breaks.
+
+1.0 (24.01.2009):
+- some improvements in calculating of applet width for formats with varying date and time string length;
+- updated to plasmaclock library related changes;
+- updated to Plasma CMake related changes.
+
+0.9 (25.12.2008):
+- updated to KDE 4.2 changes - now applet uses shared plasmaclock library;
+- added adjustable tool tip;
+- added clock preview button in configuration dialog;
+- fixed truncating of last character in date and time string format in some cases.
+
+0.8 (20.12.2008):
+- improved handling of empty list of clipboard actions;
+- fixed not saving clipboard settings.
+
+0.7 (14.12.2008):
+- added possibility to set own formats for clipboard actions;
+- added option to set time difference (seconds) to time from data engine;
+- added new placeholders for short date and short time representation.
+
+0.6 (13.12.2008):
+- added fast copy to clipboard of adjustable date and time format after middle mouse click on the clock;
+- small fixes and changes.
+
+0.5 (23.11.2008):
+- moved to Plasma::Label (less code and no wrong cursors on hover);
+- better and automatic size handling;
+- no need for manual update interval setting;
+- fixed calendar not showing after click.
+
+0.4 (17.11.2008):
+- rich text support (subset of HTML tags);
+- new date and time parser, uses the same placeholders like strftime function and KLocale methods with addition of UNIX time stamp placeholder;
+- added UNIX timestamp option to copy menu.
+
+0.3 (16.11.2008):
+- added context menu with actions to copy formatted date to clipboard (like in KDE3).
+
+0.2 (10.11.2008):
+- updated copyright headers;
+- added CMakeLists.txt in main directory to make building a bit easier.
+
+0.1 (08.11.2008):
+- initial version.

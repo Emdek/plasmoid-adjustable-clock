@@ -1,0 +1,17 @@
+To install plasmoid check if you have installed needed header files (kdelibs, kdebase-workspace), unpack archive and execute install.sh script.
+
+Alternatively you can run following commands:
+
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix`
+make
+sudo make install
+kbuildsycoca4
+
+After that plasmoid should show up in add widgets dialog.
+
+If not, you can try to execute:
+
+kquitapp plasma-desktop
+plasma-desktop
