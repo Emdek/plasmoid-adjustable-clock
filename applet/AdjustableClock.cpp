@@ -511,7 +511,13 @@ void AdjustableClock::addFormat(bool automatically)
 
         formatName = QString(QLatin1String("%1 %2")).arg(formatName).arg(i);
     } else {
-        formatName = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), formatName);
+        bool ok;
+
+        formatName = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), formatName, &ok);
+
+        if (!ok) {
+            return;
+        }
     }
 
     if (m_appearanceUi.timeFormatComboBox->findText(formatName) >= 0) {
@@ -990,8 +996,7 @@ QString AdjustableClock::holiday() const
     const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
     Plasma::DataEngine::Data holidays = dataEngine(QLatin1String("calendar"))->query(key);
 
-    if (holidays.isEmpty() || holidays[key].toList().isEmpty())
-    {
+    if (holidays.isEmpty() || holidays[key].toList().isEmpty()) {
         return QString();
     }
 
