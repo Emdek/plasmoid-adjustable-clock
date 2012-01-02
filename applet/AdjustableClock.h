@@ -70,7 +70,7 @@ protected slots:
     void removeFormat();
     void changeFormat();
     void updateControls();
-    void toggleState();
+    void triggerAction();
     void selectColor();
     void selectFontSize(const QString &size);
     void selectFontFamily(const QFont &font);

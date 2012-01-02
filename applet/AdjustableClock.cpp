@@ -283,12 +283,12 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.timeFormat, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(toggleState()));
-    connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(toggleState()));
-    connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(toggleState()));
-    connect(m_appearanceUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(toggleState()));
-    connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(toggleState()));
-    connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(toggleState()));
+    connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
+    connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
+    connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
+    connect(m_appearanceUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
+    connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
+    connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
@@ -575,7 +575,7 @@ void AdjustableClock::updateControls()
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
 }
 
-void AdjustableClock::toggleState()
+void AdjustableClock::triggerAction()
 {
     QString actionName = sender()->objectName().remove(QLatin1String("Button")).toLower();
     QHash<QString, QWebPage::WebAction> actions;
@@ -586,8 +586,44 @@ void AdjustableClock::toggleState()
     actions[QLatin1String("justifyCenter")] = QWebPage::AlignCenter;
     actions[QLatin1String("justifyRight")] = QWebPage::AlignRight;
 
-    if (actions.contains(actionName))
-    {
+    if (!actions.contains(actionName)) {
+        return;
+    }
+
+    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+
+        switch (actions[actionName]) {
+            case QWebPage::ToggleBold:
+                cursor.insertText(QLatin1String("<b>") + cursor.selectedText() + QLatin1String("</b>"));
+
+                break;
+            case QWebPage::ToggleItalic:
+                cursor.insertText(QLatin1String("<i>") + cursor.selectedText() + QLatin1String("</i>"));
+
+                break;
+            case QWebPage::ToggleUnderline:
+                cursor.insertText(QLatin1String("<u>") + cursor.selectedText() + QLatin1String("</u>"));
+
+                break;
+            case QWebPage::AlignLeft:
+                cursor.insertText(QLatin1String("<div style=\"text-align:left;\">") + cursor.selectedText() + QLatin1String("</div>"));
+
+                break;
+            case QWebPage::AlignCenter:
+                cursor.insertText(QLatin1String("<div style=\"text-align:center;\">") + cursor.selectedText() + QLatin1String("</div>"));
+
+                break;
+            case QWebPage::AlignRight:
+                cursor.insertText(QLatin1String("<div style=\"text-align:right;\">") + cursor.selectedText() + QLatin1String("</div>"));
+
+                break;
+            default:
+                return;
+        }
+
+        m_appearanceUi.timeFormat->setTextCursor(cursor);
+    } else {
         m_appearanceUi.webView->page()->triggerAction(actions[actionName]);
     }
 }
@@ -604,20 +640,42 @@ void AdjustableClock::selectColor()
         palette.setBrush(QPalette::Button, colorDialog.color());
 
         m_appearanceUi.colorButton->setPalette(palette);
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('forecolor', false, '") + colorDialog.color().name() + QLatin1String("')"));
+
+        if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+            QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+            cursor.insertText(QLatin1String("<span style=\"color:") + colorDialog.color().name() + QLatin1String(";\">") + cursor.selectedText() + QLatin1String("</span>"));
+
+            m_appearanceUi.timeFormat->setTextCursor(cursor);
+        } else {
+            m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('forecolor', false, '") + colorDialog.color().name() + QLatin1String("')"));
+        }
     }
 }
 
 void AdjustableClock::selectFontSize(const QString &size)
 {
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontsizedelta', false, ") + QString::number(size.toInt() - m_fontSize) + QLatin1String(")"));
+    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+        cursor.insertText(QLatin1String("<span style=\"font-size:") + QString::number(size.toInt()) + QLatin1String("px;\">") + cursor.selectedText() + QLatin1String("</span>"));
+
+        m_appearanceUi.timeFormat->setTextCursor(cursor);
+    } else {
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontsizedelta', false, ") + QString::number(size.toInt() - m_fontSize) + QLatin1String(")"));
+    }
 
     m_fontSize = size.toInt();
 }
 
 void AdjustableClock::selectFontFamily(const QFont &font)
 {
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontname', false, '") + font.family() + QLatin1String("')"));
+    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+        cursor.insertText(QLatin1String("<span style=\"font-family:'") + font.family()+ QLatin1String("';\">") + cursor.selectedText() + QLatin1String("</span>"));
+
+        m_appearanceUi.timeFormat->setTextCursor(cursor);
+    } else {
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontname', false, '") + font.family() + QLatin1String("')"));
+    }
 }
 
 void AdjustableClock::setColor(const QString &color)
@@ -1196,5 +1254,4 @@ QList<QAction*> AdjustableClock::contextualActions()
     }
 
     return actions;
-
 }

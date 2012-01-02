@@ -246,7 +246,7 @@
       <attribute name="title">
        <string>Rich text</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="richTextLayout">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -260,31 +260,21 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="bottomVerticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="plainTexTab">
+     <widget class="QWidget" name="plainTextTab">
       <attribute name="title">
        <string>Source</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
+      <layout class="QVBoxLayout" name="plainTextLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
         <widget class="KTextEdit" name="timeFormat">
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="acceptRichText">
           <bool>false</bool>
          </property>
