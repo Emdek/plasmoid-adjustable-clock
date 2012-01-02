@@ -111,7 +111,7 @@ void AdjustableClock::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints(QRegExp(QLatin1String("<[a-z].*\\sstyle=('|\").*background(-image)?\\s*:\\s*none.*('|\").*>"), Qt::CaseInsensitive).exactMatch(format().html) ? NoBackground : DefaultBackground);
+    setBackgroundHints((m_features & NoBackgroundFeature) ? NoBackground : DefaultBackground);
 }
 
 void AdjustableClock::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -387,6 +387,10 @@ void AdjustableClock::connectSource(const QString &timezone)
 
     if (format.contains(QLatin1String("%O"))) {
         features |= SunriseFeature;
+    }
+
+    if (QRegExp(QLatin1String("<[a-z].*\\sstyle=('|\").*background(-image)?\\s*:\\s*none.*('|\").*>"), Qt::CaseInsensitive).exactMatch(format)) {
+        features |= NoBackgroundFeature;
     }
 
     m_features = features;

@@ -33,7 +33,7 @@
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
 
-enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, SunsetFeature = 16, SunriseFeature = 32 };
+enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, SunsetFeature = 16, SunriseFeature = 32, NoBackgroundFeature = 64 };
 
 struct Format
 {
