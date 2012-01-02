@@ -50,22 +50,6 @@ AdjustableClock::AdjustableClock(QObject *parent, const QVariantList &args) : Cl
     setHasConfigurationInterface(true);
     resize(150, 80);
 
-    m_timeFormatStrings << QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%H:%M:%S</big>\n<small>%d.%m.%Y</small></div>")
-    << QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%H:%M:%S</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%m.%Y</small></div>")
-    << QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%H:%M</div>")
-    << QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85; background:none;\"><span style=\"font-size:30px;\">%H:%M:%S</span><br><span style=\"font-size:12px;\">%A, %d.%m.%Y</span></div>")
-    << QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:0 0 5px 5px; background:none;\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div>")
-    << QLatin1String("<div style=\"height:50px; background:none;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div></div>")
-    << QLatin1String("<div style=\"width:295px; min-height:295px; background:none; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%A<br /><span style=\"font-size:130px; line-height:140px;\">%e</span><br /><span style=\"font-size:35px;\">%B %Y</span><br />%h<div style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div><div style=\"width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;\"></div></div></div></div>");
-
-    m_timeFormatNames << i18n("Default")
-    << i18n("Flat")
-    << i18n("Simple")
-    << i18n("Verbose")
-    << i18n("dbClock")
-    << i18n("dbClock with reflection")
-    << i18n("Calendar");
-
     m_clipboardFormats << QLatin1String("%x")
     << QLatin1String("%f")
     << QLatin1String("%H:%M:%S")
@@ -116,7 +100,7 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
         m_sunset = data[QLatin1String("Sunset")].toTime();
     }
 
-    setText(formatDateTime(m_dateTime, m_timeFormat));
+    setHtml(formatDateTime(m_dateTime, format().html), format().css);
 
     if (Plasma::ToolTipManager::self()->isVisible(this)) {
         updateToolTipContent();
@@ -127,7 +111,7 @@ void AdjustableClock::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints(QRegExp(QLatin1String("<[a-z].*\\sstyle=('|\").*background(-image)?\\s*:\\s*none.*('|\").*>"), Qt::CaseInsensitive).exactMatch(m_timeFormat) ? NoBackground : DefaultBackground);
+    setBackgroundHints(QRegExp(QLatin1String("<[a-z].*\\sstyle=('|\").*background(-image)?\\s*:\\s*none.*('|\").*>"), Qt::CaseInsensitive).exactMatch(format().html) ? NoBackground : DefaultBackground);
 }
 
 void AdjustableClock::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -135,6 +119,22 @@ void AdjustableClock::resizeEvent(QGraphicsSceneResizeEvent *event)
     ClockApplet::resizeEvent(event);
 
     updateSize();
+}
+
+void AdjustableClock::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->buttons() == Qt::MidButton) {
+        copyToClipboard();
+    }
+
+    ClockApplet::mousePressEvent(event);
+}
+
+void AdjustableClock::timerEvent(QTimerEvent *event)
+{
+    updateControls();
+
+    killTimer(event->timerId());
 }
 
 void AdjustableClock::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
@@ -149,12 +149,9 @@ void AdjustableClock::paintInterface(QPainter *painter, const QStyleOptionGraphi
 
 void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
 {
-    KConfigGroup configuration = config();
     QWidget *appearanceConfiguration = new QWidget;
     QWidget *clipboardActions = new QWidget;
-    QStringList timeFormatStrings = m_timeFormatStrings;
-    QStringList timeFormatNames = m_timeFormatNames;
-    QStringList clipboardFormats = configuration.readEntry("clipboardFormats", m_clipboardFormats);
+    QStringList clipboardFormats = config().readEntry("clipboardFormats", m_clipboardFormats);
     QString preview;
     int row;
 
@@ -212,21 +209,23 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
         if (placeholders.at(i).first == QLatin1Char(0)) {
             placeholdersMenu->addTitle(placeholders.at(i).second);
         } else {
-            QAction *action = placeholdersMenu->addAction(QString(QLatin1String("%1 (%%2)\t%3")).arg(placeholders.at(i).second).arg(placeholders.at(i).first).arg(formatDateTime(m_dateTime, (QString(QLatin1Char('%')).append(placeholders.at(i).first)))));
+            QAction *action = placeholdersMenu->addAction(QString(QLatin1String("%1 (%%2)\t%3")).arg(placeholders.at(i).second).arg(placeholders.at(i).first).arg(formatDateTime(m_dateTime, QString(QLatin1Char('%')).append(placeholders.at(i).first))));
             action->setData(QVariant(placeholders.at(i).first));
         }
     }
 
-    timeFormatStrings.append(configuration.readEntry("timeFormatStrings", QStringList()));
+    const QStringList formates = this->formates();
 
-    timeFormatNames.append(configuration.readEntry("timeFormatNames", QStringList()));
+    for (int i = 0; i < formates.count(); ++i) {
+        if (formates.at(i).isEmpty()) {
+            m_appearanceUi.formatComboBox->insertSeparator(i);
+        } else {
+            Format format = this->format(formates.at(i));
 
-    for (int i = 0; i < timeFormatStrings.count(); ++i) {
-        if (i == m_timeFormatNames.count()) {
-            m_appearanceUi.timeFormatComboBox->insertSeparator(i);
+            m_appearanceUi.formatComboBox->addItem(format.title, formates.at(i));
+            m_appearanceUi.formatComboBox->setItemData(i, format.html, (Qt::UserRole + 1));
+            m_appearanceUi.formatComboBox->setItemData(i, format.css, (Qt::UserRole + 2));
         }
-
-        m_appearanceUi.timeFormatComboBox->addItem(timeFormatNames.at(i), timeFormatStrings.at(i));
     }
 
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
@@ -273,16 +272,19 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
 
     m_appearanceUi.colorButton->setPalette(buttonPalette);
 
+    appearanceConfiguration->resize(600, 500);
+
     parent->addPage(appearanceConfiguration, i18n("Appearance"), QLatin1String("preferences-desktop-theme"));
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
 
     connect(placeholdersMenu, SIGNAL(triggered(QAction*)), this, SLOT(insertPlaceholder(QAction*)));
-    connect(m_appearanceUi.timeFormatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+    connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
     connect(m_appearanceUi.addButton, SIGNAL(clicked()), this, SLOT(addFormat()));
     connect(m_appearanceUi.removeButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.timeFormat, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -299,58 +301,64 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int, int)), this, SLOT(updateRow(int, int)));
 
-    int currentFormat = m_appearanceUi.timeFormatComboBox->findData(m_timeFormat);
+    const int currentFormat = m_appearanceUi.formatComboBox->findData(config().readEntry("format", "default"));
 
-    if (currentFormat < 0) {
-        m_appearanceUi.timeFormatComboBox->insertItem(0, i18n("Custom"), m_timeFormat);
-
-        currentFormat = 0;
-    }
-
-    m_appearanceUi.timeFormatComboBox->setCurrentIndex(currentFormat);
+    m_appearanceUi.formatComboBox->setCurrentIndex(currentFormat);
 
     loadFormat(currentFormat);
 }
 
 void AdjustableClock::clockConfigChanged()
 {
-    m_timeFormat = config().readEntry("timeFormat", m_timeFormatStrings.at(0));
-
     m_holiday = holiday();
 
-    setText(formatDateTime(currentDateTime(), m_timeFormat));
+    setHtml(formatDateTime(currentDateTime(), format().html), format().css);
 
     updateSize();
 }
 
 void AdjustableClock::clockConfigAccepted()
 {
-    KConfigGroup configuration = config();
-    QStringList timeFormatStrings;
-    QStringList timeFormatNames;
     QStringList clipboardFormats;
 
     killTimer(m_controlsTimer);
 
-    for (int i = 0; i < m_appearanceUi.timeFormatComboBox->count(); ++i) {
-        if (m_timeFormatNames.contains(m_appearanceUi.timeFormatComboBox->itemText(i)) || m_appearanceUi.timeFormatComboBox->itemText(i).isEmpty()) {
+    config().deleteGroup("Formates");
+
+    KConfigGroup formatesConfiguration = config().group("Formates");
+    const int builInFormates = formates(false).count();
+
+    for (int i = 0; i < m_appearanceUi.formatComboBox->count(); ++i) {
+        if (m_appearanceUi.formatComboBox->itemText(i).isEmpty()) {
             continue;
         }
 
-        timeFormatStrings.append(m_appearanceUi.timeFormatComboBox->itemData(i).toString());
+        Format format;
+        format.title = m_appearanceUi.formatComboBox->itemText(i);
+        format.html = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 1)).toString();
+        format.css = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 2)).toString();
 
-        timeFormatNames.append(m_appearanceUi.timeFormatComboBox->itemText(i));
+        if (i < builInFormates) {
+            Format existing = this->format(m_appearanceUi.formatComboBox->itemData(i).toString());
+
+            if (format.html == existing.html && format.css == existing.css) {
+                continue;
+            }
+        }
+
+        KConfigGroup formatConfiguration = formatesConfiguration.group(m_appearanceUi.formatComboBox->itemData(i).toString());
+        formatConfiguration.writeEntry("title", format.title);
+        formatConfiguration.writeEntry("html", format.html);
+        formatConfiguration.writeEntry("css", format.css);
     }
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
         clipboardFormats.append(m_clipboardUi.clipboardActionsTable->item(i, 0)->text());
     }
 
-    configuration.writeEntry("timeFormat", m_appearanceUi.timeFormat->toPlainText());
-    configuration.writeEntry("timeFormatStrings", timeFormatStrings);
-    configuration.writeEntry("timeFormatNames", timeFormatNames);
-    configuration.writeEntry("clipboardFormats", clipboardFormats);
-    configuration.writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormat->text());
+    config().writeEntry("format", m_appearanceUi.formatComboBox->itemData(m_appearanceUi.formatComboBox->currentIndex()).toString());
+    config().writeEntry("clipboardFormats", clipboardFormats);
+    config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormat->text());
 
     emit configNeedsSaving();
 }
@@ -358,9 +366,10 @@ void AdjustableClock::clockConfigAccepted()
 void AdjustableClock::connectSource(const QString &timezone)
 {
     QRegExp formatWithSeconds = QRegExp(QLatin1String("%\\d*(S|c|C|t|F|X)"));
+    const QString format = this->format().html;
     QFlags<ClockFeature> features;
 
-    if (m_timeFormat.contains(formatWithSeconds)) {
+    if (format.contains(formatWithSeconds)) {
         features |= SecondsClockFeature;
     }
 
@@ -368,21 +377,21 @@ void AdjustableClock::connectSource(const QString &timezone)
         features |= SecondsToolTipFeature;
     }
 
-    if (m_timeFormat.contains(QLatin1String("%h"))) {
+    if (format.contains(QLatin1String("%h"))) {
         features |= HolidaysFeature;
     }
 
-    if (m_timeFormat.contains(QLatin1String("%o"))) {
+    if (format.contains(QLatin1String("%o"))) {
         features |= SunsetFeature;
     }
 
-    if (m_timeFormat.contains(QLatin1String("%O"))) {
+    if (format.contains(QLatin1String("%O"))) {
         features |= SunriseFeature;
     }
 
-    const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
-
     m_features = features;
+
+    const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
 
     dataEngine(QLatin1String("time"))->connectSource((timezone + QLatin1String((features & SecondsClockFeature || features & SecondsToolTipFeature) ? "|Solar" : "")), this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
@@ -415,22 +424,6 @@ void AdjustableClock::connectSource(const QString &timezone)
     updateSize();
 }
 
-void AdjustableClock::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (event->buttons() == Qt::MidButton) {
-        copyToClipboard();
-    }
-
-    ClockApplet::mousePressEvent(event);
-}
-
-void AdjustableClock::timerEvent(QTimerEvent *event)
-{
-    updateControls();
-
-    killTimer(event->timerId());
-}
-
 void AdjustableClock::copyToClipboard()
 {
     QApplication::clipboard()->setText(formatDateTime(currentDateTime(), config().readEntry("fastCopyFormat", "%Y-%m-%d %H:%M:%S")));
@@ -441,7 +434,7 @@ void AdjustableClock::insertPlaceholder(QAction *action)
     QString placeholder = QString(QLatin1Char('%')).append(action->data().toChar());
 
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
-        m_appearanceUi.timeFormat->insertPlainText(placeholder);
+        m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + placeholder + QLatin1String("')"));
     }
@@ -449,13 +442,22 @@ void AdjustableClock::insertPlaceholder(QAction *action)
 
 void AdjustableClock::loadFormat(int index)
 {
-    m_appearanceUi.timeFormat->setPlainText(m_appearanceUi.timeFormatComboBox->itemData(index).toString());
-    m_appearanceUi.removeButton->setEnabled(index >= m_timeFormatNames.count());
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+
+    m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString());
+    m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString());
+    m_appearanceUi.removeButton->setEnabled(index >= formates(false).count());
+
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+
+    changeFormat();
 }
 
 void AdjustableClock::changeFormat()
 {
-    QString text;
+    Format format;
 
     if (sender() == m_appearanceUi.webView->page()) {
         QRegExp fontSize = QRegExp(QLatin1String(" class=\"Apple-style-span\""));
@@ -465,47 +467,56 @@ void AdjustableClock::changeFormat()
         QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
         fontFamily.setMinimal(true);
 
-        text = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<html><head></head><body>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+        QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+
+        QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
+        css.setMinimal(true);
+        css.indexIn(html);
+
+        format.html = html.remove(css);
+        format.css = css.cap(1);
     } else {
-        text = m_appearanceUi.timeFormat->toPlainText();
+        format.html = m_appearanceUi.htmlTextEdit->toPlainText();
+        format.css = m_appearanceUi.cssTextEdit->toPlainText();
     }
 
-    const QString toolTip = formatDateTime(m_dateTime, text);
-
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.timeFormat, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-
-    m_appearanceUi.timeFormat->setToolTip(toolTip);
-    m_appearanceUi.webView->setToolTip(toolTip);
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
 
     if (sender() == m_appearanceUi.webView->page()) {
-        m_appearanceUi.timeFormat->setPlainText(text);
+        m_appearanceUi.htmlTextEdit->setPlainText(format.html);
+        m_appearanceUi.cssTextEdit->setPlainText(format.css);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->setHtml(text);
+        m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + format.css + QLatin1String("</style>") + format.html);
         m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("boldButton"), m_appearanceUi.boldButton);
         m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("italicButton"), m_appearanceUi.italicButton);
         m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("underlineButton"), m_appearanceUi.underlineButton);
         m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("designModeEditor"), this);
     }
 
-    if (m_appearanceUi.timeFormatComboBox->currentIndex() < m_timeFormatNames.count() && m_appearanceUi.timeFormatComboBox->itemData(m_appearanceUi.timeFormatComboBox->currentIndex(), Qt::UserRole).toString() != text) {
+    const int index = m_appearanceUi.formatComboBox->currentIndex();
+
+    if (index < formates(false).count() && (m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString() != format.css)) {
         addFormat(true);
     }
 
-    m_appearanceUi.timeFormatComboBox->setItemData(m_appearanceUi.timeFormatComboBox->currentIndex(), text);
+    m_appearanceUi.formatComboBox->setItemData(index, format.html, (Qt::UserRole + 1));
+    m_appearanceUi.formatComboBox->setItemData(index, format.css, (Qt::UserRole + 2));
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.timeFormat, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
 }
 
 void AdjustableClock::addFormat(bool automatically)
 {
-    QString formatName = m_appearanceUi.timeFormatComboBox->itemText(m_appearanceUi.timeFormatComboBox->currentIndex());
+    QString formatName = m_appearanceUi.formatComboBox->itemText(m_appearanceUi.formatComboBox->currentIndex());
 
     if (automatically) {
         int i = 2;
 
-        while (m_appearanceUi.timeFormatComboBox->findText(QString(QLatin1String("%1 %2")).arg(formatName).arg(i)) >= 0) {
+        while (m_appearanceUi.formatComboBox->findText(QString(QLatin1String("%1 %2")).arg(formatName).arg(i)) >= 0) {
             ++i;
         }
 
@@ -520,39 +531,52 @@ void AdjustableClock::addFormat(bool automatically)
         }
     }
 
-    if (m_appearanceUi.timeFormatComboBox->findText(formatName) >= 0) {
-        KMessageBox::error(m_appearanceUi.timeFormatComboBox, i18n("A format with this name already exists."));
-    } else if (!formatName.isEmpty()) {
-        int index = (m_appearanceUi.timeFormatComboBox->currentIndex() + 1);
+    if (m_appearanceUi.formatComboBox->findText(formatName) >= 0) {
+        KMessageBox::error(m_appearanceUi.formatComboBox, i18n("A format with this name already exists."));
 
-        if (index <= m_timeFormatNames.count()) {
-            index = m_appearanceUi.timeFormatComboBox->count();
-        }
-
-        disconnect(m_appearanceUi.timeFormatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
-
-        if (index == m_timeFormatNames.count() && m_timeFormatNames.count() == m_appearanceUi.timeFormatComboBox->count())
-        {
-            m_appearanceUi.timeFormatComboBox->insertSeparator(index);
-
-            ++index;
-        }
-
-        m_appearanceUi.timeFormatComboBox->insertItem(index, formatName, m_appearanceUi.timeFormat->toPlainText());
-        m_appearanceUi.timeFormatComboBox->setCurrentIndex(index);
-        m_appearanceUi.removeButton->setEnabled(true);
-
-        connect(m_appearanceUi.timeFormatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+        return;
     }
+
+    if (m_appearanceUi.formatComboBox->findText(formatName) >= 0) {
+        KMessageBox::error(m_appearanceUi.formatComboBox, i18n("Invalid format name."));
+
+        return;
+    }
+
+    if (formatName.isEmpty()) {
+        return;
+    }
+
+    int index = (m_appearanceUi.formatComboBox->currentIndex() + 1);
+    const int builInFormates = formates(false).count();
+
+    if (index <= builInFormates) {
+        index = m_appearanceUi.formatComboBox->count();
+    }
+
+    disconnect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+
+    if (index == builInFormates && builInFormates == m_appearanceUi.formatComboBox->count())
+    {
+        m_appearanceUi.formatComboBox->insertSeparator(index);
+
+        ++index;
+    }
+
+    m_appearanceUi.formatComboBox->insertItem(index, formatName, m_appearanceUi.htmlTextEdit->toPlainText());
+    m_appearanceUi.formatComboBox->setCurrentIndex(index);
+    m_appearanceUi.removeButton->setEnabled(true);
+
+    connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
 }
 
 void AdjustableClock::removeFormat()
 {
-    if (m_appearanceUi.timeFormatComboBox->currentIndex() > m_timeFormatNames.count()) {
-        m_appearanceUi.timeFormatComboBox->removeItem(m_appearanceUi.timeFormatComboBox->currentIndex());
+    if (m_appearanceUi.formatComboBox->currentIndex() > formates(false).count()) {
+        m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->currentIndex());
 
-        if (m_appearanceUi.timeFormatComboBox->itemData((m_appearanceUi.timeFormatComboBox->count() - 1), Qt::DisplayRole).toString().isEmpty()) {
-            m_appearanceUi.timeFormatComboBox->removeItem(m_appearanceUi.timeFormatComboBox->count() - 1);
+        if (m_appearanceUi.formatComboBox->itemData((m_appearanceUi.formatComboBox->count() - 1), Qt::DisplayRole).toString().isEmpty()) {
+            m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->count() - 1);
         }
     }
 }
@@ -591,7 +615,7 @@ void AdjustableClock::triggerAction()
     }
 
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
 
         switch (actions[actionName]) {
             case QWebPage::ToggleBold:
@@ -622,7 +646,7 @@ void AdjustableClock::triggerAction()
                 return;
         }
 
-        m_appearanceUi.timeFormat->setTextCursor(cursor);
+        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
     } else {
         m_appearanceUi.webView->page()->triggerAction(actions[actionName]);
     }
@@ -642,10 +666,10 @@ void AdjustableClock::selectColor()
         m_appearanceUi.colorButton->setPalette(palette);
 
         if (m_appearanceUi.tabWidget->currentIndex() > 0) {
-            QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+            QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
             cursor.insertText(QLatin1String("<span style=\"color:") + colorDialog.color().name() + QLatin1String(";\">") + cursor.selectedText() + QLatin1String("</span>"));
 
-            m_appearanceUi.timeFormat->setTextCursor(cursor);
+            m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
         } else {
             m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('forecolor', false, '") + colorDialog.color().name() + QLatin1String("')"));
         }
@@ -655,10 +679,10 @@ void AdjustableClock::selectColor()
 void AdjustableClock::selectFontSize(const QString &size)
 {
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
         cursor.insertText(QLatin1String("<span style=\"font-size:") + QString::number(size.toInt()) + QLatin1String("px;\">") + cursor.selectedText() + QLatin1String("</span>"));
 
-        m_appearanceUi.timeFormat->setTextCursor(cursor);
+        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontsizedelta', false, ") + QString::number(size.toInt() - m_fontSize) + QLatin1String(")"));
     }
@@ -669,10 +693,10 @@ void AdjustableClock::selectFontSize(const QString &size)
 void AdjustableClock::selectFontFamily(const QFont &font)
 {
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.timeFormat->textCursor();
+        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
         cursor.insertText(QLatin1String("<span style=\"font-family:'") + font.family()+ QLatin1String("';\">") + cursor.selectedText() + QLatin1String("</span>"));
 
-        m_appearanceUi.timeFormat->setTextCursor(cursor);
+        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('fontname', false, '") + font.family() + QLatin1String("')"));
     }
@@ -800,12 +824,12 @@ void AdjustableClock::toolTipHidden()
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
-void AdjustableClock::setText(const QString &text)
+void AdjustableClock::setHtml(const QString &html, const QString &css)
 {
-    if (text != m_currentText) {
-        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, table, td {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}</style></head><body><table><tr><td id=\"clock\">") + text + QLatin1String("</td></tr></table></body></html>"));
+    if (html != m_currentHtml) {
+        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, table, td {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + css + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + html + QLatin1String("</td></tr></table></body></html>"));
 
-        m_currentText = text;
+        m_currentHtml = html;
 
         update();
     }
@@ -863,20 +887,20 @@ void AdjustableClock::updateToolTipContent()
 
 void AdjustableClock::updateSize()
 {
-    QSizeF size;
+    const Format format = this->format();
     QString string;
     QString longest;
     QString temporary;
     int placeholder;
-    const int length = (m_timeFormat.length() - 1);
+    const int length = (format.html.length() - 1);
     int number = 0;
 
     for (int index = 0; index < length; ++index) {
-        if (m_timeFormat.at(index) == QLatin1Char('%') && m_timeFormat.at(index + 1) != QLatin1Char('%')) {
+        if (format.html.at(index) == QLatin1Char('%') && format.html.at(index + 1) != QLatin1Char('%')) {
             ++index;
 
-            if (m_timeFormat.at(index).isDigit()) {
-                while (m_timeFormat.at(index).isDigit()) {
+            if (format.html.at(index).isDigit()) {
+                while (format.html.at(index).isDigit()) {
                     ++index;
                 }
 
@@ -887,7 +911,7 @@ void AdjustableClock::updateSize()
                 continue;
             }
 
-            placeholder = m_timeFormat.at(index).unicode();
+            placeholder = format.html.at(index).unicode();
 
             longest.clear();
 
@@ -986,22 +1010,24 @@ void AdjustableClock::updateSize()
             case 'z':
                 string.append(m_timeZoneOffset);
             default:
-                string.append(m_timeFormat.at(index));
+                string.append(format.html.at(index));
                 break;
             }
         } else {
-            string.append(m_timeFormat.at(index));
+            string.append(format.html.at(index));
         }
     }
 
-    if (m_timeFormat.at(length - 1) != QLatin1Char('%')) {
-        string.append(m_timeFormat.at(length));
+    if (format.html.at(length - 1) != QLatin1Char('%')) {
+        string.append(format.html.at(length));
     }
 
-    setText(string);
+    setHtml(string, format.css);
 
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
+
+    QSizeF size;
 
     if (formFactor() == Plasma::Horizontal) {
         size = QSizeF(containment()->boundingRect().width(), boundingRect().height());
@@ -1026,7 +1052,7 @@ void AdjustableClock::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setText(formatDateTime(m_dateTime, m_timeFormat));
+    setHtml(formatDateTime(m_dateTime, this->format().html), this->format().css);
 }
 
 void AdjustableClock::updateTheme()
@@ -1046,19 +1072,6 @@ QDateTime AdjustableClock::currentDateTime() const
     QDateTime dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 
     return dateTime;
-}
-
-QString AdjustableClock::holiday() const
-{
-    const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
-    const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
-    Plasma::DataEngine::Data holidays = dataEngine(QLatin1String("calendar"))->query(key);
-
-    if (holidays.isEmpty() || holidays[key].toList().isEmpty()) {
-        return QString();
-    }
-
-    return holidays[key].toList().first().toHash()[QLatin1String("Name")].toString();
 }
 
 QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString &format) const
@@ -1229,6 +1242,96 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
     }
 
     return string;
+}
+
+QString AdjustableClock::holiday() const
+{
+    const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
+    const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
+    Plasma::DataEngine::Data holidays = dataEngine(QLatin1String("calendar"))->query(key);
+
+    if (holidays.isEmpty() || holidays[key].toList().isEmpty()) {
+        return QString();
+    }
+
+    return holidays[key].toList().first().toHash()[QLatin1String("Name")].toString();
+}
+
+Format AdjustableClock::format(QString name) const
+{
+    if (name.isEmpty()) {
+        if (!m_format.html.isEmpty()) {
+            return m_format;
+        }
+
+        name = config().readEntry("format", "%default%");
+    }
+
+    QHash<QString, Format> formates;
+    formates[QLatin1String("%default%")] = Format();
+    formates[QLatin1String("%default%")].title = i18n("Default");
+    formates[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%H:%M:%S</big>\n<small>%d.%m.%Y</small></div>");
+    formates[QLatin1String("%flat%")] = Format();
+    formates[QLatin1String("%flat%")].title = i18n("Flat");
+    formates[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%H:%M:%S</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%m.%Y</small></div>");
+    formates[QLatin1String("%simple%")] = Format();
+    formates[QLatin1String("%simple%")].title = i18n("Simple");
+    formates[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%H:%M</div>");
+    formates[QLatin1String("%verbose%")] = Format();
+    formates[QLatin1String("%verbose%")].title = i18n("Verbose");
+    formates[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85; background:none;\"><span style=\"font-size:30px;\">%H:%M:%S</span><br><span style=\"font-size:12px;\">%A, %d.%m.%Y</span></div>");
+    formates[QLatin1String("%dbclock%")] = Format();
+    formates[QLatin1String("%dbclock%")].title = i18n("dbClock");
+    formates[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:0 0 5px 5px; background:none;\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div>");
+    formates[QLatin1String("%dbclock2%")] = Format();
+    formates[QLatin1String("%dbclock2%")].title = i18n("dbClock with reflection");
+    formates[QLatin1String("%dbclock2%")].html = QLatin1String("<div style=\"height:50px; background:none;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div></div>");
+    formates[QLatin1String("%calendar%")] = Format();
+    formates[QLatin1String("%calendar%")].title = i18n("Calendar");
+    formates[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; background:none; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%A<br /><span style=\"font-size:130px; line-height:140px;\">%e</span><br /><span style=\"font-size:35px;\">%B %Y</span><br />%h<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formates[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
+
+    if (formates.contains(name)) {
+        return formates[name];
+    }
+
+    if (config().group("Formates").groupList().contains(name)) {
+        KConfigGroup formatConfiguration = config().group("Formates").group(name);
+        Format format;
+        format.title = formatConfiguration.readEntry("title", i18n("Custom"));
+        format.html = formatConfiguration.readEntry("html", QString());
+        format.css = formatConfiguration.readEntry("css", QString());
+
+        if (!format.html.isEmpty()) {
+            return format;
+        }
+    }
+
+    return formates[QLatin1String("%default%")];
+}
+
+QStringList AdjustableClock::formates(bool all) const
+{
+    QStringList formates;
+    formates << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%dbclock2%") << QLatin1String("%calendar%");
+
+    if (all) {
+        const int count = formates.count();
+
+        QStringList userFormates = config().group("Formates").groupList();
+
+        for (int i = 0; i < userFormates.count(); ++i) {
+            if (!formates.contains(userFormates.at(i))) {
+                formates.append(userFormates.at(i));
+            }
+        }
+
+        if (count != formates.count()) {
+            formates.insert(count,  QLatin1String(""));
+        }
+    }
+
+    return formates;
 }
 
 QList<QAction*> AdjustableClock::contextualActions()

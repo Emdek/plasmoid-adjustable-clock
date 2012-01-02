@@ -8,5 +8,5 @@ Features:
 - possibility to use rich text editor or edit source (HTML and CSS) to adjust format;
 - fast copy to clipboard of adjustable date and time format after middle mouse click on the clock or activation of keyboard shortcut;
 - context menu with actions to copy formatted (adjustable format) date and time to clipboard;
-- adjustable tool tip (hidden option);
+- adjustable tool tip (hidden option, toolTipSyntax key);
 - standard clock calendar.

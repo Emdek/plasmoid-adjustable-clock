@@ -35,6 +35,13 @@
 
 enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, SunsetFeature = 16, SunriseFeature = 32 };
 
+struct Format
+{
+    QString title;
+    QString html;
+    QString css;
+};
+
 class AdjustableClock : public ClockApplet
 {
     Q_OBJECT
@@ -43,20 +50,22 @@ public:
     AdjustableClock(QObject *parent, const QVariantList &args);
 
     void init();
-    void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
 
 protected:
     void constraintsEvent(Plasma::Constraints constraints);
     void resizeEvent(QGraphicsSceneResizeEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void timerEvent(QTimerEvent *event);
+    void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
     void createClockConfigurationInterface(KConfigDialog *parent);
     void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
     void connectSource(const QString &timezone);
-    void setText(const QString &text);
+    void setHtml(const QString &html, const QString &css);
     QDateTime currentDateTime() const;
-    QString holiday() const;
     QString formatDateTime(const QDateTime dateTime, const QString &format) const;
+    QString holiday() const;
+    Format format(QString name = QString()) const;
+    QStringList formates(bool all = true) const;
     QList<QAction*> contextualActions();
 
 protected slots:
@@ -95,15 +104,13 @@ protected slots:
 
 private:
     QWebPage m_page;
-    QString m_timeFormat;
     QString m_dateTimeString;
     QString m_timeZoneAbbreviation;
     QString m_timeZoneOffset;
     QString m_holiday;
-    QString m_currentText;
+    QString m_currentHtml;
     QStringList m_clipboardFormats;
-    QStringList m_timeFormatStrings;
-    QStringList m_timeFormatNames;
+    Format m_format;
     QDateTime m_dateTime;
     QTime m_sunrise;
     QTime m_sunset;

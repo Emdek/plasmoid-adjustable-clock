@@ -1,3 +1,8 @@
+3.0 (15.01.2012):
+- cleaned up clock syntax editor;
+- improved syntaxes storage;
+- some code cleanups and fixes.
+
 2.8 (01.01.2012):
 - allow to disable tool tip by setting empty value for toolTipFormat;
 - allow to display holiday string (%h);
