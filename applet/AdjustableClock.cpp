@@ -636,32 +636,32 @@ void AdjustableClock::triggerAction()
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
 
         switch (actions[actionName]) {
-            case QWebPage::ToggleBold:
-                cursor.insertText(QLatin1String("<b>") + cursor.selectedText() + QLatin1String("</b>"));
+        case QWebPage::ToggleBold:
+            cursor.insertText(QLatin1String("<b>") + cursor.selectedText() + QLatin1String("</b>"));
 
-                break;
-            case QWebPage::ToggleItalic:
-                cursor.insertText(QLatin1String("<i>") + cursor.selectedText() + QLatin1String("</i>"));
+            break;
+        case QWebPage::ToggleItalic:
+            cursor.insertText(QLatin1String("<i>") + cursor.selectedText() + QLatin1String("</i>"));
 
-                break;
-            case QWebPage::ToggleUnderline:
-                cursor.insertText(QLatin1String("<u>") + cursor.selectedText() + QLatin1String("</u>"));
+            break;
+        case QWebPage::ToggleUnderline:
+            cursor.insertText(QLatin1String("<u>") + cursor.selectedText() + QLatin1String("</u>"));
 
-                break;
-            case QWebPage::AlignLeft:
-                cursor.insertText(QLatin1String("<div style=\"text-align:left;\">") + cursor.selectedText() + QLatin1String("</div>"));
+            break;
+        case QWebPage::AlignLeft:
+            cursor.insertText(QLatin1String("<div style=\"text-align:left;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-                break;
-            case QWebPage::AlignCenter:
-                cursor.insertText(QLatin1String("<div style=\"text-align:center;\">") + cursor.selectedText() + QLatin1String("</div>"));
+            break;
+        case QWebPage::AlignCenter:
+            cursor.insertText(QLatin1String("<div style=\"text-align:center;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-                break;
-            case QWebPage::AlignRight:
-                cursor.insertText(QLatin1String("<div style=\"text-align:right;\">") + cursor.selectedText() + QLatin1String("</div>"));
+            break;
+        case QWebPage::AlignRight:
+            cursor.insertText(QLatin1String("<div style=\"text-align:right;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-                break;
-            default:
-                return;
+            break;
+        default:
+            return;
         }
 
         m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
@@ -1101,157 +1101,179 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
     QString string;
     const int length = (format.length() - 1);
 
-    for (int index = 0; index < length; ++index) {
-        if (format.at(index) == QLatin1Char('%') && format.at(index + 1) != QLatin1Char('%')) {
-            QString placeholderString;
-            int charNumber = -1;
+    for (int i = 0; i < length; ++i) {
+        if (format.at(i) == QLatin1Char('%') && format.at(i + 1) != QLatin1Char('%')) {
+            QString substitution;
+            QPair<int, int> range = qMakePair(-1, -1);
 
-            ++index;
+            ++i;
 
-            if (format.at(index).isDigit()) {
+            if (format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) {
                 QString numberString;
 
-                while (format.at(index).isDigit()) {
-                    numberString.append(format.at(index));
+                while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
+                    numberString.append(format.at(i));
 
-                    ++index;
+                    ++i;
                 }
 
-                charNumber = numberString.toInt();
+                range.first = numberString.toInt();
+
+                if (format.at(i) == QLatin1Char(':')) {
+                    numberString = QString();
+
+                    ++i;
+
+                    while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
+                        numberString.append(format.at(i));
+
+                        ++i;
+                    }
+
+                    range.second = numberString.toInt();
+                }
             }
 
-            switch (format.at(index).unicode()) {
+            switch (format.at(i).unicode()) {
             case 'a': // weekday, short form
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::ShortName));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::ShortName));
                 break;
             case 'A': // weekday, long form
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::LongName));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::LongName));
                 break;
             case 'b': // month, short form
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::ShortName));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::ShortName));
                 break;
             case 'B': // month, long form
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::LongName));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::LongName));
                 break;
             case 'c': // date and time format, short
-                placeholderString.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::LongDate));
+                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::LongDate));
                 break;
             case 'C': // date and time format, long
-                placeholderString.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::ShortDate));
+                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::ShortDate));
                 break;
             case 'd': // day of the month, two digits
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::LongNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::LongNumber));
                 break;
             case 'e': // day of the month, one digit
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::ShortNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::ShortNumber));
                 break;
             case 'f': // date format, short
-                placeholderString.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::ShortDate));
+                substitution.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::ShortDate));
                 break;
             case 'F': // time format, short
-                placeholderString.append(KGlobal::locale()->formatTime(dateTime.time(), false));
+                substitution.append(KGlobal::locale()->formatTime(dateTime.time(), false));
                 break;
             case 'g': // timezone city
-                placeholderString.append(prettyTimezone());
+                substitution.append(prettyTimezone());
                 break;
             case 'h': // holiday
-                placeholderString.append(m_holiday);
+                substitution.append(m_holiday);
                 break;
             case 'H': // hour, 24h format
                 if (dateTime.time().hour() < 10) {
-                    placeholderString.append(QLatin1Char('0'));
+                    substitution.append(QLatin1Char('0'));
                 }
 
-                placeholderString.append(QString::number(dateTime.time().hour()));
+                substitution.append(QString::number(dateTime.time().hour()));
                 break;
             case 'I': // hour, 12h format
                 if ((((dateTime.time().hour() + 11) % 12) + 1) < 10) {
-                    placeholderString.append(QLatin1Char('0'));
+                    substitution.append(QLatin1Char('0'));
                 }
 
-                placeholderString.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
+                substitution.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
                 break;
             case 'j': // day of the year
-                placeholderString.append(QString::number(calendar()->dayOfYear(dateTime.date())));
+                substitution.append(QString::number(calendar()->dayOfYear(dateTime.date())));
                 break;
             case 'k': // hour, 24h format, one digit
-                placeholderString.append(QString::number(dateTime.time().hour()));
+                substitution.append(QString::number(dateTime.time().hour()));
                 break;
             case 'l': // hour, 12h format, one digit
-                placeholderString.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
+                substitution.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
                 break;
             case 'm': // month, two digits
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::LongNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::LongNumber));
                 break;
             case 'M': // minute, two digits
                 if (dateTime.time().minute() < 10) {
-                    placeholderString.append(QLatin1Char('0'));
+                    substitution.append(QLatin1Char('0'));
                 }
 
-                placeholderString.append(QString::number(dateTime.time().minute()));
+                substitution.append(QString::number(dateTime.time().minute()));
                 break;
             case 'n': // month, one digit
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::ShortNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::ShortNumber));
                 break;
             case 'o': // sunrise time
-                placeholderString.append(KGlobal::locale()->formatTime(m_sunrise, false));
+                substitution.append(KGlobal::locale()->formatTime(m_sunrise, false));
                 break;
             case 'O': // sunset time
-                placeholderString.append(KGlobal::locale()->formatTime(m_sunset, false));
+                substitution.append(KGlobal::locale()->formatTime(m_sunset, false));
                 break;
             case 'p': // pm or am
-                placeholderString.append((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
+                substitution.append((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
                 break;
             case 's': // second, one digit
-                placeholderString.append(QString::number(dateTime.time().second()));
+                substitution.append(QString::number(dateTime.time().second()));
                 break;
             case 'S': // second, two digits
                 if (dateTime.time().second() < 10) {
-                    placeholderString.append(QLatin1Char('0'));
+                    substitution.append(QLatin1Char('0'));
                 }
 
-                placeholderString.append(QString::number(dateTime.time().second()));
+                substitution.append(QString::number(dateTime.time().second()));
                 break;
             case 't': // UNIX timestamp
-                placeholderString.append(QString::number(dateTime.toTime_t()));
+                substitution.append(QString::number(dateTime.toTime_t()));
                 break;
             case 'w': // day of week
-                placeholderString.append(QString::number(calendar()->dayOfWeek(dateTime.date())));
+                substitution.append(QString::number(calendar()->dayOfWeek(dateTime.date())));
                 break;
             case 'W': // week number
             case 'U':
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Week, KLocale::ShortNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Week, KLocale::ShortNumber));
                 break;
             case 'x': // date format, long
-                placeholderString.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::LongDate));
+                substitution.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::LongDate));
                 break;
             case 'X': // time format, long
-                placeholderString.append(KGlobal::locale()->formatTime(dateTime.time(), true));
+                substitution.append(KGlobal::locale()->formatTime(dateTime.time(), true));
                 break;
             case 'Y': // year, four digits
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::LongNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::LongNumber));
                 break;
             case 'y': // year, two digits
-                placeholderString.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::ShortNumber));
+                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::ShortNumber));
                 break;
             case 'Z': // timezone abbreviation
-                placeholderString.append(m_timeZoneAbbreviation);
+                substitution.append(m_timeZoneAbbreviation);
                 break;
             case 'z': // timezone offset
-                placeholderString.append(m_timeZoneOffset);
+                substitution.append(m_timeZoneOffset);
                 break;
             default:
-                placeholderString.append(format.at(index));
+                substitution.append(format.at(i));
                 break;
             }
 
-            if (charNumber >= 0) {
-                string.append(placeholderString.at((charNumber >= placeholderString.count()) ? (placeholderString.count() - 1) : charNumber));
+            if (range.first != -1 || range.second != -1) {
+                if (range.first < 0) {
+                    range.first = (substitution.length() + range.first);
+                }
+
+                if (range.second < -1) {
+                    range.second = (substitution.length() + range.second);
+                }
+
+                string.append(substitution.mid(range.first, range.second));
             } else {
-                string.append(placeholderString);
+                string.append(substitution);
             }
         } else {
-            string.append(format.at(index));
+            string.append(format.at(i));
         }
     }
 

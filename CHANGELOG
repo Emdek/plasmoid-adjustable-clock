@@ -1,6 +1,7 @@
 3.0 (15.01.2012):
 - cleaned up clock syntax editor;
 - allow to toggle use of standard background;
+- allow to use possessive form of month name (using : infix);
 - improved formats storage;
 - some code cleanups and fixes.
 
