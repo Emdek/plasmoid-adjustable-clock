@@ -1087,9 +1087,8 @@ void AdjustableClock::updateTheme()
 QDateTime AdjustableClock::currentDateTime() const
 {
     Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone());
-    QDateTime dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 
-    return dateTime;
+    return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
 QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format) const
