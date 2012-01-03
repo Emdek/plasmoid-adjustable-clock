@@ -70,7 +70,7 @@ protected:
     QList<QAction*> contextualActions();
 
 protected slots:
-    void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data);
+    void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool force = false);
     void clockConfigChanged();
     void clockConfigAccepted();
     void copyToClipboard();

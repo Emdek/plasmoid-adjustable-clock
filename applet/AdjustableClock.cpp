@@ -80,22 +80,26 @@ void AdjustableClock::init()
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
-void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
+void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
 {
     Q_UNUSED(source)
 
-    m_dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
+    m_dateTime = data[QLatin1String("DateTime")].toDateTime();
 
-    if (m_features & HolidaysFeature && m_dateTime.time().minute() == 0 && (!(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) || m_dateTime.time().second() == 0)) {
+    if (force || (m_features & HolidaysFeature && m_dateTime.time().minute() == 0 && (!(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) || m_dateTime.time().second() == 0))) {
         m_holiday = holiday();
     }
 
-    if (m_features & SunriseFeature) {
-        m_sunrise = data[QLatin1String("Sunrise")].toTime();
-    }
+    if (force || ((m_features & SunriseFeature || m_features & SunsetFeature) && m_dateTime.time().minute() == 0 && m_dateTime.time().second() == 0)) {
+        Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
 
-    if (m_features & SunsetFeature) {
-        m_sunset = data[QLatin1String("Sunset")].toTime();
+        if (m_features & SunriseFeature) {
+            m_sunrise = data[QLatin1String("Sunrise")].toDateTime().time();
+        }
+
+        if (m_features & SunsetFeature) {
+            m_sunset = data[QLatin1String("Sunset")].toDateTime().time();
+        }
     }
 
     setHtml(evaluateFormat(m_dateTime, format().html), format().css);
@@ -311,8 +315,6 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
 
 void AdjustableClock::clockConfigChanged()
 {
-    m_holiday = holiday();
-
     setHtml(evaluateFormat(currentDateTime(), format().html), format().css);
 
     updateSize();
@@ -403,7 +405,7 @@ void AdjustableClock::connectSource(const QString &timezone)
 
     const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
 
-    dataEngine(QLatin1String("time"))->connectSource((timezone + QLatin1String((features & SecondsClockFeature || features & SecondsToolTipFeature) ? "|Solar" : "")), this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
+    dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
     m_timeZoneAbbreviation = QString::fromLatin1(KSystemTimeZones::zone(timezone).abbreviation(QDateTime::currentDateTime().toUTC()));
 
@@ -433,6 +435,7 @@ void AdjustableClock::connectSource(const QString &timezone)
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
+    dataUpdated(QString(), dataEngine(QLatin1String("time"))->query(currentTimezone()), true);
 }
 
 void AdjustableClock::copyToClipboard()
@@ -878,7 +881,7 @@ void AdjustableClock::updateClipboardMenu()
 
 void AdjustableClock::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
 {
-    dataEngine(QLatin1String("time"))->disconnectSource((oldTimezone + QLatin1String((m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) ? "|Solar" : "")), this);
+    dataEngine(QLatin1String("time"))->disconnectSource(oldTimezone, this);
 
     connectSource(newTimezone);
 }
@@ -1088,7 +1091,7 @@ QDateTime AdjustableClock::currentDateTime() const
 {
     Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone());
 
-    return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
+    return data[QLatin1String("DateTime")].toDateTime();
 }
 
 QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format) const
