@@ -301,7 +301,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int, int)), this, SLOT(updateRow(int, int)));
 
-    const int currentFormat = m_appearanceUi.formatComboBox->findData(config().readEntry("format", "default"));
+    const int currentFormat = m_appearanceUi.formatComboBox->findData(config().readEntry("format", "%default%"));
 
     m_appearanceUi.formatComboBox->setCurrentIndex(currentFormat);
 
@@ -471,7 +471,7 @@ void AdjustableClock::changeFormat()
         QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
         fontFamily.setMinimal(true);
 
-        QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+        QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
 
         QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
         css.setMinimal(true);
