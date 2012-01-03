@@ -1,6 +1,7 @@
 3.0 (15.01.2012):
 - cleaned up clock syntax editor;
-- improved syntaxes storage;
+- allow to toggle use of standard background;
+- improved formats storage;
 - some code cleanups and fixes.
 
 2.8 (01.01.2012):

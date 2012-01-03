@@ -40,6 +40,7 @@ struct Format
     QString title;
     QString html;
     QString css;
+    bool background;
 };
 
 class AdjustableClock : public ClockApplet
@@ -65,7 +66,7 @@ protected:
     QString formatDateTime(const QDateTime dateTime, const QString &format) const;
     QString holiday() const;
     Format format(QString name = QString()) const;
-    QStringList formates(bool all = true) const;
+    QStringList formats(bool all = true) const;
     QList<QAction*> contextualActions();
 
 protected slots:

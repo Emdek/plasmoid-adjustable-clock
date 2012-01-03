@@ -151,6 +151,22 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="backgroundButton">
+       <property name="toolTip">
+        <string>Use Standard Background</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>

@@ -71,8 +71,6 @@ void AdjustableClock::init()
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    m_holiday = holiday();
-
     updateTheme();
     connectSource(currentTimezone());
     constraintsEvent(Plasma::SizeConstraint);
@@ -214,17 +212,18 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
         }
     }
 
-    const QStringList formates = this->formates();
+    const QStringList formats = this->formats();
 
-    for (int i = 0; i < formates.count(); ++i) {
-        if (formates.at(i).isEmpty()) {
+    for (int i = 0; i < formats.count(); ++i) {
+        if (formats.at(i).isEmpty()) {
             m_appearanceUi.formatComboBox->insertSeparator(i);
         } else {
-            Format format = this->format(formates.at(i));
+            Format format = this->format(formats.at(i));
 
-            m_appearanceUi.formatComboBox->addItem(format.title, formates.at(i));
+            m_appearanceUi.formatComboBox->addItem(format.title, formats.at(i));
             m_appearanceUi.formatComboBox->setItemData(i, format.html, (Qt::UserRole + 1));
             m_appearanceUi.formatComboBox->setItemData(i, format.css, (Qt::UserRole + 2));
+            m_appearanceUi.formatComboBox->setItemData(i, format.background, (Qt::UserRole + 3));
         }
     }
 
@@ -244,6 +243,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     m_appearanceUi.justifyLeftButton->setIcon(KIcon(QLatin1String("format-justify-left")));
     m_appearanceUi.justifyCenterButton->setIcon(KIcon(QLatin1String("format-justify-center")));
     m_appearanceUi.justifyRightButton->setIcon(KIcon(QLatin1String("format-justify-right")));
+    m_appearanceUi.backgroundButton->setIcon(KIcon(QLatin1String("games-config-background")));
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
@@ -292,6 +292,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertRow()));
@@ -323,10 +324,10 @@ void AdjustableClock::clockConfigAccepted()
 
     killTimer(m_controlsTimer);
 
-    config().deleteGroup("Formates");
+    config().deleteGroup("Formats");
 
-    KConfigGroup formatesConfiguration = config().group("Formates");
-    const int builInFormates = formates(false).count();
+    KConfigGroup formatsConfiguration = config().group("Formats");
+    const int builInFormats = formats(false).count();
 
     for (int i = 0; i < m_appearanceUi.formatComboBox->count(); ++i) {
         if (m_appearanceUi.formatComboBox->itemText(i).isEmpty()) {
@@ -337,8 +338,9 @@ void AdjustableClock::clockConfigAccepted()
         format.title = m_appearanceUi.formatComboBox->itemText(i);
         format.html = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 1)).toString();
         format.css = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 2)).toString();
+        format.background = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 3)).toBool();
 
-        if (i < builInFormates) {
+        if (i < builInFormats) {
             Format existing = this->format(m_appearanceUi.formatComboBox->itemData(i).toString());
 
             if (format.html == existing.html && format.css == existing.css) {
@@ -346,10 +348,11 @@ void AdjustableClock::clockConfigAccepted()
             }
         }
 
-        KConfigGroup formatConfiguration = formatesConfiguration.group(m_appearanceUi.formatComboBox->itemData(i).toString());
+        KConfigGroup formatConfiguration = formatsConfiguration.group(m_appearanceUi.formatComboBox->itemData(i).toString());
         formatConfiguration.writeEntry("title", format.title);
         formatConfiguration.writeEntry("html", format.html);
         formatConfiguration.writeEntry("css", format.css);
+        formatConfiguration.writeEntry("background", format.background);
     }
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
@@ -366,10 +369,13 @@ void AdjustableClock::clockConfigAccepted()
 void AdjustableClock::connectSource(const QString &timezone)
 {
     QRegExp formatWithSeconds = QRegExp(QLatin1String("%\\d*(S|c|C|t|F|X)"));
-    const QString format = this->format().html;
     QFlags<ClockFeature> features;
 
-    if (format.contains(formatWithSeconds)) {
+    m_format.html = QString();
+
+    const Format format = this->format();
+
+    if (format.html.contains(formatWithSeconds)) {
         features |= SecondsClockFeature;
     }
 
@@ -377,19 +383,19 @@ void AdjustableClock::connectSource(const QString &timezone)
         features |= SecondsToolTipFeature;
     }
 
-    if (format.contains(QLatin1String("%h"))) {
+    if (format.html.contains(QLatin1String("%h"))) {
         features |= HolidaysFeature;
     }
 
-    if (format.contains(QLatin1String("%o"))) {
+    if (format.html.contains(QLatin1String("%o"))) {
         features |= SunsetFeature;
     }
 
-    if (format.contains(QLatin1String("%O"))) {
+    if (format.html.contains(QLatin1String("%O"))) {
         features |= SunriseFeature;
     }
 
-    if (QRegExp(QLatin1String("<[a-z].*\\sstyle=('|\").*background(-image)?\\s*:\\s*none.*('|\").*>"), Qt::CaseInsensitive).exactMatch(format)) {
+    if (!format.background) {
         features |= NoBackgroundFeature;
     }
 
@@ -425,6 +431,7 @@ void AdjustableClock::connectSource(const QString &timezone)
 
     m_timeZoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timeZoneOffset);
 
+    constraintsEvent(Plasma::SizeConstraint);
     updateSize();
 }
 
@@ -448,13 +455,16 @@ void AdjustableClock::loadFormat(int index)
 {
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 
     m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString());
     m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString());
-    m_appearanceUi.removeButton->setEnabled(index >= formates(false).count());
+    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 3)).toBool());
+    m_appearanceUi.removeButton->setEnabled(index >= formats(false).count());
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 
     changeFormat();
 }
@@ -462,6 +472,7 @@ void AdjustableClock::loadFormat(int index)
 void AdjustableClock::changeFormat()
 {
     Format format;
+    format.background = m_appearanceUi.backgroundButton->isChecked();
 
     if (sender() == m_appearanceUi.webView->page()) {
         QRegExp fontSize = QRegExp(QLatin1String(" class=\"Apple-style-span\""));
@@ -487,6 +498,7 @@ void AdjustableClock::changeFormat()
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 
     if (sender() == m_appearanceUi.webView->page()) {
         m_appearanceUi.htmlTextEdit->setPlainText(format.html);
@@ -501,16 +513,18 @@ void AdjustableClock::changeFormat()
 
     const int index = m_appearanceUi.formatComboBox->currentIndex();
 
-    if (index < formates(false).count() && (m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString() != format.css)) {
+    if (index < formats(false).count() && (m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 3)).toBool() != format.background)) {
         addFormat(true);
     }
 
     m_appearanceUi.formatComboBox->setItemData(index, format.html, (Qt::UserRole + 1));
     m_appearanceUi.formatComboBox->setItemData(index, format.css, (Qt::UserRole + 2));
+    m_appearanceUi.formatComboBox->setItemData(index, format.background, (Qt::UserRole + 3));
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 }
 
 void AdjustableClock::addFormat(bool automatically)
@@ -552,15 +566,15 @@ void AdjustableClock::addFormat(bool automatically)
     }
 
     int index = (m_appearanceUi.formatComboBox->currentIndex() + 1);
-    const int builInFormates = formates(false).count();
+    const int builInFormats = formats(false).count();
 
-    if (index <= builInFormates) {
+    if (index <= builInFormats) {
         index = m_appearanceUi.formatComboBox->count();
     }
 
     disconnect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
 
-    if (index == builInFormates && builInFormates == m_appearanceUi.formatComboBox->count())
+    if (index == builInFormats && builInFormats == m_appearanceUi.formatComboBox->count())
     {
         m_appearanceUi.formatComboBox->insertSeparator(index);
 
@@ -576,7 +590,7 @@ void AdjustableClock::addFormat(bool automatically)
 
 void AdjustableClock::removeFormat()
 {
-    if (m_appearanceUi.formatComboBox->currentIndex() > formates(false).count()) {
+    if (m_appearanceUi.formatComboBox->currentIndex() > formats(false).count()) {
         m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->currentIndex());
 
         if (m_appearanceUi.formatComboBox->itemData((m_appearanceUi.formatComboBox->count() - 1), Qt::DisplayRole).toString().isEmpty()) {
@@ -1271,71 +1285,79 @@ Format AdjustableClock::format(QString name) const
         name = config().readEntry("format", "%default%");
     }
 
-    QHash<QString, Format> formates;
-    formates[QLatin1String("%default%")] = Format();
-    formates[QLatin1String("%default%")].title = i18n("Default");
-    formates[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%H:%M:%S</big>\n<small>%d.%m.%Y</small></div>");
-    formates[QLatin1String("%flat%")] = Format();
-    formates[QLatin1String("%flat%")].title = i18n("Flat");
-    formates[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%H:%M:%S</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%m.%Y</small></div>");
-    formates[QLatin1String("%simple%")] = Format();
-    formates[QLatin1String("%simple%")].title = i18n("Simple");
-    formates[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%H:%M</div>");
-    formates[QLatin1String("%verbose%")] = Format();
-    formates[QLatin1String("%verbose%")].title = i18n("Verbose");
-    formates[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85; background:none;\"><span style=\"font-size:30px;\">%H:%M:%S</span><br><span style=\"font-size:12px;\">%A, %d.%m.%Y</span></div>");
-    formates[QLatin1String("%dbclock%")] = Format();
-    formates[QLatin1String("%dbclock%")].title = i18n("dbClock");
-    formates[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:0 0 5px 5px; background:none;\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div>");
-    formates[QLatin1String("%dbclock2%")] = Format();
-    formates[QLatin1String("%dbclock2%")].title = i18n("dbClock with reflection");
-    formates[QLatin1String("%dbclock2%")].html = QLatin1String("<div style=\"height:50px; background:none;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div></div>");
-    formates[QLatin1String("%calendar%")] = Format();
-    formates[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formates[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; background:none; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%A<br /><span style=\"font-size:130px; line-height:140px;\">%e</span><br /><span style=\"font-size:35px;\">%B %Y</span><br />%h<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
-    formates[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
+    QHash<QString, Format> formats;
+    formats[QLatin1String("%default%")] = Format();
+    formats[QLatin1String("%default%")].title = i18n("Default");
+    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%H:%M:%S</big>\n<small>%d.%m.%Y</small></div>");
+    formats[QLatin1String("%default%")].background = true;
+    formats[QLatin1String("%flat%")] = Format();
+    formats[QLatin1String("%flat%")].title = i18n("Flat");
+    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%H:%M:%S</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%m.%Y</small></div>");
+    formats[QLatin1String("%flat%")].background = true;
+    formats[QLatin1String("%simple%")] = Format();
+    formats[QLatin1String("%simple%")].title = i18n("Simple");
+    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%H:%M</div>");
+    formats[QLatin1String("%simple%")].background = true;
+    formats[QLatin1String("%verbose%")] = Format();
+    formats[QLatin1String("%verbose%")].title = i18n("Verbose");
+    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85;\"><span style=\"font-size:30px;\">%H:%M:%S</span><br><span style=\"font-size:12px;\">%A, %d.%m.%Y</span></div>");
+    formats[QLatin1String("%verbose%")].background = false;
+    formats[QLatin1String("%dbclock%")] = Format();
+    formats[QLatin1String("%dbclock%")].title = i18n("dbClock");
+    formats[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:0 0 5px 5px;\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div>");
+    formats[QLatin1String("%dbclock%")].background = false;
+    formats[QLatin1String("%dbclock2%")] = Format();
+    formats[QLatin1String("%dbclock2%")].title = i18n("dbClock with reflection");
+    formats[QLatin1String("%dbclock2%")].html = QLatin1String("<div style=\"height:50px;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div></div>");
+    formats[QLatin1String("%dbclock2%")].background = false;
+    formats[QLatin1String("%calendar%")] = Format();
+    formats[QLatin1String("%calendar%")].title = i18n("Calendar");
+    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%A<br /><span style=\"font-size:130px; line-height:140px;\">%e</span><br /><span style=\"font-size:35px;\">%B %Y</span><br />%h<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
+    formats[QLatin1String("%calendar%")].background = false;
 
-    if (formates.contains(name)) {
-        return formates[name];
+    if (formats.contains(name)) {
+        return formats[name];
     }
 
-    if (config().group("Formates").groupList().contains(name)) {
-        KConfigGroup formatConfiguration = config().group("Formates").group(name);
+    if (config().group("Formats").groupList().contains(name)) {
+        KConfigGroup formatConfiguration = config().group("Formats").group(name);
         Format format;
         format.title = formatConfiguration.readEntry("title", i18n("Custom"));
         format.html = formatConfiguration.readEntry("html", QString());
         format.css = formatConfiguration.readEntry("css", QString());
+        format.background = formatConfiguration.readEntry("background", true);
 
         if (!format.html.isEmpty()) {
             return format;
         }
     }
 
-    return formates[QLatin1String("%default%")];
+    return formats[QLatin1String("%default%")];
 }
 
-QStringList AdjustableClock::formates(bool all) const
+QStringList AdjustableClock::formats(bool all) const
 {
-    QStringList formates;
-    formates << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%dbclock2%") << QLatin1String("%calendar%");
+    QStringList formats;
+    formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%dbclock2%") << QLatin1String("%calendar%");
 
     if (all) {
-        const int count = formates.count();
+        const int count = formats.count();
 
-        QStringList userFormates = config().group("Formates").groupList();
+        QStringList userFormats = config().group("Formats").groupList();
 
-        for (int i = 0; i < userFormates.count(); ++i) {
-            if (!formates.contains(userFormates.at(i))) {
-                formates.append(userFormates.at(i));
+        for (int i = 0; i < userFormats.count(); ++i) {
+            if (!formats.contains(userFormats.at(i))) {
+                formats.append(userFormats.at(i));
             }
         }
 
-        if (count != formates.count()) {
-            formates.insert(count,  QLatin1String(""));
+        if (count != formats.count()) {
+            formats.insert(count,  QLatin1String(""));
         }
     }
 
-    return formates;
+    return formats;
 }
 
 QList<QAction*> AdjustableClock::contextualActions()
