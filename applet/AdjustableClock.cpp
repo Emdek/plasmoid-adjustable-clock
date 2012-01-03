@@ -529,39 +529,39 @@ void AdjustableClock::changeFormat()
 
 void AdjustableClock::addFormat(bool automatically)
 {
-    QString formatName = m_appearanceUi.formatComboBox->itemText(m_appearanceUi.formatComboBox->currentIndex());
+    QString title = m_appearanceUi.formatComboBox->itemText(m_appearanceUi.formatComboBox->currentIndex());
 
     if (automatically) {
         int i = 2;
 
-        while (m_appearanceUi.formatComboBox->findText(QString(QLatin1String("%1 %2")).arg(formatName).arg(i)) >= 0) {
+        while (m_appearanceUi.formatComboBox->findText(QString(QLatin1String("%1 %2")).arg(title).arg(i)) >= 0) {
             ++i;
         }
 
-        formatName = QString(QLatin1String("%1 %2")).arg(formatName).arg(i);
+        title = QString(QLatin1String("%1 %2")).arg(title).arg(i);
     } else {
         bool ok;
 
-        formatName = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), formatName, &ok);
+        title = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), title, &ok);
 
         if (!ok) {
             return;
         }
     }
 
-    if (m_appearanceUi.formatComboBox->findText(formatName) >= 0) {
+    if (m_appearanceUi.formatComboBox->findText(title) >= 0) {
         KMessageBox::error(m_appearanceUi.formatComboBox, i18n("A format with this name already exists."));
 
         return;
     }
 
-    if (m_appearanceUi.formatComboBox->findText(formatName) >= 0) {
+    if (title.startsWith(QLatin1Char('%')) && title.endsWith(QLatin1Char('%'))) {
         KMessageBox::error(m_appearanceUi.formatComboBox, i18n("Invalid format name."));
 
         return;
     }
 
-    if (formatName.isEmpty()) {
+    if (title.isEmpty()) {
         return;
     }
 
@@ -581,7 +581,7 @@ void AdjustableClock::addFormat(bool automatically)
         ++index;
     }
 
-    m_appearanceUi.formatComboBox->insertItem(index, formatName, m_appearanceUi.htmlTextEdit->toPlainText());
+    m_appearanceUi.formatComboBox->insertItem(index, title, m_appearanceUi.htmlTextEdit->toPlainText());
     m_appearanceUi.formatComboBox->setCurrentIndex(index);
     m_appearanceUi.removeButton->setEnabled(true);
 
