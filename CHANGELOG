@@ -1,7 +1,8 @@
 3.0 (15.01.2012):
 - cleaned up clock syntax editor;
 - allow to toggle use of standard background;
-- allow to use possessive form of month name (using : infix);
+- allow to display only characters range of substitution;
+- allow to override mode of possessive form of month name (using + or - infix);
 - improved formats storage;
 - some code cleanups and fixes.
 

@@ -1100,6 +1100,8 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
 
     QString string;
     const int length = (format.length() - 1);
+    const bool defaultMonthPossessive = KGlobal::locale()->dateMonthNamePossessive();
+    bool monthPossessive = defaultMonthPossessive;
 
     for (int i = 0; i < length; ++i) {
         if (format.at(i) == QLatin1Char('%') && format.at(i + 1) != QLatin1Char('%')) {
@@ -1108,7 +1110,7 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
 
             ++i;
 
-            if (format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) {
+            if (format.at(i).isDigit() || (format.at(i) == QLatin1Char('-') && format.at(i + 1).isDigit())) {
                 QString numberString;
 
                 while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
@@ -1134,6 +1136,18 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
                 }
             }
 
+            if (format.at(i) == QLatin1Char('+')) {
+                ++i;
+
+                monthPossessive = true;
+            } else if (format.at(i) == QLatin1Char('-')) {
+                ++i;
+
+                monthPossessive = false;
+            } else {
+                monthPossessive = defaultMonthPossessive;
+            }
+
             switch (format.at(i).unicode()) {
             case 'a': // weekday, short form
                 substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::ShortName));
@@ -1142,16 +1156,16 @@ QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString 
                 substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::LongName));
                 break;
             case 'b': // month, short form
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::ShortName));
+                substitution.append(calendar()->monthName(dateTime.date(), (monthPossessive?KCalendarSystem::ShortNamePossessive:KCalendarSystem::ShortName)));
                 break;
             case 'B': // month, long form
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::MonthName, KLocale::LongName));
+                substitution.append(calendar()->monthName(dateTime.date(), (monthPossessive?KCalendarSystem::LongNamePossessive:KCalendarSystem::LongName)));
                 break;
             case 'c': // date and time format, short
-                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::LongDate));
+                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::ShortDate));
                 break;
             case 'C': // date and time format, long
-                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::ShortDate));
+                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::LongDate));
                 break;
             case 'd': // day of the month, two digits
                 substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::LongNumber));
