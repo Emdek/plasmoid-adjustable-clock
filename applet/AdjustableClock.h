@@ -63,7 +63,7 @@ protected:
     void connectSource(const QString &timezone);
     void setHtml(const QString &html, const QString &css);
     QDateTime currentDateTime() const;
-    QString formatDateTime(const QDateTime dateTime, const QString &format) const;
+    QString evaluateFormat(const QDateTime dateTime, const QString &format) const;
     QString holiday() const;
     Format format(QString name = QString()) const;
     QStringList formats(bool all = true) const;

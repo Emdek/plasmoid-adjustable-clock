@@ -98,7 +98,7 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
         m_sunset = data[QLatin1String("Sunset")].toTime();
     }
 
-    setHtml(formatDateTime(m_dateTime, format().html), format().css);
+    setHtml(evaluateFormat(m_dateTime, format().html), format().css);
 
     if (Plasma::ToolTipManager::self()->isVisible(this)) {
         updateToolTipContent();
@@ -207,7 +207,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
         if (placeholders.at(i).first == QLatin1Char(0)) {
             placeholdersMenu->addTitle(placeholders.at(i).second);
         } else {
-            QAction *action = placeholdersMenu->addAction(QString(QLatin1String("%1 (%%2)\t%3")).arg(placeholders.at(i).second).arg(placeholders.at(i).first).arg(formatDateTime(m_dateTime, QString(QLatin1Char('%')).append(placeholders.at(i).first))));
+            QAction *action = placeholdersMenu->addAction(QString(QLatin1String("%1 (%%2)\t%3")).arg(placeholders.at(i).second).arg(placeholders.at(i).first).arg(evaluateFormat(m_dateTime, QString(QLatin1Char('%')).append(placeholders.at(i).first))));
             action->setData(QVariant(placeholders.at(i).first));
         }
     }
@@ -255,7 +255,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
         m_clipboardUi.clipboardActionsTable->insertRow(row);
         m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
 
-        preview = formatDateTime(m_dateTime, clipboardFormats.at(i));
+        preview = evaluateFormat(m_dateTime, clipboardFormats.at(i));
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
         item->setFlags(Qt::ItemIsSelectable);
@@ -313,7 +313,7 @@ void AdjustableClock::clockConfigChanged()
 {
     m_holiday = holiday();
 
-    setHtml(formatDateTime(currentDateTime(), format().html), format().css);
+    setHtml(evaluateFormat(currentDateTime(), format().html), format().css);
 
     updateSize();
 }
@@ -437,7 +437,7 @@ void AdjustableClock::connectSource(const QString &timezone)
 
 void AdjustableClock::copyToClipboard()
 {
-    QApplication::clipboard()->setText(formatDateTime(currentDateTime(), config().readEntry("fastCopyFormat", "%Y-%m-%d %H:%M:%S")));
+    QApplication::clipboard()->setText(evaluateFormat(currentDateTime(), config().readEntry("fastCopyFormat", "%Y-%m-%d %H:%M:%S")));
 }
 
 void AdjustableClock::insertPlaceholder(QAction *action)
@@ -826,7 +826,7 @@ void AdjustableClock::updateRow(int row, int column)
         return;
     }
 
-    const QString preview = formatDateTime(m_dateTime, m_clipboardUi.clipboardActionsTable->item(row, 0)->text());
+    const QString preview = evaluateFormat(m_dateTime, m_clipboardUi.clipboardActionsTable->item(row, 0)->text());
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
@@ -871,7 +871,7 @@ void AdjustableClock::updateClipboardMenu()
         if (clipboardFormats.at(i).isEmpty()) {
             m_clipboardAction->menu()->addSeparator();
         } else {
-            m_clipboardAction->menu()->addAction(formatDateTime(dateTime, clipboardFormats.at(i)));
+            m_clipboardAction->menu()->addAction(evaluateFormat(dateTime, clipboardFormats.at(i)));
         }
     }
 }
@@ -896,7 +896,7 @@ void AdjustableClock::updateToolTipContent()
 
     if (!toolTipFormat.isEmpty()) {
         toolTipData.setImage(KIcon(QLatin1String("chronometer")).pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(formatDateTime(m_dateTime, toolTipFormat));
+        toolTipData.setMainText(evaluateFormat(m_dateTime, toolTipFormat));
         toolTipData.setAutohide(false);
     }
 
@@ -1070,7 +1070,7 @@ void AdjustableClock::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setHtml(formatDateTime(m_dateTime, this->format().html), this->format().css);
+    setHtml(evaluateFormat(m_dateTime, this->format().html), this->format().css);
 }
 
 void AdjustableClock::updateTheme()
@@ -1092,7 +1092,7 @@ QDateTime AdjustableClock::currentDateTime() const
     return dateTime;
 }
 
-QString AdjustableClock::formatDateTime(const QDateTime dateTime, const QString &format) const
+QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format) const
 {
     if (format.isEmpty()) {
         return QString();
