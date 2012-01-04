@@ -24,6 +24,7 @@
 #include <QtGui/QClipboard>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
+#include <QtScript/QScriptEngine>
 
 #include <KMenu>
 #include <KLocale>
@@ -1094,6 +1095,37 @@ QDateTime AdjustableClock::currentDateTime() const
     return data[QLatin1String("DateTime")].toDateTime();
 }
 
+QString AdjustableClock::extractExpression(const QString &format) const
+{
+    if (format.length() < 2 || !format.contains(QLatin1Char('}'))) {
+        return QString();
+    }
+
+    QString expression;
+    int braces = 1;
+    int i = 0;
+
+    while (i < format.length()) {
+        if (format.at(i) == QLatin1Char('{')) {
+            ++braces;
+        } else if (format.at(i) == QLatin1Char('}')) {
+            --braces;
+
+            if (braces == 0) {
+                ++i;
+
+                break;
+            }
+        }
+
+        expression.append(format.at(i));
+
+        ++i;
+    }
+
+    return expression;
+}
+
 QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format) const
 {
     if (format.isEmpty()) {
@@ -1106,50 +1138,88 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
     bool monthPossessive = defaultMonthPossessive;
 
     for (int i = 0; i < length; ++i) {
-        if (format.at(i) == QLatin1Char('%') && format.at(i + 1) != QLatin1Char('%')) {
-            QString substitution;
-            QPair<int, int> range = qMakePair(-1, -1);
+        if (format.at(i) != QLatin1Char('%')) {
+            string.append(format.at(i));
 
-            ++i;
+            continue;
+        }
 
-            if (format.at(i).isDigit() || (format.at(i) == QLatin1Char('-') && format.at(i + 1).isDigit())) {
-                QString numberString;
+        QString substitution;
+        QPair<int, int> range = qMakePair(-1, -1);
+
+        ++i;
+
+        if (format.at(i).isDigit() || (format.at(i) == QLatin1Char('-') && format.at(i + 1).isDigit())) {
+            QString number;
+
+            while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
+                number.append(format.at(i));
+
+                ++i;
+            }
+
+            range.first = number.toInt();
+
+            if (format.at(i) == QLatin1Char(':')) {
+                number = QString();
+
+                ++i;
 
                 while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
-                    numberString.append(format.at(i));
+                    number.append(format.at(i));
 
                     ++i;
                 }
 
-                range.first = numberString.toInt();
+                range.second = number.toInt();
+            }
+        }
 
-                if (format.at(i) == QLatin1Char(':')) {
-                    numberString = QString();
+        if (format.at(i) == QLatin1Char('+')) {
+            ++i;
 
-                    ++i;
+            monthPossessive = true;
+        } else if (format.at(i) == QLatin1Char('-')) {
+            ++i;
 
-                    while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
-                        numberString.append(format.at(i));
+            monthPossessive = false;
+        } else {
+            monthPossessive = defaultMonthPossessive;
+        }
 
-                        ++i;
+        if (format.at(i) == QLatin1Char('{')) {
+            QString expression = extractExpression(format.mid(i + 1));
+            QScriptEngine engine;
+            QScriptValue scriptExpression = engine.evaluate(evaluateFormat(dateTime, expression));
+
+            i += (expression.length() + 2);
+
+            if ((format.at(i) == QLatin1Char('?') || format.at(i) == QLatin1Char(':')) && format.at(i + 1) == QLatin1Char('{')) {
+                QString expression = extractExpression(format.mid(i + 2));
+
+                if ((format.at(i) == QLatin1Char('?') && scriptExpression.toBool()) || (format.at(i) == QLatin1Char(':') && !scriptExpression.toBool())) {
+                    substitution.append(evaluateFormat(dateTime, expression));
+                }
+
+                i += (expression.length() + 3);
+
+                if (format.at(i) == QLatin1Char(':') && format.at(i + 1) == QLatin1Char('{')) {
+                    expression = extractExpression(format.mid(i + 2));
+
+                    if (!scriptExpression.toBool()) {
+                        substitution.append(evaluateFormat(dateTime, expression));
                     }
 
-                    range.second = numberString.toInt();
+                    i += (expression.length() + 2);
+                } else {
+                    --i;
                 }
-            }
-
-            if (format.at(i) == QLatin1Char('+')) {
-                ++i;
-
-                monthPossessive = true;
-            } else if (format.at(i) == QLatin1Char('-')) {
-                ++i;
-
-                monthPossessive = false;
             } else {
-                monthPossessive = defaultMonthPossessive;
-            }
+                substitution.append(scriptExpression.toString());
 
+                --i;
+            }
+        } else {
             switch (format.at(i).unicode()) {
             case 'a': // weekday, short form
                 substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::ShortName));
@@ -1274,22 +1344,20 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
                 substitution.append(format.at(i));
                 break;
             }
+        }
 
-            if (range.first != -1 || range.second != -1) {
-                if (range.first < 0) {
-                    range.first = (substitution.length() + range.first);
-                }
-
-                if (range.second < -1) {
-                    range.second = (substitution.length() + range.second);
-                }
-
-                string.append(substitution.mid(range.first, range.second));
-            } else {
-                string.append(substitution);
+        if (range.first != -1 || range.second != -1) {
+            if (range.first < 0) {
+                range.first = (substitution.length() + range.first);
             }
+
+            if (range.second < -1) {
+                range.second = (substitution.length() + range.second);
+            }
+
+            string.append(substitution.mid(range.first, range.second));
         } else {
-            string.append(format.at(i));
+            string.append(substitution);
         }
     }
 

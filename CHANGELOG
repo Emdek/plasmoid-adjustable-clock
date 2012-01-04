@@ -1,15 +1,16 @@
 3.0 (15.01.2012):
-- cleaned up clock syntax editor;
-- allow to toggle use of standard background;
-- allow to display only characters range of substitution;
+- cleaned up clock format editor;
+- added possibility to to use simple conditional statements and display results of script expressions;
 - allow to override mode of possessive form of month name (using + or - infix);
+- allow to display only characters range of substitution;
+- allow to toggle use of standard background;
 - improved formats storage;
 - some code cleanups and fixes.
 
 2.8 (01.01.2012):
 - allow to disable tool tip by setting empty value for toolTipFormat;
 - allow to display holiday string (%h);
-- improved Calendar syntax;
+- improved Calendar format;
 - always use calendar system selected in configuration dialog;
 - use resize event to update scaling;
 - some code cleanups.
@@ -17,7 +18,7 @@
 2.7 (01.12.2011):
 - adapted to KDE 4.6 API changes;
 - improved placeholder menu (sorted and grouped);
-- added new Calendar syntax;
+- added new Calendar format;
 - more friendly install script;
 - removed compile time dependency on gettext.
 
