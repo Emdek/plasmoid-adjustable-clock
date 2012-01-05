@@ -85,7 +85,7 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
 {
     Q_UNUSED(source)
 
-    m_dateTime = data[QLatin1String("DateTime")].toDateTime();
+    m_dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 
     const int second = m_dateTime.time().second();
 
@@ -738,17 +738,19 @@ void AdjustableClock::selectFontFamily(const QFont &font)
 
 void AdjustableClock::setColor(const QString &color)
 {
-    if (color != QLatin1String("false")) {
-        QRegExp expression = QRegExp(QLatin1String("rgb\\((\\d+), (\\d+), (\\d+)\\)"));
-        expression.indexIn(color);
-
-        const QStringList rgb = expression.capturedTexts();
-
-        QPalette palette = m_appearanceUi.colorButton->palette();
-        palette.setBrush(QPalette::Button, QColor(rgb.at(1).toInt(), rgb.at(2).toInt(), rgb.at(3).toInt()));
-
-        m_appearanceUi.colorButton->setPalette(palette);
+    if (color == QLatin1String("false")) {
+        return;
     }
+
+    QRegExp expression = QRegExp(QLatin1String("rgb\\((\\d+), (\\d+), (\\d+)\\)"));
+    expression.indexIn(color);
+
+    const QStringList rgb = expression.capturedTexts();
+
+    QPalette palette = m_appearanceUi.colorButton->palette();
+    palette.setBrush(QPalette::Button, QColor(rgb.at(1).toInt(), rgb.at(2).toInt(), rgb.at(3).toInt()));
+
+    m_appearanceUi.colorButton->setPalette(palette);
 }
 
 void AdjustableClock::setFontSize(const QString &size)
@@ -1104,7 +1106,7 @@ QDateTime AdjustableClock::currentDateTime() const
 {
     Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone());
 
-    return data[QLatin1String("DateTime")].toDateTime();
+    return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
 QString AdjustableClock::extractExpression(const QString &format) const
