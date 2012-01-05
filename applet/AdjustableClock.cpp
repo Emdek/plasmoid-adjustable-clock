@@ -24,7 +24,6 @@
 #include <QtGui/QClipboard>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
-#include <QtScript/QScriptEngine>
 
 #include <KMenu>
 #include <KLocale>
@@ -87,11 +86,13 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
 
     m_dateTime = data[QLatin1String("DateTime")].toDateTime();
 
-    if (force || (m_features & HolidaysFeature && m_dateTime.time().minute() == 0 && (!(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) || m_dateTime.time().second() == 0))) {
+    const int second = m_dateTime.time().second();
+
+    if (force || (m_features & HolidaysFeature && m_dateTime.time().hour() == 0 && m_dateTime.time().minute() == 0 && (second == 0 || !(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature)))) {
         m_holiday = holiday();
     }
 
-    if (force || ((m_features & SunriseFeature || m_features & SunsetFeature) && m_dateTime.time().minute() == 0 && m_dateTime.time().second() == 0)) {
+    if (force || ((m_features & SunriseFeature || m_features & SunsetFeature) && m_dateTime.time().minute() == 0 && second == 0)) {
         Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
 
         if (m_features & SunriseFeature) {
@@ -103,9 +104,11 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
         }
     }
 
-    setHtml(evaluateFormat(m_dateTime, format().html), format().css);
+    if (force || m_features & SecondsClockFeature || second == 0) {
+        setHtml(evaluateFormat(m_dateTime, format().html), format().css);
+    }
 
-    if (Plasma::ToolTipManager::self()->isVisible(this)) {
+    if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
         updateToolTipContent();
     }
 }
@@ -857,7 +860,7 @@ void AdjustableClock::setHtml(const QString &html, const QString &css)
     }
 }
 
-void AdjustableClock::copyToClipboard(QAction* action)
+void AdjustableClock::copyToClipboard(QAction *action)
 {
     QApplication::clipboard()->setText(action->text());
 }
@@ -1126,7 +1129,7 @@ QString AdjustableClock::extractExpression(const QString &format) const
     return expression;
 }
 
-QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format) const
+QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format)
 {
     if (format.isEmpty()) {
         return QString();
@@ -1189,8 +1192,7 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
 
         if (format.at(i) == QLatin1Char('{')) {
             QString expression = extractExpression(format.mid(i + 1));
-            QScriptEngine engine;
-            QScriptValue scriptExpression = engine.evaluate(evaluateFormat(dateTime, expression));
+            QScriptValue scriptExpression = m_engine.evaluate(evaluateFormat(dateTime, expression));
 
             i += (expression.length() + 2);
 

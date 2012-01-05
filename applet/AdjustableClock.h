@@ -24,6 +24,7 @@
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
 #include <QtWebKit/QWebPage>
+#include <QtScript/QScriptEngine>
 
 #include <Plasma/Applet>
 #include <Plasma/DataEngine>
@@ -64,7 +65,7 @@ protected:
     void setHtml(const QString &html, const QString &css);
     QDateTime currentDateTime() const;
     QString extractExpression(const QString &format) const;
-    QString evaluateFormat(const QDateTime dateTime, const QString &format) const;
+    QString evaluateFormat(const QDateTime dateTime, const QString &format);
     QString holiday() const;
     Format format(QString name = QString()) const;
     QStringList formats(bool all = true) const;
@@ -105,8 +106,8 @@ protected slots:
     void updateTheme();
 
 private:
+    QScriptEngine m_engine;
     QWebPage m_page;
-    QString m_dateTimeString;
     QString m_timeZoneAbbreviation;
     QString m_timeZoneOffset;
     QString m_holiday;
