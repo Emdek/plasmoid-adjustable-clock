@@ -4,6 +4,7 @@
 - allow to override mode of possessive form of month name (using + or - infix);
 - allow to display only characters range of substitution;
 - allow to toggle use of standard background;
+- allow to embed clickable links;
 - improved formats storage;
 - some code cleanups and fixes.
 

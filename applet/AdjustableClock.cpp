@@ -22,6 +22,7 @@
 
 #include <QtCore/QRegExp>
 #include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
 
@@ -133,7 +134,15 @@ void AdjustableClock::mousePressEvent(QGraphicsSceneMouseEvent *event)
         copyToClipboard();
     }
 
-    ClockApplet::mousePressEvent(event);
+    const QUrl url = m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl();
+
+    if (url.isValid() && event->button() == Qt::LeftButton) {
+        QDesktopServices::openUrl(url);
+
+        event->ignore();
+    } else {
+        ClockApplet::mousePressEvent(event);
+    }
 }
 
 void AdjustableClock::timerEvent(QTimerEvent *event)
