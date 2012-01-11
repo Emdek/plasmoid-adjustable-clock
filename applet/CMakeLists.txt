@@ -11,11 +11,11 @@ include_directories(
    ${KDE4_INCLUDES}
    )
 
-set(adjustableclock_SRCS AdjustableClock.cpp)
+set(adjustableclock_SRCS Applet.cpp PlaceholderDialog.cpp)
 
 add_subdirectory(locale)
 
-kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui)
+kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/placeholder.ui)
 kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS})
 target_link_libraries(plasma_applet_adjustableclock
                       plasmaclock

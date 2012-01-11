@@ -1,3 +1,5 @@
+- allow to display events (full day first, sorted by time start, updated each hour);
+- allow to access placeholder dialog from format fields;
 - add multiple timezones in tooltip;
-- allow to display events (?);
+- expose scripting API to allow scripts to fully control clock display (?);
 - allow to display weather data (?);

@@ -18,8 +18,8 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCK_HEADER
-#define ADJUSTABLECLOCK_HEADER
+#ifndef ADJUSTABLECLOCKAPPLET_HEADER
+#define ADJUSTABLECLOCKAPPLET_HEADER
 
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
@@ -34,6 +34,9 @@
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
 
+namespace AdjustableClock
+{
+
 enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, SunsetFeature = 16, SunriseFeature = 32, NoBackgroundFeature = 64 };
 
 struct Format
@@ -44,14 +47,15 @@ struct Format
     bool background;
 };
 
-class AdjustableClock : public ClockApplet
+class Applet : public ClockApplet
 {
     Q_OBJECT
 
 public:
-    AdjustableClock(QObject *parent, const QVariantList &args);
+    Applet(QObject *parent, const QVariantList &args);
 
     void init();
+    QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
 
 protected:
     void constraintsEvent(Plasma::Constraints constraints);
@@ -65,7 +69,7 @@ protected:
     void setHtml(const QString &html, const QString &css);
     QDateTime currentDateTime() const;
     QString extractExpression(const QString &format) const;
-    QString evaluateFormat(const QDateTime dateTime, const QString &format);
+    QString formatNumber(int number, int length) const;
     QString holiday() const;
     Format format(QString name = QString()) const;
     QStringList formats(bool all = true) const;
@@ -76,7 +80,8 @@ protected slots:
     void clockConfigChanged();
     void clockConfigAccepted();
     void copyToClipboard();
-    void insertPlaceholder(QAction *action);
+    void insertPlaceholder();
+    void insertPlaceholder(const QString &placeholder);
     void loadFormat(int index);
     void addFormat(bool automatically = false);
     void removeFormat();
@@ -110,6 +115,7 @@ private:
     QWebPage m_page;
     QString m_timeZoneAbbreviation;
     QString m_timeZoneOffset;
+    QString m_events;
     QString m_holiday;
     QString m_currentHtml;
     QStringList m_clipboardFormats;
@@ -126,5 +132,7 @@ private:
 
     Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 };
+
+}
 
 #endif

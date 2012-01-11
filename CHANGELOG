@@ -1,5 +1,7 @@
 3.0 (15.01.2012):
 - cleaned up clock format editor;
+- replace placeholders menu by dialog exposing some additional options;
+- new placeholders, no longer based on strftime() syntax;
 - added possibility to to use simple conditional statements and display results of script expressions;
 - allow to override mode of possessive form of month name (using + or - infix);
 - allow to display only characters range of substitution;

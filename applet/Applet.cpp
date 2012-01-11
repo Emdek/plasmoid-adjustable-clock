@@ -18,7 +18,8 @@
 *
 ***********************************************************************************/
 
-#include "AdjustableClock.h"
+#include "Applet.h"
+#include "PlaceholderDialog.h"
 
 #include <QtCore/QRegExp>
 #include <QtGui/QClipboard>
@@ -38,9 +39,12 @@
 #include <Plasma/Theme>
 #include <Plasma/Containment>
 
-K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock)
+K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
-AdjustableClock::AdjustableClock(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
+namespace AdjustableClock
+{
+
+Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clipboardAction(NULL),
     m_controlsTimer(0)
 {
@@ -51,21 +55,21 @@ AdjustableClock::AdjustableClock(QObject *parent, const QVariantList &args) : Cl
     setHasConfigurationInterface(true);
     resize(150, 80);
 
-    m_clipboardFormats << QLatin1String("%x")
-    << QLatin1String("%f")
-    << QLatin1String("%H:%M:%S")
+    m_clipboardFormats << QLatin1String("%!t")
+    << QLatin1String("%t")
+    << QLatin1String("%h:%m:%s")
     << QString()
-    << QLatin1String("%X")
-    << QLatin1String("%F")
+    << QLatin1String("%!T")
+    << QLatin1String("%T")
     << QString()
-    << QLatin1String("%c")
-    << QLatin1String("%C")
-    << QLatin1String("%Y-%m-%d %H:%M:%S")
+    << QLatin1String("%!A")
+    << QLatin1String("%A")
+    << QLatin1String("%Y-%M-%d %h:%m:%s")
     << QString()
-    << QLatin1String("%t");
+    << QLatin1String("%U");
 }
 
-void AdjustableClock::init()
+void Applet::init()
 {
     ClockApplet::init();
 
@@ -81,7 +85,7 @@ void AdjustableClock::init()
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
-void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
+void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
 {
     Q_UNUSED(source)
 
@@ -106,7 +110,7 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
     }
 
     if (force || m_features & SecondsClockFeature || second == 0) {
-        setHtml(evaluateFormat(m_dateTime, format().html), format().css);
+        setHtml(evaluateFormat(format().html, m_dateTime), format().css);
     }
 
     if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
@@ -114,21 +118,21 @@ void AdjustableClock::dataUpdated(const QString &source, const Plasma::DataEngin
     }
 }
 
-void AdjustableClock::constraintsEvent(Plasma::Constraints constraints)
+void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
     setBackgroundHints((m_features & NoBackgroundFeature) ? NoBackground : DefaultBackground);
 }
 
-void AdjustableClock::resizeEvent(QGraphicsSceneResizeEvent *event)
+void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     ClockApplet::resizeEvent(event);
 
     updateSize();
 }
 
-void AdjustableClock::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->buttons() == Qt::MidButton) {
         copyToClipboard();
@@ -145,14 +149,14 @@ void AdjustableClock::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void AdjustableClock::timerEvent(QTimerEvent *event)
+void Applet::timerEvent(QTimerEvent *event)
 {
     updateControls();
 
     killTimer(event->timerId());
 }
 
-void AdjustableClock::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
+void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
 {
     Q_UNUSED(option)
     Q_UNUSED(contentsRect)
@@ -162,7 +166,7 @@ void AdjustableClock::paintInterface(QPainter *painter, const QStyleOptionGraphi
     m_page.mainFrame()->render(painter);
 }
 
-void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
+void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
     QWidget *appearanceConfiguration = new QWidget;
     QWidget *clipboardActions = new QWidget;
@@ -172,62 +176,6 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
-
-    KMenu *placeholdersMenu = new KMenu(m_appearanceUi.placeholdersButton);
-
-    QList<QPair<QLatin1Char, QString> > placeholders;
-    placeholders << qMakePair(QLatin1Char(0), i18n("Seconds"))
-    << qMakePair(QLatin1Char('s'), i18n("Short form"))
-    << qMakePair(QLatin1Char('S'), i18n("Long form"))
-    << qMakePair(QLatin1Char('t'), i18n("UNIX timestamp"))
-    << qMakePair(QLatin1Char(0), i18n("Minutes"))
-    << qMakePair(QLatin1Char('M'), i18n("Long form"))
-    << qMakePair(QLatin1Char(0), i18n("Hours"))
-    << qMakePair(QLatin1Char('H'), i18n("24h format, long form"))
-    << qMakePair(QLatin1Char('k'), i18n("24h format, short form"))
-    << qMakePair(QLatin1Char('I'), i18n("12h format, long form"))
-    << qMakePair(QLatin1Char('l'), i18n("12h format, short form"))
-    << qMakePair(QLatin1Char('p'), i18n("The pm or am string"))
-    << qMakePair(QLatin1Char(0), i18n("Days"))
-    << qMakePair(QLatin1Char('d'), i18n("Day of the month, long form"))
-    << qMakePair(QLatin1Char('e'), i18n("Day of the month, short form"))
-    << qMakePair(QLatin1Char('a'), i18n("Weekday name, short form"))
-    << qMakePair(QLatin1Char('A'), i18n("Weekday name, long form"))
-    << qMakePair(QLatin1Char('w'), i18n("Weekday number, short form"))
-    << qMakePair(QLatin1Char('j'), i18n("Day of the year, short form"))
-    << qMakePair(QLatin1Char(0), i18n("Weeks"))
-    << qMakePair(QLatin1Char('W'), i18n("Short form"))
-    << qMakePair(QLatin1Char(0), i18n("Months"))
-    << qMakePair(QLatin1Char('n'), i18n("Number, short form"))
-    << qMakePair(QLatin1Char('m'), i18n("Number, long form"))
-    << qMakePair(QLatin1Char('b'), i18n("Name, short form"))
-    << qMakePair(QLatin1Char('B'), i18n("Name, long form"))
-    << qMakePair(QLatin1Char(0), i18n("Years"))
-    << qMakePair(QLatin1Char('Y'), i18n("Long form"))
-    << qMakePair(QLatin1Char('y'), i18n("Short form"))
-    << qMakePair(QLatin1Char(0), i18n("Timezone"))
-    << qMakePair(QLatin1Char('Z'), i18n("Abbreviation"))
-    << qMakePair(QLatin1Char('z'), i18n("Offset to UTC"))
-    << qMakePair(QLatin1Char('g'), i18n("City"))
-    << qMakePair(QLatin1Char(0), i18n("Other"))
-    << qMakePair(QLatin1Char('h'), i18n("Holiday name"))
-    << qMakePair(QLatin1Char('o'), i18n("Sunrise time"))
-    << qMakePair(QLatin1Char('O'), i18n("Sunset time"))
-    << qMakePair(QLatin1Char('F'), i18n("Time, short form"))
-    << qMakePair(QLatin1Char('X'), i18n("Time, long form"))
-    << qMakePair(QLatin1Char('f'), i18n("Date, short form"))
-    << qMakePair(QLatin1Char('x'), i18n("Date, long form"))
-    << qMakePair(QLatin1Char('c'), i18n("Date and time, short form"))
-    << qMakePair(QLatin1Char('C'), i18n("Date and time, long form"));
-
-    for (int i = 0; i < placeholders.count(); ++i) {
-        if (placeholders.at(i).first == QLatin1Char(0)) {
-            placeholdersMenu->addTitle(placeholders.at(i).second);
-        } else {
-            QAction *action = placeholdersMenu->addAction(QString(QLatin1String("%1 (%%2)\t%3")).arg(placeholders.at(i).second).arg(placeholders.at(i).first).arg(evaluateFormat(m_dateTime, QString(QLatin1Char('%')).append(placeholders.at(i).first))));
-            action->setData(QVariant(placeholders.at(i).first));
-        }
-    }
 
     const QStringList formats = this->formats();
 
@@ -253,7 +201,6 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     m_appearanceUi.addButton->setIcon(KIcon(QLatin1String("list-add")));
     m_appearanceUi.removeButton->setIcon(KIcon(QLatin1String("list-remove")));
     m_appearanceUi.placeholdersButton->setIcon(KIcon(QLatin1String("chronometer")));
-    m_appearanceUi.placeholdersButton->setMenu(placeholdersMenu);
     m_appearanceUi.boldButton->setIcon(KIcon(QLatin1String("format-text-bold")));
     m_appearanceUi.italicButton->setIcon(KIcon(QLatin1String("format-text-italic")));
     m_appearanceUi.underlineButton->setIcon(KIcon(QLatin1String("format-text-underline")));
@@ -264,7 +211,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
-    m_clipboardUi.fastCopyFormat->setText(config().readEntry("fastCopyFormat", "%Y-%m-%d %H:%M:%S"));
+    m_clipboardUi.fastCopyFormat->setText(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
 
     for (int i = 0; i < clipboardFormats.count(); ++i) {
         row = m_clipboardUi.clipboardActionsTable->rowCount();
@@ -272,7 +219,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
         m_clipboardUi.clipboardActionsTable->insertRow(row);
         m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
 
-        preview = evaluateFormat(m_dateTime, clipboardFormats.at(i));
+        preview = evaluateFormat(clipboardFormats.at(i), m_dateTime);
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
         item->setFlags(Qt::ItemIsSelectable);
@@ -294,7 +241,6 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     parent->addPage(appearanceConfiguration, i18n("Appearance"), QLatin1String("preferences-desktop-theme"));
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
 
-    connect(placeholdersMenu, SIGNAL(triggered(QAction*)), this, SLOT(insertPlaceholder(QAction*)));
     connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
     connect(m_appearanceUi.addButton, SIGNAL(clicked()), this, SLOT(addFormat()));
     connect(m_appearanceUi.removeButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
@@ -312,6 +258,7 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
+    connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertRow()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteRow()));
     connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveRowUp()));
@@ -326,14 +273,14 @@ void AdjustableClock::createClockConfigurationInterface(KConfigDialog *parent)
     loadFormat(currentFormat);
 }
 
-void AdjustableClock::clockConfigChanged()
+void Applet::clockConfigChanged()
 {
-    setHtml(evaluateFormat(currentDateTime(), format().html), format().css);
+    setHtml(evaluateFormat(format().html), format().css);
 
     updateSize();
 }
 
-void AdjustableClock::clockConfigAccepted()
+void Applet::clockConfigAccepted()
 {
     QStringList clipboardFormats;
 
@@ -381,9 +328,9 @@ void AdjustableClock::clockConfigAccepted()
     emit configNeedsSaving();
 }
 
-void AdjustableClock::connectSource(const QString &timezone)
+void Applet::connectSource(const QString &timezone)
 {
-    QRegExp formatWithSeconds = QRegExp(QLatin1String("%\\d*(S|c|C|t|F|X)"));
+    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*s"));
     QFlags<ClockFeature> features;
 
     m_format.html = QString();
@@ -394,19 +341,23 @@ void AdjustableClock::connectSource(const QString &timezone)
         features |= SecondsClockFeature;
     }
 
-    if ((config().keyList().contains(QLatin1String("toolTipFormat")) ? config().readEntry("toolTipFormat", QString()) : QLatin1String("<div style=\"text-align:center;\">%Y-%m-%d<br />%H:%M:%S</div>")).contains(formatWithSeconds)) {
+    if ((config().keyList().contains(QLatin1String("toolTipFormat")) ? config().readEntry("toolTipFormat", QString()) : QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>")).contains(formatWithSeconds)) {
         features |= SecondsToolTipFeature;
     }
 
-    if (format.html.contains(QLatin1String("%h"))) {
+    if (format.html.contains(QLatin1String("%H"))) {
         features |= HolidaysFeature;
     }
 
-    if (format.html.contains(QLatin1String("%o"))) {
+    if (format.html.contains(QLatin1String("%E"))) {
+        features |= EventsFeature;
+    }
+
+    if (format.html.contains(QLatin1String("%S"))) {
         features |= SunsetFeature;
     }
 
-    if (format.html.contains(QLatin1String("%O"))) {
+    if (format.html.contains(QLatin1String("%R"))) {
         features |= SunriseFeature;
     }
 
@@ -451,15 +402,18 @@ void AdjustableClock::connectSource(const QString &timezone)
     dataUpdated(QString(), dataEngine(QLatin1String("time"))->query(currentTimezone()), true);
 }
 
-void AdjustableClock::copyToClipboard()
+void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(evaluateFormat(currentDateTime(), config().readEntry("fastCopyFormat", "%Y-%m-%d %H:%M:%S")));
+    QApplication::clipboard()->setText(evaluateFormat(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s")));
 }
 
-void AdjustableClock::insertPlaceholder(QAction *action)
+void Applet::insertPlaceholder()
 {
-    QString placeholder = QString(QLatin1Char('%')).append(action->data().toChar());
+    connect(new PlaceholderDialog(m_appearanceUi.placeholdersButton, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+}
 
+void Applet::insertPlaceholder(const QString &placeholder)
+{
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
@@ -467,7 +421,7 @@ void AdjustableClock::insertPlaceholder(QAction *action)
     }
 }
 
-void AdjustableClock::loadFormat(int index)
+void Applet::loadFormat(int index)
 {
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -485,7 +439,7 @@ void AdjustableClock::loadFormat(int index)
     changeFormat();
 }
 
-void AdjustableClock::changeFormat()
+void Applet::changeFormat()
 {
     Format format;
     format.background = m_appearanceUi.backgroundButton->isChecked();
@@ -543,7 +497,7 @@ void AdjustableClock::changeFormat()
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 }
 
-void AdjustableClock::addFormat(bool automatically)
+void Applet::addFormat(bool automatically)
 {
     QString title = m_appearanceUi.formatComboBox->itemText(m_appearanceUi.formatComboBox->currentIndex());
 
@@ -604,7 +558,7 @@ void AdjustableClock::addFormat(bool automatically)
     connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
 }
 
-void AdjustableClock::removeFormat()
+void Applet::removeFormat()
 {
     if (m_appearanceUi.formatComboBox->currentIndex() > formats(false).count()) {
         m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->currentIndex());
@@ -615,7 +569,7 @@ void AdjustableClock::removeFormat()
     }
 }
 
-void AdjustableClock::updateControls()
+void Applet::updateControls()
 {
     if (!isUserConfiguring()) {
         return;
@@ -633,7 +587,7 @@ void AdjustableClock::updateControls()
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
 }
 
-void AdjustableClock::triggerAction()
+void Applet::triggerAction()
 {
     QString actionName = sender()->objectName().remove(QLatin1String("Button")).toLower();
     QHash<QString, QWebPage::WebAction> actions;
@@ -686,7 +640,7 @@ void AdjustableClock::triggerAction()
     }
 }
 
-void AdjustableClock::selectColor()
+void Applet::selectColor()
 {
     KColorDialog colorDialog;
     colorDialog.setAlphaChannelEnabled(true);
@@ -710,7 +664,7 @@ void AdjustableClock::selectColor()
     }
 }
 
-void AdjustableClock::selectFontSize(const QString &size)
+void Applet::selectFontSize(const QString &size)
 {
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
@@ -724,7 +678,7 @@ void AdjustableClock::selectFontSize(const QString &size)
     m_fontSize = size.toInt();
 }
 
-void AdjustableClock::selectFontFamily(const QFont &font)
+void Applet::selectFontFamily(const QFont &font)
 {
     if (m_appearanceUi.tabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
@@ -736,7 +690,7 @@ void AdjustableClock::selectFontFamily(const QFont &font)
     }
 }
 
-void AdjustableClock::setColor(const QString &color)
+void Applet::setColor(const QString &color)
 {
     if (color == QLatin1String("false")) {
         return;
@@ -753,7 +707,7 @@ void AdjustableClock::setColor(const QString &color)
     m_appearanceUi.colorButton->setPalette(palette);
 }
 
-void AdjustableClock::setFontSize(const QString &size)
+void Applet::setFontSize(const QString &size)
 {
     if (!m_appearanceUi.fontSizeComboBox->hasFocus()) {
         m_appearanceUi.fontSizeComboBox->setEditText(size);
@@ -762,12 +716,12 @@ void AdjustableClock::setFontSize(const QString &size)
     m_fontSize = size.toInt();
 }
 
-void AdjustableClock::setFontFamily(const QString &font)
+void Applet::setFontFamily(const QString &font)
 {
     m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(font));
 }
 
-void AdjustableClock::selectionChanged()
+void Applet::selectionChanged()
 {
     m_controlsTimer = startTimer(250);
 
@@ -776,7 +730,7 @@ void AdjustableClock::selectionChanged()
     }
 }
 
-void AdjustableClock::itemSelectionChanged()
+void Applet::itemSelectionChanged()
 {
     QList<QTableWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsTable->selectedItems();
 
@@ -785,7 +739,7 @@ void AdjustableClock::itemSelectionChanged()
     m_clipboardUi.deleteButton->setEnabled(!selectedItems.isEmpty());
 }
 
-void AdjustableClock::insertRow()
+void Applet::insertRow()
 {
     const int row = ((m_clipboardUi.clipboardActionsTable->rowCount() && m_clipboardUi.clipboardActionsTable->currentRow() >= 0) ? m_clipboardUi.clipboardActionsTable->currentRow() : 0);
 
@@ -799,12 +753,12 @@ void AdjustableClock::insertRow()
     m_clipboardUi.clipboardActionsTable->setCurrentCell(row, 0);
 }
 
-void AdjustableClock::deleteRow()
+void Applet::deleteRow()
 {
     m_clipboardUi.clipboardActionsTable->removeRow(m_clipboardUi.clipboardActionsTable->row(m_clipboardUi.clipboardActionsTable->selectedItems().at(0)));
 }
 
-void AdjustableClock::moveRow(bool up)
+void Applet::moveRow(bool up)
 {
     int sourceRow = m_clipboardUi.clipboardActionsTable->row(m_clipboardUi.clipboardActionsTable->selectedItems().at(0));
     int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
@@ -826,17 +780,17 @@ void AdjustableClock::moveRow(bool up)
     m_clipboardUi.clipboardActionsTable->setCurrentCell(destinationRow, 0);
 }
 
-void AdjustableClock::moveRowUp()
+void Applet::moveRowUp()
 {
     moveRow(true);
 }
 
-void AdjustableClock::moveRowDown()
+void Applet::moveRowDown()
 {
     moveRow(false);
 }
 
-void AdjustableClock::updateRow(int row, int column)
+void Applet::updateRow(int row, int column)
 {
     Q_UNUSED(column)
 
@@ -844,23 +798,23 @@ void AdjustableClock::updateRow(int row, int column)
         return;
     }
 
-    const QString preview = evaluateFormat(m_dateTime, m_clipboardUi.clipboardActionsTable->item(row, 0)->text());
+    const QString preview = evaluateFormat(m_clipboardUi.clipboardActionsTable->item(row, 0)->text(), m_dateTime);
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
 }
 
-void AdjustableClock::toolTipAboutToShow()
+void Applet::toolTipAboutToShow()
 {
     updateToolTipContent();
 }
 
-void AdjustableClock::toolTipHidden()
+void Applet::toolTipHidden()
 {
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
-void AdjustableClock::setHtml(const QString &html, const QString &css)
+void Applet::setHtml(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
         m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, table, td {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + css + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + html + QLatin1String("</td></tr></table></body></html>"));
@@ -871,12 +825,12 @@ void AdjustableClock::setHtml(const QString &html, const QString &css)
     }
 }
 
-void AdjustableClock::copyToClipboard(QAction *action)
+void Applet::copyToClipboard(QAction *action)
 {
     QApplication::clipboard()->setText(action->text());
 }
 
-void AdjustableClock::updateClipboardMenu()
+void Applet::updateClipboardMenu()
 {
     const QDateTime dateTime = currentDateTime();
     const QStringList clipboardFormats = config().readEntry("clipboardFormats", m_clipboardFormats);
@@ -889,19 +843,19 @@ void AdjustableClock::updateClipboardMenu()
         if (clipboardFormats.at(i).isEmpty()) {
             m_clipboardAction->menu()->addSeparator();
         } else {
-            m_clipboardAction->menu()->addAction(evaluateFormat(dateTime, clipboardFormats.at(i)));
+            m_clipboardAction->menu()->addAction(evaluateFormat(clipboardFormats.at(i), dateTime));
         }
     }
 }
 
-void AdjustableClock::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
+void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
 {
     dataEngine(QLatin1String("time"))->disconnectSource(oldTimezone, this);
 
     connectSource(newTimezone);
 }
 
-void AdjustableClock::updateToolTipContent()
+void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
     QString toolTipFormat;
@@ -909,19 +863,19 @@ void AdjustableClock::updateToolTipContent()
     if (config().keyList().contains(QLatin1String("toolTipFormat"))) {
         toolTipFormat = config().readEntry("toolTipFormat", QString());
     } else {
-        toolTipFormat = QLatin1String("<div style=\"text-align:center;\">%Y-%m-%d<br />%H:%M:%S</div>");
+        toolTipFormat = QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>");
     }
 
     if (!toolTipFormat.isEmpty()) {
         toolTipData.setImage(KIcon(QLatin1String("chronometer")).pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(evaluateFormat(m_dateTime, toolTipFormat));
+        toolTipData.setMainText(evaluateFormat(toolTipFormat, m_dateTime));
         toolTipData.setAutohide(false);
     }
 
     Plasma::ToolTipManager::self()->setContent(this, toolTipData);
 }
 
-void AdjustableClock::updateSize()
+void Applet::updateSize()
 {
     const Format format = this->format();
     QString string;
@@ -965,6 +919,7 @@ void AdjustableClock::updateSize()
                 }
 
                 string.append(longest);
+
                 break;
             case 'b':
             case 'B':
@@ -979,15 +934,19 @@ void AdjustableClock::updateSize()
                 }
 
                 string.append(longest);
+
                 break;
             case 'c':
                 string.append(KGlobal::locale()->formatDateTime(m_dateTime, KLocale::LongDate));
+
                 break;
             case 'C':
                 string.append(KGlobal::locale()->formatDateTime(m_dateTime, KLocale::ShortDate));
+
                 break;
             case 'h':
                 string.append(QLatin1String("XXXXXXXXXX"));
+
                 break;
             case 'd':
             case 'e':
@@ -1003,50 +962,66 @@ void AdjustableClock::updateSize()
             case 'U':
             case 'y':
                 string.append(QLatin1String("00"));
+
                 break;
             case 'f':
                 string.append(KGlobal::locale()->formatDate(m_dateTime.date(), KLocale::ShortDate));
+
                 break;
             case 'x':
                 string.append(KGlobal::locale()->formatDate(m_dateTime.date(), KLocale::LongDate));
+
                 break;
             case 'o':
                 string.append(KGlobal::locale()->formatTime(m_sunrise, false));
+
                 break;
             case 'O':
                 string.append(KGlobal::locale()->formatTime(m_sunset, false));
+
                 break;
             case 'F':
                 string.append(KGlobal::locale()->formatTime(m_dateTime.time(), false));
+
                 break;
             case 'X':
                 string.append(KGlobal::locale()->formatTime(m_dateTime.time(), true));
+
                 break;
             case 'g':
                 string.append(prettyTimezone());
+
                 break;
             case 'j':
                 string.append(QLatin1String("000"));
+
                 break;
             case 'p':
                 string.append((i18n("pm").length() > i18n("am").length()) ? i18n("pm") : i18n("am"));
+
                 break;
             case 't':
                 string.append(QString::number(m_dateTime.toTime_t()));
+
                 break;
             case 'w':
                 string.append(QLatin1Char('0'));
+
                 break;
             case 'Y':
                 string.append(QLatin1String("0000"));
+
                 break;
             case 'Z':
                 string.append(m_timeZoneAbbreviation);
+
                 break;
             case 'z':
                 string.append(m_timeZoneOffset);
+
             default:
                 string.append(format.html.at(index));
+
                 break;
             }
         } else {
@@ -1088,10 +1063,10 @@ void AdjustableClock::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setHtml(evaluateFormat(m_dateTime, this->format().html), this->format().css);
+    setHtml(evaluateFormat(this->format().html, m_dateTime), this->format().css);
 }
 
-void AdjustableClock::updateTheme()
+void Applet::updateTheme()
 {
     QPalette palette = m_page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
@@ -1102,14 +1077,14 @@ void AdjustableClock::updateTheme()
     update();
 }
 
-QDateTime AdjustableClock::currentDateTime() const
+QDateTime Applet::currentDateTime() const
 {
     Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone());
 
     return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
-QString AdjustableClock::extractExpression(const QString &format) const
+QString Applet::extractExpression(const QString &format) const
 {
     if (format.length() < 2 || !format.contains(QLatin1Char('}'))) {
         return QString();
@@ -1140,16 +1115,34 @@ QString AdjustableClock::extractExpression(const QString &format) const
     return expression;
 }
 
-QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString &format)
+QString Applet::formatNumber(int number, int length) const
+{
+    QString string = QString::number(number);
+    int multiplier = 1;
+
+    for (int i = 1; i < length; ++i) {
+        multiplier *= 10;
+
+        if (number < multiplier) {
+            string.prepend(QLatin1Char('0'));
+        }
+    }
+
+    return string;
+}
+
+QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
 {
     if (format.isEmpty()) {
         return QString();
     }
 
+    if (!dateTime.isValid()) {
+        dateTime = currentDateTime();
+    }
+
     QString string;
     const int length = (format.length() - 1);
-    const bool defaultMonthPossessive = KGlobal::locale()->dateMonthNamePossessive();
-    bool monthPossessive = defaultMonthPossessive;
 
     for (int i = 0; i < length; ++i) {
         if (format.at(i) != QLatin1Char('%')) {
@@ -1160,6 +1153,9 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
 
         QString substitution;
         QPair<int, int> range = qMakePair(-1, -1);
+        int alternativeForm = 0;
+        bool shortForm = false;
+        bool textualForm = false;
 
         ++i;
 
@@ -1189,21 +1185,31 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
             }
         }
 
+        if (format.at(i) == QLatin1Char('!')) {
+            ++i;
+
+            shortForm = true;
+        }
+
+        if (format.at(i) == QLatin1Char('$')) {
+            ++i;
+
+            textualForm = true;
+        }
+
         if (format.at(i) == QLatin1Char('+')) {
             ++i;
 
-            monthPossessive = true;
+            alternativeForm = 1;
         } else if (format.at(i) == QLatin1Char('-')) {
             ++i;
 
-            monthPossessive = false;
-        } else {
-            monthPossessive = defaultMonthPossessive;
+            alternativeForm = -1;
         }
 
         if (format.at(i) == QLatin1Char('{')) {
             QString expression = extractExpression(format.mid(i + 1));
-            QScriptValue scriptExpression = m_engine.evaluate(evaluateFormat(dateTime, expression));
+            QScriptValue scriptExpression = m_engine.evaluate(evaluateFormat(expression, dateTime));
 
             i += (expression.length() + 2);
 
@@ -1211,7 +1217,7 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
                 QString expression = extractExpression(format.mid(i + 2));
 
                 if ((format.at(i) == QLatin1Char('?') && scriptExpression.toBool()) || (format.at(i) == QLatin1Char(':') && !scriptExpression.toBool())) {
-                    substitution.append(evaluateFormat(dateTime, expression));
+                    substitution.append(evaluateFormat(expression, dateTime));
                 }
 
                 i += (expression.length() + 3);
@@ -1220,7 +1226,7 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
                     expression = extractExpression(format.mid(i + 2));
 
                     if (!scriptExpression.toBool()) {
-                        substitution.append(evaluateFormat(dateTime, expression));
+                        substitution.append(evaluateFormat(expression, dateTime));
                     }
 
                     i += (expression.length() + 2);
@@ -1234,127 +1240,106 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
             }
         } else {
             switch (format.at(i).unicode()) {
-            case 'a': // weekday, short form
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::ShortName));
+            case 's': // Second
+                substitution = formatNumber(dateTime.time().second(), (shortForm ? 2 : 0));
+
                 break;
-            case 'A': // weekday, long form
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::DayOfWeekName, KLocale::LongName));
+            case 'm': // Minute
+                substitution = formatNumber(dateTime.time().minute(), (shortForm ? 2 : 0));
+
                 break;
-            case 'b': // month, short form
-                substitution.append(calendar()->monthName(dateTime.date(), (monthPossessive?KCalendarSystem::ShortNamePossessive:KCalendarSystem::ShortName)));
+            case 'h': // Hour
+                alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->use12Clock() : (alternativeForm == 1));
+
+                substitution = formatNumber((alternativeForm ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (shortForm ? 2 : 0));
+
                 break;
-            case 'B': // month, long form
-                substitution.append(calendar()->monthName(dateTime.date(), (monthPossessive?KCalendarSystem::LongNamePossessive:KCalendarSystem::LongName)));
+            case 'p': // The pm or am string
+                substitution = ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
+
                 break;
-            case 'c': // date and time format, short
-                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::ShortDate));
+            case 'd': // Day of the month
+                substitution = formatNumber(dateTime.date().day(), (shortForm ? 2 : 0));
+
                 break;
-            case 'C': // date and time format, long
-                substitution.append(KGlobal::locale()->formatDateTime(dateTime, KLocale::LongDate));
-                break;
-            case 'd': // day of the month, two digits
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::LongNumber));
-                break;
-            case 'e': // day of the month, one digit
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Day, KLocale::ShortNumber));
-                break;
-            case 'f': // date format, short
-                substitution.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::ShortDate));
-                break;
-            case 'F': // time format, short
-                substitution.append(KGlobal::locale()->formatTime(dateTime.time(), false));
-                break;
-            case 'g': // timezone city
-                substitution.append(prettyTimezone());
-                break;
-            case 'h': // holiday
-                substitution.append(m_holiday);
-                break;
-            case 'H': // hour, 24h format
-                if (dateTime.time().hour() < 10) {
-                    substitution.append(QLatin1Char('0'));
+            case 'w': // Weekday
+                if (textualForm) {
+                    substitution = calendar()->weekDayName(calendar()->dayOfWeek(dateTime.date()), (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
+                } else {
+                    substitution = formatNumber(calendar()->dayOfWeek(dateTime.date()), (shortForm ? QString::number(calendar()->daysInWeek(dateTime.date())).length() : 0));
                 }
 
-                substitution.append(QString::number(dateTime.time().hour()));
                 break;
-            case 'I': // hour, 12h format
-                if ((((dateTime.time().hour() + 11) % 12) + 1) < 10) {
-                    substitution.append(QLatin1Char('0'));
+            case 'D': // Day of the year
+                substitution = formatNumber(calendar()->dayOfYear(dateTime.date()), (shortForm ? QString::number(calendar()->daysInYear(dateTime.date())).length() : 0));
+
+                break;
+            case 'W': // Week
+                substitution = formatNumber(calendar()->week(dateTime.date()), (shortForm ? QString::number(calendar()->weeksInYear(dateTime.date())).length() : 0));
+
+                break;
+            case 'M': // Month
+
+                if (textualForm) {
+                    alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
+
+                    substitution = calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+                } else {
+                    substitution = formatNumber(calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(calendar()->monthsInYear(dateTime.date())).length()));
                 }
 
-                substitution.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
                 break;
-            case 'j': // day of the year
-                substitution.append(QString::number(calendar()->dayOfYear(dateTime.date())));
-                break;
-            case 'k': // hour, 24h format, one digit
-                substitution.append(QString::number(dateTime.time().hour()));
-                break;
-            case 'l': // hour, 12h format, one digit
-                substitution.append(QString::number(((dateTime.time().hour() + 11) % 12) + 1));
-                break;
-            case 'm': // month, two digits
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::LongNumber));
-                break;
-            case 'M': // minute, two digits
-                if (dateTime.time().minute() < 10) {
-                    substitution.append(QLatin1Char('0'));
-                }
+            case 'Y': // Year
+                substitution = calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
 
-                substitution.append(QString::number(dateTime.time().minute()));
                 break;
-            case 'n': // month, one digit
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Month, KLocale::ShortNumber));
-                break;
-            case 'o': // sunrise time
-                substitution.append(KGlobal::locale()->formatTime(m_sunrise, false));
-                break;
-            case 'O': // sunset time
-                substitution.append(KGlobal::locale()->formatTime(m_sunset, false));
-                break;
-            case 'p': // pm or am
-                substitution.append((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
-                break;
-            case 's': // second, one digit
-                substitution.append(QString::number(dateTime.time().second()));
-                break;
-            case 'S': // second, two digits
-                if (dateTime.time().second() < 10) {
-                    substitution.append(QLatin1Char('0'));
-                }
+            case 'U': // UNIX timestamp
+                substitution = QString::number(dateTime.toTime_t());
 
-                substitution.append(QString::number(dateTime.time().second()));
                 break;
-            case 't': // UNIX timestamp
-                substitution.append(QString::number(dateTime.toTime_t()));
+            case 't': // Time
+                substitution = KGlobal::locale()->formatTime(dateTime.time(), !shortForm);
+
                 break;
-            case 'w': // day of week
-                substitution.append(QString::number(calendar()->dayOfWeek(dateTime.date())));
+            case 'T': // Date
+                substitution = KGlobal::locale()->formatDate(dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
+
                 break;
-            case 'W': // week number
-            case 'U':
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Week, KLocale::ShortNumber));
+            case 'A': // Date and time
+                substitution = KGlobal::locale()->formatDateTime(dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
+
                 break;
-            case 'x': // date format, long
-                substitution.append(KGlobal::locale()->formatDate(dateTime.date(), KLocale::LongDate));
+            case 'c': // Timezone city
+                substitution = prettyTimezone();
+
                 break;
-            case 'X': // time format, long
-                substitution.append(KGlobal::locale()->formatTime(dateTime.time(), true));
+            case 'a': // Timezone abbreviation
+                substitution = m_timeZoneAbbreviation;
+
                 break;
-            case 'Y': // year, four digits
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::LongNumber));
+            case 'o': // Timezone UTC offset
+                substitution = m_timeZoneOffset;
+
                 break;
-            case 'y': // year, two digits
-                substitution.append(calendar()->formatDate(dateTime.date(), KLocale::Year, KLocale::ShortNumber));
+            case 'H': // Holiday name
+                substitution = m_holiday;
+
                 break;
-            case 'Z': // timezone abbreviation
-                substitution.append(m_timeZoneAbbreviation);
+            case 'E': // Events list
+                substitution = m_events;
+
                 break;
-            case 'z': // timezone offset
-                substitution.append(m_timeZoneOffset);
+            case 'R': // Sunrise time
+                substitution = KGlobal::locale()->formatTime(m_sunrise, false);
+
+                break;
+            case 'S': // Sunset time
+                substitution = KGlobal::locale()->formatTime(m_sunset, false);
+
                 break;
             default:
                 substitution.append(format.at(i));
+
                 break;
             }
         }
@@ -1374,14 +1359,10 @@ QString AdjustableClock::evaluateFormat(const QDateTime dateTime, const QString 
         }
     }
 
-    if (format.at(length - 1) != QLatin1Char('%')) {
-        string.append(format.at(length));
-    }
-
     return string;
 }
 
-QString AdjustableClock::holiday() const
+QString Applet::holiday() const
 {
     const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
     const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
@@ -1394,7 +1375,7 @@ QString AdjustableClock::holiday() const
     return holidays[key].toList().first().toHash()[QLatin1String("Name")].toString();
 }
 
-Format AdjustableClock::format(QString name) const
+Format Applet::format(QString name) const
 {
     if (name.isEmpty()) {
         if (!m_format.html.isEmpty()) {
@@ -1407,31 +1388,27 @@ Format AdjustableClock::format(QString name) const
     QHash<QString, Format> formats;
     formats[QLatin1String("%default%")] = Format();
     formats[QLatin1String("%default%")].title = i18n("Default");
-    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%H:%M:%S</big>\n<small>%d.%m.%Y</small></div>");
+    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%h:%m:%s</big>\n<small>%d.%M.%Y</small></div>");
     formats[QLatin1String("%default%")].background = true;
     formats[QLatin1String("%flat%")] = Format();
     formats[QLatin1String("%flat%")].title = i18n("Flat");
-    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%H:%M:%S</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%m.%Y</small></div>");
+    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
     formats[QLatin1String("%flat%")].background = true;
     formats[QLatin1String("%simple%")] = Format();
     formats[QLatin1String("%simple%")].title = i18n("Simple");
-    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%H:%M</div>");
+    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%h:%m</div>");
     formats[QLatin1String("%simple%")].background = true;
     formats[QLatin1String("%verbose%")] = Format();
     formats[QLatin1String("%verbose%")].title = i18n("Verbose");
-    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85;\"><span style=\"font-size:30px;\">%H:%M:%S</span><br><span style=\"font-size:12px;\">%A, %d.%m.%Y</span></div>");
+    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85;\"><span style=\"font-size:30px;\">%h:%m:%s</span><br><span style=\"font-size:12px;\">%$w, %d.%M.%Y</span></div>");
     formats[QLatin1String("%verbose%")].background = false;
     formats[QLatin1String("%dbclock%")] = Format();
     formats[QLatin1String("%dbclock%")].title = i18n("dbClock");
-    formats[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:0 0 5px 5px;\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div>");
+    formats[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"height:50px;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%h:%m<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%s</span></div></div>");
     formats[QLatin1String("%dbclock%")].background = false;
-    formats[QLatin1String("%dbclock2%")] = Format();
-    formats[QLatin1String("%dbclock2%")].title = i18n("dbClock with reflection");
-    formats[QLatin1String("%dbclock2%")].html = QLatin1String("<div style=\"height:50px;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%H:%M<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%S</span></div></div>");
-    formats[QLatin1String("%dbclock2%")].background = false;
     formats[QLatin1String("%calendar%")] = Format();
     formats[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%A<br /><span style=\"font-size:130px; line-height:140px;\">%e</span><br /><span style=\"font-size:35px;\">%B %Y</span><br />%h<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br /><span style=\"font-size:130px; line-height:140px;\">%!d</span><br /><span style=\"font-size:35px;\">%$M %Y</span><br />%H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
     formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
     formats[QLatin1String("%calendar%")].background = false;
 
@@ -1455,7 +1432,7 @@ Format AdjustableClock::format(QString name) const
     return formats[QLatin1String("%default%")];
 }
 
-QStringList AdjustableClock::formats(bool all) const
+QStringList Applet::formats(bool all) const
 {
     QStringList formats;
     formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%dbclock2%") << QLatin1String("%calendar%");
@@ -1479,7 +1456,7 @@ QStringList AdjustableClock::formats(bool all) const
     return formats;
 }
 
-QList<QAction*> AdjustableClock::contextualActions()
+QList<QAction*> Applet::contextualActions()
 {
     QList<QAction*> actions = ClockApplet::contextualActions();
 
@@ -1502,4 +1479,6 @@ QList<QAction*> AdjustableClock::contextualActions()
     }
 
     return actions;
+}
+
 }
