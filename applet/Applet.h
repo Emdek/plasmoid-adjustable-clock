@@ -56,6 +56,7 @@ public:
 
     void init();
     QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
+    QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const;
 
 protected:
     void constraintsEvent(Plasma::Constraints constraints);
@@ -68,7 +69,8 @@ protected:
     void connectSource(const QString &timezone);
     void setHtml(const QString &html, const QString &css);
     QDateTime currentDateTime() const;
-    QString extractExpression(const QString &format) const;
+    QString extractExpression(const QString &format, int &i) const;
+    QString extractNumber(const QString &format, int &i) const;
     QString formatNumber(int number, int length) const;
     QString holiday() const;
     Format format(QString name = QString()) const;

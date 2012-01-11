@@ -41,6 +41,8 @@
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
+#include <QDebug>
+
 namespace AdjustableClock
 {
 
@@ -878,6 +880,7 @@ void Applet::updateToolTipContent()
 void Applet::updateSize()
 {
     const Format format = this->format();
+    QRegExp placeholderFormat = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*[a-zA-Z]"));
     QString string;
     QString longest;
     QString temporary;
@@ -1048,8 +1051,8 @@ void Applet::updateSize()
         size = boundingRect().size();
     }
 
-    qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
-    qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
+    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
+    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
 
     m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
 
@@ -1084,15 +1087,16 @@ QDateTime Applet::currentDateTime() const
     return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
-QString Applet::extractExpression(const QString &format) const
+QString Applet::extractExpression(const QString &format, int &i) const
 {
-    if (format.length() < 2 || !format.contains(QLatin1Char('}'))) {
+    if ((format.length() - i) < 2 || !format.mid(i).contains(QLatin1Char('}'))) {
         return QString();
     }
 
+    ++i;
+
     QString expression;
     int braces = 1;
-    int i = 0;
 
     while (i < format.length()) {
         if (format.at(i) == QLatin1Char('{')) {
@@ -1113,6 +1117,19 @@ QString Applet::extractExpression(const QString &format) const
     }
 
     return expression;
+}
+
+QString Applet::extractNumber(const QString &format, int &i) const
+{
+    QString number;
+
+    while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < format.length()) {
+        number.append(format.at(i));
+
+        ++i;
+    }
+
+    return number;
 }
 
 QString Applet::formatNumber(int number, int length) const
@@ -1142,9 +1159,8 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
     }
 
     QString string;
-    const int length = (format.length() - 1);
 
-    for (int i = 0; i < length; ++i) {
+    for (int i = 0; i < format.length(); ++i) {
         if (format.at(i) != QLatin1Char('%')) {
             string.append(format.at(i));
 
@@ -1159,29 +1175,15 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
 
         ++i;
 
-        if (format.at(i).isDigit() || (format.at(i) == QLatin1Char('-') && format.at(i + 1).isDigit())) {
-            QString number;
-
-            while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
-                number.append(format.at(i));
-
-                ++i;
+        if (format.at(i).isDigit() || ((format.at(i) == QLatin1Char('-') || format.at(i) == QLatin1Char(':')) && format.at(i + 1).isDigit())) {
+            if (format.at(i) == QLatin1Char(':')) {
+                range.first = 0;
+            } else {
+                range.first = extractNumber(format, i).toInt();
             }
 
-            range.first = number.toInt();
-
             if (format.at(i) == QLatin1Char(':')) {
-                number = QString();
-
-                ++i;
-
-                while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < length) {
-                    number.append(format.at(i));
-
-                    ++i;
-                }
-
-                range.second = number.toInt();
+                range.second = extractNumber(format, ++i).toInt();
             }
         }
 
@@ -1208,140 +1210,33 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
         }
 
         if (format.at(i) == QLatin1Char('{')) {
-            QString expression = extractExpression(format.mid(i + 1));
+            QString expression = extractExpression(format, i);
             QScriptValue scriptExpression = m_engine.evaluate(evaluateFormat(expression, dateTime));
 
-            i += (expression.length() + 2);
-
             if ((format.at(i) == QLatin1Char('?') || format.at(i) == QLatin1Char(':')) && format.at(i + 1) == QLatin1Char('{')) {
-                QString expression = extractExpression(format.mid(i + 2));
+                QString trueSubstitution;
+                QString falseSubstitution;
 
-                if ((format.at(i) == QLatin1Char('?') && scriptExpression.toBool()) || (format.at(i) == QLatin1Char(':') && !scriptExpression.toBool())) {
-                    substitution.append(evaluateFormat(expression, dateTime));
+                if (format.at(i) == QLatin1Char('?')) {
+                    trueSubstitution = extractExpression(format, ++i);
                 }
 
-                i += (expression.length() + 3);
+                if (format.at(i) == QLatin1Char(':')) {
+                    falseSubstitution = extractExpression(format, ++i);
+                }
 
-                if (format.at(i) == QLatin1Char(':') && format.at(i + 1) == QLatin1Char('{')) {
-                    expression = extractExpression(format.mid(i + 2));
-
-                    if (!scriptExpression.toBool()) {
-                        substitution.append(evaluateFormat(expression, dateTime));
-                    }
-
-                    i += (expression.length() + 2);
+                if (scriptExpression.toBool()) {
+                    substitution.append(evaluateFormat(trueSubstitution, dateTime));
                 } else {
-                    --i;
+                    substitution.append(evaluateFormat(falseSubstitution, dateTime));
                 }
-            } else {
-                substitution.append(scriptExpression.toString());
 
                 --i;
+            } else {
+                substitution.append(scriptExpression.toString());
             }
         } else {
-            switch (format.at(i).unicode()) {
-            case 's': // Second
-                substitution = formatNumber(dateTime.time().second(), (shortForm ? 2 : 0));
-
-                break;
-            case 'm': // Minute
-                substitution = formatNumber(dateTime.time().minute(), (shortForm ? 2 : 0));
-
-                break;
-            case 'h': // Hour
-                alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->use12Clock() : (alternativeForm == 1));
-
-                substitution = formatNumber((alternativeForm ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (shortForm ? 2 : 0));
-
-                break;
-            case 'p': // The pm or am string
-                substitution = ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
-
-                break;
-            case 'd': // Day of the month
-                substitution = formatNumber(dateTime.date().day(), (shortForm ? 2 : 0));
-
-                break;
-            case 'w': // Weekday
-                if (textualForm) {
-                    substitution = calendar()->weekDayName(calendar()->dayOfWeek(dateTime.date()), (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
-                } else {
-                    substitution = formatNumber(calendar()->dayOfWeek(dateTime.date()), (shortForm ? QString::number(calendar()->daysInWeek(dateTime.date())).length() : 0));
-                }
-
-                break;
-            case 'D': // Day of the year
-                substitution = formatNumber(calendar()->dayOfYear(dateTime.date()), (shortForm ? QString::number(calendar()->daysInYear(dateTime.date())).length() : 0));
-
-                break;
-            case 'W': // Week
-                substitution = formatNumber(calendar()->week(dateTime.date()), (shortForm ? QString::number(calendar()->weeksInYear(dateTime.date())).length() : 0));
-
-                break;
-            case 'M': // Month
-
-                if (textualForm) {
-                    alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
-
-                    substitution = calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
-                } else {
-                    substitution = formatNumber(calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(calendar()->monthsInYear(dateTime.date())).length()));
-                }
-
-                break;
-            case 'Y': // Year
-                substitution = calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
-
-                break;
-            case 'U': // UNIX timestamp
-                substitution = QString::number(dateTime.toTime_t());
-
-                break;
-            case 't': // Time
-                substitution = KGlobal::locale()->formatTime(dateTime.time(), !shortForm);
-
-                break;
-            case 'T': // Date
-                substitution = KGlobal::locale()->formatDate(dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
-
-                break;
-            case 'A': // Date and time
-                substitution = KGlobal::locale()->formatDateTime(dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
-
-                break;
-            case 'c': // Timezone city
-                substitution = prettyTimezone();
-
-                break;
-            case 'a': // Timezone abbreviation
-                substitution = m_timeZoneAbbreviation;
-
-                break;
-            case 'o': // Timezone UTC offset
-                substitution = m_timeZoneOffset;
-
-                break;
-            case 'H': // Holiday name
-                substitution = m_holiday;
-
-                break;
-            case 'E': // Events list
-                substitution = m_events;
-
-                break;
-            case 'R': // Sunrise time
-                substitution = KGlobal::locale()->formatTime(m_sunrise, false);
-
-                break;
-            case 'S': // Sunset time
-                substitution = KGlobal::locale()->formatTime(m_sunset, false);
-
-                break;
-            default:
-                substitution.append(format.at(i));
-
-                break;
-            }
+            substitution = evaluatePlaceholder(format.at(i).unicode(), dateTime, alternativeForm, shortForm, textualForm);
         }
 
         if (range.first != -1 || range.second != -1) {
@@ -1360,6 +1255,70 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
     }
 
     return string;
+}
+
+QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const
+{
+    switch (placeholder) {
+    case 's': // Second
+        return formatNumber(dateTime.time().second(), (shortForm ? 2 : 0));
+    case 'm': // Minute
+        return formatNumber(dateTime.time().minute(), (shortForm ? 2 : 0));
+    case 'h': // Hour
+        alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->use12Clock() : (alternativeForm == 1));
+
+        return formatNumber((alternativeForm ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (shortForm ? 2 : 0));
+    case 'p': // The pm or am string
+        return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
+    case 'd': // Day of the month
+        return formatNumber(dateTime.date().day(), (shortForm ? 2 : 0));
+    case 'w': // Weekday
+        if (textualForm) {
+            return calendar()->weekDayName(calendar()->dayOfWeek(dateTime.date()), (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
+        }
+
+        return formatNumber(calendar()->dayOfWeek(dateTime.date()), (shortForm ? QString::number(calendar()->daysInWeek(dateTime.date())).length() : 0));
+    case 'D': // Day of the year
+        return formatNumber(calendar()->dayOfYear(dateTime.date()), (shortForm ? QString::number(calendar()->daysInYear(dateTime.date())).length() : 0));
+    case 'W': // Week
+        return formatNumber(calendar()->week(dateTime.date()), (shortForm ? QString::number(calendar()->weeksInYear(dateTime.date())).length() : 0));
+    case 'M': // Month
+        if (textualForm) {
+            alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
+
+            return calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+        }
+
+        return formatNumber(calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(calendar()->monthsInYear(dateTime.date())).length()));
+    case 'Y': // Year
+        return calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
+    case 'U': // UNIX timestamp
+        return QString::number(dateTime.toTime_t());
+    case 't': // Time
+        return KGlobal::locale()->formatTime(dateTime.time(), !shortForm);
+    case 'T': // Date
+        return KGlobal::locale()->formatDate(dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
+    case 'A': // Date and time
+        return KGlobal::locale()->formatDateTime(dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
+    case 'c': // Timezone city
+        return prettyTimezone();
+    case 'a': // Timezone abbreviation
+        return m_timeZoneAbbreviation;
+    case 'o': // Timezone UTC offset
+        return m_timeZoneOffset;
+    case 'H': // Holiday name
+        return m_holiday;
+    case 'E': // Events list
+        return m_events;
+    case 'R': // Sunrise time
+        return KGlobal::locale()->formatTime(m_sunrise, false);
+    case 'S': // Sunset time
+        return KGlobal::locale()->formatTime(m_sunset, false);
+    default:
+        return QString(placeholder);
+    }
+
+    return QString();
 }
 
 QString Applet::holiday() const
