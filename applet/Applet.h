@@ -57,6 +57,7 @@ public:
     void init();
     QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
     QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const;
+    QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm) const;
 
 protected:
     void constraintsEvent(Plasma::Constraints constraints);
