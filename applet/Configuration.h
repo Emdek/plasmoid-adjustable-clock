@@ -30,6 +30,7 @@ namespace AdjustableClock
 {
 
 class Applet;
+class FormatLineEdit;
 
 class Configuration : public QObject
 {
@@ -37,6 +38,8 @@ class Configuration : public QObject
 
     public:
         Configuration(Applet *applet, KConfigDialog *parent);
+
+        bool eventFilter(QObject *object, QEvent *event);
 
     protected:
         void timerEvent(QTimerEvent *event);
@@ -59,15 +62,17 @@ class Configuration : public QObject
         void setFontFamily(const QString &font);
         void selectionChanged();
         void itemSelectionChanged();
+        void editRow(QTableWidgetItem *item);
         void insertRow();
         void deleteRow();
         void moveRow(bool up);
         void moveRowUp();
         void moveRowDown();
-        void updateRow(int row, int column);
+        void updateRow(int row);
 
     private:
         Applet *m_applet;
+        QTableWidgetItem *m_editedItem;
         int m_controlsTimer;
         int m_fontSize;
         Ui::appearance m_appearanceUi;

@@ -18,39 +18,27 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
-#define ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
+#ifndef ADJUSTABLECLOCKFORMATLINEEDIT_HEADER
+#define ADJUSTABLECLOCKFORMATLINEEDIT_HEADER
 
-#include <KDialog>
+#include <QtGui/QMenu>
 
-#include "ui_placeholder.h"
+#include <KLineEdit>
 
 namespace AdjustableClock
 {
 
-class PlaceholderDialog : public KDialog
+class FormatLineEdit : public KLineEdit
 {
     Q_OBJECT
 
     public:
-        PlaceholderDialog(QWidget *parent);
-
-    protected:
-        QString placeholder();
+        FormatLineEdit(QWidget *parent = NULL);
 
     protected slots:
-        void sendSignal();
-        void updatePreview();
-        void selectPlaceholder(int index);
-        void setShortForm(bool shortForm);
-        void setTextualForm(bool textualForm);
-        void setAlternativeForm(bool alternativeForm);
-
-    private:
-        Ui::placeholder m_placeholderUi;
-
-    signals:
-        void insertPlaceholder(QString placeholder);
+        void insertPlaceholder();
+        void insertPlaceholder(const QString &placeholder);
+        void extendContextMenu(QMenu *menu);
 };
 
 }

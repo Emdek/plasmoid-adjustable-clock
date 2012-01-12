@@ -24,12 +24,12 @@
 namespace AdjustableClock
 {
 
-PlaceholderDialog::PlaceholderDialog(QWidget *parent, Applet *applet) : KDialog(parent),
-    m_applet(applet)
+PlaceholderDialog::PlaceholderDialog(QWidget *parent) : KDialog(parent)
 {
     m_placeholderUi.setupUi(mainWidget());
 
     setButtons(KDialog::Cancel | KDialog::Ok);
+    setModal(true);
 
     m_placeholderUi.placeholderComboBox->addItem(i18n("Second"), QVariant(QLatin1Char('s')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Minute"), QVariant(QLatin1Char('m')));
@@ -74,7 +74,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(m_applet->evaluateFormat(placeholder()));
+    m_placeholderUi.previewLabel->setText(Applet::evaluateFormat(placeholder()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)

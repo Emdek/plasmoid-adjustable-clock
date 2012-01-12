@@ -20,6 +20,8 @@
 
 #include "Configuration.h"
 #include "Applet.h"
+#include "FormatDelegate.h"
+#include "FormatLineEdit.h"
 #include "PlaceholderDialog.h"
 
 #include <QtWebKit/QWebFrame>
@@ -34,6 +36,7 @@ namespace AdjustableClock
 
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
+    m_editedItem(NULL),
     m_controlsTimer(0)
 {
     QWidget *appearanceConfiguration = new QWidget;
@@ -63,6 +66,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
+
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
@@ -79,7 +83,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
-    m_clipboardUi.fastCopyFormat->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
+    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(this));
+    m_clipboardUi.clipboardActionsTable->viewport()->installEventFilter(this);
+    m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
 
     for (int i = 0; i < clipboardFormats.count(); ++i) {
         row = m_clipboardUi.clipboardActionsTable->rowCount();
@@ -133,7 +139,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveRowUp()));
     connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveRowDown()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
-    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int, int)), this, SLOT(updateRow(int, int)));
+    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
+    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
 
     const int currentFormat = m_appearanceUi.formatComboBox->findData(m_applet->config().readEntry("format", "%default%"));
 
@@ -154,6 +161,10 @@ void Configuration::accepted()
     QStringList clipboardFormats;
 
     killTimer(m_controlsTimer);
+
+    if (m_editedItem) {
+        m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+    }
 
     m_applet->config().deleteGroup("Formats");
 
@@ -192,12 +203,12 @@ void Configuration::accepted()
 
     m_applet->config().writeEntry("format", m_appearanceUi.formatComboBox->itemData(m_appearanceUi.formatComboBox->currentIndex()).toString());
     m_applet->config().writeEntry("clipboardFormats", clipboardFormats);
-    m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormat->text());
+    m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormatEdit->text());
 }
 
 void Configuration::insertPlaceholder()
 {
-    connect(new PlaceholderDialog(m_appearanceUi.placeholdersButton, m_applet), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    connect(new PlaceholderDialog(m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
 }
 
 void Configuration::insertPlaceholder(const QString &placeholder)
@@ -527,14 +538,28 @@ void Configuration::itemSelectionChanged()
     m_clipboardUi.deleteButton->setEnabled(!selectedItems.isEmpty());
 }
 
+void Configuration::editRow(QTableWidgetItem *item)
+{
+    if (m_editedItem) {
+        m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+    }
+
+    m_editedItem = item;
+
+    m_clipboardUi.clipboardActionsTable->openPersistentEditor(m_editedItem);
+}
+
 void Configuration::insertRow()
 {
     const int row = ((m_clipboardUi.clipboardActionsTable->rowCount() && m_clipboardUi.clipboardActionsTable->currentRow() >= 0) ? m_clipboardUi.clipboardActionsTable->currentRow() : 0);
+    QTableWidgetItem *item = new QTableWidgetItem(QString());
 
     m_clipboardUi.clipboardActionsTable->insertRow(row);
-    m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(QString()));
+    m_clipboardUi.clipboardActionsTable->setItem(row, 0, item);
 
-    QTableWidgetItem *item = new QTableWidgetItem(QString());
+    editRow(item);
+
+    item = new QTableWidgetItem(QString());
     item->setFlags(0);
 
     m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
@@ -578,10 +603,8 @@ void Configuration::moveRowDown()
     moveRow(false);
 }
 
-void Configuration::updateRow(int row, int column)
+void Configuration::updateRow(int row)
 {
-    Q_UNUSED(column)
-
     if (!m_clipboardUi.clipboardActionsTable->item(row, 1)) {
         return;
     }
@@ -590,6 +613,25 @@ void Configuration::updateRow(int row, int column)
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
+}
+
+bool Configuration::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+        if (m_clipboardUi.clipboardActionsTable->itemAt(mouseEvent->pos()) != m_editedItem) {
+            m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+        }
+    } else if (event->type() == QEvent::MouseButtonDblClick) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+        if (!m_clipboardUi.clipboardActionsTable->itemAt(mouseEvent->pos())) {
+            insertRow();
+        }
+    }
+
+    return QObject::eventFilter(object, event);
 }
 
 }

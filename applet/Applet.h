@@ -52,9 +52,9 @@ class Applet : public ClockApplet
         Applet(QObject *parent, const QVariantList &args);
 
         void init();
-        QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
-        QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const;
-        QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm) const;
+        static QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
+        static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
+        static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         Format format(QString name = QString()) const;
         QStringList formats(bool all = true) const;
         QStringList clipboardFormats() const;
@@ -69,9 +69,9 @@ class Applet : public ClockApplet
         void connectSource(const QString &timezone);
         void setHtml(const QString &html, const QString &css);
         QDateTime currentDateTime() const;
-        QString extractExpression(const QString &format, int &i) const;
-        QString extractNumber(const QString &format, int &i) const;
-        QString formatNumber(int number, int length) const;
+        static QString extractExpression(const QString &format, int &i);
+        static QString extractNumber(const QString &format, int &i);
+        static QString formatNumber(int number, int length);
         QString holiday() const;
         QList<QAction*> contextualActions();
 
@@ -89,17 +89,8 @@ class Applet : public ClockApplet
         void updateTheme();
 
     private:
-        QScriptEngine m_engine;
         QWebPage m_page;
-        QString m_timeZoneAbbreviation;
-        QString m_timeZoneOffset;
-        QString m_events;
-        QString m_holiday;
-        QString m_currentHtml;
         Format m_format;
-        QDateTime m_dateTime;
-        QTime m_sunrise;
-        QTime m_sunset;
         QAction *m_clipboardAction;
         QFlags<ClockFeature> m_features;
 

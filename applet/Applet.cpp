@@ -41,12 +41,26 @@ K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 namespace AdjustableClock
 {
 
+Applet *m_applet = NULL;
+QScriptEngine m_engine;
+QString m_timezoneCity;
+QString m_timezoneAbbreviation;
+QString m_timezoneOffset;
+QString m_events;
+QString m_holiday;
+QString m_currentHtml;
+QDateTime m_dateTime;
+QTime m_sunrise;
+QTime m_sunset;
+
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog(QLatin1String("libplasmaclock"));
     KGlobal::locale()->insertCatalog(QLatin1String("timezones4"));
     KGlobal::locale()->insertCatalog(QLatin1String("adjustableclock"));
+
+    m_applet = this;
 
     setHasConfigurationInterface(true);
     resize(150, 80);
@@ -202,10 +216,11 @@ void Applet::connectSource(const QString &timezone)
 
     dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
-    m_timeZoneAbbreviation = QString::fromLatin1(KSystemTimeZones::zone(timezone).abbreviation(QDateTime::currentDateTime().toUTC()));
+    m_timezoneCity = prettyTimezone();
+    m_timezoneAbbreviation = QString::fromLatin1(KSystemTimeZones::zone(timezone).abbreviation(QDateTime::currentDateTime().toUTC()));
 
-    if (m_timeZoneAbbreviation.isEmpty()) {
-        m_timeZoneAbbreviation = i18n("UTC");
+    if (m_timezoneAbbreviation.isEmpty()) {
+        m_timezoneAbbreviation = i18n("UTC");
     }
 
     int seconds = KSystemTimeZones::zone(currentTimezone()).currentOffset();
@@ -214,19 +229,19 @@ void Applet::connectSource(const QString &timezone)
 
     minutes = (minutes - (hours * 60));
 
-    m_timeZoneOffset = QString::number(hours);
+    m_timezoneOffset = QString::number(hours);
 
     if (minutes) {
-        m_timeZoneOffset.append(QLatin1Char(':'));
+        m_timezoneOffset.append(QLatin1Char(':'));
 
         if (minutes < 10) {
-            m_timeZoneOffset.append(QLatin1Char('0'));
+            m_timezoneOffset.append(QLatin1Char('0'));
         }
 
-        m_timeZoneOffset.append(QString::number(minutes));
+        m_timezoneOffset.append(QString::number(minutes));
     }
 
-    m_timeZoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timeZoneOffset);
+    m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -364,7 +379,7 @@ QDateTime Applet::currentDateTime() const
     return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
-QString Applet::extractExpression(const QString &format, int &i) const
+QString Applet::extractExpression(const QString &format, int &i)
 {
     if ((format.length() - i) < 2 || !format.mid(i).contains(QLatin1Char('}'))) {
         return QString();
@@ -396,7 +411,7 @@ QString Applet::extractExpression(const QString &format, int &i) const
     return expression;
 }
 
-QString Applet::extractNumber(const QString &format, int &i) const
+QString Applet::extractNumber(const QString &format, int &i)
 {
     QString number;
 
@@ -409,20 +424,9 @@ QString Applet::extractNumber(const QString &format, int &i) const
     return number;
 }
 
-QString Applet::formatNumber(int number, int length) const
+QString Applet::formatNumber(int number, int length)
 {
-    QString string = QString::number(number);
-    int multiplier = 1;
-
-    for (int i = 1; i < length; ++i) {
-        multiplier *= 10;
-
-        if (number < multiplier) {
-            string.prepend(QLatin1Char('0'));
-        }
-    }
-
-    return string;
+    return QString(QLatin1String("%1")).arg(number, length, 10, QLatin1Char('0'));
 }
 
 QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
@@ -534,41 +538,41 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
     return string;
 }
 
-QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const
+QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm)
 {
     switch (placeholder) {
     case 's': // Second
-        return formatNumber(dateTime.time().second(), (shortForm ? 2 : 0));
+        return formatNumber(dateTime.time().second(), (shortForm ? 0 : 2));
     case 'm': // Minute
-        return formatNumber(dateTime.time().minute(), (shortForm ? 2 : 0));
+        return formatNumber(dateTime.time().minute(), (shortForm ? 0 : 2));
     case 'h': // Hour
         alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->use12Clock() : (alternativeForm == 1));
 
-        return formatNumber((alternativeForm ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (shortForm ? 2 : 0));
+        return formatNumber((alternativeForm ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (shortForm ? 0 : 2));
     case 'p': // The pm or am string
         return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
     case 'd': // Day of the month
-        return formatNumber(dateTime.date().day(), (shortForm ? 2 : 0));
+        return formatNumber(dateTime.date().day(), (shortForm ? 0 : 2));
     case 'w': // Weekday
         if (textualForm) {
-            return calendar()->weekDayName(calendar()->dayOfWeek(dateTime.date()), (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
+            return m_applet->calendar()->weekDayName(m_applet->calendar()->dayOfWeek(dateTime.date()), (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
         }
 
-        return formatNumber(calendar()->dayOfWeek(dateTime.date()), (shortForm ? QString::number(calendar()->daysInWeek(dateTime.date())).length() : 0));
+        return formatNumber(m_applet->calendar()->dayOfWeek(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->daysInWeek(dateTime.date())).length()));
     case 'D': // Day of the year
-        return formatNumber(calendar()->dayOfYear(dateTime.date()), (shortForm ? QString::number(calendar()->daysInYear(dateTime.date())).length() : 0));
+        return formatNumber(m_applet->calendar()->dayOfYear(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->daysInYear(dateTime.date())).length()));
     case 'W': // Week
-        return formatNumber(calendar()->week(dateTime.date()), (shortForm ? QString::number(calendar()->weeksInYear(dateTime.date())).length() : 0));
+        return formatNumber(m_applet->calendar()->week(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->weeksInYear(dateTime.date())).length()));
     case 'M': // Month
         if (textualForm) {
             alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
 
-            return calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+            return m_applet->calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
         }
 
-        return formatNumber(calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(calendar()->monthsInYear(dateTime.date())).length()));
+        return formatNumber(m_applet->calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->monthsInYear(dateTime.date())).length()));
     case 'Y': // Year
-        return calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
     case 'U': // UNIX timestamp
         return QString::number(dateTime.toTime_t());
     case 't': // Time
@@ -578,11 +582,11 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
     case 'A': // Date and time
         return KGlobal::locale()->formatDateTime(dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'c': // Timezone city
-        return prettyTimezone();
+        return m_timezoneCity;
     case 'a': // Timezone abbreviation
-        return m_timeZoneAbbreviation;
+        return m_timezoneAbbreviation;
     case 'o': // Timezone UTC offset
-        return m_timeZoneOffset;
+        return m_timezoneOffset;
     case 'H': // Holiday name
         return m_holiday;
     case 'E': // Events list
@@ -598,7 +602,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
     return QString();
 }
 
-QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm) const
+QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm)
 {
     QString longest;
     QString temporary;
@@ -614,10 +618,10 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
         return ((i18n("pm").length() > i18n("am").length()) ? i18n("pm") : i18n("am"));
     case 'w':
         if (textualForm) {
-            amount = calendar()->daysInWeek(m_dateTime.date());
+            amount = m_applet->calendar()->daysInWeek(m_dateTime.date());
 
             for (int i = 0; i <= amount; ++i) {
-                temporary = calendar()->weekDayName(i, (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
+                temporary = m_applet->calendar()->weekDayName(i, (shortForm ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
 
                 if (temporary.length() > longest.length()) {
                     longest = temporary;
@@ -627,19 +631,19 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
             return longest;
         }
 
-        return QString(QLatin1Char('0')).repeated(QString::number(calendar()->daysInWeek(m_dateTime.date())).length());
+        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->daysInWeek(m_dateTime.date())).length());
     case 'D':
-        return QString(QLatin1Char('0')).repeated(QString::number(calendar()->daysInYear(m_dateTime.date())).length());
+        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->daysInYear(m_dateTime.date())).length());
     case 'W':
-        return QString(QLatin1Char('0')).repeated(QString::number(calendar()->weeksInYear(m_dateTime.date())).length());
+        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->weeksInYear(m_dateTime.date())).length());
     case 'M':
         if (textualForm) {
             alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
 
-            amount = calendar()->monthsInYear(m_dateTime.date());
+            amount = m_applet->calendar()->monthsInYear(m_dateTime.date());
 
             for (int i = 0; i < amount; ++i) {
-                temporary = calendar()->monthName(i, calendar()->year(m_dateTime.date()), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+                temporary = m_applet->calendar()->monthName(i, m_applet->calendar()->year(m_dateTime.date()), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
 
                 if (temporary.length() > longest.length()) {
                     longest = temporary;
@@ -649,7 +653,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
             return longest;
         }
 
-        return QString(QLatin1Char('0')).repeated(QString::number(calendar()->monthsInYear(m_dateTime.date())).length());
+        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->monthsInYear(m_dateTime.date())).length());
     case 'Y':
         return (shortForm ? QLatin1String("00") : QLatin1String("0000"));
     case 'U':
@@ -661,11 +665,11 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     case 'A':
         return KGlobal::locale()->formatDateTime(m_dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'c':
-        return prettyTimezone();
+        return m_timezoneCity;
     case 'a':
-        return m_timeZoneAbbreviation;
+        return m_timezoneAbbreviation;
     case 'o':
-        return m_timeZoneOffset;
+        return m_timezoneOffset;
     case 'H':
     case 'E':
         return QLatin1String("XXXXXXXXXX");

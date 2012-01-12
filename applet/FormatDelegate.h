@@ -18,39 +18,28 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
-#define ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
+#ifndef ADJUSTABLECLOCKFORMATDELEGATE_HEADER
+#define ADJUSTABLECLOCKFORMATDELEGATE_HEADER
 
-#include <KDialog>
-
-#include "ui_placeholder.h"
+#include <QtGui/QStyledItemDelegate>
 
 namespace AdjustableClock
 {
 
-class PlaceholderDialog : public KDialog
+class Applet;
+
+class FormatDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
     public:
-        PlaceholderDialog(QWidget *parent);
+        FormatDelegate(QObject *parent = NULL);
 
-    protected:
-        QString placeholder();
-
-    protected slots:
-        void sendSignal();
-        void updatePreview();
-        void selectPlaceholder(int index);
-        void setShortForm(bool shortForm);
-        void setTextualForm(bool textualForm);
-        void setAlternativeForm(bool alternativeForm);
-
-    private:
-        Ui::placeholder m_placeholderUi;
-
-    signals:
-        void insertPlaceholder(QString placeholder);
+        void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        void setEditorData(QWidget *editor, const QModelIndex &index) const;
+        void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        QString displayText(const QVariant &value, const QLocale &locale) const;
 };
 
 }

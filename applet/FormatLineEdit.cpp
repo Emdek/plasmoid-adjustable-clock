@@ -18,41 +18,33 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
-#define ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
+#include "FormatLineEdit.h"
+#include "PlaceholderDialog.h"
 
-#include <KDialog>
-
-#include "ui_placeholder.h"
+#include <KLocale>
 
 namespace AdjustableClock
 {
 
-class PlaceholderDialog : public KDialog
+FormatLineEdit::FormatLineEdit(QWidget *parent) : KLineEdit(parent)
 {
-    Q_OBJECT
-
-    public:
-        PlaceholderDialog(QWidget *parent);
-
-    protected:
-        QString placeholder();
-
-    protected slots:
-        void sendSignal();
-        void updatePreview();
-        void selectPlaceholder(int index);
-        void setShortForm(bool shortForm);
-        void setTextualForm(bool textualForm);
-        void setAlternativeForm(bool alternativeForm);
-
-    private:
-        Ui::placeholder m_placeholderUi;
-
-    signals:
-        void insertPlaceholder(QString placeholder);
-};
-
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
 }
 
-#endif
+void FormatLineEdit::insertPlaceholder()
+{
+    connect(new PlaceholderDialog(this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+}
+
+void FormatLineEdit::insertPlaceholder(const QString &placeholder)
+{
+    insert(placeholder);
+}
+
+void FormatLineEdit::extendContextMenu(QMenu *menu)
+{
+    menu->addSeparator();
+    menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component"), this, SLOT(insertPlaceholder()));
+}
+
+}
