@@ -34,26 +34,26 @@ class PlaceholderDialog : public KDialog
 {
     Q_OBJECT
 
-public:
-    PlaceholderDialog(QWidget *parent, Applet *applet);
+    public:
+        PlaceholderDialog(QWidget *parent, Applet *applet);
 
-protected:
-    QString placeholder();
+    protected:
+        QString placeholder();
 
-protected slots:
-    void sendSignal();
-    void updatePreview();
-    void selectPlaceholder(int index);
-    void setShortForm(bool shortForm);
-    void setTextualForm(bool textualForm);
-    void setAlternativeForm(bool alternativeForm);
+    protected slots:
+        void sendSignal();
+        void updatePreview();
+        void selectPlaceholder(int index);
+        void setShortForm(bool shortForm);
+        void setTextualForm(bool textualForm);
+        void setAlternativeForm(bool alternativeForm);
 
-private:
-    Applet *m_applet;
-    Ui::placeholder m_placeholderUi;
+    private:
+        Applet *m_applet;
+        Ui::placeholder m_placeholderUi;
 
-signals:
-    void insertPlaceholder(QString placeholder);
+    signals:
+        void insertPlaceholder(QString placeholder);
 };
 
 }

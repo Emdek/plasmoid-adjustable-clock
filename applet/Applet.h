@@ -31,9 +31,6 @@
 
 #include <plasmaclock/clockapplet.h>
 
-#include "ui_appearance.h"
-#include "ui_clipboard.h"
-
 namespace AdjustableClock
 {
 
@@ -51,89 +48,62 @@ class Applet : public ClockApplet
 {
     Q_OBJECT
 
-public:
-    Applet(QObject *parent, const QVariantList &args);
+    public:
+        Applet(QObject *parent, const QVariantList &args);
 
-    void init();
-    QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
-    QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const;
-    QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm) const;
+        void init();
+        QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
+        QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm) const;
+        QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm) const;
+        Format format(QString name = QString()) const;
+        QStringList formats(bool all = true) const;
+        QStringList clipboardFormats() const;
 
-protected:
-    void constraintsEvent(Plasma::Constraints constraints);
-    void resizeEvent(QGraphicsSceneResizeEvent *event);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void timerEvent(QTimerEvent *event);
-    void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
-    void createClockConfigurationInterface(KConfigDialog *parent);
-    void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
-    void connectSource(const QString &timezone);
-    void setHtml(const QString &html, const QString &css);
-    QDateTime currentDateTime() const;
-    QString extractExpression(const QString &format, int &i) const;
-    QString extractNumber(const QString &format, int &i) const;
-    QString formatNumber(int number, int length) const;
-    QString holiday() const;
-    Format format(QString name = QString()) const;
-    QStringList formats(bool all = true) const;
-    QList<QAction*> contextualActions();
+    protected:
+        void constraintsEvent(Plasma::Constraints constraints);
+        void resizeEvent(QGraphicsSceneResizeEvent *event);
+        void mousePressEvent(QGraphicsSceneMouseEvent *event);
+        void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
+        void createClockConfigurationInterface(KConfigDialog *parent);
+        void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
+        void connectSource(const QString &timezone);
+        void setHtml(const QString &html, const QString &css);
+        QDateTime currentDateTime() const;
+        QString extractExpression(const QString &format, int &i) const;
+        QString extractNumber(const QString &format, int &i) const;
+        QString formatNumber(int number, int length) const;
+        QString holiday() const;
+        QList<QAction*> contextualActions();
 
-protected slots:
-    void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool force = false);
-    void clockConfigChanged();
-    void clockConfigAccepted();
-    void copyToClipboard();
-    void insertPlaceholder();
-    void insertPlaceholder(const QString &placeholder);
-    void loadFormat(int index);
-    void addFormat(bool automatically = false);
-    void removeFormat();
-    void changeFormat();
-    void updateControls();
-    void triggerAction();
-    void selectColor();
-    void selectFontSize(const QString &size);
-    void selectFontFamily(const QFont &font);
-    void setColor(const QString &color);
-    void setFontSize(const QString &size);
-    void setFontFamily(const QString &font);
-    void selectionChanged();
-    void itemSelectionChanged();
-    void insertRow();
-    void deleteRow();
-    void moveRow(bool up);
-    void moveRowUp();
-    void moveRowDown();
-    void updateRow(int row, int column);
-    void toolTipAboutToShow();
-    void toolTipHidden();
-    void copyToClipboard(QAction *action);
-    void updateClipboardMenu();
-    void updateToolTipContent();
-    void updateSize();
-    void updateTheme();
+    protected slots:
+        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool force = false);
+        void clockConfigChanged();
+        void clockConfigAccepted();
+        void copyToClipboard();
+        void toolTipAboutToShow();
+        void toolTipHidden();
+        void copyToClipboard(QAction *action);
+        void updateClipboardMenu();
+        void updateToolTipContent();
+        void updateSize();
+        void updateTheme();
 
-private:
-    QScriptEngine m_engine;
-    QWebPage m_page;
-    QString m_timeZoneAbbreviation;
-    QString m_timeZoneOffset;
-    QString m_events;
-    QString m_holiday;
-    QString m_currentHtml;
-    QStringList m_clipboardFormats;
-    Format m_format;
-    QDateTime m_dateTime;
-    QTime m_sunrise;
-    QTime m_sunset;
-    QAction *m_clipboardAction;
-    QFlags<ClockFeature> m_features;
-    int m_controlsTimer;
-    int m_fontSize;
-    Ui::appearance m_appearanceUi;
-    Ui::clipboard m_clipboardUi;
+    private:
+        QScriptEngine m_engine;
+        QWebPage m_page;
+        QString m_timeZoneAbbreviation;
+        QString m_timeZoneOffset;
+        QString m_events;
+        QString m_holiday;
+        QString m_currentHtml;
+        Format m_format;
+        QDateTime m_dateTime;
+        QTime m_sunrise;
+        QTime m_sunset;
+        QAction *m_clipboardAction;
+        QFlags<ClockFeature> m_features;
 
-    Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
+        Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 };
 
 }

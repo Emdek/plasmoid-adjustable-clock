@@ -1,4 +1,3 @@
-- add "longest" flag or reimplement evaluateFormat() (add new extractExpression(&i) etc?);
 - allow to display events (full day first, sorted by time start, updated each hour);
 - allow to access placeholder dialog from format fields;
 - add multiple timezones in tooltip;
