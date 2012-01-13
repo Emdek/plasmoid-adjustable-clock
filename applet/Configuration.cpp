@@ -66,7 +66,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
-
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
@@ -110,10 +109,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_appearanceUi.colorButton->setPalette(buttonPalette);
 
-    appearanceConfiguration->resize(600, 500);
-
     parent->addPage(appearanceConfiguration, i18n("Appearance"), QLatin1String("preferences-desktop-theme"));
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
+    parent->resize(500, 400);
 
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>585</width>
+    <height>319</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -297,14 +297,11 @@
           </property>
          </widget>
          <widget class="KTextEdit" name="cssTextEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="toolTip">
            <string>CSS</string>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </widget>
