@@ -34,7 +34,7 @@
 namespace AdjustableClock
 {
 
-enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, SunsetFeature = 16, SunriseFeature = 32, NoBackgroundFeature = 64 };
+enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, TimezoneFeature = 16, SunsetFeature = 32, SunriseFeature = 64, NoBackgroundFeature = 128 };
 
 struct Format
 {
@@ -72,7 +72,7 @@ class Applet : public ClockApplet
         static QString extractExpression(const QString &format, int &i);
         static QString extractNumber(const QString &format, int &i);
         static QString formatNumber(int number, int length);
-        QString holiday() const;
+        QPair<QString, QString> toolTipFormat() const;
         QList<QAction*> contextualActions();
 
     protected slots:
@@ -91,6 +91,7 @@ class Applet : public ClockApplet
     private:
         QWebPage m_page;
         Format m_format;
+        QString m_currentHtml;
         QAction *m_clipboardAction;
         QFlags<ClockFeature> m_features;
 

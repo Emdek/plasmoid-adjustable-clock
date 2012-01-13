@@ -8,6 +8,7 @@
 - allow to toggle use of standard background;
 - allow to embed clickable links;
 - allow to access placeholder dialog from format fields;
+- allow to display events;
 - improved formats storage;
 - some code cleanups and fixes.
 

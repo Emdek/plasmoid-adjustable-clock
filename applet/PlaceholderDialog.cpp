@@ -46,7 +46,7 @@ PlaceholderDialog::PlaceholderDialog(QWidget *parent) : KDialog(parent)
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date"), QVariant(QLatin1Char('T')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date and time"), QVariant(QLatin1Char('A')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone"), QVariant(QLatin1Char('z')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Holiday name"), QVariant(QLatin1Char('H')));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(QLatin1Char('H')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(QLatin1Char('E')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(QLatin1Char('R')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Sunset time"), QVariant(QLatin1Char('S')));
@@ -73,7 +73,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(Applet::evaluateFormat(placeholder()));
+    m_placeholderUi.previewLabel->setText(Applet::evaluateFormat(placeholder(), QDateTime::currentDateTime()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)
@@ -87,7 +87,7 @@ void PlaceholderDialog::selectPlaceholder(int index)
     }
 
     m_placeholderUi.timezoneModeComboBox->setEnabled(placeholder == QLatin1Char('z'));
-    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M') || placeholder == QLatin1Char('Y') || placeholder == QLatin1Char('t') || placeholder == QLatin1Char('T') || placeholder == QLatin1Char('z'));
+    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M') || placeholder == QLatin1Char('Y') || placeholder == QLatin1Char('t') || placeholder == QLatin1Char('T') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('E'));
     m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == QLatin1Char('h'));
     m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M'));
     m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == QLatin1Char('M'));

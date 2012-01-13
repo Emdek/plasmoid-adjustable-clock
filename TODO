@@ -1,4 +1,3 @@
-- allow to display events (full day first, sorted by time start, updated each hour);
 - add multiple timezones in tooltip;
 - expose scripting API to allow scripts to fully control clock display (?);
 - allow to display weather data (?);

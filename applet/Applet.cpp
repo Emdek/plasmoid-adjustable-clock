@@ -29,6 +29,7 @@
 
 #include <KMenu>
 #include <KLocale>
+#include <KDateTime>
 #include <KConfigDialog>
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
@@ -43,12 +44,12 @@ namespace AdjustableClock
 
 Applet *m_applet = NULL;
 QScriptEngine m_engine;
+QStringList m_holidays;
 QStringList m_timezoneArea;
 QString m_timezoneAbbreviation;
 QString m_timezoneOffset;
-QString m_events;
-QString m_holiday;
-QString m_currentHtml;
+QString m_eventsShort;
+QString m_eventsLong;
 QDateTime m_dateTime;
 QTime m_sunrise;
 QTime m_sunset;
@@ -91,18 +92,76 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
     const int second = m_dateTime.time().second();
 
     if (force || (m_features & HolidaysFeature && m_dateTime.time().hour() == 0 && m_dateTime.time().minute() == 0 && (second == 0 || !(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature)))) {
-        m_holiday = holiday();
+        const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
+        const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
+        Plasma::DataEngine::Data holidaysData = dataEngine(QLatin1String("calendar"))->query(key);
+
+        m_holidays.clear();
+
+        if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
+            QVariantList holidaysList = holidaysData[key].toList();
+            QStringList holidays;
+
+            for (int i = 0; i < holidaysList.length(); ++i) {
+                m_holidays.append(holidaysList[i].toHash()[QLatin1String("Name")].toString());
+            }
+        }
     }
 
-    if (force || ((m_features & SunriseFeature || m_features & SunsetFeature) && m_dateTime.time().minute() == 0 && second == 0)) {
-        Plasma::DataEngine::Data data = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
+    if (force || (m_dateTime.time().minute() == 0 && second == 0)) {
+        Plasma::DataEngine::Data sunData = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
+
+        if (m_features & EventsFeature) {
+            Plasma::DataEngine::Data eventsData = dataEngine(QLatin1String("calendar"))->query(QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate));
+
+            m_eventsShort = m_eventsLong = QString();
+
+            if (!eventsData.isEmpty()) {
+                QHash<QString, QVariant>::iterator i;
+                QStringList eventsShort;
+                QStringList eventsLong;
+                QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
+
+                for (i = eventsData.begin(); i != eventsData.end(); ++i) {
+                    QVariantHash event = i.value().toHash();
+
+                    if (event[QLatin1String("Type")] == QLatin1String("Event") || event[QLatin1String("Type")] == QLatin1String("Todo")) {
+                        KDateTime startTime = event[QLatin1String("StartDate")].value<KDateTime>();
+                        KDateTime endTime = event[QLatin1String("EndDate")].value<KDateTime>();
+
+                        if ((endTime.isValid() && endTime.dateTime() < limits.first && endTime != startTime) || startTime.dateTime() > limits.second) {
+                            continue;
+                        }
+
+                        QString type = ((event[QLatin1String("Type")] == QLatin1String("Event")) ? i18n("Event") : i18n("To do"));
+                        QString time;
+
+                        if (startTime.time().hour() == 0 && startTime.time().minute() == 0 && endTime.time().hour() == 0 && endTime.time().minute() == 0) {
+                            time = i18n("All day");
+                        } else if (startTime.isValid()) {
+                            time = KGlobal::locale()->formatTime(startTime.time(), false);
+
+                            if (endTime.isValid()) {
+                                time.append(QLatin1String(" - ") + KGlobal::locale()->formatTime(endTime.time(), false));
+                            }
+                        }
+
+                        eventsShort.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2</td>")).arg(type).arg(event[QLatin1String("Summary")].toString()));
+                        eventsLong.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2 <nobr>(%3)</nobr></td>")).arg(type).arg(event[QLatin1String("Summary")].toString()).arg(time));
+                    }
+                }
+
+                m_eventsShort = QLatin1String("<table>\n<tr>") + eventsShort.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+                m_eventsLong = QLatin1String("<table>\n<tr>") + eventsLong.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+            }
+        }
 
         if (m_features & SunriseFeature) {
-            m_sunrise = data[QLatin1String("Sunrise")].toDateTime().time();
+            m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
         }
 
         if (m_features & SunsetFeature) {
-            m_sunset = data[QLatin1String("Sunset")].toDateTime().time();
+            m_sunset = sunData[QLatin1String("Sunset")].toDateTime().time();
         }
     }
 
@@ -112,6 +171,10 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
 
     if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
         updateToolTipContent();
+    }
+
+    if (force) {
+        updateSize();
     }
 }
 
@@ -181,28 +244,35 @@ void Applet::connectSource(const QString &timezone)
     m_format.html = QString();
 
     const Format format = this->format();
+    const QPair<QString, QString> toolTipFormat = this->toolTipFormat();
+    const QString toolTip = (toolTipFormat.first + QLatin1Char('|') + toolTipFormat.second);
+    const QString string = (format.html + QLatin1Char('|')) + toolTip;
 
     if (format.html.contains(formatWithSeconds)) {
         features |= SecondsClockFeature;
     }
 
-    if ((config().keyList().contains(QLatin1String("toolTipFormat")) ? config().readEntry("toolTipFormat", QString()) : QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>")).contains(formatWithSeconds)) {
+    if (toolTip.contains(formatWithSeconds)) {
         features |= SecondsToolTipFeature;
     }
 
-    if (format.html.contains(QLatin1String("%H"))) {
+    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*H")))) {
         features |= HolidaysFeature;
     }
 
-    if (format.html.contains(QLatin1String("%E"))) {
+    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*E")))) {
         features |= EventsFeature;
     }
 
-    if (format.html.contains(QLatin1String("%S"))) {
+    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*z")))) {
+        features |= TimezoneFeature;
+    }
+
+    if (string.contains(QLatin1String("%S"))) {
         features |= SunsetFeature;
     }
 
-    if (format.html.contains(QLatin1String("%R"))) {
+    if (string.contains(QLatin1String("%R"))) {
         features |= SunriseFeature;
     }
 
@@ -216,30 +286,32 @@ void Applet::connectSource(const QString &timezone)
 
     dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
-    const KTimeZone timezoneData = (isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(currentTimezone()));
+    if (features & TimezoneFeature) {
+        const KTimeZone timezoneData = (isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(currentTimezone()));
 
-    m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
+        m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
 
-    if (m_timezoneAbbreviation.isEmpty()) {
-        m_timezoneAbbreviation = i18n("UTC");
+        if (m_timezoneAbbreviation.isEmpty()) {
+            m_timezoneAbbreviation = i18n("UTC");
+        }
+
+        m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
+
+        int seconds = timezoneData.currentOffset(Qt::UTC);
+        int minutes = abs(seconds / 60);
+        int hours = abs(minutes / 60);
+
+        minutes = (minutes - (hours * 60));
+
+        m_timezoneOffset = QString::number(hours);
+
+        if (minutes) {
+            m_timezoneOffset.append(QLatin1Char(':'));
+            m_timezoneOffset.append(formatNumber(minutes, 2));
+        }
+
+        m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
     }
-
-    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
-
-    int seconds = timezoneData.currentOffset(Qt::UTC);
-    int minutes = abs(seconds / 60);
-    int hours = abs(minutes / 60);
-
-    minutes = (minutes - (hours * 60));
-
-    m_timezoneOffset = QString::number(hours);
-
-    if (minutes) {
-        m_timezoneOffset.append(QLatin1Char(':'));
-        m_timezoneOffset.append(formatNumber(minutes, 2));
-    }
-
-    m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -264,7 +336,7 @@ void Applet::toolTipHidden()
 void Applet::setHtml(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
-        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, table, td {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + css + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + html + QLatin1String("</td></tr></table></body></html>"));
+        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + css + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + html + QLatin1String("</td></tr></table></body></html>"));
 
         m_currentHtml = html;
 
@@ -305,17 +377,12 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
-    QString toolTipFormat;
+    QPair<QString, QString> toolTipFormat = this->toolTipFormat();
 
-    if (config().keyList().contains(QLatin1String("toolTipFormat"))) {
-        toolTipFormat = config().readEntry("toolTipFormat", QString());
-    } else {
-        toolTipFormat = QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>");
-    }
-
-    if (!toolTipFormat.isEmpty()) {
+    if (!toolTipFormat.first.isEmpty() || !toolTipFormat.second.isEmpty()) {
         toolTipData.setImage(KIcon(QLatin1String("chronometer")).pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(evaluateFormat(toolTipFormat, m_dateTime));
+        toolTipData.setMainText(evaluateFormat(toolTipFormat.first, m_dateTime));
+        toolTipData.setSubText(evaluateFormat(toolTipFormat.second, m_dateTime));
         toolTipData.setAutohide(false);
     }
 
@@ -585,14 +652,14 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
                 return m_timezoneAbbreviation;
             }
 
-            return (shortForm ? m_timezoneArea.last() : m_timezoneArea.join(QString(QLatin1Char('/'))));
+            return (shortForm ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QLatin1Char('/'))));
         }
 
         return m_timezoneOffset;
-    case 'H': // Holiday name
-        return m_holiday;
+    case 'H': // Holidays list
+        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br />\n")));
     case 'E': // Events list
-        return m_events;
+        return (shortForm ? m_eventsShort : m_eventsLong);
     case 'R': // Sunrise time
         return KGlobal::locale()->formatTime(m_sunrise, false);
     case 'S': // Sunset time
@@ -672,13 +739,14 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
                 return m_timezoneAbbreviation;
             }
 
-            return (shortForm ? m_timezoneArea.last() : m_timezoneArea.join(QString(QLatin1Char('/'))));
+            return (shortForm ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QLatin1Char('/'))));
         }
 
         return m_timezoneOffset;
     case 'H':
+        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br />\n")));
     case 'E':
-        return QLatin1String("XXXXXXXXXX");
+        return (shortForm ? m_eventsShort : m_eventsLong);
     case 'R':
     case 'S':
         return KGlobal::locale()->formatTime(QTime(), false);
@@ -687,19 +755,6 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     }
 
     return QString();
-}
-
-QString Applet::holiday() const
-{
-    const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
-    const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
-    Plasma::DataEngine::Data holidays = dataEngine(QLatin1String("calendar"))->query(key);
-
-    if (holidays.isEmpty() || holidays[key].toList().isEmpty()) {
-        return QString();
-    }
-
-    return holidays[key].toList().first().toHash()[QLatin1String("Name")].toString();
 }
 
 Format Applet::format(QString name) const
@@ -800,6 +855,15 @@ QStringList Applet::clipboardFormats() const
     << QLatin1String("%U");
 
     return config().readEntry("clipboardFormats", clipboardFormats);
+}
+
+QPair<QString, QString> Applet::toolTipFormat() const
+{
+    QPair<QString, QString> toolTipFormat;
+    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>"));
+    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%Z%E"));
+
+    return toolTipFormat;
 }
 
 QList<QAction*> Applet::contextualActions()

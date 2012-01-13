@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-01-03 11:26+0100\n"
+"POT-Creation-Date: 2012-01-13 16:24+0100\n"
 "PO-Revision-Date: 2009-12-24 15:010200\n"
 "Last-Translator: \n"
 "Language-Team: Turkish <kde-i18n-doc@kde.org>\n"
@@ -17,243 +17,102 @@ msgstr ""
 "X-Generator: Lokalize 1.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: AdjustableClock.cpp:162
-msgid "Seconds"
+#: Applet.cpp:136
+msgid "Event"
 msgstr ""
 
-#: AdjustableClock.cpp:163 AdjustableClock.cpp:182 AdjustableClock.cpp:190
-msgid "Short form"
+#: Applet.cpp:136
+msgid "To do"
 msgstr ""
 
-#: AdjustableClock.cpp:164 AdjustableClock.cpp:167 AdjustableClock.cpp:189
-msgid "Long form"
+#: Applet.cpp:140
+msgid "All day"
 msgstr ""
 
-#: AdjustableClock.cpp:165
-msgid "UNIX timestamp"
+#: Applet.cpp:292
+msgid "UTC"
+msgstr "UTC"
+
+#: Applet.cpp:620 Applet.cpp:689
+msgid "pm"
+msgstr "pm"
+
+#: Applet.cpp:620 Applet.cpp:689
+msgid "am"
+msgstr "am"
+
+#: Applet.cpp:773
+msgid "Default"
+msgstr "Öntanımlı"
+
+#: Applet.cpp:777
+msgid "Flat"
+msgstr "Düz"
+
+#: Applet.cpp:781
+msgid "Simple"
+msgstr "Basit"
+
+#: Applet.cpp:785
+msgid "Verbose"
 msgstr ""
 
-#: AdjustableClock.cpp:166
-msgid "Minutes"
+#: Applet.cpp:789
+msgid "dbClock"
+msgstr "dbSaati"
+
+#: Applet.cpp:793
+msgid "Calendar"
 msgstr ""
 
-#: AdjustableClock.cpp:168
-msgid "Hours"
-msgstr ""
+#: Applet.cpp:805
+msgid "Custom"
+msgstr "Özel"
 
-#: AdjustableClock.cpp:169
-#, fuzzy
-msgid "24h format, long form"
-msgstr "Gün ve zaman biçimi"
-
-#: AdjustableClock.cpp:170
-#, fuzzy
-msgid "24h format, short form"
-msgstr "Gün ve zaman biçimi"
-
-#: AdjustableClock.cpp:171
-#, fuzzy
-msgid "12h format, long form"
-msgstr "Gün ve zaman biçimi"
-
-#: AdjustableClock.cpp:172
-#, fuzzy
-msgid "12h format, short form"
-msgstr "Gün ve zaman biçimi"
-
-#: AdjustableClock.cpp:173
-msgid "The pm or am string"
-msgstr ""
-
-#: AdjustableClock.cpp:174
-msgid "Days"
-msgstr ""
-
-#: AdjustableClock.cpp:175
-msgid "Day of the month, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:176
-msgid "Day of the month, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:177
-msgid "Weekday name, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:178
-msgid "Weekday name, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:179
-msgid "Weekday number, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:180
-#, fuzzy
-msgid "Day of the year, short form"
-msgstr "Gün ve zaman biçimi"
-
-#: AdjustableClock.cpp:181
-msgid "Weeks"
-msgstr ""
-
-#: AdjustableClock.cpp:183
-msgid "Months"
-msgstr ""
-
-#: AdjustableClock.cpp:184
-msgid "Number, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:185
-msgid "Number, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:186
-msgid "Name, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:187
-msgid "Name, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:188
-msgid "Years"
-msgstr ""
-
-#: AdjustableClock.cpp:191
-msgid "Timezone"
-msgstr ""
-
-#: AdjustableClock.cpp:192
-msgid "Abbreviation"
-msgstr ""
-
-#: AdjustableClock.cpp:193
-msgid "Offset to UTC"
-msgstr ""
-
-#: AdjustableClock.cpp:194
-msgid "City"
-msgstr ""
-
-#: AdjustableClock.cpp:195
-msgid "Other"
-msgstr ""
-
-#: AdjustableClock.cpp:196
-msgid "Holiday name"
-msgstr ""
-
-#: AdjustableClock.cpp:197
-msgid "Sunrise time"
-msgstr ""
-
-#: AdjustableClock.cpp:198
-msgid "Sunset time"
-msgstr ""
-
-#: AdjustableClock.cpp:199
-msgid "Time, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:200
-msgid "Time, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:201
-msgid "Date, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:202
-msgid "Date, long form"
-msgstr ""
-
-#: AdjustableClock.cpp:203
-msgid "Date and time, short form"
-msgstr ""
-
-#: AdjustableClock.cpp:204
-msgid "Date and time, long form"
-msgstr ""
+#: Applet.cpp:866 Applet.cpp:875
+msgid "C&opy to Clipboard"
+msgstr "Panoya Yapıştır"
 
 #. i18n: file: ui/appearance.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: AdjustableClock.cpp:277 locale/rc.cpp:3 rc.cpp:3
+#: Configuration.cpp:115 locale/rc.cpp:3 rc.cpp:3
 msgid "Appearance"
 msgstr "Görünüm"
 
 #. i18n: file: ui/clipboard.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: AdjustableClock.cpp:278 locale/rc.cpp:60 rc.cpp:60
+#: Configuration.cpp:116 locale/rc.cpp:60 rc.cpp:60
 msgid "Clipboard actions"
 msgstr "Pano Eylemleri"
 
-#: AdjustableClock.cpp:411
-msgid "UTC"
-msgstr "UTC"
-
-#: AdjustableClock.cpp:545
+#: Configuration.cpp:314
 msgid "Add new format"
 msgstr "Yeni biçim ekle"
 
-#: AdjustableClock.cpp:545
+#: Configuration.cpp:314
 msgid "Format name:"
 msgstr "Biçim ismi:"
 
-#: AdjustableClock.cpp:553
+#: Configuration.cpp:322
 msgid "A format with this name already exists."
 msgstr ""
 
-#: AdjustableClock.cpp:559
+#: Configuration.cpp:328
 #, fuzzy
 msgid "Invalid format name."
 msgstr "Biçim ismi:"
 
-#: AdjustableClock.cpp:1014 AdjustableClock.cpp:1203
-msgid "pm"
-msgstr "pm"
-
-#: AdjustableClock.cpp:1014 AdjustableClock.cpp:1203
-msgid "am"
-msgstr "am"
-
-#: AdjustableClock.cpp:1290
-msgid "Default"
-msgstr "Öntanımlı"
-
-#: AdjustableClock.cpp:1294
-msgid "Flat"
-msgstr "Düz"
-
-#: AdjustableClock.cpp:1298
-msgid "Simple"
-msgstr "Basit"
-
-#: AdjustableClock.cpp:1302
-msgid "Verbose"
+#. i18n: file: ui/appearance.ui:244
+#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
+#. i18n: file: ui/placeholder.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
+#. i18n: file: ui/appearance.ui:244
+#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
+#. i18n: file: ui/placeholder.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
+#: FormatLineEdit.cpp:47 locale/rc.cpp:45 locale/rc.cpp:87 rc.cpp:45 rc.cpp:87
+msgid "Insert Format Component"
 msgstr ""
-
-#: AdjustableClock.cpp:1306
-msgid "dbClock"
-msgstr "dbSaati"
-
-#: AdjustableClock.cpp:1310
-msgid "dbClock with reflection"
-msgstr "Yansımayla birlikte dbSaati"
-
-#: AdjustableClock.cpp:1314
-msgid "Calendar"
-msgstr ""
-
-#: AdjustableClock.cpp:1326
-msgid "Custom"
-msgstr "Özel"
-
-#: AdjustableClock.cpp:1368 AdjustableClock.cpp:1377
-msgid "C&opy to Clipboard"
-msgstr "Panoya Yapıştır"
 
 #. i18n: file: ui/appearance.ui:22
 #. i18n: ectx: property (text), widget (QLabel, formatLabel)
@@ -347,13 +206,6 @@ msgstr "Yazı tipi boyutu"
 msgid "Font Family"
 msgstr "Yazı tipi ailesi"
 
-#. i18n: file: ui/appearance.ui:244
-#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
-#: locale/rc.cpp:45 rc.cpp:45
-#, fuzzy
-msgid "Add Placeholder"
-msgstr "Yer tutucular"
-
 #. i18n: file: ui/appearance.ui:263
 #. i18n: ectx: attribute (title), widget (QWidget, richTextTab)
 #: locale/rc.cpp:48 rc.cpp:48
@@ -386,7 +238,13 @@ msgstr "Biçim"
 
 #. i18n: file: ui/clipboard.ui:46
 #. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
-#: locale/rc.cpp:66 rc.cpp:66
+#. i18n: file: ui/placeholder.ui:157
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#. i18n: file: ui/clipboard.ui:46
+#. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
+#. i18n: file: ui/placeholder.ui:157
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#: locale/rc.cpp:66 locale/rc.cpp:120 rc.cpp:66 rc.cpp:120
 msgid "Preview"
 msgstr "Önizleme"
 
@@ -417,7 +275,7 @@ msgid "Fast copy format:"
 msgstr "Hızlı kopyalama biçimi:"
 
 #. i18n: file: ui/clipboard.ui:135
-#. i18n: ectx: property (toolTip), widget (KLineEdit, fastCopyFormat)
+#. i18n: ectx: property (toolTip), widget (AdjustableClock::FormatLineEdit, fastCopyFormatEdit)
 #: locale/rc.cpp:84 rc.cpp:84
 msgid ""
 "Format of string copied to clipboard after middle clicking on the clock, or "
@@ -426,15 +284,178 @@ msgstr ""
 "Yazının biçimi saat üzerinde farenin orta tuşuna basılmasıyla ya da ilgili "
 "klavye kısayolunun kullanılmasıyla panoya kopyalandı."
 
-#: locale/rc.cpp:85 rc.cpp:85
+#. i18n: file: ui/placeholder.ui:25
+#. i18n: ectx: property (text), widget (QLabel, placeholderLabel)
+#: locale/rc.cpp:90 rc.cpp:90
+#, fuzzy
+msgid "Format component:"
+msgstr "Biçim ismi:"
+
+#. i18n: file: ui/placeholder.ui:38
+#. i18n: ectx: property (text), widget (QLabel, shortFormLabel)
+#: locale/rc.cpp:93 rc.cpp:93
+msgid "Short form"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:55
+#. i18n: ectx: property (text), widget (QLabel, leadingZerosLabel)
+#: locale/rc.cpp:96 rc.cpp:96
+msgid "Show leading zeros"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:72
+#. i18n: ectx: property (text), widget (QLabel, hoursModeLabel)
+#: locale/rc.cpp:99 rc.cpp:99
+msgid "12 hours mode"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:89
+#. i18n: ectx: property (text), widget (QLabel, textualFormLabel)
+#: locale/rc.cpp:102 rc.cpp:102
+msgid "Textual form"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:106
+#. i18n: ectx: property (text), widget (QLabel, possessiveFormLabel)
+#: locale/rc.cpp:105 rc.cpp:105
+msgid "Possessive form"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:127
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:108 rc.cpp:108
+msgid "Area"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:132
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:111 rc.cpp:111
+msgid "Abbreviation"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:137
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:114 rc.cpp:114
+msgid "Offset to UTC"
+msgstr ""
+
+#. i18n: file: ui/placeholder.ui:145
+#. i18n: ectx: property (text), widget (QLabel, timezoneModeLabel)
+#: locale/rc.cpp:117 rc.cpp:117
+msgid "Timezone mode:"
+msgstr ""
+
+#: locale/rc.cpp:121 rc.cpp:121
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: locale/rc.cpp:86 rc.cpp:86
+#: locale/rc.cpp:122 rc.cpp:122
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
+
+#: PlaceholderDialog.cpp:34
+msgid "Second"
+msgstr ""
+
+#: PlaceholderDialog.cpp:35
+msgid "Minute"
+msgstr ""
+
+#: PlaceholderDialog.cpp:36
+msgid "Hour"
+msgstr ""
+
+#: PlaceholderDialog.cpp:37
+msgid "The pm or am string"
+msgstr ""
+
+#: PlaceholderDialog.cpp:38
+#, fuzzy
+msgid "Day of the month"
+msgstr "Gün ve zaman biçimi"
+
+#: PlaceholderDialog.cpp:39
+msgid "Weekday"
+msgstr ""
+
+#: PlaceholderDialog.cpp:40
+#, fuzzy
+msgid "Day of the year"
+msgstr "Gün ve zaman biçimi"
+
+#: PlaceholderDialog.cpp:41
+msgid "Week"
+msgstr ""
+
+#: PlaceholderDialog.cpp:42
+msgid "Month"
+msgstr ""
+
+#: PlaceholderDialog.cpp:43
+msgid "Year"
+msgstr ""
+
+#: PlaceholderDialog.cpp:44
+msgid "UNIX timestamp"
+msgstr ""
+
+#: PlaceholderDialog.cpp:45
+msgid "Time"
+msgstr ""
+
+#: PlaceholderDialog.cpp:46
+msgid "Date"
+msgstr ""
+
+#: PlaceholderDialog.cpp:47
+#, fuzzy
+msgid "Date and time"
+msgstr "Gün ve zaman biçimi"
+
+#: PlaceholderDialog.cpp:48
+msgid "Timezone"
+msgstr ""
+
+#: PlaceholderDialog.cpp:49
+msgid "Holidays list"
+msgstr ""
+
+#: PlaceholderDialog.cpp:50
+msgid "Events list"
+msgstr ""
+
+#: PlaceholderDialog.cpp:51
+msgid "Sunrise time"
+msgstr ""
+
+#: PlaceholderDialog.cpp:52
+msgid "Sunset time"
+msgstr ""
+
+#, fuzzy
+#~ msgid "24h format, long form"
+#~ msgstr "Gün ve zaman biçimi"
+
+#, fuzzy
+#~ msgid "24h format, short form"
+#~ msgstr "Gün ve zaman biçimi"
+
+#, fuzzy
+#~ msgid "12h format, long form"
+#~ msgstr "Gün ve zaman biçimi"
+
+#, fuzzy
+#~ msgid "12h format, short form"
+#~ msgstr "Gün ve zaman biçimi"
+
+#~ msgid "dbClock with reflection"
+#~ msgstr "Yansımayla birlikte dbSaati"
+
+#, fuzzy
+#~ msgid "Add Placeholder"
+#~ msgstr "Yer tutucular"
 
 #, fuzzy
 #~ msgid "The default short date and time format"

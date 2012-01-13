@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-01-03 11:26+0100\n"
-"PO-Revision-Date: 2012-01-03 11:27+0100\n"
+"POT-Creation-Date: 2012-01-13 16:24+0100\n"
+"PO-Revision-Date: 2012-01-13 16:41+0100\n"
 "Last-Translator: Michał D. aka Emdek <emdeck@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -16,169 +16,68 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: AdjustableClock.cpp:162
-msgid "Seconds"
-msgstr "Sekundy"
+#: Applet.cpp:136
+msgid "Event"
+msgstr "Wydarzenie"
 
-#: AdjustableClock.cpp:163
-#: AdjustableClock.cpp:182
-#: AdjustableClock.cpp:190
-msgid "Short form"
-msgstr "Krótka forma"
+#: Applet.cpp:136
+msgid "To do"
+msgstr "Do zrobienia"
 
-#: AdjustableClock.cpp:164
-#: AdjustableClock.cpp:167
-#: AdjustableClock.cpp:189
-msgid "Long form"
-msgstr "Długa forma"
+#: Applet.cpp:140
+msgid "All day"
+msgstr "Cały dzień"
 
-#: AdjustableClock.cpp:165
-msgid "UNIX timestamp"
-msgstr "Znacznik czasu UNIX"
+#: Applet.cpp:292
+msgid "UTC"
+msgstr "UTC"
 
-#: AdjustableClock.cpp:166
-msgid "Minutes"
-msgstr "Minuty"
+#: Applet.cpp:620
+#: Applet.cpp:689
+msgid "pm"
+msgstr "pm"
 
-#: AdjustableClock.cpp:168
-msgid "Hours"
-msgstr "Godziny"
+#: Applet.cpp:620
+#: Applet.cpp:689
+msgid "am"
+msgstr "am"
 
-#: AdjustableClock.cpp:169
-msgid "24h format, long form"
-msgstr "Format 24 godzinny, długa forma"
+#: Applet.cpp:773
+msgid "Default"
+msgstr "Domyślny"
 
-#: AdjustableClock.cpp:170
-msgid "24h format, short form"
-msgstr "Format 24 godzinny, krótka forma"
+#: Applet.cpp:777
+msgid "Flat"
+msgstr "Płaski"
 
-#: AdjustableClock.cpp:171
-msgid "12h format, long form"
-msgstr "Format 12 godzinny, długa forma"
+#: Applet.cpp:781
+msgid "Simple"
+msgstr "Prosty"
 
-#: AdjustableClock.cpp:172
-msgid "12h format, short form"
-msgstr "Format 12 godzinny, krótka forma"
+#: Applet.cpp:785
+msgid "Verbose"
+msgstr "Opisowy"
 
-#: AdjustableClock.cpp:173
-msgid "The pm or am string"
-msgstr "Tekst pm lub am"
+#: Applet.cpp:789
+msgid "dbClock"
+msgstr "dbClock"
 
-#: AdjustableClock.cpp:174
-msgid "Days"
-msgstr "Dni"
+#: Applet.cpp:793
+msgid "Calendar"
+msgstr "Kalendarz"
 
-#: AdjustableClock.cpp:175
-msgid "Day of the month, long form"
-msgstr "Numer dnia miesiąca, długa forma"
+#: Applet.cpp:805
+msgid "Custom"
+msgstr "Własny"
 
-#: AdjustableClock.cpp:176
-msgid "Day of the month, short form"
-msgstr "Numer dnia miesiąca, krótka forma"
-
-#: AdjustableClock.cpp:177
-msgid "Weekday name, short form"
-msgstr "Nazwa dnia tygodnia, krótka forma"
-
-#: AdjustableClock.cpp:178
-msgid "Weekday name, long form"
-msgstr "Nazwa dnia tygodnia, długa forma"
-
-#: AdjustableClock.cpp:179
-msgid "Weekday number, short form"
-msgstr "Numer dnia tygodnia, krótka forma"
-
-#: AdjustableClock.cpp:180
-msgid "Day of the year, short form"
-msgstr "Numer dnia roku, krótka forma"
-
-#: AdjustableClock.cpp:181
-msgid "Weeks"
-msgstr "Tygodnie"
-
-#: AdjustableClock.cpp:183
-msgid "Months"
-msgstr "Miesiące"
-
-#: AdjustableClock.cpp:184
-msgid "Number, short form"
-msgstr "Numer, krótka forma"
-
-#: AdjustableClock.cpp:185
-msgid "Number, long form"
-msgstr "Numer, długa forma"
-
-#: AdjustableClock.cpp:186
-msgid "Name, short form"
-msgstr "Nazwa, krótka forma"
-
-#: AdjustableClock.cpp:187
-msgid "Name, long form"
-msgstr "Nazwa, długa forma"
-
-#: AdjustableClock.cpp:188
-msgid "Years"
-msgstr "Lata"
-
-#: AdjustableClock.cpp:191
-msgid "Timezone"
-msgstr "Strefa czasowa"
-
-#: AdjustableClock.cpp:192
-msgid "Abbreviation"
-msgstr "Skrót"
-
-#: AdjustableClock.cpp:193
-msgid "Offset to UTC"
-msgstr "Różnica czasu do UTC"
-
-#: AdjustableClock.cpp:194
-msgid "City"
-msgstr "Miasto"
-
-#: AdjustableClock.cpp:195
-msgid "Other"
-msgstr "Pozostałe"
-
-#: AdjustableClock.cpp:196
-msgid "Holiday name"
-msgstr "Nazwa święta"
-
-#: AdjustableClock.cpp:197
-msgid "Sunrise time"
-msgstr "Wschód słońca"
-
-#: AdjustableClock.cpp:198
-msgid "Sunset time"
-msgstr "Zachód słońca"
-
-#: AdjustableClock.cpp:199
-msgid "Time, short form"
-msgstr "Czas, króŧka forma"
-
-#: AdjustableClock.cpp:200
-msgid "Time, long form"
-msgstr "Czas, długa forma"
-
-#: AdjustableClock.cpp:201
-msgid "Date, short form"
-msgstr "Data, króŧka forma"
-
-#: AdjustableClock.cpp:202
-msgid "Date, long form"
-msgstr "Data, długa forma"
-
-#: AdjustableClock.cpp:203
-msgid "Date and time, short form"
-msgstr "Data i czas, krótka forma"
-
-#: AdjustableClock.cpp:204
-msgid "Date and time, long form"
-msgstr "Data i czas, długa forma"
+#: Applet.cpp:866
+#: Applet.cpp:875
+msgid "C&opy to Clipboard"
+msgstr "Kopiuj do schowka"
 
 #. i18n: file: ui/appearance.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: AdjustableClock.cpp:277
+#: Configuration.cpp:115
 #: locale/rc.cpp:3
 #: rc.cpp:3
 msgid "Appearance"
@@ -186,78 +85,43 @@ msgstr "Wygląd"
 
 #. i18n: file: ui/clipboard.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: AdjustableClock.cpp:278
+#: Configuration.cpp:116
 #: locale/rc.cpp:60
 #: rc.cpp:60
 msgid "Clipboard actions"
 msgstr "Akcje schowka"
 
-#: AdjustableClock.cpp:411
-msgid "UTC"
-msgstr "UTC"
-
-#: AdjustableClock.cpp:545
+#: Configuration.cpp:314
 msgid "Add new format"
 msgstr "Dodaj nowy format"
 
-#: AdjustableClock.cpp:545
+#: Configuration.cpp:314
 msgid "Format name:"
 msgstr "Nazwa formatu:"
 
-#: AdjustableClock.cpp:553
+#: Configuration.cpp:322
 msgid "A format with this name already exists."
 msgstr "Format o tej nazwie już istnieje."
 
-#: AdjustableClock.cpp:559
+#: Configuration.cpp:328
 msgid "Invalid format name."
 msgstr "Niewłaściwa nazwa formatu."
 
-#: AdjustableClock.cpp:1014
-#: AdjustableClock.cpp:1203
-msgid "pm"
-msgstr "pm"
-
-#: AdjustableClock.cpp:1014
-#: AdjustableClock.cpp:1203
-msgid "am"
-msgstr "am"
-
-#: AdjustableClock.cpp:1290
-msgid "Default"
-msgstr "Domyślny"
-
-#: AdjustableClock.cpp:1294
-msgid "Flat"
-msgstr "Płaski"
-
-#: AdjustableClock.cpp:1298
-msgid "Simple"
-msgstr "Prosty"
-
-#: AdjustableClock.cpp:1302
-msgid "Verbose"
-msgstr "Opisowy"
-
-#: AdjustableClock.cpp:1306
-msgid "dbClock"
-msgstr "dbClock"
-
-#: AdjustableClock.cpp:1310
-msgid "dbClock with reflection"
-msgstr "dbClock z odbiciem"
-
-#: AdjustableClock.cpp:1314
-msgid "Calendar"
-msgstr "Kalendarz"
-
-#: AdjustableClock.cpp:1326
-msgid "Custom"
-msgstr "Własny"
-
-#: AdjustableClock.cpp:1368
-#: AdjustableClock.cpp:1377
-msgid "C&opy to Clipboard"
-msgstr "Kopiuj do schowka"
+#. i18n: file: ui/appearance.ui:244
+#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
+#. i18n: file: ui/placeholder.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
+#. i18n: file: ui/appearance.ui:244
+#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
+#. i18n: file: ui/placeholder.ui:14
+#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
+#: FormatLineEdit.cpp:47
+#: locale/rc.cpp:45
+#: locale/rc.cpp:87
+#: rc.cpp:45
+#: rc.cpp:87
+msgid "Insert Format Component"
+msgstr "Wstaw komponent formatu"
 
 #. i18n: file: ui/appearance.ui:22
 #. i18n: ectx: property (text), widget (QLabel, formatLabel)
@@ -358,13 +222,6 @@ msgstr "Rozmiar czcionki"
 msgid "Font Family"
 msgstr "Rodzina czcionki"
 
-#. i18n: file: ui/appearance.ui:244
-#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
-#: locale/rc.cpp:45
-#: rc.cpp:45
-msgid "Add Placeholder"
-msgstr "Dodaj wihajster"
-
 #. i18n: file: ui/appearance.ui:263
 #. i18n: ectx: attribute (title), widget (QWidget, richTextTab)
 #: locale/rc.cpp:48
@@ -402,8 +259,16 @@ msgstr "Format"
 
 #. i18n: file: ui/clipboard.ui:46
 #. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
+#. i18n: file: ui/placeholder.ui:157
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
+#. i18n: file: ui/clipboard.ui:46
+#. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
+#. i18n: file: ui/placeholder.ui:157
+#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
 #: locale/rc.cpp:66
+#: locale/rc.cpp:120
 #: rc.cpp:66
+#: rc.cpp:120
 msgid "Preview"
 msgstr "Podgląd"
 
@@ -436,21 +301,167 @@ msgid "Fast copy format:"
 msgstr "Format szybkiego kopiowania:"
 
 #. i18n: file: ui/clipboard.ui:135
-#. i18n: ectx: property (toolTip), widget (KLineEdit, fastCopyFormat)
+#. i18n: ectx: property (toolTip), widget (AdjustableClock::FormatLineEdit, fastCopyFormatEdit)
 #: locale/rc.cpp:84
 #: rc.cpp:84
 msgid "Format of string copied to clipboard after middle clicking on the clock, or activation of the relevant keyboard shortcut."
 msgstr "Format tekstu kopiowanego do schowka po kliknięciu zegara środkowym przyciskiem myszki lub po aktywacji skrótu klawiaturowego."
 
-#: locale/rc.cpp:85
-#: rc.cpp:85
+#. i18n: file: ui/placeholder.ui:25
+#. i18n: ectx: property (text), widget (QLabel, placeholderLabel)
+#: locale/rc.cpp:90
+#: rc.cpp:90
+msgid "Format component:"
+msgstr "Komponent formatu:"
+
+#. i18n: file: ui/placeholder.ui:38
+#. i18n: ectx: property (text), widget (QLabel, shortFormLabel)
+#: locale/rc.cpp:93
+#: rc.cpp:93
+msgid "Short form"
+msgstr "Krótka forma"
+
+#. i18n: file: ui/placeholder.ui:55
+#. i18n: ectx: property (text), widget (QLabel, leadingZerosLabel)
+#: locale/rc.cpp:96
+#: rc.cpp:96
+msgid "Show leading zeros"
+msgstr "Pokazuj wiodące zera"
+
+#. i18n: file: ui/placeholder.ui:72
+#. i18n: ectx: property (text), widget (QLabel, hoursModeLabel)
+#: locale/rc.cpp:99
+#: rc.cpp:99
+msgid "12 hours mode"
+msgstr "Tryb 12 - godzinny"
+
+#. i18n: file: ui/placeholder.ui:89
+#. i18n: ectx: property (text), widget (QLabel, textualFormLabel)
+#: locale/rc.cpp:102
+#: rc.cpp:102
+msgid "Textual form"
+msgstr "Forma tekstowa"
+
+#. i18n: file: ui/placeholder.ui:106
+#. i18n: ectx: property (text), widget (QLabel, possessiveFormLabel)
+#: locale/rc.cpp:105
+#: rc.cpp:105
+msgid "Possessive form"
+msgstr "Forma dopełniaczowa"
+
+#. i18n: file: ui/placeholder.ui:127
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:108
+#: rc.cpp:108
+msgid "Area"
+msgstr "Obszar"
+
+#. i18n: file: ui/placeholder.ui:132
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:111
+#: rc.cpp:111
+msgid "Abbreviation"
+msgstr "Skrót"
+
+#. i18n: file: ui/placeholder.ui:137
+#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
+#: locale/rc.cpp:114
+#: rc.cpp:114
+msgid "Offset to UTC"
+msgstr "Różnica czasu do UTC"
+
+#. i18n: file: ui/placeholder.ui:145
+#. i18n: ectx: property (text), widget (QLabel, timezoneModeLabel)
+#: locale/rc.cpp:117
+#: rc.cpp:117
+msgid "Timezone mode:"
+msgstr "Tryb strefy czasowej"
+
+#: locale/rc.cpp:121
+#: rc.cpp:121
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr "Michał Dutkiewicz"
 
-#: locale/rc.cpp:86
-#: rc.cpp:86
+#: locale/rc.cpp:122
+#: rc.cpp:122
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr "emdeck@gmail.com"
+
+#: PlaceholderDialog.cpp:34
+msgid "Second"
+msgstr "Sekunda"
+
+#: PlaceholderDialog.cpp:35
+msgid "Minute"
+msgstr "Minuta"
+
+#: PlaceholderDialog.cpp:36
+msgid "Hour"
+msgstr "Godzina"
+
+#: PlaceholderDialog.cpp:37
+msgid "The pm or am string"
+msgstr "Tekst pm lub am"
+
+#: PlaceholderDialog.cpp:38
+msgid "Day of the month"
+msgstr "Dzień miesiąca"
+
+#: PlaceholderDialog.cpp:39
+msgid "Weekday"
+msgstr "Dzień tygodnia"
+
+#: PlaceholderDialog.cpp:40
+msgid "Day of the year"
+msgstr "Dzień roku"
+
+#: PlaceholderDialog.cpp:41
+msgid "Week"
+msgstr "Tydzień"
+
+#: PlaceholderDialog.cpp:42
+msgid "Month"
+msgstr "Miesiąc"
+
+#: PlaceholderDialog.cpp:43
+msgid "Year"
+msgstr "Rok"
+
+#: PlaceholderDialog.cpp:44
+msgid "UNIX timestamp"
+msgstr "Znacznik czasu UNIX"
+
+#: PlaceholderDialog.cpp:45
+msgid "Time"
+msgstr "Czas"
+
+#: PlaceholderDialog.cpp:46
+msgid "Date"
+msgstr "Data"
+
+#: PlaceholderDialog.cpp:47
+msgid "Date and time"
+msgstr "Data i czas"
+
+#: PlaceholderDialog.cpp:48
+msgid "Timezone"
+msgstr "Strefa czasowa"
+
+#: PlaceholderDialog.cpp:49
+msgid "Holidays list"
+msgstr "Lista świąt"
+
+#: PlaceholderDialog.cpp:50
+msgid "Events list"
+msgstr "Lista zdarzeń"
+
+#: PlaceholderDialog.cpp:51
+msgid "Sunrise time"
+msgstr "Wschód słońca"
+
+#: PlaceholderDialog.cpp:52
+msgid "Sunset time"
+msgstr "Zachód słońca"
 
