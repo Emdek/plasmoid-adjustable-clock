@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_adjustableclock\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-01-13 16:24+0100\n"
+"POT-Creation-Date: 2012-01-13 18:12+0100\n"
 "PO-Revision-Date: 2009-04-14 03:55+0300\n"
 "Last-Translator: Marek Laane <bald@smail.ee>\n"
 "Language-Team: Estonian <kde-et@linux.ee>\n"
@@ -30,49 +30,49 @@ msgstr ""
 msgid "All day"
 msgstr ""
 
-#: Applet.cpp:292
+#: Applet.cpp:295
 msgid "UTC"
 msgstr ""
 
-#: Applet.cpp:620 Applet.cpp:689
+#: Applet.cpp:620 Applet.cpp:710
 msgid "pm"
 msgstr "p.l."
 
-#: Applet.cpp:620 Applet.cpp:689
+#: Applet.cpp:620 Applet.cpp:710
 msgid "am"
 msgstr "e.l."
 
-#: Applet.cpp:773
+#: Applet.cpp:782
 #, fuzzy
 msgid "Default"
 msgstr "Kustuta"
 
-#: Applet.cpp:777
+#: Applet.cpp:786
 #, fuzzy
 msgid "Flat"
 msgstr "Vorming"
 
-#: Applet.cpp:781
+#: Applet.cpp:790
 msgid "Simple"
 msgstr ""
 
-#: Applet.cpp:785
+#: Applet.cpp:794
 msgid "Verbose"
 msgstr ""
 
-#: Applet.cpp:789
+#: Applet.cpp:798
 msgid "dbClock"
 msgstr ""
 
-#: Applet.cpp:793
+#: Applet.cpp:802
 msgid "Calendar"
 msgstr ""
 
-#: Applet.cpp:805
+#: Applet.cpp:814
 msgid "Custom"
 msgstr ""
 
-#: Applet.cpp:866 Applet.cpp:875
+#: Applet.cpp:884 Applet.cpp:893
 msgid "C&opy to Clipboard"
 msgstr "K&opeeri lõikepuhvrisse"
 
@@ -417,18 +417,22 @@ msgid "Timezone"
 msgstr ""
 
 #: PlaceholderDialog.cpp:49
-msgid "Holidays list"
+msgid "Timezones list"
 msgstr ""
 
 #: PlaceholderDialog.cpp:50
-msgid "Events list"
+msgid "Holidays list"
 msgstr ""
 
 #: PlaceholderDialog.cpp:51
-msgid "Sunrise time"
+msgid "Events list"
 msgstr ""
 
 #: PlaceholderDialog.cpp:52
+msgid "Sunrise time"
+msgstr ""
+
+#: PlaceholderDialog.cpp:53
 msgid "Sunset time"
 msgstr ""
 

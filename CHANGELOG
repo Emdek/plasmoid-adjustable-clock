@@ -4,11 +4,12 @@
 - new placeholders, no longer based on strftime() syntax;
 - added possibility to to use simple conditional statements and display results of script expressions;
 - allow to override mode of possessive form of month name (using + or - infix);
+- allow to show time from multiple timezones (displayed in tool tip by default);
+- allow to display events (displayed in tool tip by default);
 - allow to display only characters range of substitution;
+- allow to access placeholder dialog from format fields;
 - allow to toggle use of standard background;
 - allow to embed clickable links;
-- allow to access placeholder dialog from format fields;
-- allow to display events;
 - improved formats storage;
 - some code cleanups and fixes.
 

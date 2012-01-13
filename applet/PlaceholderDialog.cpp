@@ -46,6 +46,7 @@ PlaceholderDialog::PlaceholderDialog(QWidget *parent) : KDialog(parent)
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date"), QVariant(QLatin1Char('T')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date and time"), QVariant(QLatin1Char('A')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone"), QVariant(QLatin1Char('z')));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(QLatin1Char('Z')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(QLatin1Char('H')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(QLatin1Char('E')));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(QLatin1Char('R')));
@@ -80,14 +81,14 @@ void PlaceholderDialog::selectPlaceholder(int index)
 {
     const QChar placeholder = m_placeholderUi.placeholderComboBox->itemData(index).toChar();
 
-    if (placeholder == QLatin1Char('p') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('H') || placeholder == QLatin1Char('E')) {
+    if (placeholder == QLatin1Char('p') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('Z') || placeholder == QLatin1Char('H') || placeholder == QLatin1Char('E')) {
         m_placeholderUi.textualFormCheckBox->setChecked(true);
     } else if (!(placeholder == QLatin1Char('m') || placeholder == QLatin1Char('w'))) {
         m_placeholderUi.textualFormCheckBox->setChecked(false);
     }
 
     m_placeholderUi.timezoneModeComboBox->setEnabled(placeholder == QLatin1Char('z'));
-    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M') || placeholder == QLatin1Char('Y') || placeholder == QLatin1Char('t') || placeholder == QLatin1Char('T') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('E'));
+    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M') || placeholder == QLatin1Char('Y') || placeholder == QLatin1Char('t') || placeholder == QLatin1Char('T') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('Z') || placeholder == QLatin1Char('H') || placeholder == QLatin1Char('E'));
     m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == QLatin1Char('h'));
     m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M'));
     m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == QLatin1Char('M'));

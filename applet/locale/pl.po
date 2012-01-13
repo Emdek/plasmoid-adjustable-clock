@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-01-13 16:24+0100\n"
-"PO-Revision-Date: 2012-01-13 16:41+0100\n"
+"POT-Creation-Date: 2012-01-13 18:12+0100\n"
+"PO-Revision-Date: 2012-01-13 18:12+0100\n"
 "Last-Translator: Michał D. aka Emdek <emdeck@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -28,50 +28,50 @@ msgstr "Do zrobienia"
 msgid "All day"
 msgstr "Cały dzień"
 
-#: Applet.cpp:292
+#: Applet.cpp:295
 msgid "UTC"
 msgstr "UTC"
 
 #: Applet.cpp:620
-#: Applet.cpp:689
+#: Applet.cpp:710
 msgid "pm"
 msgstr "pm"
 
 #: Applet.cpp:620
-#: Applet.cpp:689
+#: Applet.cpp:710
 msgid "am"
 msgstr "am"
 
-#: Applet.cpp:773
+#: Applet.cpp:782
 msgid "Default"
 msgstr "Domyślny"
 
-#: Applet.cpp:777
+#: Applet.cpp:786
 msgid "Flat"
 msgstr "Płaski"
 
-#: Applet.cpp:781
+#: Applet.cpp:790
 msgid "Simple"
 msgstr "Prosty"
 
-#: Applet.cpp:785
+#: Applet.cpp:794
 msgid "Verbose"
 msgstr "Opisowy"
 
-#: Applet.cpp:789
+#: Applet.cpp:798
 msgid "dbClock"
 msgstr "dbClock"
 
-#: Applet.cpp:793
+#: Applet.cpp:802
 msgid "Calendar"
 msgstr "Kalendarz"
 
-#: Applet.cpp:805
+#: Applet.cpp:814
 msgid "Custom"
 msgstr "Własny"
 
-#: Applet.cpp:866
-#: Applet.cpp:875
+#: Applet.cpp:884
+#: Applet.cpp:893
 msgid "C&opy to Clipboard"
 msgstr "Kopiuj do schowka"
 
@@ -450,18 +450,22 @@ msgid "Timezone"
 msgstr "Strefa czasowa"
 
 #: PlaceholderDialog.cpp:49
+msgid "Timezones list"
+msgstr "Lista stref czasowych"
+
+#: PlaceholderDialog.cpp:50
 msgid "Holidays list"
 msgstr "Lista świąt"
 
-#: PlaceholderDialog.cpp:50
+#: PlaceholderDialog.cpp:51
 msgid "Events list"
 msgstr "Lista zdarzeń"
 
-#: PlaceholderDialog.cpp:51
+#: PlaceholderDialog.cpp:52
 msgid "Sunrise time"
 msgstr "Wschód słońca"
 
-#: PlaceholderDialog.cpp:52
+#: PlaceholderDialog.cpp:53
 msgid "Sunset time"
 msgstr "Zachód słońca"
 

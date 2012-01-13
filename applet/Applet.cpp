@@ -238,7 +238,7 @@ void Applet::clockConfigAccepted()
 
 void Applet::connectSource(const QString &timezone)
 {
-    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*s"));
+    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*[ast]"));
     QFlags<ClockFeature> features;
 
     m_format.html = QString();
@@ -605,6 +605,8 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
 
 QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm)
 {
+    QStringList timezones;
+
     switch (placeholder) {
     case 's': // Second
         return formatNumber(dateTime.time().second(), (shortForm ? 0 : 2));
@@ -656,8 +658,29 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
         }
 
         return m_timezoneOffset;
+    case 'Z':
+        timezones = m_applet->config().readEntry("timeZones", QStringList());
+        timezones.prepend(QLatin1String(""));
+
+        if (timezones.length() == 1) {
+            return QString();
+        }
+
+        for (int i = 0; i < timezones.length(); ++i) {
+            QString timezone = i18n((timezones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(timezones.at(i))).name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' '));
+
+            if (shortForm && timezone.contains(QLatin1Char('/'))) {
+                timezone = timezone.split(QLatin1Char('/')).last();
+            }
+
+            Plasma::DataEngine::Data data = m_applet->dataEngine(QLatin1String("time"))->query(timezones.at(i));
+
+            timezones[i] = QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\"><nobr>%2 %3</nobr></td>")).arg(timezone).arg(KGlobal::locale()->formatTime(data[QLatin1String("Time")].toTime(), false)).arg(KGlobal::locale()->formatDate(data[QLatin1String("Date")].toDate(), KLocale::LongDate));
+        }
+
+        return QLatin1String("<table>\n<tr>") + timezones.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
     case 'H': // Holidays list
-        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br />\n")));
+        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br>\n")));
     case 'E': // Events list
         return (shortForm ? m_eventsShort : m_eventsLong);
     case 'R': // Sunrise time
@@ -728,25 +751,12 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     case 'U':
         return QString(QLatin1Char('0')).repeated(QString::number(m_dateTime.toTime_t()).length());
     case 't':
-        return KGlobal::locale()->formatTime(m_dateTime.time(), !shortForm);
     case 'T':
-        return KGlobal::locale()->formatDate(m_dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'A':
-        return KGlobal::locale()->formatDateTime(m_dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'z':
-        if (textualForm) {
-            if (alternativeForm) {
-                return m_timezoneAbbreviation;
-            }
-
-            return (shortForm ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QLatin1Char('/'))));
-        }
-
-        return m_timezoneOffset;
     case 'H':
-        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br />\n")));
     case 'E':
-        return (shortForm ? m_eventsShort : m_eventsLong);
+        return evaluatePlaceholder(placeholder, QDateTime::currentDateTime(), alternativeForm, shortForm, textualForm);
     case 'R':
     case 'S':
         return KGlobal::locale()->formatTime(QTime(), false);
@@ -770,19 +780,19 @@ Format Applet::format(QString name) const
     QHash<QString, Format> formats;
     formats[QLatin1String("%default%")] = Format();
     formats[QLatin1String("%default%")].title = i18n("Default");
-    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big>%h:%m:%s</big>\n<small>%d.%M.%Y</small></div>");
+    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>");
     formats[QLatin1String("%default%")].background = true;
     formats[QLatin1String("%flat%")] = Format();
     formats[QLatin1String("%flat%")].title = i18n("Flat");
-    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px; white-space:pre;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
+    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
     formats[QLatin1String("%flat%")].background = true;
     formats[QLatin1String("%simple%")] = Format();
     formats[QLatin1String("%simple%")].title = i18n("Simple");
-    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; font-size:25px; margin:5px;\">%h:%m</div>");
+    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; font-size:25px; margin:5px;\">%h:%m</div>");
     formats[QLatin1String("%simple%")].background = true;
     formats[QLatin1String("%verbose%")] = Format();
     formats[QLatin1String("%verbose%")].title = i18n("Verbose");
-    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; white-space:pre; opacity:0.85;\"><span style=\"font-size:30px;\">%h:%m:%s</span><br><span style=\"font-size:12px;\">%$w, %d.%M.%Y</span></div>");
+    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; opacity:0.85;\"><span style=\"font-size:30px;\">%h:%m:%s</span><br><span style=\"font-size:12px;\">%$w, %d.%M.%Y</span></div>");
     formats[QLatin1String("%verbose%")].background = false;
     formats[QLatin1String("%dbclock%")] = Format();
     formats[QLatin1String("%dbclock%")].title = i18n("dbClock");
@@ -790,7 +800,7 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%dbclock%")].background = false;
     formats[QLatin1String("%calendar%")] = Format();
     formats[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br /><span style=\"font-size:130px; line-height:140px;\">%!d</span><br /><span style=\"font-size:35px;\">%$M %Y</span><br />%H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
     formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
     formats[QLatin1String("%calendar%")].background = false;
 
@@ -860,7 +870,7 @@ QStringList Applet::clipboardFormats() const
 QPair<QString, QString> Applet::toolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%Y-%M-%d<br />%h:%m:%s</div>"));
+    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>"));
     toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%Z%E"));
 
     return toolTipFormat;
