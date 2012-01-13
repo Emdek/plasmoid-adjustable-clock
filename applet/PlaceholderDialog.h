@@ -42,6 +42,7 @@ class PlaceholderDialog : public KDialog
         void sendSignal();
         void updatePreview();
         void selectPlaceholder(int index);
+        void selectTimezoneMode(int index);
         void setShortForm(bool shortForm);
         void setTextualForm(bool textualForm);
         void setAlternativeForm(bool alternativeForm);

@@ -43,7 +43,7 @@ namespace AdjustableClock
 
 Applet *m_applet = NULL;
 QScriptEngine m_engine;
-QString m_timezoneCity;
+QStringList m_timezoneArea;
 QString m_timezoneAbbreviation;
 QString m_timezoneOffset;
 QString m_events;
@@ -216,14 +216,17 @@ void Applet::connectSource(const QString &timezone)
 
     dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
-    m_timezoneCity = prettyTimezone();
-    m_timezoneAbbreviation = QString::fromLatin1(KSystemTimeZones::zone(timezone).abbreviation(QDateTime::currentDateTime().toUTC()));
+    const KTimeZone timezoneData = (isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(currentTimezone()));
+
+    m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
 
     if (m_timezoneAbbreviation.isEmpty()) {
         m_timezoneAbbreviation = i18n("UTC");
     }
 
-    int seconds = KSystemTimeZones::zone(currentTimezone()).currentOffset();
+    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
+
+    int seconds = timezoneData.currentOffset(Qt::UTC);
     int minutes = abs(seconds / 60);
     int hours = abs(minutes / 60);
 
@@ -233,12 +236,7 @@ void Applet::connectSource(const QString &timezone)
 
     if (minutes) {
         m_timezoneOffset.append(QLatin1Char(':'));
-
-        if (minutes < 10) {
-            m_timezoneOffset.append(QLatin1Char('0'));
-        }
-
-        m_timezoneOffset.append(QString::number(minutes));
+        m_timezoneOffset.append(formatNumber(minutes, 2));
     }
 
     m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
@@ -581,11 +579,15 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
         return KGlobal::locale()->formatDate(dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'A': // Date and time
         return KGlobal::locale()->formatDateTime(dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
-    case 'c': // Timezone city
-        return m_timezoneCity;
-    case 'a': // Timezone abbreviation
-        return m_timezoneAbbreviation;
-    case 'o': // Timezone UTC offset
+    case 'z': // Timezone
+        if (textualForm) {
+            if (alternativeForm) {
+                return m_timezoneAbbreviation;
+            }
+
+            return (shortForm ? m_timezoneArea.last() : m_timezoneArea.join(QString(QLatin1Char('/'))));
+        }
+
         return m_timezoneOffset;
     case 'H': // Holiday name
         return m_holiday;
@@ -664,11 +666,15 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
         return KGlobal::locale()->formatDate(m_dateTime.date(), (shortForm ? KLocale::ShortDate : KLocale::LongDate));
     case 'A':
         return KGlobal::locale()->formatDateTime(m_dateTime, (shortForm ? KLocale::ShortDate : KLocale::LongDate));
-    case 'c':
-        return m_timezoneCity;
-    case 'a':
-        return m_timezoneAbbreviation;
-    case 'o':
+    case 'z':
+        if (textualForm) {
+            if (alternativeForm) {
+                return m_timezoneAbbreviation;
+            }
+
+            return (shortForm ? m_timezoneArea.last() : m_timezoneArea.join(QString(QLatin1Char('/'))));
+        }
+
         return m_timezoneOffset;
     case 'H':
     case 'E':
