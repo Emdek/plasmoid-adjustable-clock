@@ -662,7 +662,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
         timezones = m_applet->config().readEntry("timeZones", QStringList());
         timezones.prepend(QLatin1String(""));
 
-        if (timezones.length() == 1) {
+        if (timezones.length() == 1 && shortForm) {
             return QString();
         }
 
@@ -784,7 +784,7 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%default%")].background = true;
     formats[QLatin1String("%flat%")] = Format();
     formats[QLatin1String("%flat%")].title = i18n("Flat");
-    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big>\n<span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
+    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big><br><span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
     formats[QLatin1String("%flat%")].background = true;
     formats[QLatin1String("%simple%")] = Format();
     formats[QLatin1String("%simple%")].title = i18n("Simple");
@@ -800,7 +800,7 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%dbclock%")].background = false;
     formats[QLatin1String("%calendar%")] = Format();
     formats[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%!H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
     formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
     formats[QLatin1String("%calendar%")].background = false;
 
@@ -827,7 +827,7 @@ Format Applet::format(QString name) const
 QStringList Applet::formats(bool all) const
 {
     QStringList formats;
-    formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%dbclock2%") << QLatin1String("%calendar%");
+    formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
 
     if (all) {
         const int count = formats.count();
@@ -871,7 +871,7 @@ QPair<QString, QString> Applet::toolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
     toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>"));
-    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%Z%E"));
+    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%!Z%E"));
 
     return toolTipFormat;
 }
