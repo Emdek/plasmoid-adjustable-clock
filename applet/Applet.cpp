@@ -629,7 +629,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
     case 'D': // Day of the year
         return formatNumber(m_applet->calendar()->dayOfYear(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->daysInYear(dateTime.date())).length()));
     case 'W': // Week
-        return formatNumber(m_applet->calendar()->week(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->weeksInYear(dateTime.date())).length()));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
     case 'M': // Month
         if (textualForm) {
             alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
@@ -637,7 +637,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
             return m_applet->calendar()->monthName(dateTime.date(), (shortForm ? (alternativeForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (alternativeForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
         }
 
-        return formatNumber(m_applet->calendar()->month(dateTime.date()), (shortForm ? 0 : QString::number(m_applet->calendar()->monthsInYear(dateTime.date())).length()));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Month, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
     case 'Y': // Year
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, (shortForm ? KLocale::ShortNumber : KLocale::LongNumber));
     case 'U': // UNIX timestamp
