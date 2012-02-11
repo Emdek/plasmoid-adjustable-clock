@@ -42,7 +42,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 {
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
 
-    QPixmap pixmap(280, 90);
+    QPixmap pixmap(230, 90);
     pixmap.fill(Qt::transparent);
 
     QPainter pixmapPainter(&pixmap);
@@ -52,7 +52,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         Plasma::FrameSvg background;
         background.setImagePath(Plasma::Theme::defaultTheme()->imagePath(QLatin1String("widgets/background")));
         background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
-        background.resizeFrame(QSizeF(280, 90));
+        background.resizeFrame(QSizeF(230, 90));
         background.paintFrame(&pixmapPainter);
     }
 
@@ -60,8 +60,8 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + index.data(CssRole).toString() + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))) + QLatin1String("</td></tr></table></body></html>"));
-    page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, QSizeF(280, 90)));
-    page.setViewportSize(QSize(280, 90));
+    page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, QSizeF(230, 90)));
+    page.setViewportSize(QSize(230, 90));
 
     QPalette palette = page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
@@ -70,7 +70,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
     page.mainFrame()->render(&pixmapPainter);
 
-    painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 280, 90), pixmap, QRect(0, 0, 280, 90));
+    painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 230, 90), pixmap, QRect(0, 0, 230, 90));
 }
 
 QSize PreviewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -78,7 +78,7 @@ QSize PreviewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     Q_UNUSED(option)
     Q_UNUSED(index)
 
-    return QSize(500, 100);
+    return QSize(400, 100);
 }
 
 }
