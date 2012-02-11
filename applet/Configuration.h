@@ -73,6 +73,7 @@ class Configuration : public QObject
     private:
         Applet *m_applet;
         QTableWidgetItem *m_editedItem;
+        QAbstractItemModel *m_themesModel;
         int m_controlsTimer;
         int m_fontSize;
         Ui::appearance m_appearanceUi;

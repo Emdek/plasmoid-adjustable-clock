@@ -11,7 +11,7 @@ include_directories(
    ${KDE4_INCLUDES}
    )
 
-set(adjustableclock_SRCS Applet.cpp Configuration.cpp PlaceholderDialog.cpp FormatDelegate.cpp FormatLineEdit.cpp)
+set(adjustableclock_SRCS Applet.cpp Configuration.cpp PlaceholderDialog.cpp PreviewDelegate.cpp FormatDelegate.cpp FormatLineEdit.cpp)
 
 add_subdirectory(locale)
 

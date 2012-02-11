@@ -20,9 +20,10 @@
 
 #include "Configuration.h"
 #include "Applet.h"
+#include "PlaceholderDialog.h"
+#include "PreviewDelegate.h"
 #include "FormatDelegate.h"
 #include "FormatLineEdit.h"
-#include "PlaceholderDialog.h"
 
 #include <QtWebKit/QWebFrame>
 
@@ -66,11 +67,12 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
+    m_appearanceUi.themesView->setModel(m_appearanceUi.formatComboBox->model());
+    m_appearanceUi.themesView->setItemDelegate(new PreviewDelegate(m_appearanceUi.themesView));
+
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
-    m_appearanceUi.addButton->setIcon(KIcon(QLatin1String("list-add")));
-    m_appearanceUi.removeButton->setIcon(KIcon(QLatin1String("list-remove")));
     m_appearanceUi.placeholdersButton->setIcon(KIcon(QLatin1String("chronometer")));
     m_appearanceUi.boldButton->setIcon(KIcon(QLatin1String("format-text-bold")));
     m_appearanceUi.italicButton->setIcon(KIcon(QLatin1String("format-text-italic")));
@@ -115,8 +117,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
-    connect(m_appearanceUi.addButton, SIGNAL(clicked()), this, SLOT(addFormat()));
-    connect(m_appearanceUi.removeButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
+    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(addFormat()));
+    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -227,7 +229,7 @@ void Configuration::loadFormat(int index)
     m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString());
     m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString());
     m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 3)).toBool());
-    m_appearanceUi.removeButton->setEnabled(index >= m_applet->formats(false).count());
+    m_appearanceUi.deleteButton->setEnabled(index >= m_applet->formats(false).count());
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -350,7 +352,7 @@ void Configuration::addFormat(bool automatically)
 
     m_appearanceUi.formatComboBox->insertItem(index, title, m_appearanceUi.htmlTextEdit->toPlainText());
     m_appearanceUi.formatComboBox->setCurrentIndex(index);
-    m_appearanceUi.removeButton->setEnabled(true);
+    m_appearanceUi.deleteButton->setEnabled(true);
 
     connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
 }

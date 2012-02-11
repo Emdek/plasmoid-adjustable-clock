@@ -395,9 +395,6 @@ void Applet::updateSize()
 
     setHtml(evaluateFormat(format.html), format.css);
 
-    m_page.setViewportSize(QSize(0, 0));
-    m_page.mainFrame()->setZoomFactor(1);
-
     QSizeF size;
 
     if (formFactor() == Plasma::Horizontal) {
@@ -408,10 +405,7 @@ void Applet::updateSize()
         size = boundingRect().size();
     }
 
-    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
-    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
-
-    m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
+    m_page.mainFrame()->setZoomFactor(zoomFactor(m_page, size));
 
     if (formFactor() == Plasma::Horizontal) {
         setMinimumWidth(m_page.mainFrame()->contentsSize().width());
@@ -662,7 +656,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
         timezones = m_applet->config().readEntry("timeZones", QStringList());
         timezones.prepend(QLatin1String(""));
 
-        if (timezones.length() == 1 && shortForm) {
+        if (timezones.length() == 1) {
             return QString();
         }
 
@@ -800,7 +794,7 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%dbclock%")].background = false;
     formats[QLatin1String("%calendar%")] = Format();
     formats[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%!H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
+    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; margin:auto; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%!H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
     formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
     formats[QLatin1String("%calendar%")].background = false;
 
@@ -899,6 +893,17 @@ QList<QAction*> Applet::contextualActions()
     }
 
     return actions;
+}
+
+qreal Applet::zoomFactor(QWebPage &page, const QSizeF &size)
+{
+    page.setViewportSize(QSize(0, 0));
+    page.mainFrame()->setZoomFactor(1);
+
+    const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
+    const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());
+
+    return ((widthFactor > heightFactor) ? heightFactor : widthFactor);
 }
 
 }

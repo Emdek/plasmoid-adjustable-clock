@@ -55,6 +55,7 @@ class Applet : public ClockApplet
         static QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
         static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
+        static qreal zoomFactor(QWebPage &page, const QSizeF &size);
         Format format(QString name = QString()) const;
         QStringList formats(bool all = true) const;
         QStringList clipboardFormats() const;
