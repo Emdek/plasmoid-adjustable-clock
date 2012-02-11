@@ -31,6 +31,7 @@
 #include <KLocale>
 #include <KDateTime>
 #include <KConfigDialog>
+#include <KStandardDirs>
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
 
@@ -777,11 +778,6 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>");
     formats[QLatin1String("%default%")].background = true;
     formats[QLatin1String("%default%")].bundled = true;
-    formats[QLatin1String("%flat%")] = Format();
-    formats[QLatin1String("%flat%")].title = i18n("Flat");
-    formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big><br><span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
-    formats[QLatin1String("%flat%")].background = true;
-    formats[QLatin1String("%flat%")].bundled = true;
     formats[QLatin1String("%simple%")] = Format();
     formats[QLatin1String("%simple%")].title = i18n("Simple");
     formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; font-size:25px; margin:5px;\">%h:%m</div>");
@@ -828,7 +824,7 @@ Format Applet::format(QString name) const
 QStringList Applet::formats() const
 {
     QStringList formats;
-    formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
+    formats << QLatin1String("%default%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
 
     QStringList userFormats = config().group("Formats").groupList();
 

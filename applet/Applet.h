@@ -95,6 +95,7 @@ class Applet : public ClockApplet
         Format m_format;
         QString m_currentHtml;
         QAction *m_clipboardAction;
+        QList<Format> m_formats;
         QFlags<ClockFeature> m_features;
 
         Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
