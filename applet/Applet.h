@@ -42,6 +42,7 @@ struct Format
     QString html;
     QString css;
     bool background;
+    bool bundled;
 };
 
 class Applet : public ClockApplet
@@ -57,7 +58,7 @@ class Applet : public ClockApplet
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         static qreal zoomFactor(QWebPage &page, const QSizeF &size);
         Format format(QString name = QString()) const;
-        QStringList formats(bool all = true) const;
+        QStringList formats() const;
         QStringList clipboardFormats() const;
 
     protected:

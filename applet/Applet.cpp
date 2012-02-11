@@ -776,27 +776,33 @@ Format Applet::format(QString name) const
     formats[QLatin1String("%default%")].title = i18n("Default");
     formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>");
     formats[QLatin1String("%default%")].background = true;
+    formats[QLatin1String("%default%")].bundled = true;
     formats[QLatin1String("%flat%")] = Format();
     formats[QLatin1String("%flat%")].title = i18n("Flat");
     formats[QLatin1String("%flat%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big style=\"font-family:'Nimbus Sans L Condensed';\">%h:%m:%s</big><br><span style=\"font-size:small; font-family:'Nimbus Sans L';\">%d.%M.%Y</small></div>");
     formats[QLatin1String("%flat%")].background = true;
+    formats[QLatin1String("%flat%")].bundled = true;
     formats[QLatin1String("%simple%")] = Format();
     formats[QLatin1String("%simple%")].title = i18n("Simple");
     formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; font-size:25px; margin:5px;\">%h:%m</div>");
     formats[QLatin1String("%simple%")].background = true;
+    formats[QLatin1String("%simple%")].bundled = true;
     formats[QLatin1String("%verbose%")] = Format();
     formats[QLatin1String("%verbose%")].title = i18n("Verbose");
     formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; opacity:0.85;\"><span style=\"font-size:30px;\">%h:%m:%s</span><br><span style=\"font-size:12px;\">%$w, %d.%M.%Y</span></div>");
     formats[QLatin1String("%verbose%")].background = false;
+    formats[QLatin1String("%verbose%")].bundled = true;
     formats[QLatin1String("%dbclock%")] = Format();
     formats[QLatin1String("%dbclock%")].title = i18n("dbClock");
     formats[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"height:50px;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%h:%m<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%s</span></div></div>");
     formats[QLatin1String("%dbclock%")].background = false;
+    formats[QLatin1String("%dbclock%")].bundled = true;
     formats[QLatin1String("%calendar%")] = Format();
     formats[QLatin1String("%calendar%")].title = i18n("Calendar");
     formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; margin:auto; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%!H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
     formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
     formats[QLatin1String("%calendar%")].background = false;
+    formats[QLatin1String("%calendar%")].bundled = true;
 
     if (formats.contains(name)) {
         return formats[name];
@@ -809,6 +815,7 @@ Format Applet::format(QString name) const
         format.html = formatConfiguration.readEntry("html", QString());
         format.css = formatConfiguration.readEntry("css", QString());
         format.background = formatConfiguration.readEntry("background", true);
+        format.bundled = false;
 
         if (!format.html.isEmpty()) {
             return format;
@@ -818,25 +825,23 @@ Format Applet::format(QString name) const
     return formats[QLatin1String("%default%")];
 }
 
-QStringList Applet::formats(bool all) const
+QStringList Applet::formats() const
 {
     QStringList formats;
     formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
 
-    if (all) {
-        const int count = formats.count();
+    const int count = formats.count();
 
-        QStringList userFormats = config().group("Formats").groupList();
+    QStringList userFormats = config().group("Formats").groupList();
 
-        for (int i = 0; i < userFormats.count(); ++i) {
-            if (!formats.contains(userFormats.at(i))) {
-                formats.append(userFormats.at(i));
-            }
+    for (int i = 0; i < userFormats.count(); ++i) {
+        if (!formats.contains(userFormats.at(i))) {
+            formats.append(userFormats.at(i));
         }
+    }
 
-        if (count != formats.count()) {
-            formats.insert(count,  QLatin1String(""));
-        }
+    if (count != formats.count()) {
+        formats.insert(count,  QLatin1String(""));
     }
 
     return formats;

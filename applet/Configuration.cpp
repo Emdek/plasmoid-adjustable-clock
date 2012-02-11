@@ -61,6 +61,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             m_appearanceUi.formatComboBox->setItemData(i, format.html, HtmlRole);
             m_appearanceUi.formatComboBox->setItemData(i, format.css, CssRole);
             m_appearanceUi.formatComboBox->setItemData(i, format.background, BackgroundRole);
+            m_appearanceUi.formatComboBox->setItemData(i, format.bundled, BundledRole);
         }
     }
 
@@ -169,7 +170,7 @@ void Configuration::accepted()
     m_applet->config().deleteGroup("Formats");
 
     KConfigGroup formatsConfiguration = m_applet->config().group("Formats");
-    const int builInFormats = m_applet->formats(false).count();
+    const int builInFormats = m_applet->formats().count();
 
     for (int i = 0; i < m_appearanceUi.formatComboBox->count(); ++i) {
         if (m_appearanceUi.formatComboBox->itemText(i).isEmpty()) {
@@ -229,7 +230,7 @@ void Configuration::loadFormat(int index)
     m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, CssRole).toString());
     m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool());
-    m_appearanceUi.deleteButton->setEnabled(index >= m_applet->formats(false).count());
+    m_appearanceUi.deleteButton->setEnabled(!m_appearanceUi.formatComboBox->itemData(index, BundledRole).toBool());
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -282,7 +283,7 @@ void Configuration::changeFormat()
 
     const int index = m_appearanceUi.formatComboBox->currentIndex();
 
-    if (index < m_applet->formats(false).count() && (m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, CssRole).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool() != format.background)) {
+    if (index < m_applet->formats().count() && (m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, CssRole).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool() != format.background)) {
         addFormat(true);
     }
 
@@ -335,7 +336,7 @@ void Configuration::addFormat(bool automatically)
     }
 
     int index = (m_appearanceUi.formatComboBox->currentIndex() + 1);
-    const int builInFormats = m_applet->formats(false).count();
+    const int builInFormats = m_applet->formats().count();
 
     if (index <= builInFormats) {
         index = m_appearanceUi.formatComboBox->count();
@@ -359,12 +360,8 @@ void Configuration::addFormat(bool automatically)
 
 void Configuration::removeFormat()
 {
-    if (m_appearanceUi.formatComboBox->currentIndex() > m_applet->formats(false).count()) {
+    if (!m_appearanceUi.formatComboBox->itemData(m_appearanceUi.formatComboBox->currentIndex(), BundledRole).toBool()) {
         m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->currentIndex());
-
-        if (m_appearanceUi.formatComboBox->itemData((m_appearanceUi.formatComboBox->count() - 1), Qt::DisplayRole).toString().isEmpty()) {
-            m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->count() - 1);
-        }
     }
 }
 
