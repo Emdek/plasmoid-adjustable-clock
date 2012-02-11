@@ -28,47 +28,63 @@
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
 
+#include <KPixmapCache>
+
 #include <Plasma/Theme>
 #include <Plasma/FrameSvg>
 
 namespace AdjustableClock
 {
 
+KPixmapCache *m_cache = NULL;
+
 PreviewDelegate::PreviewDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
+    m_cache = new KPixmapCache(QLatin1String("AdjustableClockPreviews"));
+}
+
+PreviewDelegate::~PreviewDelegate()
+{
+    delete m_cache;
 }
 
 void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
 
-    QPixmap pixmap(230, 90);
-    pixmap.fill(Qt::transparent);
+    QPixmap pixmap;
 
-    QPainter pixmapPainter(&pixmap);
-    pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
+    if (!m_cache->find(index.data(TitleRole).toString(), pixmap)) {
+        pixmap = QPixmap(230, 90);
+        pixmap.fill(Qt::transparent);
 
-    if (index.data(BackgroundRole).toBool()) {
-        Plasma::FrameSvg background;
-        background.setImagePath(Plasma::Theme::defaultTheme()->imagePath(QLatin1String("widgets/background")));
-        background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
-        background.resizeFrame(QSizeF(230, 90));
-        background.paintFrame(&pixmapPainter);
+        QPainter pixmapPainter(&pixmap);
+        pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
+
+        if (index.data(BackgroundRole).toBool()) {
+            Plasma::FrameSvg background;
+            background.setImagePath(Plasma::Theme::defaultTheme()->imagePath(QLatin1String("widgets/background")));
+            background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
+            background.resizeFrame(QSizeF(230, 90));
+            background.paintFrame(&pixmapPainter);
+        }
+
+        QWebPage page;
+        page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+        page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+        page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + index.data(CssRole).toString() + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))) + QLatin1String("</td></tr></table></body></html>"));
+        page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, QSizeF(230, 90)));
+        page.setViewportSize(QSize(230, 90));
+
+        QPalette palette = page.palette();
+        palette.setBrush(QPalette::Base, Qt::transparent);
+
+        page.setPalette(palette);
+        page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
+        page.mainFrame()->render(&pixmapPainter);
+
+        m_cache->insert(index.data(TitleRole).toString(), pixmap);
     }
-
-    QWebPage page;
-    page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-    page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + index.data(CssRole).toString() + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))) + QLatin1String("</td></tr></table></body></html>"));
-    page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, QSizeF(230, 90)));
-    page.setViewportSize(QSize(230, 90));
-
-    QPalette palette = page.palette();
-    palette.setBrush(QPalette::Base, Qt::transparent);
-
-    page.setPalette(palette);
-    page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
-    page.mainFrame()->render(&pixmapPainter);
 
     painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 230, 90), pixmap, QRect(0, 0, 230, 90));
 }
