@@ -29,6 +29,8 @@
 namespace AdjustableClock
 {
 
+enum ModelRole { HtmlRole = (Qt::UserRole + 1), CssRole = (Qt::UserRole + 2), BackgroundRole = (Qt::UserRole + 3), AuthorRole = (Qt::UserRole + 4), DescriptionRole = (Qt::UserRole + 5) };
+
 class Applet;
 class FormatLineEdit;
 

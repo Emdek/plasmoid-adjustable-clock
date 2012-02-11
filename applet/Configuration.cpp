@@ -58,9 +58,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             Format format = m_applet->format(formats.at(i));
 
             m_appearanceUi.formatComboBox->addItem(format.title, formats.at(i));
-            m_appearanceUi.formatComboBox->setItemData(i, format.html, (Qt::UserRole + 1));
-            m_appearanceUi.formatComboBox->setItemData(i, format.css, (Qt::UserRole + 2));
-            m_appearanceUi.formatComboBox->setItemData(i, format.background, (Qt::UserRole + 3));
+            m_appearanceUi.formatComboBox->setItemData(i, format.html, HtmlRole);
+            m_appearanceUi.formatComboBox->setItemData(i, format.css, CssRole);
+            m_appearanceUi.formatComboBox->setItemData(i, format.background, BackgroundRole);
         }
     }
 
@@ -178,9 +178,9 @@ void Configuration::accepted()
 
         Format format;
         format.title = m_appearanceUi.formatComboBox->itemText(i);
-        format.html = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 1)).toString();
-        format.css = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 2)).toString();
-        format.background = m_appearanceUi.formatComboBox->itemData(i, (Qt::UserRole + 3)).toBool();
+        format.html = m_appearanceUi.formatComboBox->itemData(i, HtmlRole).toString();
+        format.css = m_appearanceUi.formatComboBox->itemData(i, CssRole).toString();
+        format.background = m_appearanceUi.formatComboBox->itemData(i, BackgroundRole).toBool();
 
         if (i < builInFormats) {
             Format existing = m_applet->format(m_appearanceUi.formatComboBox->itemData(i).toString());
@@ -226,9 +226,9 @@ void Configuration::loadFormat(int index)
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 
-    m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString());
-    m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString());
-    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 3)).toBool());
+    m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString());
+    m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, CssRole).toString());
+    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(index >= m_applet->formats(false).count());
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -282,13 +282,13 @@ void Configuration::changeFormat()
 
     const int index = m_appearanceUi.formatComboBox->currentIndex();
 
-    if (index < m_applet->formats(false).count() && (m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 1)).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 2)).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, (Qt::UserRole + 3)).toBool() != format.background)) {
+    if (index < m_applet->formats(false).count() && (m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, CssRole).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool() != format.background)) {
         addFormat(true);
     }
 
-    m_appearanceUi.formatComboBox->setItemData(index, format.html, (Qt::UserRole + 1));
-    m_appearanceUi.formatComboBox->setItemData(index, format.css, (Qt::UserRole + 2));
-    m_appearanceUi.formatComboBox->setItemData(index, format.background, (Qt::UserRole + 3));
+    m_appearanceUi.formatComboBox->setItemData(index, format.html, HtmlRole);
+    m_appearanceUi.formatComboBox->setItemData(index, format.css, CssRole);
+    m_appearanceUi.formatComboBox->setItemData(index, format.background, BackgroundRole);
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
