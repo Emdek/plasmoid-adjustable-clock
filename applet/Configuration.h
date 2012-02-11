@@ -21,6 +21,8 @@
 #ifndef ADJUSTABLECLOCKCONFIGURATION_HEADER
 #define ADJUSTABLECLOCKCONFIGURATION_HEADER
 
+#include <QtGui/QStandardItemModel>
+
 #include <KConfigDialog>
 
 #include "ui_appearance.h"
@@ -29,7 +31,7 @@
 namespace AdjustableClock
 {
 
-enum ModelRole { TitleRole = Qt::DisplayRole, IdRole = Qt::UserRole, DescriptionRole = (Qt::UserRole + 1), AuthorRole = (Qt::UserRole + 2), HtmlRole = (Qt::UserRole + 3), CssRole = (Qt::UserRole + 4), BackgroundRole = (Qt::UserRole + 5), BundledRole = (Qt::UserRole + 6) };
+enum ModelRole { IdRole = (Qt::UserRole + 1), TitleRole = (Qt::UserRole + 2), DescriptionRole = (Qt::UserRole + 3), AuthorRole = (Qt::UserRole + 4), HtmlRole = (Qt::UserRole + 5), CssRole = (Qt::UserRole + 6), BackgroundRole = (Qt::UserRole + 7), BundledRole = (Qt::UserRole + 8) };
 
 class Applet;
 class FormatLineEdit;
@@ -45,12 +47,13 @@ class Configuration : public QObject
 
     protected:
         void timerEvent(QTimerEvent *event);
+        int findRow(const QString &text);
 
     protected slots:
         void accepted();
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);
-        void loadFormat(int index);
+        void selectFormat(const QModelIndex &index);
         void addFormat(bool automatically = false);
         void removeFormat();
         void changeFormat();
@@ -74,8 +77,8 @@ class Configuration : public QObject
 
     private:
         Applet *m_applet;
+        QStandardItemModel *m_themesModel;
         QTableWidgetItem *m_editedItem;
-        QAbstractItemModel *m_themesModel;
         int m_controlsTimer;
         int m_fontSize;
         Ui::appearance m_appearanceUi;

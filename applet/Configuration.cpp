@@ -37,6 +37,7 @@ namespace AdjustableClock
 
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
+    m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL),
     m_controlsTimer(0)
 {
@@ -52,23 +53,22 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     const QStringList formats = m_applet->formats();
 
     for (int i = 0; i < formats.count(); ++i) {
-        if (formats.at(i).isEmpty()) {
-            m_appearanceUi.formatComboBox->insertSeparator(i);
-        } else {
-            Format format = m_applet->format(formats.at(i));
+        Format format = m_applet->format(formats.at(i));
+        QStandardItem *item = new QStandardItem();
+        item->setData(formats.at(i), IdRole);
+        item->setData(format.title, TitleRole);
+        item->setData(format.html, HtmlRole);
+        item->setData(format.css, CssRole);
+        item->setData(format.background, BackgroundRole);
+        item->setData(format.bundled, BundledRole);
 
-            m_appearanceUi.formatComboBox->addItem(format.title, formats.at(i));
-            m_appearanceUi.formatComboBox->setItemData(i, format.html, HtmlRole);
-            m_appearanceUi.formatComboBox->setItemData(i, format.css, CssRole);
-            m_appearanceUi.formatComboBox->setItemData(i, format.background, BackgroundRole);
-            m_appearanceUi.formatComboBox->setItemData(i, format.bundled, BundledRole);
-        }
+        m_themesModel->appendRow(item);
     }
 
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
-    m_appearanceUi.themesView->setModel(m_appearanceUi.formatComboBox->model());
+    m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(new PreviewDelegate(m_appearanceUi.themesView));
 
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
@@ -117,7 +117,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->resize(500, 400);
 
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
-    connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(addFormat()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
@@ -143,11 +143,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
 
-    const int currentFormat = m_appearanceUi.formatComboBox->findData(m_applet->config().readEntry("format", "%default%"));
+    const int currentFormat = qMax(formats.indexOf(m_applet->config().readEntry("format", "%default%")), 0);
 
-    m_appearanceUi.formatComboBox->setCurrentIndex(currentFormat);
+    m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentFormat, 0));
 
-    loadFormat(currentFormat);
+    selectFormat(m_themesModel->index(currentFormat, 0));
 }
 
 void Configuration::timerEvent(QTimerEvent *event)
@@ -170,28 +170,20 @@ void Configuration::accepted()
     m_applet->config().deleteGroup("Formats");
 
     KConfigGroup formatsConfiguration = m_applet->config().group("Formats");
-    const int builInFormats = m_applet->formats().count();
 
-    for (int i = 0; i < m_appearanceUi.formatComboBox->count(); ++i) {
-        if (m_appearanceUi.formatComboBox->itemText(i).isEmpty()) {
+    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
+        QModelIndex index = m_themesModel->index(i, 0);
+        Format format;
+        format.title = index.data(TitleRole).toString();
+        format.html = index.data(HtmlRole).toString();
+        format.css = index.data(CssRole).toString();
+        format.background = index.data(BackgroundRole).toBool();
+
+        if (index.data(BundledRole).toBool()) {
             continue;
         }
 
-        Format format;
-        format.title = m_appearanceUi.formatComboBox->itemText(i);
-        format.html = m_appearanceUi.formatComboBox->itemData(i, HtmlRole).toString();
-        format.css = m_appearanceUi.formatComboBox->itemData(i, CssRole).toString();
-        format.background = m_appearanceUi.formatComboBox->itemData(i, BackgroundRole).toBool();
-
-        if (i < builInFormats) {
-            Format existing = m_applet->format(m_appearanceUi.formatComboBox->itemData(i).toString());
-
-            if (format.html == existing.html && format.css == existing.css) {
-                continue;
-            }
-        }
-
-        KConfigGroup formatConfiguration = formatsConfiguration.group(m_appearanceUi.formatComboBox->itemData(i).toString());
+        KConfigGroup formatConfiguration = formatsConfiguration.group(index.data(IdRole).toString());
         formatConfiguration.writeEntry("title", format.title);
         formatConfiguration.writeEntry("html", format.html);
         formatConfiguration.writeEntry("css", format.css);
@@ -202,7 +194,7 @@ void Configuration::accepted()
         clipboardFormats.append(m_clipboardUi.clipboardActionsTable->item(i, 0)->text());
     }
 
-    m_applet->config().writeEntry("format", m_appearanceUi.formatComboBox->itemData(m_appearanceUi.formatComboBox->currentIndex()).toString());
+    m_applet->config().writeEntry("format", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
     m_applet->config().writeEntry("clipboardFormats", clipboardFormats);
     m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormatEdit->text());
 }
@@ -221,16 +213,17 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     }
 }
 
-void Configuration::loadFormat(int index)
+void Configuration::selectFormat(const QModelIndex &index)
 {
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
 
-    m_appearanceUi.htmlTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString());
-    m_appearanceUi.cssTextEdit->setPlainText(m_appearanceUi.formatComboBox->itemData(index, CssRole).toString());
-    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool());
-    m_appearanceUi.deleteButton->setEnabled(!m_appearanceUi.formatComboBox->itemData(index, BundledRole).toBool());
+    m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
+    m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
+    m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
+    m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
+    m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
@@ -281,30 +274,32 @@ void Configuration::changeFormat()
         m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("designModeEditor"), this);
     }
 
-    const int index = m_appearanceUi.formatComboBox->currentIndex();
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    if (index < m_applet->formats().count() && (m_appearanceUi.formatComboBox->itemData(index, HtmlRole).toString() != format.html || m_appearanceUi.formatComboBox->itemData(index, CssRole).toString() != format.css || m_appearanceUi.formatComboBox->itemData(index, BackgroundRole).toBool() != format.background)) {
+    if (index.data(BundledRole).toBool() && (index.data(HtmlRole).toString() != format.html || index.data(CssRole).toString() != format.css || index.data(BackgroundRole).toBool() != format.background)) {
         addFormat(true);
     }
 
-    m_appearanceUi.formatComboBox->setItemData(index, format.html, HtmlRole);
-    m_appearanceUi.formatComboBox->setItemData(index, format.css, CssRole);
-    m_appearanceUi.formatComboBox->setItemData(index, format.background, BackgroundRole);
+    m_themesModel->setData(index, format.html, HtmlRole);
+    m_themesModel->setData(index, format.css, CssRole);
+    m_themesModel->setData(index, format.background, BackgroundRole);
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
+
+    m_appearanceUi.themesView->scrollTo(index);
 }
 
 void Configuration::addFormat(bool automatically)
 {
-    QString title = m_appearanceUi.formatComboBox->itemText(m_appearanceUi.formatComboBox->currentIndex());
+    QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString();
 
     if (automatically) {
         int i = 2;
 
-        while (m_appearanceUi.formatComboBox->findText(QString(QLatin1String("%1 %2")).arg(title).arg(i)) >= 0) {
+        while (findRow(QString(QLatin1String("%1 %2")).arg(title).arg(i)) >= 0) {
             ++i;
         }
 
@@ -319,14 +314,14 @@ void Configuration::addFormat(bool automatically)
         }
     }
 
-    if (m_appearanceUi.formatComboBox->findText(title) >= 0) {
-        KMessageBox::error(m_appearanceUi.formatComboBox, i18n("A format with this name already exists."));
+    if (findRow(title) >= 0) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("A format with this name already exists."));
 
         return;
     }
 
     if (title.startsWith(QLatin1Char('%')) && title.endsWith(QLatin1Char('%'))) {
-        KMessageBox::error(m_appearanceUi.formatComboBox, i18n("Invalid format name."));
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid format name."));
 
         return;
     }
@@ -335,33 +330,32 @@ void Configuration::addFormat(bool automatically)
         return;
     }
 
-    int index = (m_appearanceUi.formatComboBox->currentIndex() + 1);
-    const int builInFormats = m_applet->formats().count();
+    disconnect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
 
-    if (index <= builInFormats) {
-        index = m_appearanceUi.formatComboBox->count();
-    }
+    m_themesModel->insertRow(m_themesModel->rowCount());
 
-    disconnect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+    const QModelIndex index = m_themesModel->index((m_themesModel->rowCount() - 1), 0);
 
-    if (index == builInFormats && builInFormats == m_appearanceUi.formatComboBox->count())
-    {
-        m_appearanceUi.formatComboBox->insertSeparator(index);
+    m_themesModel->setData(index, title, IdRole);
+    m_themesModel->setData(index, title, TitleRole);
+    m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
+    m_themesModel->setData(index, m_appearanceUi.cssTextEdit->toPlainText(), CssRole);
+    m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
+    m_themesModel->setData(index, false, BundledRole);
 
-        ++index;
-    }
+    selectFormat(index);
 
-    m_appearanceUi.formatComboBox->insertItem(index, title, m_appearanceUi.htmlTextEdit->toPlainText());
-    m_appearanceUi.formatComboBox->setCurrentIndex(index);
-    m_appearanceUi.deleteButton->setEnabled(true);
-
-    connect(m_appearanceUi.formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadFormat(int)));
+    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
 }
 
 void Configuration::removeFormat()
 {
-    if (!m_appearanceUi.formatComboBox->itemData(m_appearanceUi.formatComboBox->currentIndex(), BundledRole).toBool()) {
-        m_appearanceUi.formatComboBox->removeItem(m_appearanceUi.formatComboBox->currentIndex());
+    if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
+        const int row = m_appearanceUi.themesView->currentIndex().row();
+
+        m_themesModel->removeRow(row);
+
+        m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(qMax((row - 1), 0), 0));
     }
 }
 
@@ -610,6 +604,17 @@ void Configuration::updateRow(int row)
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
+}
+
+int Configuration::findRow(const QString &text)
+{
+    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
+        if (m_themesModel->index(i, 0).data(TitleRole).toString() == text) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 bool Configuration::eventFilter(QObject *object, QEvent *event)

@@ -830,18 +830,12 @@ QStringList Applet::formats() const
     QStringList formats;
     formats << QLatin1String("%default%") << QLatin1String("%flat%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
 
-    const int count = formats.count();
-
     QStringList userFormats = config().group("Formats").groupList();
 
     for (int i = 0; i < userFormats.count(); ++i) {
         if (!formats.contains(userFormats.at(i))) {
             formats.append(userFormats.at(i));
         }
-    }
-
-    if (count != formats.count()) {
-        formats.insert(count,  QLatin1String(""));
     }
 
     return formats;
