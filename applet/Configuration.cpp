@@ -301,7 +301,7 @@ void Configuration::addFormat(bool automatically)
 
 void Configuration::deleteFormat()
 {
-    if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
+    if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool() && KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(m_appearanceUi.themesView->currentIndex().data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
         const int row = m_appearanceUi.themesView->currentIndex().row();
 
         m_themesModel->removeRow(row);
