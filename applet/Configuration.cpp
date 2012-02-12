@@ -128,6 +128,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(addFormat()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteFormat()));
+    connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -150,7 +151,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
-    connect(this, SIGNAL(formatsChanged()), delegate, SLOT(clear()));
+    connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
 
     const int currentFormat = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
 
@@ -294,7 +295,7 @@ void Configuration::addFormat(bool automatically)
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
     m_themesModel->setData(index, false, BundledRole);
 
-    selectFormat(index);
+    m_appearanceUi.themesView->setCurrentIndex(index);
 
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
 }
@@ -312,7 +313,22 @@ void Configuration::deleteFormat()
 
 void Configuration::renameFormat()
 {
+    bool ok;
+    const QString title = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), m_appearanceUi.themesView->currentIndex().data(TitleRole).toString(), &ok);
 
+    if (!ok) {
+        return;
+    }
+
+    if (findRow(title) >= 0) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("A format with this name already exists."));
+
+        return;
+    }
+
+    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), title, TitleRole);
+
+    emit clearCache();
 }
 
 void Configuration::updateFormat(const Format &format)
@@ -327,7 +343,7 @@ void Configuration::updateFormat(const Format &format)
     m_themesModel->setData(index, format.css, CssRole);
     m_themesModel->setData(index, format.background, BackgroundRole);
 
-    emit formatsChanged();
+    emit clearCache();
 }
 
 void Configuration::updateControls()
