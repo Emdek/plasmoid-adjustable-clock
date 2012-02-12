@@ -261,8 +261,8 @@ void Applet::clockConfigChanged()
             QXmlStreamAttributes attributes = reader.attributes();
 
             format.id = QLatin1Char(':') + attributes.value(QLatin1String("id")).toString() + QLatin1Char(':');
-            format.title = attributes.value(QLatin1String("title")).toString();
-            format.description = attributes.value(QLatin1String("description")).toString();
+            format.title = i18n(attributes.value(QLatin1String("title")).toString().toUtf8().data());
+            format.description = i18n(attributes.value(QLatin1String("description")).toString().toUtf8().data());
             format.author = attributes.value(QLatin1String("author")).toString();
             format.html = QString();
             format.css = QString();

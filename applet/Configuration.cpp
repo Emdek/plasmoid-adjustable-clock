@@ -59,10 +59,13 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         QStandardItem *item = new QStandardItem();
         item->setData(formats.at(i).id, IdRole);
         item->setData(formats.at(i).title, TitleRole);
+        item->setData(formats.at(i).description, DescriptionRole);
+        item->setData(formats.at(i).author, AuthorRole);
         item->setData(formats.at(i).html, HtmlRole);
         item->setData(formats.at(i).css, CssRole);
         item->setData(formats.at(i).background, BackgroundRole);
         item->setData(formats.at(i).bundled, BundledRole);
+        item->setToolTip(QLatin1String("<b>") + i18n("\"%1\" by %2").arg(formats.at(i).title).arg(formats.at(i).author) + QLatin1String("</b><br />") + formats.at(i).description);
 
         m_themesModel->appendRow(item);
     }
