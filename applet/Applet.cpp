@@ -26,6 +26,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
+#include <QXml/QXmlReader>
 
 #include <KMenu>
 #include <KLocale>
@@ -71,6 +72,30 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 void Applet::init()
 {
     ClockApplet::init();
+
+    QFile file(KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml")));
+    file.open(QFile::ReadOnly | QFile::Text);
+
+    QXmlStreamReader reader(&file);
+
+    while (!reader.atEnd())
+    {
+        reader.readNext();
+
+        if (!reader.isStartElement())
+        {
+            continue;
+        }
+
+        if (reader.name().toString() == "format")
+        {
+            QXmlStreamAttributes attributes = reader.attributes();
+
+            m_name = attributes.value("name").toString();
+        }
+    }
+
+    file.close();
 
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);

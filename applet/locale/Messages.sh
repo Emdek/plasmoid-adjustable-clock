@@ -30,6 +30,7 @@ cd ${BASEDIR}
 # we use simple sorting to make sure the lines do not jump around too much from system to system
 find . -name '*.rc' -o -name '*.ui' -o -name '*.kcfg' | sort > ${WDIR}/rcfiles.list
 xargs --arg-file=${WDIR}/rcfiles.list extractrc > ${WDIR}/rc.cpp
+sed = data/formats.xml | sed 'N;s/\n//' | sed -n 's/\([0-9]*\).*title=\"\([^\"]*\)\" description=\"\([^\"]*\)\".*/\/\/ i18n\: file data\/formats.xml:\1\ni18n("\2")\;\n\/\/ i18n\: file data\/formats.xml:\1\ni18n("\3")\;/p' >> ${WDIR}/rc.cpp
 # additional string for KAboutData
 echo 'i18nc("NAME OF TRANSLATORS", "Your names");' >> ${WDIR}/rc.cpp
 echo 'i18nc("EMAIL OF TRANSLATORS", "Your emails");' >> ${WDIR}/rc.cpp
@@ -67,4 +68,3 @@ rm rcfiles.list
 rm infiles.list
 rm rc.cpp
 echo "Done"
-

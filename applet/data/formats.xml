@@ -57,7 +57,7 @@ progress::-webkit-progress-value
 }
 ]]></css>
 	</format>
-	<format id="calendar" title="calendar" description="Calendar like theme" author="Michał Dutkiewicz" background="false">
+	<format id="calendar" title="Calendar" description="Calendar like theme" author="Michał Dutkiewicz" background="false">
 		<html><![CDATA[<div style="width: 295px; min-height: 295px; margin: auto; text-shadow: 0 0 5px #AAA;">
 	<div class="calendar">
 		%$w<br>

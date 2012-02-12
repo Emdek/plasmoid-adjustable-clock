@@ -1,5 +1,6 @@
 3.1 (15.02.2012):
 - new format selector with previews;
+- added Progress clock, based on code from Peter Fajdiga;
 - removed Flat format (too similar to Default);
 - some other fixes.
 

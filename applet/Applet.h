@@ -38,6 +38,7 @@ enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeatu
 
 struct Format
 {
+    QString id;
     QString title;
     QString html;
     QString css;
