@@ -40,6 +40,8 @@ struct Format
 {
     QString id;
     QString title;
+    QString description;
+    QString author;
     QString html;
     QString css;
     bool background;
@@ -58,9 +60,9 @@ class Applet : public ClockApplet
         static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         static qreal zoomFactor(QWebPage &page, const QSizeF &size);
-        Format format(QString name = QString()) const;
-        QStringList formats() const;
         QStringList clipboardFormats() const;
+        QList<Format> formats() const;
+        Format format() const;
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -93,11 +95,11 @@ class Applet : public ClockApplet
 
     private:
         QWebPage m_page;
-        Format m_format;
         QString m_currentHtml;
         QAction *m_clipboardAction;
         QList<Format> m_formats;
         QFlags<ClockFeature> m_features;
+        int m_format;
 
         Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 };

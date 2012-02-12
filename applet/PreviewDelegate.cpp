@@ -54,7 +54,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
     QPixmap pixmap;
 
-    if (!m_cache->find(index.data(TitleRole).toString(), pixmap)) {
+    if (!m_cache->find(index.data(IdRole).toString(), pixmap)) {
         pixmap = QPixmap(230, 90);
         pixmap.fill(Qt::transparent);
 
@@ -83,7 +83,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
         page.mainFrame()->render(&pixmapPainter);
 
-        m_cache->insert(index.data(TitleRole).toString(), pixmap);
+        m_cache->insert(index.data(IdRole).toString(), pixmap);
     }
 
     painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 230, 90), pixmap, QRect(0, 0, 230, 90));

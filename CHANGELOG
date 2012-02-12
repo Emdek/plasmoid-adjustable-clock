@@ -2,6 +2,7 @@
 - new format selector with previews;
 - added Progress clock, based on code from Peter Fajdiga;
 - removed Flat format (too similar to Default);
+- move bundled formats to XML data file;
 - some other fixes.
 
 3.0 (15.01.2012):

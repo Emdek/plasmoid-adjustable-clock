@@ -47,7 +47,7 @@ class Configuration : public QObject
 
     protected:
         void timerEvent(QTimerEvent *event);
-        int findRow(const QString &text);
+        int findRow(const QString &text, int role = TitleRole);
 
     protected slots:
         void accepted();

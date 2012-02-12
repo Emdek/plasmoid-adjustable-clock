@@ -58,7 +58,8 @@ QTime m_sunrise;
 QTime m_sunset;
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_clipboardAction(NULL)
+    m_clipboardAction(NULL),
+    m_format(-1)
 {
     KGlobal::locale()->insertCatalog(QLatin1String("libplasmaclock"));
     KGlobal::locale()->insertCatalog(QLatin1String("timezones4"));
@@ -73,40 +74,6 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 void Applet::init()
 {
     ClockApplet::init();
-
-    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml"));
-    QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
-
-    QXmlStreamReader reader(&file);
-
-    while (!reader.atEnd())
-    {
-        reader.readNext();
-
-        if (!reader.isStartElement())
-        {
-            continue;
-        }
-
-        if (reader.name().toString() == QLatin1String("format"))
-        {
-            QXmlStreamAttributes attributes = reader.attributes();
-
-            attributes.value(QLatin1String("name")).toString();
-        }
-    }
-
-    file.close();
-
-
-    if (m_formats.isEmpty()) {
-        Format format;
-        format.title = i18n("Error");
-        format.html = i18n("Missing or invalid data file: %s.", path);
-        format.background = true;
-        format.bundled = false;
-    }
 
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
@@ -263,7 +230,90 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    setHtml(evaluateFormat(format().html, currentDateTime()), format().css);
+    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml"));
+    const QString id = config().readEntry("format", "%default%");
+    QFile file(path);
+    file.open(QFile::ReadOnly | QFile::Text);
+
+    m_formats.clear();
+    m_format = -1;
+
+    QXmlStreamReader reader(&file);
+    Format format;
+    format.bundled = true;
+
+    while (!reader.atEnd()) {
+        reader.readNext();
+
+        if (!reader.isStartElement()) {
+            if (reader.name().toString() == QLatin1String("format")) {
+                m_formats.append(format);
+
+                if (id == format.id) {
+                    m_format = (m_formats.count() - 1);
+                }
+            }
+
+            continue;
+        }
+
+        if (reader.name().toString() == QLatin1String("format")) {
+            QXmlStreamAttributes attributes = reader.attributes();
+
+            format.id = QLatin1Char(':') + attributes.value(QLatin1String("id")).toString() + QLatin1Char(':');
+            format.title = attributes.value(QLatin1String("title")).toString();
+            format.description = attributes.value(QLatin1String("description")).toString();
+            format.author = attributes.value(QLatin1String("author")).toString();
+            format.html = QString();
+            format.css = QString();
+            format.background = (attributes.value(QLatin1String("background")).toString().toLower() == QLatin1String("true"));
+        }
+
+        if (reader.name().toString() == QLatin1String("html")) {
+            format.html = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("css")) {
+            format.css = reader.readElementText();
+        }
+    }
+
+    file.close();
+
+    if (m_formats.isEmpty()) {
+        format.id = QLatin1String(":default:");
+        format.title = i18n("Error");
+        format.html = i18n("Missing or invalid data file: %1.").arg(path);
+        format.background = true;
+        format.bundled = false;
+
+        m_format = 0;
+
+        m_formats.append(format);
+    }
+
+    const QStringList userFormats = config().group("Formats").groupList();
+
+    for (int i = 0; i < userFormats.count(); ++i) {
+        KConfigGroup formatConfiguration = config().group("Formats").group(userFormats.at(i));
+        Format format;
+        format.id = formatConfiguration.readEntry("title", i18n("Custom"));
+        format.title = formatConfiguration.readEntry("title", i18n("Custom"));
+        format.html = formatConfiguration.readEntry("html", QString());
+        format.css = formatConfiguration.readEntry("css", QString());
+        format.background = formatConfiguration.readEntry("background", true);
+        format.bundled = false;
+
+        if (id == format.id) {
+            m_format = (m_formats.count() - 1);
+        }
+    }
+
+    if (m_format < 0 && m_formats.count()) {
+        m_format = 0;
+    }
+
+    setHtml(evaluateFormat(this->format().html, currentDateTime()), this->format().css);
 
     updateSize();
 }
@@ -277,9 +327,6 @@ void Applet::connectSource(const QString &timezone)
 {
     QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*[ast]"));
     QFlags<ClockFeature> features;
-
-    m_format.html = QString();
-
     const Format format = this->format();
     const QPair<QString, QString> toolTipFormat = this->toolTipFormat();
     const QString toolTip = (toolTipFormat.first + QLatin1Char('|') + toolTipFormat.second);
@@ -798,81 +845,6 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     return QString();
 }
 
-Format Applet::format(QString name) const
-{
-    if (name.isEmpty()) {
-        if (!m_format.html.isEmpty()) {
-            return m_format;
-        }
-
-        name = config().readEntry("format", "%default%");
-    }
-
-    QHash<QString, Format> formats;
-    formats[QLatin1String("%default%")] = Format();
-    formats[QLatin1String("%default%")].title = i18n("Default");
-    formats[QLatin1String("%default%")].html = QLatin1String("<div style=\"text-align:center; margin:5px;\"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>");
-    formats[QLatin1String("%default%")].background = true;
-    formats[QLatin1String("%default%")].bundled = true;
-    formats[QLatin1String("%simple%")] = Format();
-    formats[QLatin1String("%simple%")].title = i18n("Simple");
-    formats[QLatin1String("%simple%")].html = QLatin1String("<div style=\"text-align:center; font-size:25px; margin:5px;\">%h:%m</div>");
-    formats[QLatin1String("%simple%")].background = true;
-    formats[QLatin1String("%simple%")].bundled = true;
-    formats[QLatin1String("%verbose%")] = Format();
-    formats[QLatin1String("%verbose%")].title = i18n("Verbose");
-    formats[QLatin1String("%verbose%")].html = QLatin1String("<div style=\"text-align:center; opacity:0.85;\"><span style=\"font-size:30px;\">%h:%m:%s</span><br><span style=\"font-size:12px;\">%$w, %d.%M.%Y</span></div>");
-    formats[QLatin1String("%verbose%")].background = false;
-    formats[QLatin1String("%verbose%")].bundled = true;
-    formats[QLatin1String("%dbclock%")] = Format();
-    formats[QLatin1String("%dbclock%")].title = i18n("dbClock");
-    formats[QLatin1String("%dbclock%")].html = QLatin1String("<div style=\"height:50px;\"><div style=\"text-align:center; white-space:pre; font-size:25px; margin:-10px 0 5px 5px; -webkit-box-reflect:below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));\">%h:%m<span style=\"font-size:30px; position:relative; left:-8px; top:4px; z-index:-1; opacity:0.5;\">%s</span></div></div>");
-    formats[QLatin1String("%dbclock%")].background = false;
-    formats[QLatin1String("%dbclock%")].bundled = true;
-    formats[QLatin1String("%calendar%")] = Format();
-    formats[QLatin1String("%calendar%")].title = i18n("Calendar");
-    formats[QLatin1String("%calendar%")].html = QLatin1String("<div style=\"width:295px; min-height:295px; margin:auto; text-shadow:0 0 5px #AAA;\"><div style=\"margin:30px 0 0 0; padding:30px 20px 20px 20px; position:relative; font-weight:bold; font-size:30px; text-align:center; background:-webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03)); color:white; border-radius:20px; box-shadow:5px 5px 15px #888; opacity:0.7;\">%$w<br><span style=\"font-size:130px; line-height:140px;\">%!d</span><br><span style=\"font-size:35px;\">%$M %Y</span><br>%!H<div class=\"decor\" style=\"position:absolute; top:-30px; left:-10px; width:310px; height:60px; padding:10px 20px;\"><div></div><div></div><div></div><div></div><div></div><div></div></div></div></div>");
-    formats[QLatin1String("%calendar%")].css = QLatin1String(".decor div{width:13px; height:40px; margin:0 16px; float:left; background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575)); border:1px solid #999; box-shadow:0 0 5px #AAA;}");
-    formats[QLatin1String("%calendar%")].background = false;
-    formats[QLatin1String("%calendar%")].bundled = true;
-
-    if (formats.contains(name)) {
-        return formats[name];
-    }
-
-    if (config().group("Formats").groupList().contains(name)) {
-        KConfigGroup formatConfiguration = config().group("Formats").group(name);
-        Format format;
-        format.title = formatConfiguration.readEntry("title", i18n("Custom"));
-        format.html = formatConfiguration.readEntry("html", QString());
-        format.css = formatConfiguration.readEntry("css", QString());
-        format.background = formatConfiguration.readEntry("background", true);
-        format.bundled = false;
-
-        if (!format.html.isEmpty()) {
-            return format;
-        }
-    }
-
-    return formats[QLatin1String("%default%")];
-}
-
-QStringList Applet::formats() const
-{
-    QStringList formats;
-    formats << QLatin1String("%default%") << QLatin1String("%simple%") << QLatin1String("%verbose%") << QLatin1String("%dbclock%") << QLatin1String("%calendar%");
-
-    QStringList userFormats = config().group("Formats").groupList();
-
-    for (int i = 0; i < userFormats.count(); ++i) {
-        if (!formats.contains(userFormats.at(i))) {
-            formats.append(userFormats.at(i));
-        }
-    }
-
-    return formats;
-}
-
 QStringList Applet::clipboardFormats() const
 {
     QStringList clipboardFormats;
@@ -890,6 +862,27 @@ QStringList Applet::clipboardFormats() const
     << QLatin1String("%U");
 
     return config().readEntry("clipboardFormats", clipboardFormats);
+}
+
+QList<Format> Applet::formats() const
+{
+    return m_formats;
+}
+
+Format Applet::format() const
+{
+    if (m_format >= 0 && m_format < m_formats.count()) {
+        return m_formats[m_format];
+    }
+
+    Format format;
+    format.id = QLatin1String(":default:");
+    format.title = i18n("Error");
+    format.html = i18n("Invalid format identifier.");
+    format.background = true;
+    format.bundled = false;
+
+    return format;
 }
 
 QPair<QString, QString> Applet::toolTipFormat() const

@@ -32,6 +32,9 @@
 #include <KColorDialog>
 #include <KInputDialog>
 
+
+#include <QDebug>
+
 namespace AdjustableClock
 {
 
@@ -50,17 +53,16 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
 
-    const QStringList formats = m_applet->formats();
+    const QList<Format> formats = m_applet->formats();
 
     for (int i = 0; i < formats.count(); ++i) {
-        Format format = m_applet->format(formats.at(i));
         QStandardItem *item = new QStandardItem();
-        item->setData(formats.at(i), IdRole);
-        item->setData(format.title, TitleRole);
-        item->setData(format.html, HtmlRole);
-        item->setData(format.css, CssRole);
-        item->setData(format.background, BackgroundRole);
-        item->setData(format.bundled, BundledRole);
+        item->setData(formats.at(i).id, IdRole);
+        item->setData(formats.at(i).title, TitleRole);
+        item->setData(formats.at(i).html, HtmlRole);
+        item->setData(formats.at(i).css, CssRole);
+        item->setData(formats.at(i).background, BackgroundRole);
+        item->setData(formats.at(i).bundled, BundledRole);
 
         m_themesModel->appendRow(item);
     }
@@ -143,7 +145,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
 
-    const int currentFormat = qMax(formats.indexOf(m_applet->config().readEntry("format", "%default%")), 0);
+    const int currentFormat = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
 
     m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentFormat, 0));
 
@@ -606,10 +608,10 @@ void Configuration::updateRow(int row)
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
 }
 
-int Configuration::findRow(const QString &text)
+int Configuration::findRow(const QString &text, int role)
 {
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        if (m_themesModel->index(i, 0).data(TitleRole).toString() == text) {
+        if (m_themesModel->index(i, 0).data(role).toString() == text) {
             return i;
         }
     }
