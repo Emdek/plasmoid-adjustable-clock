@@ -31,9 +31,6 @@
 #include <KColorDialog>
 #include <KInputDialog>
 
-
-#include <QDebug>
-
 namespace AdjustableClock
 {
 
@@ -126,7 +123,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
-    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(addFormat()));
+    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newFormat()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteFormat()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
@@ -183,15 +180,16 @@ void Configuration::accepted()
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
         QModelIndex index = m_themesModel->index(i, 0);
+
+        if (index.data(BundledRole).toBool()) {
+            continue;
+        }
+
         Format format;
         format.title = index.data(TitleRole).toString();
         format.html = index.data(HtmlRole).toString();
         format.css = index.data(CssRole).toString();
         format.background = index.data(BackgroundRole).toBool();
-
-        if (index.data(BundledRole).toBool()) {
-            continue;
-        }
 
         KConfigGroup formatConfiguration = formatsConfiguration.group(index.data(IdRole).toString());
         formatConfiguration.writeEntry("title", format.title);
@@ -243,7 +241,7 @@ void Configuration::selectFormat(const QModelIndex &index)
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
-void Configuration::addFormat(bool automatically)
+void Configuration::newFormat(bool automatically)
 {
     QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString();
 
@@ -336,7 +334,7 @@ void Configuration::updateFormat(const Format &format)
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     if (index.data(BundledRole).toBool()) {
-        addFormat(true);
+        newFormat(true);
     }
 
     m_themesModel->setData(index, format.html, HtmlRole);

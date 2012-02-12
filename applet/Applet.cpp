@@ -304,6 +304,8 @@ void Applet::clockConfigChanged()
         format.background = formatConfiguration.readEntry("background", true);
         format.bundled = false;
 
+        m_formats.append(format);
+
         if (id == format.id) {
             m_format = (m_formats.count() - 1);
         }

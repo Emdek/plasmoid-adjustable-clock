@@ -56,7 +56,7 @@ class Configuration : public QObject
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);
         void selectFormat(const QModelIndex &index);
-        void addFormat(bool automatically = false);
+        void newFormat(bool automatically = false);
         void deleteFormat();
         void renameFormat();
         void updateFormat(const Format &format);

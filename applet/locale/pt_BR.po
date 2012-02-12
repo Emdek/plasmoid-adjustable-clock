@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_adjustableclock\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-12 14:52+0100\n"
+"POT-Creation-Date: 2012-02-12 22:12+0100\n"
 "PO-Revision-Date: 2009-04-13 21:41-0300\n"
 "Last-Translator: Luiz Fernando Ranghetti <elchevive@opensuse.org>\n"
 "Language-Team: Brazilian Portuguese <kde-i18n-pt_BR@lists.kde.org>\n"
@@ -18,93 +18,93 @@ msgstr ""
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: Applet.cpp:162
+#: Applet.cpp:140
 msgid "Event"
 msgstr ""
 
-#: Applet.cpp:162
+#: Applet.cpp:140
 msgid "To do"
 msgstr ""
 
-#: Applet.cpp:166
+#: Applet.cpp:144
 msgid "All day"
 msgstr ""
 
-#: Applet.cpp:321
-msgid "UTC"
+#: Applet.cpp:285 Applet.cpp:882
+msgid "Error"
 msgstr ""
 
-#: Applet.cpp:640 Applet.cpp:730
-msgid "pm"
-msgstr "PM"
-
-#: Applet.cpp:640 Applet.cpp:730
-msgid "am"
-msgstr "AM"
-
-#. i18n: file data/formats.xml:2
-#: Applet.cpp:802 locale/rc.cpp:128 rc.cpp:128
-#, fuzzy
-msgid "Default"
-msgstr "Remover"
-
-#. i18n: file data/formats.xml:6
-#: Applet.cpp:807 locale/rc.cpp:132 rc.cpp:132
-msgid "Simple"
+#: Applet.cpp:286
+msgid "Missing or invalid data file: %1."
 msgstr ""
 
-#. i18n: file data/formats.xml:10
-#: Applet.cpp:812 locale/rc.cpp:136 rc.cpp:136
-msgid "Verbose"
-msgstr ""
-
-#. i18n: file data/formats.xml:14
-#: Applet.cpp:817 locale/rc.cpp:140 rc.cpp:140
-msgid "dbClock"
-msgstr ""
-
-#. i18n: file data/formats.xml:60
-#: Applet.cpp:822 locale/rc.cpp:148 rc.cpp:148
-msgid "Calendar"
-msgstr ""
-
-#: Applet.cpp:835
+#: Applet.cpp:300 Applet.cpp:301
 msgid "Custom"
 msgstr ""
 
-#: Applet.cpp:898 Applet.cpp:907
+#: Applet.cpp:381
+msgid "UTC"
+msgstr ""
+
+#: Applet.cpp:700 Applet.cpp:790
+msgid "pm"
+msgstr "PM"
+
+#: Applet.cpp:700 Applet.cpp:790
+msgid "am"
+msgstr "AM"
+
+#: Applet.cpp:883
+#, fuzzy
+msgid "Invalid format identifier."
+msgstr "Formato"
+
+#: Applet.cpp:904 Applet.cpp:913
 msgid "C&opy to Clipboard"
 msgstr "&Copiar para a área de transferência"
 
+#: Configuration.cpp:64 PreviewDelegate.cpp:105
+msgid "\"%1\" by %2"
+msgstr ""
+
 #. i18n: file: ui/appearance.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: Configuration.cpp:115 locale/rc.cpp:3 rc.cpp:3
+#: Configuration.cpp:120 locale/rc.cpp:3 rc.cpp:3
 msgid "Appearance"
 msgstr "Aparência"
 
 #. i18n: file: ui/clipboard.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: Configuration.cpp:116 locale/rc.cpp:66 rc.cpp:66
+#: Configuration.cpp:121 locale/rc.cpp:66 rc.cpp:66
 msgid "Clipboard actions"
 msgstr "Ações da área de transferência"
 
-#: Configuration.cpp:310
+#: Configuration.cpp:259 Configuration.cpp:315
 msgid "Add new format"
 msgstr ""
 
-#: Configuration.cpp:310
+#: Configuration.cpp:259 Configuration.cpp:315
 #, fuzzy
 msgid "Format name:"
 msgstr "Formato"
 
-#: Configuration.cpp:318
+#: Configuration.cpp:267 Configuration.cpp:322
 msgid "A format with this name already exists."
 msgstr ""
 
-#: Configuration.cpp:324
+#: Configuration.cpp:273
 #, fuzzy
 msgid "Invalid format name."
 msgstr "Formato"
+
+#: Configuration.cpp:303
+msgid "Do you really want to delete theme \"%1\"?"
+msgstr ""
+
+#: Configuration.cpp:303
+#, fuzzy
+msgid "Delete Theme"
+msgstr "Remover"
 
 #. i18n: file: ui/appearance.ui:274
 #. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
@@ -356,8 +356,19 @@ msgid "Timezone mode:"
 msgstr ""
 
 #. i18n: file data/formats.xml:2
+#: locale/rc.cpp:128 rc.cpp:128
+#, fuzzy
+msgid "Default"
+msgstr "Remover"
+
+#. i18n: file data/formats.xml:2
 #: locale/rc.cpp:130 rc.cpp:130
 msgid "Default clock theme"
+msgstr ""
+
+#. i18n: file data/formats.xml:6
+#: locale/rc.cpp:132 rc.cpp:132
+msgid "Simple"
 msgstr ""
 
 #. i18n: file data/formats.xml:6
@@ -366,8 +377,18 @@ msgid "Simple clock, similar to default digital clock"
 msgstr ""
 
 #. i18n: file data/formats.xml:10
+#: locale/rc.cpp:136 rc.cpp:136
+msgid "Verbose"
+msgstr ""
+
+#. i18n: file data/formats.xml:10
 #: locale/rc.cpp:138 rc.cpp:138
 msgid "More verbose clock with date"
+msgstr ""
+
+#. i18n: file data/formats.xml:14
+#: locale/rc.cpp:140 rc.cpp:140
+msgid "dbClock"
 msgstr ""
 
 #. i18n: file data/formats.xml:14
@@ -382,7 +403,12 @@ msgstr ""
 
 #. i18n: file data/formats.xml:18
 #: locale/rc.cpp:146 rc.cpp:146
-msgid "Clock with untypical seconds visualization"
+msgid "Clock with original seconds visualization"
+msgstr ""
+
+#. i18n: file data/formats.xml:60
+#: locale/rc.cpp:148 rc.cpp:148
+msgid "Calendar"
 msgstr ""
 
 #. i18n: file data/formats.xml:60
