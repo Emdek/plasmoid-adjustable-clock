@@ -21,6 +21,8 @@
 #ifndef ADJUSTABLECLOCKCONFIGURATION_HEADER
 #define ADJUSTABLECLOCKCONFIGURATION_HEADER
 
+#include "Applet.h"
+
 #include <QtGui/QStandardItemModel>
 
 #include <KConfigDialog>
@@ -55,8 +57,9 @@ class Configuration : public QObject
         void insertPlaceholder(const QString &placeholder);
         void selectFormat(const QModelIndex &index);
         void addFormat(bool automatically = false);
-        void removeFormat();
-        void changeFormat();
+        void deleteFormat();
+        void renameFormat();
+        void updateFormat(const Format &format);
         void updateControls();
         void triggerAction();
         void selectColor();
@@ -65,6 +68,9 @@ class Configuration : public QObject
         void setColor(const QString &color);
         void setFontSize(const QString &size);
         void setFontFamily(const QString &font);
+        void backgroundChanged();
+        void richTextChanged();
+        void sourceChanged();
         void selectionChanged();
         void itemSelectionChanged();
         void editRow(QTableWidgetItem *item);
@@ -83,6 +89,9 @@ class Configuration : public QObject
         int m_fontSize;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
+
+    signals:
+        void formatsChanged();
 };
 
 }

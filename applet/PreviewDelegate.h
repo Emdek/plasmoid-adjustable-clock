@@ -36,6 +36,9 @@ class PreviewDelegate : public QStyledItemDelegate
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    public slots:
+        void clear();
 };
 
 }

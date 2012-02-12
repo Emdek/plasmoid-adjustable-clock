@@ -102,12 +102,17 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         font.setBold(true);
 
         pixmapPainter.setFont(font);
-        pixmapPainter.drawText(QRectF(0, 0, 305, 20), (Qt::AlignLeft | Qt::AlignVCenter), i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString()));
+        pixmapPainter.drawText(QRectF(0, 0, 305, 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
 
         m_cache->insert((index.data(IdRole).toString() + QLatin1String("-description")), descriptionPixmap);
     }
 
     painter->drawPixmap(QRect(((option.rect.x() + option.rect.width()) - 310), (option.rect.y() + 5), 305, 90), descriptionPixmap, QRect(0, 0, 305, 90));
+}
+
+void PreviewDelegate::clear()
+{
+    m_cache->discard();
 }
 
 QSize PreviewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

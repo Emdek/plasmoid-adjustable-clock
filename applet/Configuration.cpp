@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
-#include "Applet.h"
 #include "PlaceholderDialog.h"
 #include "PreviewDelegate.h"
 #include "FormatDelegate.h"
@@ -65,20 +64,24 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(formats.at(i).css, CssRole);
         item->setData(formats.at(i).background, BackgroundRole);
         item->setData(formats.at(i).bundled, BundledRole);
-        item->setToolTip(QLatin1String("<b>") + i18n("\"%1\" by %2").arg(formats.at(i).title).arg(formats.at(i).author) + QLatin1String("</b><br />") + formats.at(i).description);
+        item->setToolTip(QLatin1String("<b>") + (formats.at(i).author.isEmpty() ? formats.at(i).title : i18n("\"%1\" by %2").arg(formats.at(i).title).arg(formats.at(i).author)) + QLatin1String("</b>") + (formats.at(i).description.isEmpty() ? QString() : QLatin1String("<br />") + formats.at(i).description));
 
         m_themesModel->appendRow(item);
     }
 
+    PreviewDelegate *delegate = new PreviewDelegate(m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
     m_appearanceUi.themesView->setModel(m_themesModel);
-    m_appearanceUi.themesView->setItemDelegate(new PreviewDelegate(m_appearanceUi.themesView));
-
+    m_appearanceUi.themesView->setItemDelegate(delegate);
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
+    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("boldButton"), m_appearanceUi.boldButton);
+    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("italicButton"), m_appearanceUi.italicButton);
+    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("underlineButton"), m_appearanceUi.underlineButton);
+    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("designModeEditor"), this);
     m_appearanceUi.placeholdersButton->setIcon(KIcon(QLatin1String("chronometer")));
     m_appearanceUi.boldButton->setIcon(KIcon(QLatin1String("format-text-bold")));
     m_appearanceUi.italicButton->setIcon(KIcon(QLatin1String("format-text-italic")));
@@ -124,11 +127,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(addFormat()));
-    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(removeFormat()));
+    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteFormat()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -136,7 +139,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
     connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
@@ -147,6 +150,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
+    connect(this, SIGNAL(formatsChanged()), delegate, SLOT(clear()));
 
     const int currentFormat = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
 
@@ -220,81 +224,22 @@ void Configuration::insertPlaceholder(const QString &placeholder)
 
 void Configuration::selectFormat(const QModelIndex &index)
 {
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
+    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + index.data(CssRole).toString() + QLatin1String("</style>") + index.data(HtmlRole).toString());
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
 
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
-
-    changeFormat();
-}
-
-void Configuration::changeFormat()
-{
-    Format format;
-    format.background = m_appearanceUi.backgroundButton->isChecked();
-
-    if (sender() == m_appearanceUi.webView->page()) {
-        QRegExp fontSize = QRegExp(QLatin1String(" class=\"Apple-style-span\""));
-        QRegExp fontColor = QRegExp(QLatin1String("<font color=\"(#?[\\w\\s]+)\">(.+)</font>"));
-        fontColor.setMinimal(true);
-
-        QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
-        fontFamily.setMinimal(true);
-
-        QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
-
-        QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
-        css.setMinimal(true);
-        css.indexIn(html);
-
-        format.html = html.remove(css);
-        format.css = css.cap(1);
-    } else {
-        format.html = m_appearanceUi.htmlTextEdit->toPlainText();
-        format.css = m_appearanceUi.cssTextEdit->toPlainText();
-    }
-
-    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
-
-    if (sender() == m_appearanceUi.webView->page()) {
-        m_appearanceUi.htmlTextEdit->setPlainText(format.html);
-        m_appearanceUi.cssTextEdit->setPlainText(format.css);
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + format.css + QLatin1String("</style>") + format.html);
-        m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("boldButton"), m_appearanceUi.boldButton);
-        m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("italicButton"), m_appearanceUi.italicButton);
-        m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("underlineButton"), m_appearanceUi.underlineButton);
-        m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("designModeEditor"), this);
-    }
-
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-
-    if (index.data(BundledRole).toBool() && (index.data(HtmlRole).toString() != format.html || index.data(CssRole).toString() != format.css || index.data(BackgroundRole).toBool() != format.background)) {
-        addFormat(true);
-    }
-
-    m_themesModel->setData(index, format.html, HtmlRole);
-    m_themesModel->setData(index, format.css, CssRole);
-    m_themesModel->setData(index, format.background, BackgroundRole);
-
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(changeFormat()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(changeFormat()));
-
-    m_appearanceUi.themesView->scrollTo(index);
+    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
 void Configuration::addFormat(bool automatically)
@@ -343,6 +288,7 @@ void Configuration::addFormat(bool automatically)
 
     m_themesModel->setData(index, title, IdRole);
     m_themesModel->setData(index, title, TitleRole);
+    m_themesModel->setData(index, (QLatin1String("<b>") + title + QLatin1String("</b>")), Qt::ToolTipRole);
     m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
     m_themesModel->setData(index, m_appearanceUi.cssTextEdit->toPlainText(), CssRole);
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
@@ -353,7 +299,7 @@ void Configuration::addFormat(bool automatically)
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
 }
 
-void Configuration::removeFormat()
+void Configuration::deleteFormat()
 {
     if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
         const int row = m_appearanceUi.themesView->currentIndex().row();
@@ -362,6 +308,26 @@ void Configuration::removeFormat()
 
         m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(qMax((row - 1), 0), 0));
     }
+}
+
+void Configuration::renameFormat()
+{
+
+}
+
+void Configuration::updateFormat(const Format &format)
+{
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+
+    if (index.data(BundledRole).toBool()) {
+        addFormat(true);
+    }
+
+    m_themesModel->setData(index, format.html, HtmlRole);
+    m_themesModel->setData(index, format.css, CssRole);
+    m_themesModel->setData(index, format.background, BackgroundRole);
+
+    emit formatsChanged();
 }
 
 void Configuration::updateControls()
@@ -514,6 +480,64 @@ void Configuration::setFontSize(const QString &size)
 void Configuration::setFontFamily(const QString &font)
 {
     m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(font));
+}
+
+void Configuration::backgroundChanged()
+{
+    Format format;
+    format.html = m_appearanceUi.htmlTextEdit->toPlainText();
+    format.css = m_appearanceUi.cssTextEdit->toPlainText();
+    format.background = m_appearanceUi.backgroundButton->isChecked();
+
+    updateFormat(format);
+}
+
+void Configuration::richTextChanged()
+{
+    QRegExp fontSize = QRegExp(QLatin1String(" class=\"Apple-style-span\""));
+    QRegExp fontColor = QRegExp(QLatin1String("<font color=\"(#?[\\w\\s]+)\">(.+)</font>"));
+    fontColor.setMinimal(true);
+
+    QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
+    fontFamily.setMinimal(true);
+
+    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+
+    QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
+    css.setMinimal(true);
+    css.indexIn(html);
+
+    Format format;
+    format.html = html.remove(css);
+    format.css = css.cap(1);
+    format.background = m_appearanceUi.backgroundButton->isChecked();
+
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+
+    m_appearanceUi.htmlTextEdit->setPlainText(format.html);
+    m_appearanceUi.cssTextEdit->setPlainText(format.css);
+
+    updateFormat(format);
+
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+}
+
+void Configuration::sourceChanged()
+{
+    Format format;
+    format.html = m_appearanceUi.htmlTextEdit->toPlainText();
+    format.css = m_appearanceUi.cssTextEdit->toPlainText();
+    format.background = m_appearanceUi.backgroundButton->isChecked();
+
+    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + format.css + QLatin1String("</style>") + format.html);
+
+    updateFormat(format);
+
+    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 }
 
 void Configuration::selectionChanged()

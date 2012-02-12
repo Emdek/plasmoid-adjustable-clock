@@ -15,7 +15,7 @@
 		<html><![CDATA[<div style="height: 50px;"><div style="text-align: center; white-space: pre; font-size: 25px; margin: -10px 0 5px 5px; -webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));">%h:%m<span style="font-size: 30px; position: relative; left: -8px; top: 4px; z-index: -1; opacity: 0.5;">%s</span></div></div>]]></html>
 		<css></css>
 	</format>
-	<format id="progress" title="Progress" description="Clock with untypical seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
+	<format id="progress" title="Progress" description="Clock with original seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
 		<html><![CDATA[<table border="0" style="text-shadow: 2px 2px rgba(0, 0, 0, 0.3);">
 	<tbody>
 	<tr style="vertical-align: top;">
