@@ -21,12 +21,13 @@
 #include "Applet.h"
 #include "Configuration.h"
 
+#include <QtCore/QFile>
 #include <QtCore/QRegExp>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
-#include <QXml/QXmlReader>
+#include <QtXml/QXmlStreamReader>
 
 #include <KMenu>
 #include <KLocale>
@@ -73,7 +74,8 @@ void Applet::init()
 {
     ClockApplet::init();
 
-    QFile file(KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml")));
+    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml"));
+    QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
 
     QXmlStreamReader reader(&file);
@@ -87,15 +89,24 @@ void Applet::init()
             continue;
         }
 
-        if (reader.name().toString() == "format")
+        if (reader.name().toString() == QLatin1String("format"))
         {
             QXmlStreamAttributes attributes = reader.attributes();
 
-            m_name = attributes.value("name").toString();
+            attributes.value(QLatin1String("name")).toString();
         }
     }
 
     file.close();
+
+
+    if (m_formats.isEmpty()) {
+        Format format;
+        format.title = i18n("Error");
+        format.html = i18n("Missing or invalid data file: %s.", path);
+        format.background = true;
+        format.bundled = false;
+    }
 
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
