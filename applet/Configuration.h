@@ -52,6 +52,7 @@ class Configuration : public QObject
         int findRow(const QString &text, int role = TitleRole);
 
     protected slots:
+        void finished();
         void accepted();
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);

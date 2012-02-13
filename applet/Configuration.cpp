@@ -121,6 +121,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
     parent->resize(500, 400);
 
+    connect(parent, SIGNAL(finished()), this, SLOT(finished()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newFormat()));
@@ -164,13 +165,16 @@ void Configuration::timerEvent(QTimerEvent *event)
     killTimer(event->timerId());
 }
 
-void Configuration::accepted()
+void Configuration::finished()
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+}
 
+void Configuration::accepted()
+{
     QStringList clipboardFormats;
 
     killTimer(m_controlsTimer);
