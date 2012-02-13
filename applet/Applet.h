@@ -34,7 +34,7 @@
 namespace AdjustableClock
 {
 
-enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, TimezoneFeature = 16 };
+enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8 };
 
 struct Theme
 {

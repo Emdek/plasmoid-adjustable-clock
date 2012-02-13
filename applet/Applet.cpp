@@ -350,42 +350,36 @@ void Applet::connectSource(const QString &timezone)
         features |= EventsFeature;
     }
 
-    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*z")))) {
-        features |= TimezoneFeature;
-    }
-
     m_features = features;
 
     const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
 
     dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
-    if (features & TimezoneFeature) {
-        const KTimeZone timezoneData = (isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(currentTimezone()));
+    const KTimeZone timezoneData = (isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(currentTimezone()));
 
-        m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
+    m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
 
-        if (m_timezoneAbbreviation.isEmpty()) {
-            m_timezoneAbbreviation = i18n("UTC");
-        }
-
-        m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
-
-        int seconds = timezoneData.currentOffset(Qt::UTC);
-        int minutes = abs(seconds / 60);
-        int hours = abs(minutes / 60);
-
-        minutes = (minutes - (hours * 60));
-
-        m_timezoneOffset = QString::number(hours);
-
-        if (minutes) {
-            m_timezoneOffset.append(QLatin1Char(':'));
-            m_timezoneOffset.append(formatNumber(minutes, 2));
-        }
-
-        m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
+    if (m_timezoneAbbreviation.isEmpty()) {
+        m_timezoneAbbreviation = i18n("UTC");
     }
+
+    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
+
+    int seconds = timezoneData.currentOffset(Qt::UTC);
+    int minutes = abs(seconds / 60);
+    int hours = abs(minutes / 60);
+
+    minutes = (minutes - (hours * 60));
+
+    m_timezoneOffset = QString::number(hours);
+
+    if (minutes) {
+        m_timezoneOffset.append(QLatin1Char(':'));
+        m_timezoneOffset.append(formatNumber(minutes, 2));
+    }
+
+    m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
