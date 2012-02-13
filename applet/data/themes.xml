@@ -12,8 +12,31 @@
 		<css></css>
 	</theme>
 	<theme id="dbclock" title="dbClock" description="dbClock like theme" author="Michał Dutkiewicz" background="false">
-		<html><![CDATA[<div style="height: 50px;"><div style="text-align: center; white-space: pre; font-size: 25px; margin: -10px 0 5px 5px; -webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));">%h:%m<span style="font-size: 30px; position: relative; left: -8px; top: 4px; z-index: -1; opacity: 0.5;">%s</span></div></div>]]></html>
-		<css></css>
+		<html><![CDATA[<div class="clock"><div>%h:%m<span>%s</span></div></div>]]></html>
+		<css><![CDATA[.clock
+{
+	height: 50px;
+}
+
+.clock div
+{
+	margin: -10px 0 5px 5px;
+	white-space: pre;
+	text-align: center;
+	font-size: 25px;
+	-webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));
+}
+
+.clock span
+{
+	position: relative;
+	left: -8px;
+	top: 4px;
+	z-index: -1;
+	font-size: 30px;
+	opacity: 0.5;
+}
+]]></css>
 	</theme>
 	<theme id="progress" title="Progress" description="Clock with original seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
 		<html><![CDATA[<div class="clock">
@@ -67,7 +90,7 @@ progress::-webkit-progress-value
 	float: right;
 }
 
-.clock div span
+.clock span
 {
 	font-size: 30px;
 	opacity: 0.8;
@@ -83,7 +106,7 @@ progress::-webkit-progress-value
 ]]></css>
 	</theme>
 	<theme id="calendar" title="Calendar" description="Calendar like theme" author="Michał Dutkiewicz" background="false">
-		<html><![CDATA[<div style="width: 295px; min-height: 295px; margin: auto; text-shadow: 0 0 5px #AAA;">
+		<html><![CDATA[<div class="clock">
 	<div class="calendar">
 		%$w<br>
 		<span style="font-size: 130px; line-height: 140px;">%!d</span><br>
@@ -99,7 +122,15 @@ progress::-webkit-progress-value
 		</div>
 	</div>
 </div>]]></html>
-		<css><![CDATA[.calendar
+		<css><![CDATA[.clock
+{
+	width: 295px;
+	min-height: 295px;
+	margin: auto;
+	text-shadow: 0 0 5px #AAA;
+}
+
+.calendar
 {
 	margin: 30px 0 0 0;
 	padding: 30px 20px 20px 20px;
