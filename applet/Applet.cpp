@@ -22,6 +22,7 @@
 #include "Configuration.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QTimer>
 #include <QtCore/QRegExp>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
@@ -39,6 +40,9 @@
 
 #include <Plasma/Theme>
 #include <Plasma/Containment>
+
+
+#include <QDebug>
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
@@ -80,7 +84,6 @@ void Applet::init()
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     updateTheme();
-    connectSource(currentTimezone());
     constraintsEvent(Plasma::SizeConstraint);
     configChanged();
 
@@ -94,18 +97,18 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
 
     m_dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 
-    const int second = m_dateTime.time().second();
+    const int second = ((m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) ? m_dateTime.time().second() : 0);
 
-    if (force || (m_features & HolidaysFeature && m_dateTime.time().hour() == 0 && m_dateTime.time().minute() == 0 && (second == 0 || !(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature)))) {
+    if (m_features & HolidaysFeature && (force || (m_dateTime.time().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0))) {
         updateHolidays();
+    }
+
+    if (m_features & EventsFeature && (force || second == 0)) {
+        updateEvents();
     }
 
     if (force || (m_dateTime.time().minute() == 0 && second == 0)) {
         Plasma::DataEngine::Data sunData = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
-
-        if (m_features & EventsFeature) {
-            updateEvents();
-        }
 
         m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
         m_sunset = sunData[QLatin1String("Sunset")].toDateTime().time();
