@@ -56,6 +56,7 @@ QString m_eventsLong;
 QDateTime m_dateTime;
 QTime m_sunrise;
 QTime m_sunset;
+QFlags<ClockFeature> m_features;
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clipboardAction(NULL),
@@ -96,68 +97,14 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
     const int second = m_dateTime.time().second();
 
     if (force || (m_features & HolidaysFeature && m_dateTime.time().hour() == 0 && m_dateTime.time().minute() == 0 && (second == 0 || !(m_features & SecondsClockFeature || m_features & SecondsToolTipFeature)))) {
-        const QString region = config().readEntry("holidaysRegions", dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
-        const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + currentDateTime().date().toString(Qt::ISODate);
-        Plasma::DataEngine::Data holidaysData = dataEngine(QLatin1String("calendar"))->query(key);
-
-        m_holidays.clear();
-
-        if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
-            QVariantList holidaysList = holidaysData[key].toList();
-            QStringList holidays;
-
-            for (int i = 0; i < holidaysList.length(); ++i) {
-                m_holidays.append(holidaysList[i].toHash()[QLatin1String("Name")].toString());
-            }
-        }
+        updateHolidays();
     }
 
     if (force || (m_dateTime.time().minute() == 0 && second == 0)) {
         Plasma::DataEngine::Data sunData = dataEngine(QLatin1String("time"))->query(currentTimezone() + QLatin1String("|Solar"));
 
         if (m_features & EventsFeature) {
-            Plasma::DataEngine::Data eventsData = dataEngine(QLatin1String("calendar"))->query(QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate));
-
-            m_eventsShort = m_eventsLong = QString();
-
-            if (!eventsData.isEmpty()) {
-                QHash<QString, QVariant>::iterator i;
-                QStringList eventsShort;
-                QStringList eventsLong;
-                QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
-
-                for (i = eventsData.begin(); i != eventsData.end(); ++i) {
-                    QVariantHash event = i.value().toHash();
-
-                    if (event[QLatin1String("Type")] == QLatin1String("Event") || event[QLatin1String("Type")] == QLatin1String("Todo")) {
-                        KDateTime startTime = event[QLatin1String("StartDate")].value<KDateTime>();
-                        KDateTime endTime = event[QLatin1String("EndDate")].value<KDateTime>();
-
-                        if ((endTime.isValid() && endTime.dateTime() < limits.first && endTime != startTime) || startTime.dateTime() > limits.second) {
-                            continue;
-                        }
-
-                        QString type = ((event[QLatin1String("Type")] == QLatin1String("Event")) ? i18n("Event") : i18n("To do"));
-                        QString time;
-
-                        if (startTime.time().hour() == 0 && startTime.time().minute() == 0 && endTime.time().hour() == 0 && endTime.time().minute() == 0) {
-                            time = i18n("All day");
-                        } else if (startTime.isValid()) {
-                            time = KGlobal::locale()->formatTime(startTime.time(), false);
-
-                            if (endTime.isValid()) {
-                                time.append(QLatin1String(" - ") + KGlobal::locale()->formatTime(endTime.time(), false));
-                            }
-                        }
-
-                        eventsShort.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2</td>")).arg(type).arg(event[QLatin1String("Summary")].toString()));
-                        eventsLong.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2 <nobr>(%3)</nobr></td>")).arg(type).arg(event[QLatin1String("Summary")].toString()).arg(time));
-                    }
-                }
-
-                m_eventsShort = QLatin1String("<table>\n<tr>") + eventsShort.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
-                m_eventsLong = QLatin1String("<table>\n<tr>") + eventsLong.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
-            }
+            updateEvents();
         }
 
         m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
@@ -386,6 +333,13 @@ void Applet::connectSource(const QString &timezone)
     dataUpdated(QString(), dataEngine(QLatin1String("time"))->query(currentTimezone()), true);
 }
 
+void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
+{
+    dataEngine(QLatin1String("time"))->disconnectSource(oldTimezone, this);
+
+    connectSource(newTimezone);
+}
+
 void Applet::copyToClipboard()
 {
     QApplication::clipboard()->setText(evaluateFormat(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"), currentDateTime()));
@@ -435,11 +389,70 @@ void Applet::updateClipboardMenu()
     }
 }
 
-void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
+void Applet::updateEvents()
 {
-    dataEngine(QLatin1String("time"))->disconnectSource(oldTimezone, this);
+    Plasma::DataEngine::Data eventsData = m_applet->dataEngine(QLatin1String("calendar"))->query(QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-    connectSource(newTimezone);
+    m_eventsShort = m_eventsLong = QString();
+
+    if (eventsData.isEmpty()) {
+        return;
+    }
+
+    QHash<QString, QVariant>::iterator i;
+    QStringList eventsShort;
+    QStringList eventsLong;
+    QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
+
+    for (i = eventsData.begin(); i != eventsData.end(); ++i) {
+        QVariantHash event = i.value().toHash();
+
+        if (event[QLatin1String("Type")] == QLatin1String("Event") || event[QLatin1String("Type")] == QLatin1String("Todo")) {
+            KDateTime startTime = event[QLatin1String("StartDate")].value<KDateTime>();
+            KDateTime endTime = event[QLatin1String("EndDate")].value<KDateTime>();
+
+            if ((endTime.isValid() && endTime.dateTime() < limits.first && endTime != startTime) || startTime.dateTime() > limits.second) {
+                continue;
+            }
+
+            QString type = ((event[QLatin1String("Type")] == QLatin1String("Event")) ? i18n("Event") : i18n("To do"));
+            QString time;
+
+            if (startTime.time().hour() == 0 && startTime.time().minute() == 0 && endTime.time().hour() == 0 && endTime.time().minute() == 0) {
+                time = i18n("All day");
+            } else if (startTime.isValid()) {
+                time = KGlobal::locale()->formatTime(startTime.time(), false);
+
+                if (endTime.isValid()) {
+                    time.append(QLatin1String(" - ") + KGlobal::locale()->formatTime(endTime.time(), false));
+                }
+            }
+
+            eventsShort.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2</td>")).arg(type).arg(event[QLatin1String("Summary")].toString()));
+            eventsLong.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2 <nobr>(%3)</nobr></td>")).arg(type).arg(event[QLatin1String("Summary")].toString()).arg(time));
+        }
+    }
+
+    m_eventsShort = QLatin1String("<table>\n<tr>") + eventsShort.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+    m_eventsLong = QLatin1String("<table>\n<tr>") + eventsLong.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+}
+
+void Applet::updateHolidays()
+{
+    const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
+    const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + m_applet->currentDateTime().date().toString(Qt::ISODate);
+    Plasma::DataEngine::Data holidaysData = m_applet->dataEngine(QLatin1String("calendar"))->query(key);
+
+    m_holidays.clear();
+
+    if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
+        QVariantList holidaysList = holidaysData[key].toList();
+        QStringList holidays;
+
+        for (int i = 0; i < holidaysList.length(); ++i) {
+            m_holidays.append(holidaysList[i].toHash()[QLatin1String("Name")].toString());
+        }
+    }
 }
 
 void Applet::updateToolTipContent()
@@ -749,10 +762,18 @@ QString Applet::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int 
         }
 
         return QLatin1String("<table>\n<tr>") + timezones.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
-    case 'H': // Holidays list
-        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br>\n")));
     case 'E': // Events list
+        if (!(m_features & EventsFeature)) {
+            updateEvents();
+        }
+
         return (shortForm ? m_eventsShort : m_eventsLong);
+    case 'H': // Holidays list
+        if (!(m_features & HolidaysFeature)) {
+            updateHolidays();
+        }
+
+        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br>\n")));
     case 'R': // Sunrise time
         return KGlobal::locale()->formatTime(m_sunrise, false);
     case 'S': // Sunset time
@@ -824,8 +845,8 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     case 'T':
     case 'A':
     case 'z':
-    case 'H':
     case 'E':
+    case 'H':
         return evaluatePlaceholder(placeholder, QDateTime::currentDateTime(), alternativeForm, shortForm, textualForm);
     case 'R':
     case 'S':

@@ -56,13 +56,14 @@ class Applet : public ClockApplet
         Applet(QObject *parent, const QVariantList &args);
 
         void init();
+        QDateTime currentDateTime() const;
+        QStringList clipboardFormats() const;
+        QList<Theme> themes() const;
+        Theme theme() const;
         static QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime());
         static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         static qreal zoomFactor(const QWebPage &page, const QSizeF &size);
-        QStringList clipboardFormats() const;
-        QList<Theme> themes() const;
-        Theme theme() const;
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -73,7 +74,8 @@ class Applet : public ClockApplet
         void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
         void connectSource(const QString &timezone);
         void setTheme(const QString &html, const QString &css);
-        QDateTime currentDateTime() const;
+        static void updateEvents();
+        static void updateHolidays();
         static QString extractExpression(const QString &format, int &i);
         static QString extractNumber(const QString &format, int &i);
         static QString formatNumber(int number, int length);
@@ -98,7 +100,6 @@ class Applet : public ClockApplet
         QString m_currentHtml;
         QAction *m_clipboardAction;
         QList<Theme> m_themes;
-        QFlags<ClockFeature> m_features;
         int m_theme;
 
         Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
