@@ -125,6 +125,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(finished()), this, SLOT(finished()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
+    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(focusWebView()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newFormat()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteFormat()));
@@ -226,7 +227,7 @@ void Configuration::insertPlaceholder()
 
 void Configuration::insertPlaceholder(const QString &placeholder)
 {
-    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + placeholder + QLatin1String("')"));
@@ -389,7 +390,7 @@ void Configuration::triggerAction()
         return;
     }
 
-    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
 
         switch (actions[actionName]) {
@@ -440,7 +441,7 @@ void Configuration::selectColor()
 
         m_appearanceUi.colorButton->setPalette(palette);
 
-        if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+        if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
             QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
             cursor.insertText(QLatin1String("<span style=\"color:") + colorDialog.color().name() + QLatin1String(";\">") + cursor.selectedText() + QLatin1String("</span>"));
 
@@ -453,7 +454,7 @@ void Configuration::selectColor()
 
 void Configuration::selectFontSize(const QString &size)
 {
-    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
         cursor.insertText(QLatin1String("<span style=\"font-size:") + QString::number(size.toInt()) + QLatin1String("px;\">") + cursor.selectedText() + QLatin1String("</span>"));
 
@@ -467,7 +468,7 @@ void Configuration::selectFontSize(const QString &size)
 
 void Configuration::selectFontFamily(const QFont &font)
 {
-    if (m_appearanceUi.tabWidget->currentIndex() > 0) {
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
         cursor.insertText(QLatin1String("<span style=\"font-family:'") + font.family()+ QLatin1String("';\">") + cursor.selectedText() + QLatin1String("</span>"));
 
@@ -506,6 +507,17 @@ void Configuration::setFontSize(const QString &size)
 void Configuration::setFontFamily(const QString &font)
 {
     m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(font));
+}
+
+void Configuration::focusWebView()
+{
+    if (m_appearanceUi.mainTabWidget->currentIndex() == 1 && m_appearanceUi.editorTabWidget->currentIndex() == 0) {
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
+
+        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
+
+        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
+    }
 }
 
 void Configuration::backgroundChanged()

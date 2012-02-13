@@ -281,7 +281,7 @@
         </layout>
        </item>
        <item>
-        <widget class="KTabWidget" name="tabWidget">
+        <widget class="KTabWidget" name="editorTabWidget">
          <property name="tabPosition">
           <enum>QTabWidget::West</enum>
          </property>
@@ -301,6 +301,9 @@
            </property>
            <item>
             <widget class="QWebView" name="webView">
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
              <property name="renderHints">
               <set>QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
              </property>
