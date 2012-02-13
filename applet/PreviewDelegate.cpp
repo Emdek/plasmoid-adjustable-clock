@@ -41,6 +41,7 @@ KPixmapCache *m_cache = NULL;
 PreviewDelegate::PreviewDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
     m_cache = new KPixmapCache(QLatin1String("AdjustableClockPreviews"));
+    m_cache->discard();
 }
 
 PreviewDelegate::~PreviewDelegate()
@@ -52,15 +53,15 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 {
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
 
-    QPixmap previewPixmap;
+    QPixmap pixmap;
 
-    if (1){//!m_cache->find((index.data(IdRole).toString() + QLatin1String("-preview")), previewPixmap)) {
-        previewPixmap = QPixmap(180, 90);
-        previewPixmap.fill(Qt::transparent);
+    if (!m_cache->find((index.data(IdRole).toString()), pixmap)) {
+        pixmap = QPixmap(180, 90);
+        pixmap.fill(Qt::transparent);
 
         QSizeF size(180, 90);
 
-        QPainter pixmapPainter(&previewPixmap);
+        QPainter pixmapPainter(&pixmap);
         pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
 
         if (index.data(BackgroundRole).toBool()) {
@@ -87,31 +88,21 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
         page.mainFrame()->render(&pixmapPainter);
 
-        m_cache->insert((index.data(IdRole).toString() + QLatin1String("-preview")), previewPixmap);
+        m_cache->insert((index.data(IdRole).toString()), pixmap);
     }
 
-    painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 180, 90), previewPixmap, QRect(0, 0, 180, 90));
+    const int offset = ((option.rect.x() + option.rect.width()) - 310);
 
-    QPixmap descriptionPixmap;
+    painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 180, 90), pixmap, QRect(0, 0, 180, 90));
+    painter->setRenderHints(QPainter::TextAntialiasing);
+    painter->setPen(option.palette.color(QPalette::WindowText));
+    painter->drawText(QRectF(offset, (option.rect.y() + 30), 305, 75), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
 
-    if (!m_cache->find((index.data(IdRole).toString() + QLatin1String("-description")), descriptionPixmap)) {
-        descriptionPixmap = QPixmap(305, 90);
-        descriptionPixmap.fill(Qt::transparent);
+    QFont font = painter->font();
+    font.setBold(true);
 
-        QPainter pixmapPainter(&descriptionPixmap);
-        pixmapPainter.setRenderHints(QPainter::TextAntialiasing);
-        pixmapPainter.drawText(QRectF(0, 25, 305, 75), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
-
-        QFont font = pixmapPainter.font();
-        font.setBold(true);
-
-        pixmapPainter.setFont(font);
-        pixmapPainter.drawText(QRectF(0, 0, 305, 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
-
-        m_cache->insert((index.data(IdRole).toString() + QLatin1String("-description")), descriptionPixmap);
-    }
-
-    painter->drawPixmap(QRect(((option.rect.x() + option.rect.width()) - 310), (option.rect.y() + 5), 305, 90), descriptionPixmap, QRect(0, 0, 305, 90));
+    painter->setFont(font);
+    painter->drawText(QRectF(offset, (option.rect.y() + 5), 305, 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
 }
 
 void PreviewDelegate::clear()

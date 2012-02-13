@@ -31,6 +31,8 @@
 #include <KColorDialog>
 #include <KInputDialog>
 
+#include <Plasma/Theme>
+
 namespace AdjustableClock
 {
 
@@ -149,6 +151,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
+    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
 
     const int currentFormat = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
