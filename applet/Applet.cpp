@@ -186,7 +186,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints((m_features & NoBackgroundFeature) ? NoBackground : DefaultBackground);
+    setBackgroundHints(format().background ? DefaultBackground : NoBackground);
 }
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -365,10 +365,6 @@ void Applet::connectSource(const QString &timezone)
 
     if (string.contains(QLatin1String("%R"))) {
         features |= SunriseFeature;
-    }
-
-    if (!format.background) {
-        features |= NoBackgroundFeature;
     }
 
     m_features = features;
