@@ -1,21 +1,21 @@
-<formats>
-	<format id="default" title="Default" description="Default clock theme" author="Michał Dutkiewicz" background="true">
+<themes>
+	<theme id="default" title="Default" description="Default clock theme" author="Michał Dutkiewicz" background="true">
 		<html><![CDATA[<div style="text-align: center;"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>]]></html>
 		<css></css>
-	</format>
-	<format id="simple" title="Simple" description="Simple clock, similar to default digital clock" author="Michał Dutkiewicz" background="true">
+	</theme>
+	<theme id="simple" title="Simple" description="Simple clock, similar to default digital clock" author="Michał Dutkiewicz" background="true">
 		<html><![CDATA[<div style="text-align: center; font-size: 25px;">%h:%m</div>]]></html>
 		<css></css>
-	</format>
-	<format id="verbose" title="Verbose" description="More verbose clock with date" author="Michał Dutkiewicz" background="false">
+	</theme>
+	<theme id="verbose" title="Verbose" description="More verbose clock with date" author="Michał Dutkiewicz" background="false">
 		<html><![CDATA[<div style="text-align: center; opacity: 0.85;"><span style="font-size: 30px;">%h:%m:%s</span><br><span style="font-size: 12px;">%$w, %d.%M.%Y</span></div>]]></html>
 		<css></css>
-	</format>
-	<format id="dbclock" title="dbClock" description="dbClock like theme" author="Michał Dutkiewicz" background="false">
+	</theme>
+	<theme id="dbclock" title="dbClock" description="dbClock like theme" author="Michał Dutkiewicz" background="false">
 		<html><![CDATA[<div style="height: 50px;"><div style="text-align: center; white-space: pre; font-size: 25px; margin: -10px 0 5px 5px; -webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));">%h:%m<span style="font-size: 30px; position: relative; left: -8px; top: 4px; z-index: -1; opacity: 0.5;">%s</span></div></div>]]></html>
 		<css></css>
-	</format>
-	<format id="progress" title="Progress" description="Clock with original seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
+	</theme>
+	<theme id="progress" title="Progress" description="Clock with original seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
 		<html><![CDATA[<table border="0" style="text-shadow: 2px 2px rgba(0, 0, 0, 0.3);">
 	<tbody>
 	<tr style="vertical-align: top;">
@@ -56,8 +56,8 @@ progress::-webkit-progress-value
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 ]]></css>
-	</format>
-	<format id="calendar" title="Calendar" description="Calendar like theme" author="Michał Dutkiewicz" background="false">
+	</theme>
+	<theme id="calendar" title="Calendar" description="Calendar like theme" author="Michał Dutkiewicz" background="false">
 		<html><![CDATA[<div style="width: 295px; min-height: 295px; margin: auto; text-shadow: 0 0 5px #AAA;">
 	<div class="calendar">
 		%$w<br>
@@ -110,5 +110,5 @@ progress::-webkit-progress-value
 	box-shadow: 0 0 5px #AAA;
 }
 ]]></css>
-	</format>
-</formats>
+	</theme>
+</themes>

@@ -28,7 +28,7 @@ target_link_libraries(plasma_applet_adjustableclock
 install(TARGETS plasma_applet_adjustableclock
         DESTINATION ${PLUGIN_INSTALL_DIR})
 
-install(FILES data/formats.xml
+install(FILES data/themes.xml
         DESTINATION ${DATA_INSTALL_DIR}/adjustableclock/)
 
 install(FILES plasma-applet-adjustableclock.desktop

@@ -228,7 +228,7 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/formats.xml"));
+    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml"));
     const QString id = config().readEntry("format", "%default%");
     QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
@@ -244,7 +244,7 @@ void Applet::clockConfigChanged()
         reader.readNext();
 
         if (!reader.isStartElement()) {
-            if (reader.name().toString() == QLatin1String("format")) {
+            if (reader.name().toString() == QLatin1String("theme")) {
                 m_themes.append(theme);
 
                 if (id == theme.id) {
@@ -255,7 +255,7 @@ void Applet::clockConfigChanged()
             continue;
         }
 
-        if (reader.name().toString() == QLatin1String("format")) {
+        if (reader.name().toString() == QLatin1String("theme")) {
             QXmlStreamAttributes attributes = reader.attributes();
 
             theme.id = QLatin1Char('%') + attributes.value(QLatin1String("id")).toString() + QLatin1Char('%');
