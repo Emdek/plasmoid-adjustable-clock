@@ -166,6 +166,11 @@ void Configuration::timerEvent(QTimerEvent *event)
 
 void Configuration::accepted()
 {
+    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+
     QStringList clipboardFormats;
 
     killTimer(m_controlsTimer);
