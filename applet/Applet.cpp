@@ -911,7 +911,7 @@ QList<QAction*> Applet::contextualActions()
     return actions;
 }
 
-qreal Applet::zoomFactor(QWebPage &page, const QSizeF &size)
+qreal Applet::zoomFactor(const QWebPage &page, const QSizeF &size)
 {
     page.setViewportSize(QSize(0, 0));
     page.mainFrame()->setZoomFactor(1);

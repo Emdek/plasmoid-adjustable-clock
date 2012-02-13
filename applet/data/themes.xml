@@ -16,30 +16,29 @@
 		<css></css>
 	</theme>
 	<theme id="progress" title="Progress" description="Clock with original seconds visualization" author="Peter Fajdiga &amp; Michał Dutkiewicz" background="false">
-		<html><![CDATA[<table border="0" style="text-shadow: 2px 2px rgba(0, 0, 0, 0.3);">
-	<tbody>
-	<tr style="vertical-align: top;">
-		<td style="font-size: 50px; font-weight: bold; opacity: 0.9;">%!-h</td>
-		<td style="font-size: 30px; font-weight: bold; opacity: 0.8;">%m</td>
-	</tr>
-	<tr>
-		<td />
-		<td style="text-align: center; font-size: 3px; opacity: 0.6; position: relative; bottom: 30px;"><progress value="%!s" max="59"></progress></td>
-	</tr>
-	</tbody>
-</table>]]></html>
+		<html><![CDATA[<div class="clock">
+	<div>
+		<span>%m</span><br />
+		<progress value="%!s" max="59" />
+	</div>
+	<p>%!-h</p>
+</div>]]></html>
 		<css><![CDATA[*
 {
 	font-family: 'Segoe WP';
+	font-weight: bold;
 	color: #fff;
 }
 
 progress
 {
-	background: transparent;
-	border: 0;
-	height: 5px;
 	width: 100%;
+	height: 5px;
+	border: 0;
+	position: relative;
+	bottom: 15px;
+	background: transparent;
+	opacity: 0.6;
 }
 
 progress::-webkit-progress-bar
@@ -54,6 +53,32 @@ progress::-webkit-progress-value
 	background: #ddd;
 	border-radius: 3px;
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.clock
+{
+	width: 120px;
+	padding: 3px;
+	text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.clock div
+{
+	float: right;
+}
+
+.clock div span
+{
+	font-size: 30px;
+	opacity: 0.8;
+}
+
+.clock p
+{
+	margin: 0 45px 0 0;
+	text-align: right;
+	font-size: 50px;
+	opacity: 0.9;
 }
 ]]></css>
 	</theme>
