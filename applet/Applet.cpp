@@ -160,17 +160,12 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
             }
         }
 
-        if (m_features & SunriseFeature) {
-            m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
-        }
-
-        if (m_features & SunsetFeature) {
-            m_sunset = sunData[QLatin1String("Sunset")].toDateTime().time();
-        }
+        m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
+        m_sunset = sunData[QLatin1String("Sunset")].toDateTime().time();
     }
 
     if (force || m_features & SecondsClockFeature || second == 0) {
-        setHtml(evaluateFormat(theme().html, m_dateTime), theme().css);
+        setTheme(evaluateFormat(theme().html, m_dateTime), theme().css);
     }
 
     if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
@@ -320,7 +315,7 @@ void Applet::clockConfigChanged()
 
     changeEngineTimezone(currentTimezone(), currentTimezone());
 
-    setHtml(evaluateFormat(this->theme().html, currentDateTime()), this->theme().css);
+    setTheme(evaluateFormat(this->theme().html, currentDateTime()), this->theme().css);
 
     updateSize();
 }
@@ -357,14 +352,6 @@ void Applet::connectSource(const QString &timezone)
 
     if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*z")))) {
         features |= TimezoneFeature;
-    }
-
-    if (string.contains(QLatin1String("%S"))) {
-        features |= SunsetFeature;
-    }
-
-    if (string.contains(QLatin1String("%R"))) {
-        features |= SunriseFeature;
     }
 
     m_features = features;
@@ -420,7 +407,7 @@ void Applet::toolTipHidden()
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
-void Applet::setHtml(const QString &html, const QString &css)
+void Applet::setTheme(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
         m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style></head><body><div>") + html + QLatin1String("</div></body></html>"));
@@ -480,7 +467,7 @@ void Applet::updateSize()
 {
     const Theme theme = this->theme();
 
-    setHtml(evaluateFormat(theme.html), theme.css);
+    setTheme(evaluateFormat(theme.html), theme.css);
 
     QSizeF size;
 
@@ -508,7 +495,7 @@ void Applet::updateSize()
 
     m_page.setViewportSize(size.toSize());
 
-    setHtml(evaluateFormat(theme.html, m_dateTime), theme.css);
+    setTheme(evaluateFormat(theme.html, m_dateTime), theme.css);
 }
 
 void Applet::updateTheme()
@@ -523,7 +510,7 @@ void Applet::updateTheme()
 
     m_currentHtml = QString();
 
-    setHtml(html, theme().css);
+    setTheme(html, theme().css);
 }
 
 QDateTime Applet::currentDateTime() const

@@ -34,7 +34,7 @@
 namespace AdjustableClock
 {
 
-enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, TimezoneFeature = 16, SunsetFeature = 32, SunriseFeature = 64 };
+enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, TimezoneFeature = 16 };
 
 struct Theme
 {
@@ -72,7 +72,7 @@ class Applet : public ClockApplet
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
         void connectSource(const QString &timezone);
-        void setHtml(const QString &html, const QString &css);
+        void setTheme(const QString &html, const QString &css);
         QDateTime currentDateTime() const;
         static QString extractExpression(const QString &format, int &i);
         static QString extractNumber(const QString &format, int &i);
