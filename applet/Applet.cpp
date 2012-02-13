@@ -59,7 +59,7 @@ QTime m_sunset;
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clipboardAction(NULL),
-    m_format(-1)
+    m_theme(-1)
 {
     KGlobal::locale()->insertCatalog(QLatin1String("libplasmaclock"));
     KGlobal::locale()->insertCatalog(QLatin1String("timezones4"));
@@ -170,7 +170,7 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
     }
 
     if (force || m_features & SecondsClockFeature || second == 0) {
-        setHtml(evaluateFormat(format().html, m_dateTime), format().css);
+        setHtml(evaluateFormat(theme().html, m_dateTime), theme().css);
     }
 
     if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
@@ -186,7 +186,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints(format().background ? DefaultBackground : NoBackground);
+    setBackgroundHints(theme().background ? DefaultBackground : NoBackground);
 }
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -219,7 +219,7 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-    if (format().background) {
+    if (theme().background) {
         painter->translate(QPointF(contentsRect.x(), contentsRect.y()));
     }
 
@@ -238,22 +238,22 @@ void Applet::clockConfigChanged()
     QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
 
-    m_formats.clear();
-    m_format = -1;
+    m_themes.clear();
+    m_theme = -1;
 
     QXmlStreamReader reader(&file);
-    Format format;
-    format.bundled = true;
+    Theme theme;
+    theme.bundled = true;
 
     while (!reader.atEnd()) {
         reader.readNext();
 
         if (!reader.isStartElement()) {
             if (reader.name().toString() == QLatin1String("format")) {
-                m_formats.append(format);
+                m_themes.append(theme);
 
-                if (id == format.id) {
-                    m_format = (m_formats.count() - 1);
+                if (id == theme.id) {
+                    m_theme = (m_themes.count() - 1);
                 }
             }
 
@@ -263,64 +263,64 @@ void Applet::clockConfigChanged()
         if (reader.name().toString() == QLatin1String("format")) {
             QXmlStreamAttributes attributes = reader.attributes();
 
-            format.id = QLatin1Char('%') + attributes.value(QLatin1String("id")).toString() + QLatin1Char('%');
-            format.title = i18n(attributes.value(QLatin1String("title")).toString().toUtf8().data());
-            format.description = i18n(attributes.value(QLatin1String("description")).toString().toUtf8().data());
-            format.author = attributes.value(QLatin1String("author")).toString();
-            format.html = QString();
-            format.css = QString();
-            format.background = (attributes.value(QLatin1String("background")).toString().toLower() == QLatin1String("true"));
+            theme.id = QLatin1Char('%') + attributes.value(QLatin1String("id")).toString() + QLatin1Char('%');
+            theme.title = i18n(attributes.value(QLatin1String("title")).toString().toUtf8().data());
+            theme.description = i18n(attributes.value(QLatin1String("description")).toString().toUtf8().data());
+            theme.author = attributes.value(QLatin1String("author")).toString();
+            theme.html = QString();
+            theme.css = QString();
+            theme.background = (attributes.value(QLatin1String("background")).toString().toLower() == QLatin1String("true"));
         }
 
         if (reader.name().toString() == QLatin1String("html")) {
-            format.html = reader.readElementText();
+            theme.html = reader.readElementText();
         }
 
         if (reader.name().toString() == QLatin1String("css")) {
-            format.css = reader.readElementText();
+            theme.css = reader.readElementText();
         }
     }
 
     file.close();
 
-    if (m_formats.isEmpty()) {
-        format.id = QLatin1String("%default%");
-        format.title = i18n("Error");
-        format.html = i18n("Missing or invalid data file: %1.").arg(path);
-        format.background = true;
-        format.bundled = false;
+    if (m_themes.isEmpty()) {
+        theme.id = QLatin1String("%default%");
+        theme.title = i18n("Error");
+        theme.html = i18n("Missing or invalid data file: %1.").arg(path);
+        theme.background = true;
+        theme.bundled = false;
 
-        m_format = 0;
+        m_theme = 0;
 
-        m_formats.append(format);
+        m_themes.append(theme);
     }
 
-    const QStringList userFormats = config().group("Formats").groupList();
+    const QStringList userThemes = config().group("Formats").groupList();
 
-    for (int i = 0; i < userFormats.count(); ++i) {
-        KConfigGroup formatConfiguration = config().group("Formats").group(userFormats.at(i));
-        Format format;
-        format.id = formatConfiguration.readEntry("title", i18n("Custom"));
-        format.title = formatConfiguration.readEntry("title", i18n("Custom"));
-        format.html = formatConfiguration.readEntry("html", QString());
-        format.css = formatConfiguration.readEntry("css", QString());
-        format.background = formatConfiguration.readEntry("background", true);
-        format.bundled = false;
+    for (int i = 0; i < userThemes.count(); ++i) {
+        KConfigGroup themeConfiguration = config().group("Formats").group(userThemes.at(i));
+        Theme theme;
+        theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
+        theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
+        theme.html = themeConfiguration.readEntry("html", QString());
+        theme.css = themeConfiguration.readEntry("css", QString());
+        theme.background = themeConfiguration.readEntry("background", true);
+        theme.bundled = false;
 
-        m_formats.append(format);
+        m_themes.append(theme);
 
-        if (id == format.id) {
-            m_format = (m_formats.count() - 1);
+        if (id == theme.id) {
+            m_theme = (m_themes.count() - 1);
         }
     }
 
-    if (m_format < 0 && m_formats.count()) {
-        m_format = 0;
+    if (m_theme < 0 && m_themes.count()) {
+        m_theme = 0;
     }
 
     changeEngineTimezone(currentTimezone(), currentTimezone());
 
-    setHtml(evaluateFormat(this->format().html, currentDateTime()), this->format().css);
+    setHtml(evaluateFormat(this->theme().html, currentDateTime()), this->theme().css);
 
     updateSize();
 }
@@ -334,12 +334,12 @@ void Applet::connectSource(const QString &timezone)
 {
     QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*[ast]"));
     QFlags<ClockFeature> features;
-    const Format format = this->format();
+    const Theme theme = this->theme();
     const QPair<QString, QString> toolTipFormat = this->toolTipFormat();
     const QString toolTip = (toolTipFormat.first + QLatin1Char('|') + toolTipFormat.second);
-    const QString string = (format.html + QLatin1Char('|')) + toolTip;
+    const QString string = (theme.html + QLatin1Char('|')) + toolTip;
 
-    if (format.html.contains(formatWithSeconds)) {
+    if (theme.html.contains(formatWithSeconds)) {
         features |= SecondsClockFeature;
     }
 
@@ -478,9 +478,9 @@ void Applet::updateToolTipContent()
 
 void Applet::updateSize()
 {
-    const Format format = this->format();
+    const Theme theme = this->theme();
 
-    setHtml(evaluateFormat(format.html), format.css);
+    setHtml(evaluateFormat(theme.html), theme.css);
 
     QSizeF size;
 
@@ -489,7 +489,7 @@ void Applet::updateSize()
     } else if (formFactor() == Plasma::Vertical) {
         size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
     } else {
-        if (format.background) {
+        if (theme.background) {
             size = contentsRect().size();
         } else {
             size = boundingRect().size();
@@ -508,7 +508,7 @@ void Applet::updateSize()
 
     m_page.setViewportSize(size.toSize());
 
-    setHtml(evaluateFormat(format.html, m_dateTime), format.css);
+    setHtml(evaluateFormat(theme.html, m_dateTime), theme.css);
 }
 
 void Applet::updateTheme()
@@ -523,7 +523,7 @@ void Applet::updateTheme()
 
     m_currentHtml = QString();
 
-    setHtml(html, format().css);
+    setHtml(html, theme().css);
 }
 
 QDateTime Applet::currentDateTime() const
@@ -875,25 +875,25 @@ QStringList Applet::clipboardFormats() const
     return config().readEntry("clipboardFormats", clipboardFormats);
 }
 
-QList<Format> Applet::formats() const
+QList<Theme> Applet::themes() const
 {
-    return m_formats;
+    return m_themes;
 }
 
-Format Applet::format() const
+Theme Applet::theme() const
 {
-    if (m_format >= 0 && m_format < m_formats.count()) {
-        return m_formats[m_format];
+    if (m_theme >= 0 && m_theme < m_themes.count()) {
+        return m_themes[m_theme];
     }
 
-    Format format;
-    format.id = QLatin1String("%default%");
-    format.title = i18n("Error");
-    format.html = i18n("Invalid format identifier.");
-    format.background = true;
-    format.bundled = false;
+    Theme theme;
+    theme.id = QLatin1String("%default%");
+    theme.title = i18n("Error");
+    theme.html = i18n("Invalid theme identifier.");
+    theme.background = true;
+    theme.bundled = false;
 
-    return format;
+    return theme;
 }
 
 QPair<QString, QString> Applet::toolTipFormat() const

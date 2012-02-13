@@ -51,19 +51,19 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
 
-    const QList<Format> formats = m_applet->formats();
+    const QList<Theme> themes = m_applet->themes();
 
-    for (int i = 0; i < formats.count(); ++i) {
+    for (int i = 0; i < themes.count(); ++i) {
         QStandardItem *item = new QStandardItem();
-        item->setData(formats.at(i).id, IdRole);
-        item->setData(formats.at(i).title, TitleRole);
-        item->setData(formats.at(i).description, DescriptionRole);
-        item->setData(formats.at(i).author, AuthorRole);
-        item->setData(formats.at(i).html, HtmlRole);
-        item->setData(formats.at(i).css, CssRole);
-        item->setData(formats.at(i).background, BackgroundRole);
-        item->setData(formats.at(i).bundled, BundledRole);
-        item->setToolTip(QLatin1String("<b>") + (formats.at(i).author.isEmpty() ? formats.at(i).title : i18n("\"%1\" by %2").arg(formats.at(i).title).arg(formats.at(i).author)) + QLatin1String("</b>") + (formats.at(i).description.isEmpty() ? QString() : QLatin1String("<br />") + formats.at(i).description));
+        item->setData(themes.at(i).id, IdRole);
+        item->setData(themes.at(i).title, TitleRole);
+        item->setData(themes.at(i).description, DescriptionRole);
+        item->setData(themes.at(i).author, AuthorRole);
+        item->setData(themes.at(i).html, HtmlRole);
+        item->setData(themes.at(i).css, CssRole);
+        item->setData(themes.at(i).background, BackgroundRole);
+        item->setData(themes.at(i).bundled, BundledRole);
+        item->setToolTip(QLatin1String("<b>") + (themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)) + QLatin1String("</b>") + (themes.at(i).description.isEmpty() ? QString() : QLatin1String("<br />") + themes.at(i).description));
 
         m_themesModel->appendRow(item);
     }
@@ -126,10 +126,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(parent, SIGNAL(finished()), this, SLOT(finished()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(focusWebView()));
-    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
-    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newFormat()));
-    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteFormat()));
-    connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameFormat()));
+    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
+    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
+    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
+    connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -155,11 +155,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
 
-    const int currentFormat = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
+    const int currentTheme = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
 
-    m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentFormat, 0));
+    m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentTheme, 0));
 
-    selectFormat(m_themesModel->index(currentFormat, 0));
+    selectTheme(m_themesModel->index(currentTheme, 0));
 }
 
 void Configuration::timerEvent(QTimerEvent *event)
@@ -189,7 +189,7 @@ void Configuration::accepted()
 
     m_applet->config().deleteGroup("Formats");
 
-    KConfigGroup formatsConfiguration = m_applet->config().group("Formats");
+    KConfigGroup themesConfiguration = m_applet->config().group("Formats");
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
         QModelIndex index = m_themesModel->index(i, 0);
@@ -198,17 +198,17 @@ void Configuration::accepted()
             continue;
         }
 
-        Format format;
-        format.title = index.data(TitleRole).toString();
-        format.html = index.data(HtmlRole).toString();
-        format.css = index.data(CssRole).toString();
-        format.background = index.data(BackgroundRole).toBool();
+        Theme theme;
+        theme.title = index.data(TitleRole).toString();
+        theme.html = index.data(HtmlRole).toString();
+        theme.css = index.data(CssRole).toString();
+        theme.background = index.data(BackgroundRole).toBool();
 
-        KConfigGroup formatConfiguration = formatsConfiguration.group(index.data(IdRole).toString());
-        formatConfiguration.writeEntry("title", format.title);
-        formatConfiguration.writeEntry("html", format.html);
-        formatConfiguration.writeEntry("css", format.css);
-        formatConfiguration.writeEntry("background", format.background);
+        KConfigGroup themeConfiguration = themesConfiguration.group(index.data(IdRole).toString());
+        themeConfiguration.writeEntry("title", theme.title);
+        themeConfiguration.writeEntry("html", theme.html);
+        themeConfiguration.writeEntry("css", theme.css);
+        themeConfiguration.writeEntry("background", theme.background);
     }
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
@@ -234,7 +234,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     }
 }
 
-void Configuration::selectFormat(const QModelIndex &index)
+void Configuration::selectTheme(const QModelIndex &index)
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -254,7 +254,7 @@ void Configuration::selectFormat(const QModelIndex &index)
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
-void Configuration::newFormat(bool automatically)
+void Configuration::newTheme(bool automatically)
 {
     QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString();
 
@@ -269,7 +269,7 @@ void Configuration::newFormat(bool automatically)
     } else {
         bool ok;
 
-        title = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), title, &ok);
+        title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
 
         if (!ok) {
             return;
@@ -277,13 +277,13 @@ void Configuration::newFormat(bool automatically)
     }
 
     if (findRow(title) >= 0) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("A format with this name already exists."));
+        KMessageBox::error(m_appearanceUi.themesView, i18n("A theme with this name already exists."));
 
         return;
     }
 
     if (title.startsWith(QLatin1Char('%')) && title.endsWith(QLatin1Char('%'))) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid format name."));
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid theme name."));
 
         return;
     }
@@ -292,7 +292,7 @@ void Configuration::newFormat(bool automatically)
         return;
     }
 
-    disconnect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
+    disconnect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
 
     m_themesModel->insertRow(m_themesModel->rowCount());
 
@@ -308,10 +308,10 @@ void Configuration::newFormat(bool automatically)
 
     m_appearanceUi.themesView->setCurrentIndex(index);
 
-    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectFormat(QModelIndex)));
+    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
 }
 
-void Configuration::deleteFormat()
+void Configuration::deleteTheme()
 {
     if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool() && KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(m_appearanceUi.themesView->currentIndex().data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
         const int row = m_appearanceUi.themesView->currentIndex().row();
@@ -322,17 +322,17 @@ void Configuration::deleteFormat()
     }
 }
 
-void Configuration::renameFormat()
+void Configuration::renameTheme()
 {
     bool ok;
-    const QString title = KInputDialog::getText(i18n("Add new format"), i18n("Format name:"), m_appearanceUi.themesView->currentIndex().data(TitleRole).toString(), &ok);
+    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), m_appearanceUi.themesView->currentIndex().data(TitleRole).toString(), &ok);
 
     if (!ok) {
         return;
     }
 
     if (findRow(title) >= 0) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("A format with this name already exists."));
+        KMessageBox::error(m_appearanceUi.themesView, i18n("A theme with this name already exists."));
 
         return;
     }
@@ -342,17 +342,17 @@ void Configuration::renameFormat()
     emit clearCache();
 }
 
-void Configuration::updateFormat(const Format &format)
+void Configuration::updateTheme(const Theme &theme)
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     if (index.data(BundledRole).toBool()) {
-        newFormat(true);
+        newTheme(true);
     }
 
-    m_themesModel->setData(index, format.html, HtmlRole);
-    m_themesModel->setData(index, format.css, CssRole);
-    m_themesModel->setData(index, format.background, BackgroundRole);
+    m_themesModel->setData(index, theme.html, HtmlRole);
+    m_themesModel->setData(index, theme.css, CssRole);
+    m_themesModel->setData(index, theme.background, BackgroundRole);
 
     emit clearCache();
 }
@@ -522,12 +522,12 @@ void Configuration::focusWebView()
 
 void Configuration::backgroundChanged()
 {
-    Format format;
-    format.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    format.css = m_appearanceUi.cssTextEdit->toPlainText();
-    format.background = m_appearanceUi.backgroundButton->isChecked();
+    Theme theme;
+    theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
+    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.background = m_appearanceUi.backgroundButton->isChecked();
 
-    updateFormat(format);
+    updateTheme(theme);
 }
 
 void Configuration::richTextChanged()
@@ -545,18 +545,18 @@ void Configuration::richTextChanged()
     css.setMinimal(true);
     css.indexIn(html);
 
-    Format format;
-    format.html = html.remove(css);
-    format.css = css.cap(1);
-    format.background = m_appearanceUi.backgroundButton->isChecked();
+    Theme theme;
+    theme.html = html.remove(css);
+    theme.css = css.cap(1);
+    theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
 
-    m_appearanceUi.htmlTextEdit->setPlainText(format.html);
-    m_appearanceUi.cssTextEdit->setPlainText(format.css);
+    m_appearanceUi.htmlTextEdit->setPlainText(theme.html);
+    m_appearanceUi.cssTextEdit->setPlainText(theme.css);
 
-    updateFormat(format);
+    updateTheme(theme);
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -564,16 +564,16 @@ void Configuration::richTextChanged()
 
 void Configuration::sourceChanged()
 {
-    Format format;
-    format.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    format.css = m_appearanceUi.cssTextEdit->toPlainText();
-    format.background = m_appearanceUi.backgroundButton->isChecked();
+    Theme theme;
+    theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
+    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + format.css + QLatin1String("</style>") + format.html);
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + theme.css + QLatin1String("</style>") + theme.html);
 
-    updateFormat(format);
+    updateTheme(theme);
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 }

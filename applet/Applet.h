@@ -36,7 +36,7 @@ namespace AdjustableClock
 
 enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8, TimezoneFeature = 16, SunsetFeature = 32, SunriseFeature = 64 };
 
-struct Format
+struct Theme
 {
     QString id;
     QString title;
@@ -61,8 +61,8 @@ class Applet : public ClockApplet
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         static qreal zoomFactor(QWebPage &page, const QSizeF &size);
         QStringList clipboardFormats() const;
-        QList<Format> formats() const;
-        Format format() const;
+        QList<Theme> themes() const;
+        Theme theme() const;
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -97,9 +97,9 @@ class Applet : public ClockApplet
         QWebPage m_page;
         QString m_currentHtml;
         QAction *m_clipboardAction;
-        QList<Format> m_formats;
+        QList<Theme> m_themes;
         QFlags<ClockFeature> m_features;
-        int m_format;
+        int m_theme;
 
         Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 };

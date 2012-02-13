@@ -56,11 +56,11 @@ class Configuration : public QObject
         void accepted();
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);
-        void selectFormat(const QModelIndex &index);
-        void newFormat(bool automatically = false);
-        void deleteFormat();
-        void renameFormat();
-        void updateFormat(const Format &format);
+        void selectTheme(const QModelIndex &index);
+        void newTheme(bool automatically = false);
+        void deleteTheme();
+        void renameTheme();
+        void updateTheme(const Theme &theme);
         void updateControls();
         void triggerAction();
         void selectColor();
