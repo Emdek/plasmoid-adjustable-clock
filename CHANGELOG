@@ -4,6 +4,7 @@
 - removed Flat theme (too similar to Default);
 - updated internal HTML layout to be simpler and more future proof;
 - add dynamic offset to themes with enabled background;
+- events are now always synced;
 - use Plasma theme font by default;
 - set initial focus for rich text editor;
 - move bundled themes to XML data file;

@@ -22,7 +22,6 @@
 #include "Configuration.h"
 
 #include <QtCore/QFile>
-#include <QtCore/QTimer>
 #include <QtCore/QRegExp>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
@@ -41,9 +40,6 @@
 #include <Plasma/Theme>
 #include <Plasma/Containment>
 
-
-#include <QDebug>
-
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
 namespace AdjustableClock
@@ -57,6 +53,7 @@ QString m_timezoneAbbreviation;
 QString m_timezoneOffset;
 QString m_eventsShort;
 QString m_eventsLong;
+QString m_eventsQuery;
 QDateTime m_dateTime;
 QTime m_sunrise;
 QTime m_sunset;
@@ -93,7 +90,11 @@ void Applet::init()
 
 void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
 {
-    Q_UNUSED(source)
+    if (!source.isEmpty() && source == m_eventsQuery) {
+        updateEvents();
+
+        return;
+    }
 
     m_dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 
@@ -103,8 +104,12 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
         updateHolidays();
     }
 
-    if (m_features & EventsFeature && (force || second == 0)) {
-        updateEvents();
+    if (m_features & EventsFeature && QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
+        dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
+
+        m_eventsQuery = QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate);
+
+        dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
     }
 
     if (force || (m_dateTime.time().minute() == 0 && second == 0)) {
@@ -298,6 +303,16 @@ void Applet::connectSource(const QString &timezone)
 
     if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*E")))) {
         features |= EventsFeature;
+
+        if (m_eventsQuery.isEmpty()) {
+            m_eventsQuery = QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate);
+
+            dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
+        }
+    } else if (!m_eventsQuery.isEmpty()) {
+        dataEngine(QLatin1String("calendar"))->disconnectSource(m_eventsQuery, this);
+
+        m_eventsQuery = QString();
     }
 
     m_features = features;
