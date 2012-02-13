@@ -91,18 +91,21 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         m_cache->insert((index.data(IdRole).toString()), pixmap);
     }
 
-    const int offset = ((option.rect.x() + option.rect.width()) - 310);
+    QFont font = painter->font();
 
     painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 180, 90), pixmap, QRect(0, 0, 180, 90));
     painter->setRenderHints(QPainter::TextAntialiasing);
     painter->setPen(option.palette.color(QPalette::WindowText));
-    painter->drawText(QRectF(offset, (option.rect.y() + 30), 305, 75), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
 
-    QFont font = painter->font();
     font.setBold(true);
 
     painter->setFont(font);
-    painter->drawText(QRectF(offset, (option.rect.y() + 5), 305, 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
+    painter->drawText(QRectF(210, (option.rect.y() + 10), (option.rect.width() - 215), 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
+
+    font.setBold(false);
+
+    painter->setFont(font);
+    painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
 }
 
 void PreviewDelegate::clear()
