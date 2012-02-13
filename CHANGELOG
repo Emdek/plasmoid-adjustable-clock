@@ -4,6 +4,7 @@
 - removed Flat theme (too similar to Default);
 - updated internal HTML layout to be simpler and more future proof;
 - add dynamic offset to themes with enabled background;
+- use Plasma theme font by default;
 - move bundled themes to XML data file;
 - some other fixes.
 

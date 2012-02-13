@@ -427,7 +427,7 @@ void Applet::toolTipHidden()
 void Applet::setHtml(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
-        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style></head><body><div>") + html + QLatin1String("</div></body></html>"));
+        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style></head><body><div>") + html + QLatin1String("</div></body></html>"));
 
         m_currentHtml = html;
 
@@ -523,7 +523,11 @@ void Applet::updateTheme()
     m_page.setPalette(palette);
     m_page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
 
-    update();
+    const QString html = m_currentHtml;
+
+    m_currentHtml = QString();
+
+    setHtml(html, format().css);
 }
 
 QDateTime Applet::currentDateTime() const
