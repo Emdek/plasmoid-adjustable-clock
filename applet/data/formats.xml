@@ -1,10 +1,10 @@
 <formats>
 	<format id="default" title="Default" description="Default clock theme" author="Michał Dutkiewicz" background="true">
-		<html><![CDATA[<div style="text-align: center; margin: 5px;"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>]]></html>
+		<html><![CDATA[<div style="text-align: center;"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>]]></html>
 		<css></css>
 	</format>
 	<format id="simple" title="Simple" description="Simple clock, similar to default digital clock" author="Michał Dutkiewicz" background="true">
-		<html><![CDATA[<div style="text-align: center; font-size: 25px; margin: 5px;">%h:%m</div>]]></html>
+		<html><![CDATA[<div style="text-align: center; font-size: 25px;">%h:%m</div>]]></html>
 		<css></css>
 	</format>
 	<format id="verbose" title="Verbose" description="More verbose clock with date" author="Michał Dutkiewicz" background="false">

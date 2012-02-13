@@ -1,3 +1,2 @@
-- use dynamic offsets for formats with background (?);
 - expose scripting API to allow scripts to fully control clock display (?);
 - allow to display weather data (?);

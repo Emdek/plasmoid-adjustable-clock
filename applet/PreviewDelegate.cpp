@@ -54,9 +54,11 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
     QPixmap previewPixmap;
 
-    if (!m_cache->find((index.data(IdRole).toString() + QLatin1String("-preview")), previewPixmap)) {
+    if (1){//!m_cache->find((index.data(IdRole).toString() + QLatin1String("-preview")), previewPixmap)) {
         previewPixmap = QPixmap(180, 90);
         previewPixmap.fill(Qt::transparent);
+
+        QSizeF size(180, 90);
 
         QPainter pixmapPainter(&previewPixmap);
         pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
@@ -65,15 +67,17 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             Plasma::FrameSvg background;
             background.setImagePath(Plasma::Theme::defaultTheme()->imagePath(QLatin1String("widgets/background")));
             background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
-            background.resizeFrame(QSizeF(180, 90));
+            background.resizeFrame(size);
             background.paintFrame(&pixmapPainter);
+
+            size = background.contentsRect().size();
         }
 
         QWebPage page;
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + index.data(CssRole).toString() + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))) + QLatin1String("</td></tr></table></body></html>"));
-        page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, QSizeF(180, 90)));
+        page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, size));
         page.setViewportSize(QSize(180, 90));
 
         QPalette palette = page.palette();

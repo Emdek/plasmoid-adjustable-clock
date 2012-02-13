@@ -216,9 +216,12 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
 {
     Q_UNUSED(option)
-    Q_UNUSED(contentsRect)
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
+    if (format().background) {
+        painter->translate(QPointF(contentsRect.x(), contentsRect.y()));
+    }
 
     m_page.mainFrame()->render(painter);
 }
@@ -260,7 +263,7 @@ void Applet::clockConfigChanged()
         if (reader.name().toString() == QLatin1String("format")) {
             QXmlStreamAttributes attributes = reader.attributes();
 
-            format.id = QLatin1Char(':') + attributes.value(QLatin1String("id")).toString() + QLatin1Char(':');
+            format.id = QLatin1Char('%') + attributes.value(QLatin1String("id")).toString() + QLatin1Char('%');
             format.title = i18n(attributes.value(QLatin1String("title")).toString().toUtf8().data());
             format.description = i18n(attributes.value(QLatin1String("description")).toString().toUtf8().data());
             format.author = attributes.value(QLatin1String("author")).toString();
@@ -281,7 +284,7 @@ void Applet::clockConfigChanged()
     file.close();
 
     if (m_formats.isEmpty()) {
-        format.id = QLatin1String(":default:");
+        format.id = QLatin1String("%default%");
         format.title = i18n("Error");
         format.html = i18n("Missing or invalid data file: %1.").arg(path);
         format.background = true;
@@ -314,6 +317,8 @@ void Applet::clockConfigChanged()
     if (m_format < 0 && m_formats.count()) {
         m_format = 0;
     }
+
+    changeEngineTimezone(currentTimezone(), currentTimezone());
 
     setHtml(evaluateFormat(this->format().html, currentDateTime()), this->format().css);
 
@@ -422,7 +427,7 @@ void Applet::toolTipHidden()
 void Applet::setHtml(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
-        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><style type=\"text/css\">html, body, body > table, #clock {margin:0; padding:0; height:100%; width:100%; vertical-align:middle;}") + css + QLatin1String("</style></head><body><table><tr><td id=\"clock\">") + html + QLatin1String("</td></tr></table></body></html>"));
+        m_page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style></head><body><div>") + html + QLatin1String("</div></body></html>"));
 
         m_currentHtml = html;
 
@@ -488,7 +493,11 @@ void Applet::updateSize()
     } else if (formFactor() == Plasma::Vertical) {
         size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
     } else {
-        size = boundingRect().size();
+        if (format.background) {
+            size = contentsRect().size();
+        } else {
+            size = boundingRect().size();
+        }
     }
 
     m_page.mainFrame()->setZoomFactor(zoomFactor(m_page, size));
@@ -501,7 +510,7 @@ void Applet::updateSize()
         setMinimumWidth(0);
     }
 
-    m_page.setViewportSize(boundingRect().size().toSize());
+    m_page.setViewportSize(size.toSize());
 
     setHtml(evaluateFormat(format.html, m_dateTime), format.css);
 }
@@ -878,7 +887,7 @@ Format Applet::format() const
     }
 
     Format format;
-    format.id = QLatin1String(":default:");
+    format.id = QLatin1String("%default%");
     format.title = i18n("Error");
     format.html = i18n("Invalid format identifier.");
     format.background = true;

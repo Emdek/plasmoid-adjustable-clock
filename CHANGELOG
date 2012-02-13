@@ -1,8 +1,10 @@
 3.1 (15.02.2012):
-- new format selector with previews;
+- new theme selector with previews;
 - added Progress clock, based on code from Peter Fajdiga;
-- removed Flat format (too similar to Default);
-- move bundled formats to XML data file;
+- removed Flat theme (too similar to Default);
+- updated internal HTML layout to be simpler and more future proof;
+- add dynamic offset to themes with enabled background;
+- move bundled themes to XML data file;
 - some other fixes.
 
 3.0 (15.01.2012):
