@@ -33,6 +33,8 @@
 
 #include <Plasma/Theme>
 
+#define PLACEHOLDERSTYLE "placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 30%; cursor: move; -webkit-user-drag:element; -webkit-user-select: none;}"
+
 namespace AdjustableClock
 {
 
@@ -241,12 +243,13 @@ void Configuration::selectTheme(const QModelIndex &index)
     disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + index.data(CssRole).toString() + QLatin1String("</style>") + index.data(HtmlRole).toString());
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
+
+    sourceChanged();
 
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -539,7 +542,10 @@ void Configuration::richTextChanged()
     QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
     fontFamily.setMinimal(true);
 
-    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+    QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+title=\"([^\"]+)\".+</placeholder>"));
+    placeholder.setMinimal(true);
+
+    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().replace(placeholder, QLatin1String("\\1")).remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
 
     QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
     css.setMinimal(true);
@@ -547,7 +553,7 @@ void Configuration::richTextChanged()
 
     Theme theme;
     theme.html = html.remove(css);
-    theme.css = css.cap(1);
+    theme.css = css.cap(1).remove(QLatin1String(PLACEHOLDERSTYLE));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -571,7 +577,7 @@ void Configuration::sourceChanged()
 
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + theme.css + QLatin1String("</style>") + theme.html);
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true));
 
     updateTheme(theme);
 

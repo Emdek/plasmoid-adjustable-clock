@@ -595,7 +595,7 @@ QString Applet::formatNumber(int number, int length)
     return QString(QLatin1String("%1")).arg(number, length, 10, QLatin1Char('0'));
 }
 
-QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
+QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool special)
 {
     if (format.isEmpty()) {
         return QString();
@@ -612,11 +612,19 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
 
         QString substitution;
         QPair<int, int> range = qMakePair(-1, -1);
+        const int start = i;
         int alternativeForm = 0;
         bool shortForm = false;
         bool textualForm = false;
+        bool exclude = false;
 
         ++i;
+
+        if (format.at(i) == QLatin1Char('~')) {
+            ++i;
+
+            exclude = true;
+        }
 
         if (format.at(i).isDigit() || ((format.at(i) == QLatin1Char('-') || format.at(i) == QLatin1Char(':')) && format.at(i + 1).isDigit())) {
             if (format.at(i) == QLatin1Char(':')) {
@@ -695,10 +703,14 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime)
                 range.second = (substitution.length() + range.second);
             }
 
-            string.append(substitution.mid(range.first, range.second));
-        } else {
-            string.append(substitution);
+            substitution = substitution.mid(range.first, range.second);
         }
+
+        if (special && !exclude) {
+            substitution = QLatin1String("<placeholder title=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\" draggable=\"true\">") + substitution + QLatin1String("</placeholder>");
+        }
+
+        string.append(substitution);
     }
 
     return string;
