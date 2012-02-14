@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-12 22:12+0100\n"
+"POT-Creation-Date: 2012-02-14 13:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,88 +17,92 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: Applet.cpp:140
-msgid "Event"
-msgstr ""
-
-#: Applet.cpp:140
-msgid "To do"
-msgstr ""
-
-#: Applet.cpp:144
-msgid "All day"
-msgstr ""
-
-#: Applet.cpp:285 Applet.cpp:882
+#: Applet.cpp:238 Applet.cpp:923
 msgid "Error"
 msgstr ""
 
-#: Applet.cpp:286
+#: Applet.cpp:239
 msgid "Missing or invalid data file: %1."
 msgstr ""
 
-#: Applet.cpp:300 Applet.cpp:301
+#: Applet.cpp:253 Applet.cpp:254
 msgid "Custom"
 msgstr ""
 
-#: Applet.cpp:381
+#: Applet.cpp:329
 msgid "UTC"
 msgstr ""
 
-#: Applet.cpp:700 Applet.cpp:790
+#: Applet.cpp:436
+msgid "Event"
+msgstr ""
+
+#: Applet.cpp:436
+msgid "To do"
+msgstr ""
+
+#: Applet.cpp:440
+msgid "All day"
+msgstr ""
+
+#: Applet.cpp:733 Applet.cpp:831
 msgid "pm"
 msgstr ""
 
-#: Applet.cpp:700 Applet.cpp:790
+#: Applet.cpp:733 Applet.cpp:831
 msgid "am"
 msgstr ""
 
-#: Applet.cpp:883
-msgid "Invalid format identifier."
+#: Applet.cpp:924
+msgid "Invalid theme identifier."
 msgstr ""
 
-#: Applet.cpp:904 Applet.cpp:913
+#: Applet.cpp:945 Applet.cpp:954
 msgid "C&opy to Clipboard"
 msgstr ""
 
-#: Configuration.cpp:64 PreviewDelegate.cpp:105
+#: Configuration.cpp:68 PreviewDelegate.cpp:103
 msgid "\"%1\" by %2"
 msgstr ""
 
 #. i18n: file: ui/appearance.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: Configuration.cpp:120 locale/rc.cpp:3 rc.cpp:3
+#: Configuration.cpp:124 locale/rc.cpp:3 rc.cpp:3
 msgid "Appearance"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: Configuration.cpp:121 locale/rc.cpp:66 rc.cpp:66
+#: Configuration.cpp:125 locale/rc.cpp:70 rc.cpp:70
 msgid "Clipboard actions"
 msgstr ""
 
-#: Configuration.cpp:259 Configuration.cpp:315
-msgid "Add new format"
+#: Configuration.cpp:279 Configuration.cpp:335
+msgid "Add new theme"
 msgstr ""
 
-#: Configuration.cpp:259 Configuration.cpp:315
-msgid "Format name:"
+#: Configuration.cpp:279 Configuration.cpp:335
+msgid "Theme name:"
 msgstr ""
 
-#: Configuration.cpp:267 Configuration.cpp:322
-msgid "A format with this name already exists."
+#: Configuration.cpp:287 Configuration.cpp:342
+msgid "A theme with this name already exists."
 msgstr ""
 
-#: Configuration.cpp:273
-msgid "Invalid format name."
+#: Configuration.cpp:293
+msgid "Invalid theme name."
 msgstr ""
 
-#: Configuration.cpp:303
+#: Configuration.cpp:323
 msgid "Do you really want to delete theme \"%1\"?"
 msgstr ""
 
-#: Configuration.cpp:303
+#: Configuration.cpp:323
 msgid "Delete Theme"
+msgstr ""
+
+#: Configuration.cpp:547
+msgid "Zoom: %1%"
 msgstr ""
 
 #. i18n: file: ui/appearance.ui:274
@@ -109,7 +113,7 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
 #. i18n: file: ui/placeholder.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
-#: FormatLineEdit.cpp:47 locale/rc.cpp:51 locale/rc.cpp:93 rc.cpp:51 rc.cpp:93
+#: FormatLineEdit.cpp:47 locale/rc.cpp:51 locale/rc.cpp:97 rc.cpp:51 rc.cpp:97
 msgid "Insert Format Component"
 msgstr ""
 
@@ -209,27 +213,34 @@ msgstr ""
 msgid "Rich text"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:313
+#. i18n: file: ui/appearance.ui:337
+#. i18n: ectx: property (toolTip), widget (QSlider, zoomSlider)
+#: locale/rc.cpp:58 rc.cpp:58
+#, no-c-format
+msgid "Zoom: 100%"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:365
 #. i18n: ectx: attribute (title), widget (QWidget, sourceTab)
-#: locale/rc.cpp:57 rc.cpp:57
+#: locale/rc.cpp:61 rc.cpp:61
 msgid "Source"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:323
+#. i18n: file: ui/appearance.ui:375
 #. i18n: ectx: property (toolTip), widget (KTextEdit, htmlTextEdit)
-#: locale/rc.cpp:60 rc.cpp:60
+#: locale/rc.cpp:64 rc.cpp:64
 msgid "HTML"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:331
+#. i18n: file: ui/appearance.ui:383
 #. i18n: ectx: property (toolTip), widget (KTextEdit, cssTextEdit)
-#: locale/rc.cpp:63 rc.cpp:63
+#: locale/rc.cpp:67 rc.cpp:67
 msgid "CSS"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:41
 #. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
-#: locale/rc.cpp:69 rc.cpp:69
+#: locale/rc.cpp:73 rc.cpp:73
 msgid "Format"
 msgstr ""
 
@@ -241,43 +252,43 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
 #. i18n: file: ui/placeholder.ui:157
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: locale/rc.cpp:72 locale/rc.cpp:126 rc.cpp:72 rc.cpp:126
+#: locale/rc.cpp:76 locale/rc.cpp:130 rc.cpp:76 rc.cpp:130
 msgid "Preview"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:56
 #. i18n: ectx: property (text), widget (QPushButton, addButton)
-#: locale/rc.cpp:75 rc.cpp:75
+#: locale/rc.cpp:79 rc.cpp:79
 msgid "Add"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:66
 #. i18n: ectx: property (text), widget (QPushButton, deleteButton)
-#: locale/rc.cpp:78 rc.cpp:78
+#: locale/rc.cpp:82 rc.cpp:82
 msgid "Delete"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:91
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveUpButton)
-#: locale/rc.cpp:81 rc.cpp:81
+#: locale/rc.cpp:85 rc.cpp:85
 msgid "Move Up"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:104
 #. i18n: ectx: property (toolTip), widget (QToolButton, moveDownButton)
-#: locale/rc.cpp:84 rc.cpp:84
+#: locale/rc.cpp:88 rc.cpp:88
 msgid "Move Down"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:122
 #. i18n: ectx: property (text), widget (QLabel, fastCopyFormatLabel)
-#: locale/rc.cpp:87 rc.cpp:87
+#: locale/rc.cpp:91 rc.cpp:91
 msgid "Fast copy format:"
 msgstr ""
 
 #. i18n: file: ui/clipboard.ui:135
 #. i18n: ectx: property (toolTip), widget (AdjustableClock::FormatLineEdit, fastCopyFormatEdit)
-#: locale/rc.cpp:90 rc.cpp:90
+#: locale/rc.cpp:94 rc.cpp:94
 msgid ""
 "Format of string copied to clipboard after middle clicking on the clock, or "
 "activation of the relevant keyboard shortcut."
@@ -285,130 +296,70 @@ msgstr ""
 
 #. i18n: file: ui/placeholder.ui:25
 #. i18n: ectx: property (text), widget (QLabel, placeholderLabel)
-#: locale/rc.cpp:96 rc.cpp:96
+#: locale/rc.cpp:100 rc.cpp:100
 msgid "Format component:"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:38
 #. i18n: ectx: property (text), widget (QLabel, shortFormLabel)
-#: locale/rc.cpp:99 rc.cpp:99
+#: locale/rc.cpp:103 rc.cpp:103
 msgid "Short form"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:55
 #. i18n: ectx: property (text), widget (QLabel, leadingZerosLabel)
-#: locale/rc.cpp:102 rc.cpp:102
+#: locale/rc.cpp:106 rc.cpp:106
 msgid "Show leading zeros"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:72
 #. i18n: ectx: property (text), widget (QLabel, hoursModeLabel)
-#: locale/rc.cpp:105 rc.cpp:105
+#: locale/rc.cpp:109 rc.cpp:109
 msgid "12 hours mode"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:89
 #. i18n: ectx: property (text), widget (QLabel, textualFormLabel)
-#: locale/rc.cpp:108 rc.cpp:108
+#: locale/rc.cpp:112 rc.cpp:112
 msgid "Textual form"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:106
 #. i18n: ectx: property (text), widget (QLabel, possessiveFormLabel)
-#: locale/rc.cpp:111 rc.cpp:111
+#: locale/rc.cpp:115 rc.cpp:115
 msgid "Possessive form"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:127
 #. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:114 rc.cpp:114
+#: locale/rc.cpp:118 rc.cpp:118
 msgid "Area"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:132
 #. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:117 rc.cpp:117
+#: locale/rc.cpp:121 rc.cpp:121
 msgid "Abbreviation"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:137
 #. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:120 rc.cpp:120
+#: locale/rc.cpp:124 rc.cpp:124
 msgid "Offset to UTC"
 msgstr ""
 
 #. i18n: file: ui/placeholder.ui:145
 #. i18n: ectx: property (text), widget (QLabel, timezoneModeLabel)
-#: locale/rc.cpp:123 rc.cpp:123
+#: locale/rc.cpp:127 rc.cpp:127
 msgid "Timezone mode:"
 msgstr ""
 
-#. i18n: file data/formats.xml:2
-#: locale/rc.cpp:128 rc.cpp:128
-msgid "Default"
-msgstr ""
-
-#. i18n: file data/formats.xml:2
-#: locale/rc.cpp:130 rc.cpp:130
-msgid "Default clock theme"
-msgstr ""
-
-#. i18n: file data/formats.xml:6
-#: locale/rc.cpp:132 rc.cpp:132
-msgid "Simple"
-msgstr ""
-
-#. i18n: file data/formats.xml:6
-#: locale/rc.cpp:134 rc.cpp:134
-msgid "Simple clock, similar to default digital clock"
-msgstr ""
-
-#. i18n: file data/formats.xml:10
-#: locale/rc.cpp:136 rc.cpp:136
-msgid "Verbose"
-msgstr ""
-
-#. i18n: file data/formats.xml:10
-#: locale/rc.cpp:138 rc.cpp:138
-msgid "More verbose clock with date"
-msgstr ""
-
-#. i18n: file data/formats.xml:14
-#: locale/rc.cpp:140 rc.cpp:140
-msgid "dbClock"
-msgstr ""
-
-#. i18n: file data/formats.xml:14
-#: locale/rc.cpp:142 rc.cpp:142
-msgid "dbClock like theme"
-msgstr ""
-
-#. i18n: file data/formats.xml:18
-#: locale/rc.cpp:144 rc.cpp:144
-msgid "Progress"
-msgstr ""
-
-#. i18n: file data/formats.xml:18
-#: locale/rc.cpp:146 rc.cpp:146
-msgid "Clock with original seconds visualization"
-msgstr ""
-
-#. i18n: file data/formats.xml:60
-#: locale/rc.cpp:148 rc.cpp:148
-msgid "Calendar"
-msgstr ""
-
-#. i18n: file data/formats.xml:60
-#: locale/rc.cpp:150 rc.cpp:150
-msgid "Calendar like theme"
-msgstr ""
-
-#: locale/rc.cpp:151 rc.cpp:151
+#: locale/rc.cpp:131 rc.cpp:131
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: locale/rc.cpp:152 rc.cpp:152
+#: locale/rc.cpp:132 rc.cpp:132
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
