@@ -52,8 +52,9 @@ class Configuration : public QObject
         int findRow(const QString &text, int role = TitleRole);
 
     protected slots:
-        void finished();
         void accepted();
+        void enableUpdates();
+        void disableUpdates();
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);
         void selectTheme(const QModelIndex &index);
@@ -61,7 +62,10 @@ class Configuration : public QObject
         void deleteTheme();
         void renameTheme();
         void updateTheme(const Theme &theme);
+        void updateView(int tab);
+        void updateEditor(int tab);
         void updateControls();
+        void themeChanged();
         void triggerAction();
         void selectColor();
         void selectFontSize(const QString &size);
@@ -70,7 +74,6 @@ class Configuration : public QObject
         void setFontSize(const QString &size);
         void setFontFamily(const QString &font);
         void setZoom(int zoom);
-        void focusWebView();
         void backgroundChanged();
         void richTextChanged();
         void sourceChanged();

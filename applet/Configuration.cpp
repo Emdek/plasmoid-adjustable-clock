@@ -125,18 +125,16 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
     parent->resize(500, 400);
 
-    connect(parent, SIGNAL(finished()), this, SLOT(finished()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
-    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(focusWebView()));
+    connect(parent, SIGNAL(finished()), this, SLOT(disableUpdates()));
+    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateView(int)));
+    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -144,7 +142,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
     connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
@@ -172,19 +169,13 @@ void Configuration::timerEvent(QTimerEvent *event)
     killTimer(event->timerId());
 }
 
-void Configuration::finished()
-{
-    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
-}
-
 void Configuration::accepted()
 {
     QStringList clipboardFormats;
 
     killTimer(m_controlsTimer);
+
+    updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
 
     if (m_editedItem) {
         m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
@@ -223,6 +214,25 @@ void Configuration::accepted()
     m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormatEdit->text());
 }
 
+void Configuration::enableUpdates()
+{
+    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
+        connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
+        connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+        connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    }
+
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+}
+
+void Configuration::disableUpdates()
+{
+    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+}
+
 void Configuration::insertPlaceholder()
 {
     connect(new PlaceholderDialog(m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
@@ -239,10 +249,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
 
 void Configuration::selectTheme(const QModelIndex &index)
 {
-    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+    disableUpdates();
 
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
@@ -251,11 +258,7 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
 
     sourceChanged();
-
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+    enableUpdates();
 }
 
 void Configuration::newTheme(bool automatically)
@@ -350,15 +353,33 @@ void Configuration::updateTheme(const Theme &theme)
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    if (index.data(BundledRole).toBool()) {
-        newTheme(true);
-    }
-
     m_themesModel->setData(index, theme.html, HtmlRole);
     m_themesModel->setData(index, theme.css, CssRole);
     m_themesModel->setData(index, theme.background, BackgroundRole);
 
     emit clearCache();
+}
+
+void Configuration::updateView(int tab)
+{
+    if (tab == 1 && m_appearanceUi.editorTabWidget->currentIndex() == 0) {
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
+
+        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
+
+        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
+    }
+
+    updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
+}
+
+void Configuration::updateEditor(int tab)
+{
+    if (tab) {
+        richTextChanged();
+    } else {
+        sourceChanged();
+    }
 }
 
 void Configuration::updateControls()
@@ -377,6 +398,13 @@ void Configuration::updateControls()
             "designModeEditor.setFontFamily(document.queryCommandValue('fontname'))"));
 
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
+}
+
+void Configuration::themeChanged()
+{
+    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
+        newTheme(true);
+    }
 }
 
 void Configuration::triggerAction()
@@ -519,17 +547,6 @@ void Configuration::setZoom(int zoom)
     m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
-void Configuration::focusWebView()
-{
-    if (m_appearanceUi.mainTabWidget->currentIndex() == 1 && m_appearanceUi.editorTabWidget->currentIndex() == 0) {
-        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
-
-        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
-
-        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
-    }
-}
-
 void Configuration::backgroundChanged()
 {
     Theme theme;
@@ -537,6 +554,7 @@ void Configuration::backgroundChanged()
     theme.css = m_appearanceUi.cssTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
+    themeChanged();
     updateTheme(theme);
 }
 
@@ -563,16 +581,13 @@ void Configuration::richTextChanged()
     theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
+    disableUpdates();
 
     m_appearanceUi.htmlTextEdit->setPlainText(theme.html);
     m_appearanceUi.cssTextEdit->setPlainText(theme.css);
 
+    enableUpdates();
     updateTheme(theme);
-
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
 }
 
 void Configuration::sourceChanged()
@@ -582,13 +597,12 @@ void Configuration::sourceChanged()
     theme.css = m_appearanceUi.cssTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
-    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    disableUpdates();
 
     m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style></head><body><div>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("</div></body></html>"));
 
+    enableUpdates();
     updateTheme(theme);
-
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 }
 
 void Configuration::selectionChanged()
