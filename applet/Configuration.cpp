@@ -26,6 +26,7 @@
 
 #include <QtWebKit/QWebFrame>
 
+#include <KMenu>
 #include <KLocale>
 #include <KMessageBox>
 #include <KColorDialog>
@@ -41,8 +42,7 @@ namespace AdjustableClock
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
     m_themesModel(new QStandardItemModel(this)),
-    m_editedItem(NULL),
-    m_controlsTimer(0)
+    m_editedItem(NULL)
 {
     QWidget *appearanceConfiguration = new QWidget;
     QWidget *clipboardActions = new QWidget;
@@ -79,18 +79,38 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
-    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("boldButton"), m_appearanceUi.boldButton);
-    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("italicButton"), m_appearanceUi.italicButton);
-    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("underlineButton"), m_appearanceUi.underlineButton);
-    m_appearanceUi.webView->page()->mainFrame()->addToJavaScriptWindowObject(QLatin1String("designModeEditor"), this);
-    m_appearanceUi.placeholdersButton->setIcon(KIcon(QLatin1String("chronometer")));
-    m_appearanceUi.boldButton->setIcon(KIcon(QLatin1String("format-text-bold")));
-    m_appearanceUi.italicButton->setIcon(KIcon(QLatin1String("format-text-italic")));
-    m_appearanceUi.underlineButton->setIcon(KIcon(QLatin1String("format-text-underline")));
-    m_appearanceUi.justifyLeftButton->setIcon(KIcon(QLatin1String("format-justify-left")));
-    m_appearanceUi.justifyCenterButton->setIcon(KIcon(QLatin1String("format-justify-center")));
-    m_appearanceUi.justifyRightButton->setIcon(KIcon(QLatin1String("format-justify-right")));
+    m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
+    m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon(QLatin1String("edit-undo")));
+    m_appearanceUi.webView->page()->action(QWebPage::Redo)->setText(i18n("Redo"));
+    m_appearanceUi.webView->page()->action(QWebPage::Redo)->setIcon(KIcon(QLatin1String("edit-redo")));
+    m_appearanceUi.webView->page()->action(QWebPage::Cut)->setText(i18n("Cut"));
+    m_appearanceUi.webView->page()->action(QWebPage::Cut)->setIcon(KIcon(QLatin1String("edit-cut")));
+    m_appearanceUi.webView->page()->action(QWebPage::Copy)->setText(i18n("Copy"));
+    m_appearanceUi.webView->page()->action(QWebPage::Copy)->setIcon(KIcon(QLatin1String("edit-copy")));
+    m_appearanceUi.webView->page()->action(QWebPage::Paste)->setText(i18n("Paste"));
+    m_appearanceUi.webView->page()->action(QWebPage::Paste)->setIcon(KIcon(QLatin1String("edit-paste")));
+    m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
+    m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setIcon(KIcon(QLatin1String("select-all")));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleBold)->setText(i18n("Bold"));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleBold)->setIcon(KIcon(QLatin1String("format-text-bold")));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic)->setText(i18n("Italic"));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic)->setIcon(KIcon(QLatin1String("format-text-italic")));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->setText(i18n("Underline"));
+    m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->setIcon(KIcon(QLatin1String("format-text-underline")));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignLeft)->setText(i18n("Justify Left"));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignLeft)->setIcon(KIcon(QLatin1String("format-justify-left")));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignCenter)->setText(i18n("Justify Center"));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignCenter)->setIcon(KIcon(QLatin1String("format-justify-center")));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignRight)->setText(i18n("Justify Right"));
+    m_appearanceUi.webView->page()->action(QWebPage::AlignRight)->setIcon(KIcon(QLatin1String("format-justify-right")));
+    m_appearanceUi.boldButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleBold));
+    m_appearanceUi.italicButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic));
+    m_appearanceUi.underlineButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline));
+    m_appearanceUi.justifyLeftButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignLeft));
+    m_appearanceUi.justifyCenterButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignCenter));
+    m_appearanceUi.justifyRightButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignRight));
     m_appearanceUi.backgroundButton->setIcon(KIcon(QLatin1String("games-config-background")));
+    m_appearanceUi.placeholdersButton->setIcon(KIcon(QLatin1String("chronometer")));
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
@@ -113,7 +133,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
     }
 
-    updateControls();
     itemSelectionChanged();
 
     QPalette buttonPalette = m_appearanceUi.colorButton->palette();
@@ -133,7 +152,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
-    connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -162,18 +181,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     selectTheme(m_themesModel->index(currentTheme, 0));
 }
 
-void Configuration::timerEvent(QTimerEvent *event)
-{
-    updateControls();
-
-    killTimer(event->timerId());
-}
-
 void Configuration::accepted()
 {
     QStringList clipboardFormats;
-
-    killTimer(m_controlsTimer);
 
     updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
 
@@ -382,33 +392,12 @@ void Configuration::updateEditor(int tab)
     }
 }
 
-void Configuration::updateControls()
+void Configuration::triggerAction()
 {
-    if (!m_applet->isUserConfiguring()) {
+    if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
         return;
     }
 
-    disconnect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
-
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("boldButton.setChecked(document.queryCommandState('bold'));"
-            "italicButton.setChecked(document.queryCommandState('italic'));"
-            "underlineButton.setChecked(document.queryCommandState('underline'));"
-            "designModeEditor.setColor(document.queryCommandValue('forecolor'));"
-            "designModeEditor.setFontSize(document.queryCommandValue('fontsize').replace('px', ''));"
-            "designModeEditor.setFontFamily(document.queryCommandValue('fontname'))"));
-
-    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
-}
-
-void Configuration::themeChanged()
-{
-    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
-        newTheme(true);
-    }
-}
-
-void Configuration::triggerAction()
-{
     QString actionName = sender()->objectName().remove(QLatin1String("Button")).toLower();
     QHash<QString, QWebPage::WebAction> actions;
     actions[QLatin1String("bold")] = QWebPage::ToggleBold;
@@ -422,42 +411,38 @@ void Configuration::triggerAction()
         return;
     }
 
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
+    QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
 
-        switch (actions[actionName]) {
-        case QWebPage::ToggleBold:
-            cursor.insertText(QLatin1String("<b>") + cursor.selectedText() + QLatin1String("</b>"));
+    switch (actions[actionName]) {
+    case QWebPage::ToggleBold:
+        cursor.insertText(QLatin1String("<b>") + cursor.selectedText() + QLatin1String("</b>"));
 
-            break;
-        case QWebPage::ToggleItalic:
-            cursor.insertText(QLatin1String("<i>") + cursor.selectedText() + QLatin1String("</i>"));
+        break;
+    case QWebPage::ToggleItalic:
+        cursor.insertText(QLatin1String("<i>") + cursor.selectedText() + QLatin1String("</i>"));
 
-            break;
-        case QWebPage::ToggleUnderline:
-            cursor.insertText(QLatin1String("<u>") + cursor.selectedText() + QLatin1String("</u>"));
+        break;
+    case QWebPage::ToggleUnderline:
+        cursor.insertText(QLatin1String("<u>") + cursor.selectedText() + QLatin1String("</u>"));
 
-            break;
-        case QWebPage::AlignLeft:
-            cursor.insertText(QLatin1String("<div style=\"text-align:left;\">") + cursor.selectedText() + QLatin1String("</div>"));
+        break;
+    case QWebPage::AlignLeft:
+        cursor.insertText(QLatin1String("<div style=\"text-align:left;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-            break;
-        case QWebPage::AlignCenter:
-            cursor.insertText(QLatin1String("<div style=\"text-align:center;\">") + cursor.selectedText() + QLatin1String("</div>"));
+        break;
+    case QWebPage::AlignCenter:
+        cursor.insertText(QLatin1String("<div style=\"text-align:center;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-            break;
-        case QWebPage::AlignRight:
-            cursor.insertText(QLatin1String("<div style=\"text-align:right;\">") + cursor.selectedText() + QLatin1String("</div>"));
+        break;
+    case QWebPage::AlignRight:
+        cursor.insertText(QLatin1String("<div style=\"text-align:right;\">") + cursor.selectedText() + QLatin1String("</div>"));
 
-            break;
-        default:
-            return;
-        }
-
-        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
-    } else {
-        m_appearanceUi.webView->page()->triggerAction(actions[actionName]);
+        break;
+    default:
+        return;
     }
+
+    m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
 }
 
 void Configuration::selectColor()
@@ -547,6 +532,34 @@ void Configuration::setZoom(int zoom)
     m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
+void Configuration::showEditorContextMenu(const QPoint &position)
+{
+    KMenu menu(m_appearanceUi.webView);
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.boldButton->defaultAction());
+    menu.addAction(m_appearanceUi.italicButton->defaultAction());
+    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
+    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
+}
+
+void Configuration::themeChanged()
+{
+    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
+        newTheme(true);
+    }
+}
+
 void Configuration::backgroundChanged()
 {
     Theme theme;
@@ -603,15 +616,6 @@ void Configuration::sourceChanged()
 
     enableUpdates();
     updateTheme(theme);
-}
-
-void Configuration::selectionChanged()
-{
-    m_controlsTimer = startTimer(250);
-
-    if (m_appearanceUi.webView->page()->selectedText().endsWith(QLatin1Char('%'))) {
-        m_appearanceUi.webView->page()->triggerAction(QWebPage::SelectNextChar);
-    }
 }
 
 void Configuration::itemSelectionChanged()

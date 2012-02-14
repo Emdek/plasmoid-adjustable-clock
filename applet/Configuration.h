@@ -48,7 +48,6 @@ class Configuration : public QObject
         bool eventFilter(QObject *object, QEvent *event);
 
     protected:
-        void timerEvent(QTimerEvent *event);
         int findRow(const QString &text, int role = TitleRole);
 
     protected slots:
@@ -64,8 +63,6 @@ class Configuration : public QObject
         void updateTheme(const Theme &theme);
         void updateView(int tab);
         void updateEditor(int tab);
-        void updateControls();
-        void themeChanged();
         void triggerAction();
         void selectColor();
         void selectFontSize(const QString &size);
@@ -74,10 +71,11 @@ class Configuration : public QObject
         void setFontSize(const QString &size);
         void setFontFamily(const QString &font);
         void setZoom(int zoom);
+        void showEditorContextMenu(const QPoint &position);
+        void themeChanged();
         void backgroundChanged();
         void richTextChanged();
         void sourceChanged();
-        void selectionChanged();
         void itemSelectionChanged();
         void editRow(QTableWidgetItem *item);
         void insertRow();
@@ -91,7 +89,6 @@ class Configuration : public QObject
         Applet *m_applet;
         QStandardItemModel *m_themesModel;
         QTableWidgetItem *m_editedItem;
-        int m_controlsTimer;
         int m_fontSize;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;

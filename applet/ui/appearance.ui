@@ -304,6 +304,9 @@
              <property name="focusPolicy">
               <enum>Qt::StrongFocus</enum>
              </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
              <property name="renderHints">
               <set>QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
              </property>
