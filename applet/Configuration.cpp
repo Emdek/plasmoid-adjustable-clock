@@ -545,7 +545,7 @@ void Configuration::richTextChanged()
     QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+title=\"([^\"]+)\".+</placeholder>"));
     placeholder.setMinimal(true);
 
-    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().replace(placeholder, QLatin1String("\\1")).remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<head></head>")).remove(QLatin1String("<html><body>")).remove(QLatin1String("</body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().replace(placeholder, QLatin1String("\\1")).remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<!DOCTYPE html><html><head>")).remove(QLatin1String("</head><body><div>")).remove(QLatin1String("</div></body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
 
     QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
     css.setMinimal(true);
@@ -553,7 +553,7 @@ void Configuration::richTextChanged()
 
     Theme theme;
     theme.html = html.remove(css);
-    theme.css = css.cap(1).remove(QLatin1String(PLACEHOLDERSTYLE));
+    theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
@@ -577,7 +577,7 @@ void Configuration::sourceChanged()
 
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<style type=\"text/css\">") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style></head><body><div>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("</div></body></html>"));
 
     updateTheme(theme);
 
