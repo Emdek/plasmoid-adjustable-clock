@@ -134,6 +134,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(sourceChanged()));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -510,6 +511,12 @@ void Configuration::setFontSize(const QString &size)
 void Configuration::setFontFamily(const QString &font)
 {
     m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(font));
+}
+
+void Configuration::setZoom(int zoom)
+{
+    m_appearanceUi.webView->setZoomFactor((qreal) zoom / 100);
+    m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
 void Configuration::focusWebView()

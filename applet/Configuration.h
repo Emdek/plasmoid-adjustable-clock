@@ -69,6 +69,7 @@ class Configuration : public QObject
         void setColor(const QString &color);
         void setFontSize(const QString &size);
         void setFontFamily(const QString &font);
+        void setZoom(int zoom);
         void focusWebView();
         void backgroundChanged();
         void richTextChanged();
