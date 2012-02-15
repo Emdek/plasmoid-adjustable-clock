@@ -69,6 +69,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 
     m_applet = this;
 
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setHasConfigurationInterface(true);
     resize(150, 80);
 }
@@ -376,9 +377,9 @@ void Applet::toolTipHidden()
 void Applet::setTheme(const QString &html, const QString &css)
 {
     if (html != m_currentHtml) {
-        m_page.mainFrame()->setHtml(pageLayout(html, css));
-
         m_currentHtml = html;
+
+        m_page.mainFrame()->setHtml(pageLayout(html, css));
 
         update();
     }
@@ -494,6 +495,9 @@ void Applet::updateSize()
 
     setTheme(evaluateFormat(theme.html), theme.css);
 
+    m_page.setViewportSize(QSize(0, 0));
+    m_page.mainFrame()->setZoomFactor(1);
+
     QSizeF size;
 
     if (formFactor() == Plasma::Horizontal) {
@@ -508,7 +512,10 @@ void Applet::updateSize()
         }
     }
 
-    m_page.mainFrame()->setZoomFactor(zoomFactor(m_page, size));
+    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
+    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
+
+    m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
 
     if (formFactor() == Plasma::Horizontal) {
         setMinimumWidth(m_page.mainFrame()->contentsSize().width());
@@ -518,7 +525,7 @@ void Applet::updateSize()
         setMinimumWidth(0);
     }
 
-    m_page.setViewportSize(size.toSize());
+    m_page.setViewportSize(boundingRect().size().toSize());
 
     setTheme(evaluateFormat(theme.html, m_dateTime), theme.css);
 }
@@ -965,17 +972,6 @@ QList<QAction*> Applet::contextualActions()
     }
 
     return actions;
-}
-
-qreal Applet::zoomFactor(const QWebPage &page, const QSizeF &size)
-{
-    page.setViewportSize(QSize(0, 0));
-    page.mainFrame()->setZoomFactor(1);
-
-    const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
-    const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());
-
-    return ((widthFactor > heightFactor) ? heightFactor : widthFactor);
 }
 
 }

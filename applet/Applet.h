@@ -64,7 +64,6 @@ class Applet : public ClockApplet
         static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         static QString pageLayout(const QString &html, const QString &css, const QString &heade = QString());
-        static qreal zoomFactor(const QWebPage &page, const QSizeF &size);
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);

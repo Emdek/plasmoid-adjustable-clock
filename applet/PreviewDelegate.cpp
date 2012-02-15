@@ -72,19 +72,25 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             background.paintFrame(&pixmapPainter);
 
             size = background.contentsRect().size();
+
+            pixmapPainter.translate(QPointF(background.contentsRect().x(), background.contentsRect().y()));
         }
 
         QWebPage page;
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))), index.data(CssRole).toString()));
-        page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, size));
-        page.setViewportSize(QSize(180, 90));
+        page.setViewportSize(QSize(0, 0));
+        page.mainFrame()->setZoomFactor(1);
 
+        const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
+        const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());
         QPalette palette = page.palette();
         palette.setBrush(QPalette::Base, Qt::transparent);
 
         page.setPalette(palette);
+        page.setViewportSize(size.toSize());
+        page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
         page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
         page.mainFrame()->render(&pixmapPainter);
 
