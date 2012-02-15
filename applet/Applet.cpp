@@ -169,7 +169,7 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-    if (theme().background) {
+    if (theme().background && formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
         painter->translate(QPointF(contentsRect.x(), contentsRect.y()));
     }
 
