@@ -167,12 +167,9 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
 {
     Q_UNUSED(option)
+    Q_UNUSED(contentsRect)
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
-
-    if (theme().background && formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
-        painter->translate(QPointF(contentsRect.x(), contentsRect.y()));
-    }
 
     m_page.mainFrame()->render(painter);
 }
