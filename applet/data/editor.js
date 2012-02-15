@@ -1,10 +1,8 @@
 document.ondragstart = preventDrag;
-document.onmousedown = clearPrevention;
 document.onmouseup = fixFinalSelection;
 document.onkeyup = fixFinalSelection;
 
 var previousRange = null;
-var preventSelectionFix = false;
 var forward = true;
 
 function preventDrag(event)
@@ -12,111 +10,76 @@ function preventDrag(event)
 	event.preventDefault();
 }
 
-function clearPrevention()
-{
-	preventSelectionFix = false;
-}
-
 function fixFinalSelection(event)
 {
-	var selection = window.getSelection();
-
-	if (event.shiftKey)
+	if (event && event.shiftKey)
 	{
 		return;
 	}
 
-	preventSelectionFix = true;
-
-	var element = selection.anchorNode;
+	var selection = window.getSelection();
+	var range = selection.getRangeAt(0);
+	var startElement = selection.anchorNode;
+	var endElement = selection.focusNode;
 
 	do
 	{
-		if (element.nodeName == 'PLACEHOLDER')
+		if (startElement.nodeName == 'PLACEHOLDER')
 		{
-			var range = selection.getRangeAt(0);
-
 			if (forward)
 			{
-				range.setStartBefore(element, 0);
+				range.setStartBefore(startElement, 0);
 			}
 			else
 			{
-				range.setEndAfter(element, element.childNodes.length);
+				range.setEndAfter(startElement, startElement.childNodes.length);
 			}
-
-			selection.removeAllRanges();
-			selection.addRange(range);
 
 			break;
 		}
 
-		element = element.parentNode;
+		startElement = startElement.parentNode;
 
-	} while (element.parentNode);
-
-	selection = window.getSelection();
-
-	var element = (forward ? selection.focusNode : selection.anchorNode);
+	}
+	while (startElement.parentNode);
 
 	do
 	{
-		if (element.nodeName == 'PLACEHOLDER')
+		if (endElement.nodeName == 'PLACEHOLDER')
 		{
-			var range = selection.getRangeAt(0);
-
 			if (forward)
 			{
-				range.setEndAfter(element, element.childNodes.length);
+				range.setEndAfter(endElement, endElement.childNodes.length);
 			}
 			else
 			{
-				range.setStartBefore(element, 0);
+				range.setStartBefore(endElement, 0);
 			}
-
-			selection.removeAllRanges();
-			selection.addRange(range);
 
 			break;
 		}
 
-		element = element.parentNode;
+		endElement = endElement.parentNode;
 
-	} while (element.parentNode);
+	}
+	while (endElement.parentNode);
+
+	selection.removeAllRanges();
+	selection.addRange(range);
 }
 
 function fixSelection(event)
 {
-	if (preventSelectionFix)
-	{
-		return;
-	}
-
-	var selection = window.getSelection();
+	var currentRange = window.getSelection().getRangeAt(0);
 
 	if (previousRange)
 	{
-		forward = (previousRange.compareBoundaryPoints(Range.START_TO_START, selection.getRangeAt(0)) == 0 && previousRange.compareBoundaryPoints(Range.END_TO_END, selection.getRangeAt(0)) != 0);
+		forward = (previousRange.compareBoundaryPoints(Range.START_TO_START, currentRange) == 0 && previousRange.compareBoundaryPoints(Range.END_TO_END, currentRange) != 0);
 	}
 	else
 	{
 		forward = true;
 	}
-
-	var element = selection.focusNode;
-
-	do
-	{
-		if (element.nodeName == 'PLACEHOLDER')
-		{
-			selection.extend(element, (forward ? element.childNodes.length : 0));
-
-			break;
-		}
-
-		element = element.parentNode;
-
-	} while (element.parentNode);
 
 	previousRange = window.getSelection().getRangeAt(0);
 }
