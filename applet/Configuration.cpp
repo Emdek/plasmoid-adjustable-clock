@@ -618,7 +618,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style><script type=\"text/javascript\" src=\"qrc:/editor.js\"></script></head><body><div>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("</div></body></html>"));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
 
     enableUpdates();
     updateTheme(theme);

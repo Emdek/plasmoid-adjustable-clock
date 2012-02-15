@@ -77,7 +77,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         QWebPage page;
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-        page.mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + index.data(CssRole).toString() + QLatin1String("</style></head><body><div>") + Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))) + QLatin1String("</div></body></html>"));
+        page.mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))), index.data(CssRole).toString()));
         page.mainFrame()->setZoomFactor(Applet::zoomFactor(page, size));
         page.setViewportSize(QSize(180, 90));
 
