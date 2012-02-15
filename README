@@ -10,3 +10,15 @@ Features:
 - context menu with actions to copy formatted (adjustable formats) date and time to clipboard;
 - adjustable tool tip (hidden option, toolTipFormatMain and toolTipFormatSub keys);
 - standard clock calendar.
+
+Placeholder modifiers:
+Must be put in exact same order to be parsed properly, those with same number are alternatives.
+1. ~     - exclude special marking of placeholder in rich text editor;
+2. n     - show only n first characters of substitution (can be negative);
+2. :n    - show only characters starting after n character of substitution (can be negative);
+2. n1:n2 - show only characters range starting from n1 and ending with n2 of substitution (can be negative);
+3. !     - force short form of substitution (if available);
+4. $     - force textual form of substitution (if available);
+5. +     - force possessive form of substitution (if available);
+5. -     - force non possessive form of substitution (if available);
+Followed by placeholder letter or {expression} (for script expressions) or conditional statement: {expression}?{expression for TRUE}:{expression for FALSE} (where expression TRUE or FALSE can be omitted).

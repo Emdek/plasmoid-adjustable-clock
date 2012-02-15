@@ -1,4 +1,5 @@
 3.1 (15.02.2012):
+- added initial support for placeholder previews in rich text editor;
 - new theme selector with previews;
 - added Progress clock, based on code from Peter Fajdiga;
 - removed Flat theme (too similar to Default);
