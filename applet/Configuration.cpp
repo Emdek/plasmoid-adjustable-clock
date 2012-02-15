@@ -34,7 +34,7 @@
 
 #include <Plasma/Theme>
 
-#define PLACEHOLDERSTYLE "placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 30%; cursor: move; -webkit-user-drag:element; -webkit-user-select: none;}"
+#define PLACEHOLDERSTYLE "placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 0.3em;}"
 
 namespace AdjustableClock
 {
@@ -153,6 +153,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
+    connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(fixSelection()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -253,7 +254,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + placeholder + QLatin1String("')"));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + Applet::evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("')"));
     }
 }
 
@@ -335,7 +336,7 @@ void Configuration::deleteTheme()
 
         m_themesModel->removeRow(row);
 
-        m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(qMax((row - 1), 0), 0));
+        selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
     }
 }
 
@@ -443,6 +444,11 @@ void Configuration::triggerAction()
     }
 
     m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
+}
+
+void Configuration::fixSelection()
+{
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("fixSelection()"));
 }
 
 void Configuration::selectColor()
@@ -573,24 +579,24 @@ void Configuration::backgroundChanged()
 
 void Configuration::richTextChanged()
 {
-    QRegExp fontSize = QRegExp(QLatin1String(" class=\"Apple-style-span\""));
     QRegExp fontColor = QRegExp(QLatin1String("<font color=\"(#?[\\w\\s]+)\">(.+)</font>"));
     fontColor.setMinimal(true);
 
     QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
     fontFamily.setMinimal(true);
 
-    QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+title=\"([^\"]+)\".+</placeholder>"));
+    QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*<fix>.+</fix>.*((?=<).*>)?.*</placeholder>"));
     placeholder.setMinimal(true);
 
-    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().replace(placeholder, QLatin1String("\\1")).remove(QLatin1String("<style type=\"text/css\"></style>")).remove(QLatin1String("<!DOCTYPE html><html><head>")).remove(QLatin1String("</head><body><div>")).remove(QLatin1String("</div></body></html>")).remove(fontSize).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
+    QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>"));
+    page.setMinimal(true);
 
     QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
     css.setMinimal(true);
-    css.indexIn(html);
+    css.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
     Theme theme;
-    theme.html = html.remove(css);
+    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(QLatin1String(" class=\"Apple-style-span\""))).replace(page, QLatin1String("\\1")).replace(placeholder, QLatin1String("\\2\\1\\3")).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
     theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
@@ -612,7 +618,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style></head><body><div>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("</div></body></html>"));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE) + theme.css + QLatin1String("</style><script type=\"text/javascript\" src=\"qrc:/editor.js\"></script></head><body><div>") + Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("</div></body></html>"));
 
     enableUpdates();
     updateTheme(theme);

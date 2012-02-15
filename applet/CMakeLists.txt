@@ -15,8 +15,9 @@ set(adjustableclock_SRCS Applet.cpp Configuration.cpp PlaceholderDialog.cpp Prev
 
 add_subdirectory(locale)
 
+qt4_add_resources(adjustableclock_RESOURCES_RCC data/resources.qrc)
 kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/placeholder.ui)
-kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS})
+kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS} ${adjustableclock_RESOURCES_RCC})
 target_link_libraries(plasma_applet_adjustableclock
                       plasmaclock
                       ${QT_QTSCRIPT_LIBRARY}

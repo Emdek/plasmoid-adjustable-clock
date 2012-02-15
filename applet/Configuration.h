@@ -64,6 +64,7 @@ class Configuration : public QObject
         void updateView(int tab);
         void updateEditor(int tab);
         void triggerAction();
+        void fixSelection();
         void selectColor();
         void selectFontSize(const QString &size);
         void selectFontFamily(const QFont &font);

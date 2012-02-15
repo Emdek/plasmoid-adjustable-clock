@@ -169,7 +169,7 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-    if (theme().background) {
+    if (theme().background && formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
         painter->translate(QPointF(contentsRect.x(), contentsRect.y()));
     }
 
@@ -707,7 +707,7 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
         }
 
         if (special && !exclude) {
-            substitution = QLatin1String("<placeholder title=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\" draggable=\"true\">") + substitution + QLatin1String("</placeholder>");
+            substitution = QLatin1String("<placeholder alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
         }
 
         string.append(substitution);

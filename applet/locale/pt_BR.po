@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_adjustableclock\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-14 13:43+0100\n"
+"POT-Creation-Date: 2012-02-14 19:01+0100\n"
 "PO-Revision-Date: 2009-04-13 21:41-0300\n"
 "Last-Translator: Luiz Fernando Ranghetti <elchevive@opensuse.org>\n"
 "Language-Team: Brazilian Portuguese <kde-i18n-pt_BR@lists.kde.org>\n"
@@ -67,46 +67,106 @@ msgstr "&Copiar para a área de transferência"
 msgid "\"%1\" by %2"
 msgstr ""
 
+#: Configuration.cpp:82
+msgid "Undo"
+msgstr ""
+
+#: Configuration.cpp:84
+msgid "Redo"
+msgstr ""
+
+#: Configuration.cpp:86
+msgid "Cut"
+msgstr ""
+
+#: Configuration.cpp:88
+msgid "Copy"
+msgstr ""
+
+#: Configuration.cpp:90
+msgid "Paste"
+msgstr ""
+
+#: Configuration.cpp:92
+msgid "Select All"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:87
+#. i18n: ectx: property (toolTip), widget (QToolButton, boldButton)
+#: Configuration.cpp:94 locale/rc.cpp:21 rc.cpp:21
+msgid "Bold"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:100
+#. i18n: ectx: property (toolTip), widget (QToolButton, italicButton)
+#: Configuration.cpp:96 locale/rc.cpp:24 rc.cpp:24
+msgid "Italic"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:113
+#. i18n: ectx: property (toolTip), widget (QToolButton, underlineButton)
+#: Configuration.cpp:98 locale/rc.cpp:27 rc.cpp:27
+msgid "Underline"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:130
+#. i18n: ectx: property (toolTip), widget (QToolButton, justifyLeftButton)
+#: Configuration.cpp:100 locale/rc.cpp:30 rc.cpp:30
+msgid "Justify Left"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:143
+#. i18n: ectx: property (toolTip), widget (QToolButton, justifyCenterButton)
+#: Configuration.cpp:102 locale/rc.cpp:33 rc.cpp:33
+msgid "Justify Center"
+msgstr ""
+
+#. i18n: file: ui/appearance.ui:156
+#. i18n: ectx: property (toolTip), widget (QToolButton, justifyRightButton)
+#: Configuration.cpp:104 locale/rc.cpp:36 rc.cpp:36
+msgid "Justify Right"
+msgstr ""
+
 #. i18n: file: ui/appearance.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: Configuration.cpp:124 locale/rc.cpp:3 rc.cpp:3
+#: Configuration.cpp:143 locale/rc.cpp:3 rc.cpp:3
 msgid "Appearance"
 msgstr "Aparência"
 
 #. i18n: file: ui/clipboard.ui:14
 #. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: Configuration.cpp:125 locale/rc.cpp:70 rc.cpp:70
+#: Configuration.cpp:144 locale/rc.cpp:70 rc.cpp:70
 msgid "Clipboard actions"
 msgstr "Ações da área de transferência"
 
-#: Configuration.cpp:279 Configuration.cpp:335
+#: Configuration.cpp:289 Configuration.cpp:345
 msgid "Add new theme"
 msgstr ""
 
-#: Configuration.cpp:279 Configuration.cpp:335
+#: Configuration.cpp:289 Configuration.cpp:345
 #, fuzzy
 msgid "Theme name:"
 msgstr "Formato"
 
-#: Configuration.cpp:287 Configuration.cpp:342
+#: Configuration.cpp:297 Configuration.cpp:352
 msgid "A theme with this name already exists."
 msgstr ""
 
-#: Configuration.cpp:293
+#: Configuration.cpp:303
 #, fuzzy
 msgid "Invalid theme name."
 msgstr "Formato"
 
-#: Configuration.cpp:323
+#: Configuration.cpp:333
 msgid "Do you really want to delete theme \"%1\"?"
 msgstr ""
 
-#: Configuration.cpp:323
+#: Configuration.cpp:333
 #, fuzzy
 msgid "Delete Theme"
 msgstr "Remover"
 
-#: Configuration.cpp:547
+#: Configuration.cpp:532
 msgid "Zoom: %1%"
 msgstr ""
 
@@ -151,42 +211,6 @@ msgstr "Remover"
 #. i18n: ectx: attribute (title), widget (QWidget, detailsTab)
 #: locale/rc.cpp:18 rc.cpp:18
 msgid "Details"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:87
-#. i18n: ectx: property (toolTip), widget (QToolButton, boldButton)
-#: locale/rc.cpp:21 rc.cpp:21
-msgid "Bold"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:100
-#. i18n: ectx: property (toolTip), widget (QToolButton, italicButton)
-#: locale/rc.cpp:24 rc.cpp:24
-msgid "Italic"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:113
-#. i18n: ectx: property (toolTip), widget (QToolButton, underlineButton)
-#: locale/rc.cpp:27 rc.cpp:27
-msgid "Underline"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:130
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyLeftButton)
-#: locale/rc.cpp:30 rc.cpp:30
-msgid "Justify Left"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:143
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyCenterButton)
-#: locale/rc.cpp:33 rc.cpp:33
-msgid "Justify Center"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:156
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyRightButton)
-#: locale/rc.cpp:36 rc.cpp:36
-msgid "Justify Right"
 msgstr ""
 
 #. i18n: file: ui/appearance.ui:176

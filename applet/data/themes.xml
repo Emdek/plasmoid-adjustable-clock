@@ -42,7 +42,7 @@
 		<html><![CDATA[<div class="clock">
 	<div>
 		<span>%m</span><br />
-		<progress value="%!s" max="59" />
+		<progress value="%~!s" max="59" />
 	</div>
 	<p>%!-h</p>
 </div>]]></html>

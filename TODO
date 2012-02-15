@@ -1,4 +1,5 @@
+- try to reimplement existing clocks as themes and include train clock;
+- allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);
 - allow to edit placeholder (including text only ones - checking selection when button is pressed);
-- replace rich text view context menu;
 - expose scripting API to allow scripts to fully control clock display (?);
 - allow to display weather data (?);
