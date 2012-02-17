@@ -209,15 +209,33 @@ void Applet::clockConfigChanged()
         }
 
         if (reader.name().toString() == QLatin1String("theme")) {
-            QXmlStreamAttributes attributes = reader.attributes();
-
-            theme.id = QLatin1Char('%') + attributes.value(QLatin1String("id")).toString() + QLatin1Char('%');
-            theme.title = i18n(attributes.value(QLatin1String("title")).toString().toUtf8().data());
-            theme.description = i18n(attributes.value(QLatin1String("description")).toString().toUtf8().data());
-            theme.author = attributes.value(QLatin1String("author")).toString();
+            theme.id = QString();
+            theme.title = QString();
+            theme.description = QString();
+            theme.author = QString();
             theme.html = QString();
             theme.css = QString();
-            theme.background = (attributes.value(QLatin1String("background")).toString().toLower() == QLatin1String("true"));
+            theme.background = true;
+        }
+
+        if (reader.name().toString() == QLatin1String("id")) {
+            theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
+        }
+
+        if (reader.name().toString() == QLatin1String("title")) {
+            theme.title = i18n(reader.readElementText().toUtf8().data());
+        }
+
+        if (reader.name().toString() == QLatin1String("description")) {
+            theme.description = i18n(reader.readElementText().toUtf8().data());
+        }
+
+        if (reader.name().toString() == QLatin1String("author")) {
+            theme.author = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("background")) {
+            theme.background = (reader.readElementText().toLower() == QLatin1String("true"));
         }
 
         if (reader.name().toString() == QLatin1String("html")) {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_adjustableclock\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-14 19:01+0100\n"
+"POT-Creation-Date: 2012-02-17 12:48+0100\n"
 "PO-Revision-Date: 2009-04-09 20:12+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -19,52 +19,52 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: Applet.cpp:238 Applet.cpp:923
+#: Applet.cpp:254 Applet.cpp:950
 msgid "Error"
 msgstr ""
 
-#: Applet.cpp:239
+#: Applet.cpp:255
 msgid "Missing or invalid data file: %1."
 msgstr ""
 
-#: Applet.cpp:253 Applet.cpp:254
+#: Applet.cpp:269 Applet.cpp:270
 msgid "Custom"
 msgstr ""
 
-#: Applet.cpp:329
+#: Applet.cpp:345
 msgid "UTC"
 msgstr ""
 
-#: Applet.cpp:436
+#: Applet.cpp:452
 msgid "Event"
 msgstr ""
 
-#: Applet.cpp:436
+#: Applet.cpp:452
 msgid "To do"
 msgstr ""
 
-#: Applet.cpp:440
+#: Applet.cpp:456
 msgid "All day"
 msgstr ""
 
-#: Applet.cpp:733 Applet.cpp:831
+#: Applet.cpp:755 Applet.cpp:853
 msgid "pm"
 msgstr "п.о."
 
-#: Applet.cpp:733 Applet.cpp:831
+#: Applet.cpp:755 Applet.cpp:853
 msgid "am"
 msgstr "д.о."
 
-#: Applet.cpp:924
+#: Applet.cpp:951
 #, fuzzy
 msgid "Invalid theme identifier."
 msgstr "Формат"
 
-#: Applet.cpp:945 Applet.cpp:954
+#: Applet.cpp:972 Applet.cpp:981
 msgid "C&opy to Clipboard"
 msgstr "С&копіювати до буфера"
 
-#: Configuration.cpp:68 PreviewDelegate.cpp:103
+#: Configuration.cpp:68 PreviewDelegate.cpp:109
 msgid "\"%1\" by %2"
 msgstr ""
 
@@ -140,34 +140,34 @@ msgstr "Вигляд"
 msgid "Clipboard actions"
 msgstr "Дії з буфером"
 
-#: Configuration.cpp:289 Configuration.cpp:345
+#: Configuration.cpp:290 Configuration.cpp:346
 msgid "Add new theme"
 msgstr ""
 
-#: Configuration.cpp:289 Configuration.cpp:345
+#: Configuration.cpp:290 Configuration.cpp:346
 #, fuzzy
 msgid "Theme name:"
 msgstr "Формат"
 
-#: Configuration.cpp:297 Configuration.cpp:352
+#: Configuration.cpp:298 Configuration.cpp:353
 msgid "A theme with this name already exists."
 msgstr ""
 
-#: Configuration.cpp:303
+#: Configuration.cpp:304
 #, fuzzy
 msgid "Invalid theme name."
 msgstr "Формат"
 
-#: Configuration.cpp:333
+#: Configuration.cpp:334
 msgid "Do you really want to delete theme \"%1\"?"
 msgstr ""
 
-#: Configuration.cpp:333
+#: Configuration.cpp:334
 #, fuzzy
 msgid "Delete Theme"
 msgstr "Вилучити"
 
-#: Configuration.cpp:532
+#: Configuration.cpp:538
 msgid "Zoom: %1%"
 msgstr ""
 
@@ -392,12 +392,73 @@ msgstr ""
 msgid "Timezone mode:"
 msgstr ""
 
-#: locale/rc.cpp:131 rc.cpp:131
+#. i18n: file: data/themes.xml:5
+#: locale/rc.cpp:132 rc.cpp:132
+#, fuzzy
+msgid "Default"
+msgstr "Вилучити"
+
+#. i18n: file: data/themes.xml:6
+#: locale/rc.cpp:134 rc.cpp:134
+msgid "Default clock theme"
+msgstr ""
+
+#. i18n: file: data/themes.xml:14
+#: locale/rc.cpp:136 rc.cpp:136
+msgid "Simple"
+msgstr ""
+
+#. i18n: file: data/themes.xml:15
+#: locale/rc.cpp:138 rc.cpp:138
+msgid "Simple clock, similar to default digital clock"
+msgstr ""
+
+#. i18n: file: data/themes.xml:23
+#: locale/rc.cpp:140 rc.cpp:140
+msgid "Verbose"
+msgstr ""
+
+#. i18n: file: data/themes.xml:24
+#: locale/rc.cpp:142 rc.cpp:142
+msgid "More verbose clock with date"
+msgstr ""
+
+#. i18n: file: data/themes.xml:32
+#: locale/rc.cpp:144 rc.cpp:144
+msgid "dbClock"
+msgstr ""
+
+#. i18n: file: data/themes.xml:33
+#: locale/rc.cpp:146 rc.cpp:146
+msgid "dbClock like theme"
+msgstr ""
+
+#. i18n: file: data/themes.xml:64
+#: locale/rc.cpp:148 rc.cpp:148
+msgid "Progress"
+msgstr ""
+
+#. i18n: file: data/themes.xml:65
+#: locale/rc.cpp:150 rc.cpp:150
+msgid "Clock with original seconds visualization"
+msgstr ""
+
+#. i18n: file: data/themes.xml:136
+#: locale/rc.cpp:152 rc.cpp:152
+msgid "Calendar"
+msgstr ""
+
+#. i18n: file: data/themes.xml:137
+#: locale/rc.cpp:154 rc.cpp:154
+msgid "Calendar like theme"
+msgstr ""
+
+#: locale/rc.cpp:155 rc.cpp:155
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: locale/rc.cpp:132 rc.cpp:132
+#: locale/rc.cpp:156 rc.cpp:156
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
@@ -484,10 +545,6 @@ msgstr ""
 #: PlaceholderDialog.cpp:53
 msgid "Sunset time"
 msgstr ""
-
-#, fuzzy
-#~ msgid "Default"
-#~ msgstr "Вилучити"
 
 #, fuzzy
 #~ msgid "Flat"
