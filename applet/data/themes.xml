@@ -28,6 +28,105 @@
 		<css></css>
 	</theme>
 	<theme>
+		<id>trainclock</id>
+		<title>Train Clock</title>
+		<description>Train clock like theme</description>
+		<author>Nuno Pinheiro &amp; Michał Dutkiewicz</author>
+		<background>false</background>
+		<html><![CDATA[<div class="clock">
+	<div class="top">
+		<div class="card">%0:1h</div>
+		<div class="card">%1:2h</div>
+		<div id="dot_top" class="card dots">•</div>
+		<div class="card">%0:1m</div>
+		<div class="card">%1:2m</div>
+	</div>
+	<div class="bottom">
+		<div class="card">%0:1h</div>
+		<div class="card">%1:2h</div>
+		<div id="dot_bottom" class="card dots">•</div>
+		<div class="card">%0:1m</div>
+		<div class="card">%1:2m</div>
+	</div>
+	<div class="date">%!d %!$+M</div>
+</div>
+<script type="text/javascript">
+var blink = (%~1s %% 2);
+
+document.getElementById('dot_top').setAttribute('class', 'card dots' + (blink?'':' dark'));
+document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink?'':' dark'));
+</script>]]></html>
+<css><![CDATA[.clock
+{
+	width: 192px;
+	padding: 8px;
+	border-radius: 10px;
+	color: #DCDCDC;
+	background: #202020;
+	font-family: 'Nimbus Sans L';
+}
+
+.clock .card
+{
+	width: 40px;
+	margin: 0 2px;
+	overflow: hidden;
+	float: left;
+	text-align: center;
+	font-weight: bold;
+	font-size: 55px;
+}
+
+.clock .dots
+{
+	width: 20px;
+	height: 25px !important;
+	padding: 0 !important;
+	line-height: 25px !important;
+	font-size: 30px;
+}
+
+.clock .dark
+{
+	color: #1A1A1A;
+}
+
+.clock .top, .clock .bottom
+{
+	height: 25px;
+}
+
+.clock .top
+{
+	margin: 0 0 2px 0;
+}
+
+.clock .top .card
+{
+	height: 10px;
+	padding: 15px 0 0 0;
+	line-height: 21px;
+	background: -webkit-linear-gradient(#353535, #222 30%, #000);
+}
+
+.clock .bottom .card
+{
+	height: 25px;
+	line-height: 0;
+	background: -webkit-linear-gradient(#353535, #222 40%, #000);
+}
+
+.clock .date
+{
+	margin: 3px 0 -3px 0;
+	padding: 0 5px 0 0;
+	text-align: right;
+	line-height: 15px;
+	font-size: 15px;
+}
+]]></css>
+	</theme>
+	<theme>
 		<id>dbclock</id>
 		<title>dbClock</title>
 		<description>dbClock like theme</description>

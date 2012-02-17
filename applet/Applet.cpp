@@ -298,7 +298,7 @@ void Applet::clockConfigAccepted()
 
 void Applet::connectSource(const QString &timezone)
 {
-    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*[ast]"));
+    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\~\\d\\!\\$\\:\\+\\-]*[ast]"));
     QFlags<ClockFeature> features;
     const Theme theme = this->theme();
     const QPair<QString, QString> toolTipFormat = this->toolTipFormat();
@@ -709,7 +709,10 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
                 substitution.append(scriptExpression.toString());
             }
         } else if (!format.at(i).isLetter()) {
-            string.append(format.at(i - 1));
+            if (format.at(i - 1) != QLatin1Char('%')) {
+                string.append(format.at(i - 1));
+            }
+
             string.append(format.at(i));
 
             continue;
