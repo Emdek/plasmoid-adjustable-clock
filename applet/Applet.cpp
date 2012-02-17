@@ -709,6 +709,7 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
                 substitution.append(scriptExpression.toString());
             }
         } else if (!format.at(i).isLetter()) {
+            string.append(format.at(i - 1));
             string.append(format.at(i));
 
             continue;
@@ -732,8 +733,12 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
             substitution = substitution.mid(range.first, range.second);
         }
 
-        if (special && !exclude) {
-            substitution = QLatin1String("<placeholder alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
+        if (special) {
+            if (exclude) {
+                substitution = format.mid(start, (1 + i - start));
+            } else {
+                substitution = QLatin1String("<placeholder alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
+            }
         }
 
         string.append(substitution);

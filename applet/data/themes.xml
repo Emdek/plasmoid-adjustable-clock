@@ -60,6 +60,76 @@
 ]]></css>
 	</theme>
 	<theme>
+		<id>beclock</id>
+		<title>beClock</title>
+		<description>beClock like theme</description>
+		<author>Thomas Luebking &amp; Michał Dutkiewicz</author>
+		<background>false</background>
+		<html><![CDATA[<div class="clock">
+	<canvas id="canvas" width="200" height="200"></canvas>
+	<div class="back">%p</div>
+	<div class="front">
+		%-h:%m
+		<div>%Y-%M-%d</div>
+	</div>
+</div>
+<script type="text/javascript">
+var context = document.getElementById('canvas').getContext('2d');
+
+context.lineCap = 'round';
+context.lineWidth = 8;
+context.strokeStyle = document.body.style.color;
+
+context.beginPath();
+context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (%!m - 15) * 6)), false);
+context.globalAlpha = 0.5;
+context.stroke();
+
+context.beginPath();
+context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (%!+h - 15) * 30)), false);
+context.globalAlpha = 0.8;
+context.stroke();
+</script>]]></html>
+		<css><![CDATA[.clock
+{
+	width: 200px;
+	height: 200px;
+	margin: auto;
+	position: relative;
+}
+
+.clock > div
+{
+	width: 200px;
+	position: absolute;
+	text-align: center;
+}
+
+.clock .back
+{
+	z-index: 1;
+	top: 50px;
+	font-size: 75px;
+	font-weight: bold;
+	text-transform: uppercase;
+	opacity: 0.3;
+}
+
+.clock .front
+{
+	z-index: 2;
+	top: 55px;
+	font-size: 40px;
+	line-height: 40px;
+}
+
+.clock .front div
+{
+	font-size: 20px;
+	line-height: 25px;
+}]]></css>
+	</theme>
+	<theme>
 		<id>progress</id>
 		<title>Progress</title>
 		<description>Clock with original seconds visualization</description>
