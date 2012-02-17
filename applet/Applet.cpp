@@ -708,6 +708,10 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
             } else {
                 substitution.append(scriptExpression.toString());
             }
+        } else if (!format.at(i).isLetter()) {
+            string.append(format.at(i));
+
+            continue;
         } else {
             if (dateTime.isValid()) {
                 substitution = evaluatePlaceholder(format.at(i).unicode(), dateTime, alternativeForm, shortForm, textualForm);
