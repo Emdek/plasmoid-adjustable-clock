@@ -61,9 +61,13 @@ document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink
 	width: 192px;
 	padding: 8px;
 	border-radius: 10px;
-	color: #DCDCDC;
 	background: #202020;
 	font-family: 'Nimbus Sans L';
+}
+
+.clock *
+{
+	color: #DCDCDC !important;
 }
 
 .clock .card
@@ -88,7 +92,7 @@ document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink
 
 .clock .dark
 {
-	color: #1A1A1A;
+	color: #1A1A1A !important;
 }
 
 .clock .top, .clock .bottom
@@ -330,6 +334,11 @@ progress::-webkit-progress-value
 	text-shadow: 0 0 5px #AAA;
 }
 
+.clock *
+{
+	color: #fff !important;
+}
+
 .calendar
 {
 	margin: 30px 0 0 0;
@@ -339,7 +348,6 @@ progress::-webkit-progress-value
 	font-size: 30px;
 	text-align: center;
 	background: -webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03));
-	color: white;
 	border-radius: 20px;
 	box-shadow: 5px 5px 15px #888;
 	opacity: 0.7;

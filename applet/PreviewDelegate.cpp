@@ -91,7 +91,6 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.setPalette(palette);
         page.setViewportSize(size.toSize());
         page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-        page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
         page.mainFrame()->render(&pixmapPainter);
 
         m_cache->insert((index.data(IdRole).toString()), pixmap);

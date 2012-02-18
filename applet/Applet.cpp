@@ -78,10 +78,13 @@ void Applet::init()
 {
     ClockApplet::init();
 
+    QPalette palette = m_page.palette();
+    palette.setBrush(QPalette::Base, Qt::transparent);
+
+    m_page.setPalette(palette);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    updateTheme();
     constraintsEvent(Plasma::SizeConstraint);
     configChanged();
 
@@ -547,12 +550,6 @@ void Applet::updateSize()
 
 void Applet::updateTheme()
 {
-    QPalette palette = m_page.palette();
-    palette.setBrush(QPalette::Base, Qt::transparent);
-
-    m_page.setPalette(palette);
-    m_page.mainFrame()->evaluateJavaScript(QLatin1String("document.fgColor = '") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1Char('\''));
-
     const QString html = m_currentHtml;
 
     m_currentHtml = QString();
@@ -924,7 +921,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
 
 QString Applet::pageLayout(const QString &html, const QString &css, const QString &head)
 {
-	return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
+	return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String("} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
 }
 
 QStringList Applet::clipboardFormats() const
