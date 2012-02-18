@@ -1,6 +1,5 @@
 - try to reimplement existing clocks as themes;
 - option to disable placeholders substitution (?);
-- show placeholder category in title in rich text editor (?);
 - allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);
 - allow to edit placeholder (including text only ones - checking selection when button is pressed);
 - expose scripting API to allow scripts to fully control clock display (?);

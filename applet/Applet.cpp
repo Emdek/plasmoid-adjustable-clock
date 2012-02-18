@@ -746,7 +746,113 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
             if (exclude) {
                 substitution = format.mid(start, (1 + i - start));
             } else {
-                substitution = QLatin1String("<placeholder alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
+                QString title;
+
+                switch (format.at(i).unicode()) {
+                case 's':
+                    title = i18n("Second");
+
+                    break;
+
+                case 'm':
+                    title = i18n("Minute");
+
+                    break;
+
+                case 'h':
+                    title = i18n("Hour");
+
+                    break;
+
+                case 'p':
+                    title = i18n("The pm or am string");
+
+                    break;
+
+                case 'd':
+                    title = i18n("Day of the month");
+
+                    break;
+
+                case 'w':
+                    title = i18n("Weekday");
+
+                    break;
+
+                case 'D':
+                    title = i18n("Day of the year");
+
+                    break;
+
+                case 'W':
+                    title = i18n("Week");
+
+                    break;
+
+                case 'M':
+                    title = i18n("Month");
+
+                    break;
+
+                case 'Y':
+                    title = i18n("Year");
+
+                    break;
+
+                case 'U':
+                    title = i18n("UNIX timestamp");
+
+                    break;
+
+                case 't':
+                    title = i18n("Time");
+
+                    break;
+
+                case 'T':
+                    title = i18n("Date");
+
+                    break;
+
+                case 'A':
+                    title = i18n("Date and time");
+
+                    break;
+
+                case 'z':
+                    title = i18n("Timezone");
+
+                    break;
+
+                case 'Z':
+                    title = i18n("Timezones list");
+
+                    break;
+
+                case 'H':
+                    title = i18n("Holidays list");
+
+                    break;
+
+                case 'E':
+                    title = i18n("Events list");
+
+                    break;
+
+                case 'R':
+                    title = i18n("Sunrise time");
+
+                    break;
+
+                case 'S':
+                    title = i18n("Sunset time");
+
+                    break;
+                default:
+                    break;
+                }
+
+                substitution = QLatin1String("<placeholder title=") + title + QLatin1String(" alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
             }
         }
 
