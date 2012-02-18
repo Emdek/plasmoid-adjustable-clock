@@ -89,6 +89,7 @@ void Applet::init()
     configChanged();
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
+    connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
@@ -398,8 +399,6 @@ void Applet::setTheme(const QString &html, const QString &css)
         m_currentHtml = html;
 
         m_page.mainFrame()->setHtml(pageLayout(html, css));
-
-        update();
     }
 }
 
@@ -555,6 +554,11 @@ void Applet::updateTheme()
     m_currentHtml = QString();
 
     setTheme(html, theme().css);
+}
+
+void Applet::repaint()
+{
+    update();
 }
 
 QDateTime Applet::currentDateTime() const
@@ -921,7 +925,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
 
 QString Applet::pageLayout(const QString &html, const QString &css, const QString &head)
 {
-    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String("} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
+    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
 }
 
 QStringList Applet::clipboardFormats() const

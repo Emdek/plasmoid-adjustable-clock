@@ -366,6 +366,8 @@ for (var i = 0; i < values.length; ++i)
 
 .clock
 {
+	width: 67px;
+	height: 45px;
 	border-width: 1px 1px 0 0;
 	border-spacing: 0;
 	empty-cells: show;

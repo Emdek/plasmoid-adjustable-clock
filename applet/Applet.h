@@ -94,6 +94,7 @@ class Applet : public ClockApplet
         void updateToolTipContent();
         void updateSize();
         void updateTheme();
+        void repaint();
 
     private:
         QWebPage m_page;

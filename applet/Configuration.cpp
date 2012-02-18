@@ -34,7 +34,7 @@
 
 #include <Plasma/Theme>
 
-#define PLACEHOLDERSTYLE "placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 0.3em;}"
+#define PLACEHOLDERSTYLE " placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 0.3em;}"
 
 namespace AdjustableClock
 {
@@ -598,7 +598,7 @@ void Configuration::richTextChanged()
 
     Theme theme;
     theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(QLatin1String(" class=\"Apple-style-span\""))).replace(page, QLatin1String("\\1")).replace(placeholder, QLatin1String("\\2\\1\\3")).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
-    theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("';} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
+    theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disableUpdates();
