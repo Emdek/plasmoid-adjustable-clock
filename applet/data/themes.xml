@@ -221,7 +221,7 @@ context.stroke();
 .clock .front
 {
 	z-index: 2;
-	top: 55px;
+	top: 60px;
 	font-size: 40px;
 	line-height: 40px;
 }
@@ -301,6 +301,81 @@ progress::-webkit-progress-value
 	text-align: right;
 	font-size: 50px;
 	opacity: 0.9;
+}
+]]></css>
+	</theme>
+	<theme>
+		<id>binary</id>
+		<title>Binary</title>
+		<description>Classic binary clock</description>
+		<author>Michał Dutkiewicz</author>
+		<background>true</background>
+		<html><![CDATA[<table class="clock">
+	<tbody>
+		<tr>
+			<td id="v_0_8"></td>
+			<td id="v_1_8"></td>
+			<td id="v_2_8"></td>
+			<td id="v_3_8"></td>
+			<td id="v_4_8"></td>
+			<td id="v_5_8"></td>
+		</tr>
+		<tr>
+			<td id="v_0_4"></td>
+			<td id="v_1_4"></td>
+			<td id="v_2_4"></td>
+			<td id="v_3_4"></td>
+			<td id="v_4_4"></td>
+			<td id="v_5_4"></td>
+		</tr>
+		<tr>
+			<td id="v_0_2"></td>
+			<td id="v_1_2"></td>
+			<td id="v_2_2"></td>
+			<td id="v_3_2"></td>
+			<td id="v_4_2"></td>
+			<td id="v_5_2"></td>
+		</tr>
+		<tr>
+			<td id="v_0_1"></td>
+			<td id="v_1_1"></td>
+			<td id="v_2_1"></td>
+			<td id="v_3_1"></td>
+			<td id="v_4_1"></td>
+			<td id="v_5_1"></td>
+		</tr>
+	</tbody>
+</table>
+<script type="text/javascript">
+var values = [%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s];
+var color = document.styleSheets[0].cssRules[0].style.getPropertyValue('color');
+
+for (var i = 0; i < values.length; ++i)
+{
+	for (var j = 1; j < 9; j *= 2)
+	{
+		document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
+	}
+}
+</script>]]></html>
+		<css><![CDATA[.clock, .clock td
+{
+	margin: auto;
+	border: 1px solid #ddd;
+}
+
+.clock
+{
+	border-width: 1px 1px 0 0;
+	border-spacing: 0;
+	empty-cells: show;
+}
+
+.clock td
+{
+	width: 10px;
+	height: 10px;
+	border-width: 0 0 1px 1px;
 }
 ]]></css>
 	</theme>

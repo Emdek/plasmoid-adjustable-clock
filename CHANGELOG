@@ -1,3 +1,9 @@
+3.2 (--.03.2012):
+- added Train Clock, based on design by Nuno Pinheiro;
+- added beClock theme, inspired by clock by Thomas Luebking;
+- added Binary Clock;
+- some other improvements and fixes.
+
 3.1 (15.02.2012):
 - added initial support for placeholder previews in rich text editor;
 - new theme selector with previews;
