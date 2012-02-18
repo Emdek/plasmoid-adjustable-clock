@@ -63,6 +63,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(themes.at(i).author, AuthorRole);
         item->setData(themes.at(i).html, HtmlRole);
         item->setData(themes.at(i).css, CssRole);
+        item->setData(themes.at(i).script, ScriptRole);
         item->setData(themes.at(i).background, BackgroundRole);
         item->setData(themes.at(i).bundled, BundledRole);
         item->setToolTip(QLatin1String("<b>") + (themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)) + QLatin1String("</b>") + (themes.at(i).description.isEmpty() ? QString() : QLatin1String("<br />") + themes.at(i).description));
@@ -208,12 +209,14 @@ void Configuration::accepted()
         theme.title = index.data(TitleRole).toString();
         theme.html = index.data(HtmlRole).toString();
         theme.css = index.data(CssRole).toString();
+        theme.script = index.data(ScriptRole).toString();
         theme.background = index.data(BackgroundRole).toBool();
 
         KConfigGroup themeConfiguration = themesConfiguration.group(index.data(IdRole).toString());
         themeConfiguration.writeEntry("title", theme.title);
         themeConfiguration.writeEntry("html", theme.html);
         themeConfiguration.writeEntry("css", theme.css);
+        themeConfiguration.writeEntry("script", theme.script);
         themeConfiguration.writeEntry("background", theme.background);
     }
 
@@ -265,6 +268,7 @@ void Configuration::selectTheme(const QModelIndex &index)
 
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
+    m_appearanceUi.scriptTextEdit->setPlainText(index.data(ScriptRole).toString());
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
@@ -322,6 +326,7 @@ void Configuration::newTheme(bool automatically)
     m_themesModel->setData(index, (QLatin1String("<b>") + title + QLatin1String("</b>")), Qt::ToolTipRole);
     m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
     m_themesModel->setData(index, m_appearanceUi.cssTextEdit->toPlainText(), CssRole);
+    m_themesModel->setData(index, m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
     m_themesModel->setData(index, false, BundledRole);
 
@@ -367,6 +372,7 @@ void Configuration::updateTheme(const Theme &theme)
 
     m_themesModel->setData(index, theme.html, HtmlRole);
     m_themesModel->setData(index, theme.css, CssRole);
+    m_themesModel->setData(index, theme.script, ScriptRole);
     m_themesModel->setData(index, theme.background, BackgroundRole);
 
     emit clearCache();
@@ -589,16 +595,21 @@ void Configuration::richTextChanged()
     QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*<fix>.+</fix>.*((?=<).*>)?.*</placeholder>"));
     placeholder.setMinimal(true);
 
-    QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>"));
+    QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div><script type=\"text/javascript\">.*</script></body></html>"));
     page.setMinimal(true);
 
     QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
     css.setMinimal(true);
     css.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
+    QRegExp script = QRegExp(QLatin1String("<script type=\"text/javascript\">(.*)</script></body>"));
+    script.setMinimal(true);
+    script.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
+
     Theme theme;
     theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(QLatin1String(" class=\"Apple-style-span\""))).replace(page, QLatin1String("\\1")).replace(placeholder, QLatin1String("\\2\\1\\3")).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
     theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
+    theme.script = script.cap(1);
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disableUpdates();
@@ -619,7 +630,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), theme.script, QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
 
     enableUpdates();
     updateTheme(theme);

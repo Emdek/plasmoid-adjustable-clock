@@ -79,7 +79,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         QWebPage page;
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-        page.mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))), index.data(CssRole).toString()));
+        page.mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))), index.data(CssRole).toString(), index.data(ScriptRole).toString()));
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 

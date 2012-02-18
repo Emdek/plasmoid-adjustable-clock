@@ -125,7 +125,9 @@ void Applet::dataUpdated(const QString &source, const Plasma::DataEngine::Data &
     }
 
     if (force || m_features & SecondsClockFeature || second == 0) {
-        setTheme(evaluateFormat(theme().html, m_dateTime), theme().css);
+        const Theme theme = this->theme();
+
+        setTheme(evaluateFormat(theme.html, m_dateTime), theme.css, theme.script);
     }
 
     if (Plasma::ToolTipManager::self()->isVisible(this) && (force || m_features & SecondsToolTipFeature || second == 0)) {
@@ -219,6 +221,7 @@ void Applet::clockConfigChanged()
             theme.author = QString();
             theme.html = QString();
             theme.css = QString();
+            theme.script = QString();
             theme.background = true;
         }
 
@@ -248,6 +251,10 @@ void Applet::clockConfigChanged()
 
         if (reader.name().toString() == QLatin1String("css")) {
             theme.css = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("script")) {
+            theme.script = reader.readElementText();
         }
     }
 
@@ -289,9 +296,6 @@ void Applet::clockConfigChanged()
     }
 
     changeEngineTimezone(currentTimezone(), currentTimezone());
-
-    setTheme(evaluateFormat(this->theme().html, currentDateTime()), this->theme().css);
-
     updateSize();
 }
 
@@ -393,12 +397,12 @@ void Applet::toolTipHidden()
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
-void Applet::setTheme(const QString &html, const QString &css)
+void Applet::setTheme(const QString &html, const QString &css, const QString &script)
 {
     if (html != m_currentHtml) {
         m_currentHtml = html;
 
-        m_page.mainFrame()->setHtml(pageLayout(html, css));
+        m_page.mainFrame()->setHtml(pageLayout(html, css, script));
     }
 }
 
@@ -510,7 +514,7 @@ void Applet::updateSize()
 {
     const Theme theme = this->theme();
 
-    setTheme(evaluateFormat(theme.html), theme.css);
+    setTheme(evaluateFormat(theme.html), theme.css, theme.script);
 
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
@@ -544,16 +548,17 @@ void Applet::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setTheme(evaluateFormat(theme.html, m_dateTime), theme.css);
+    setTheme(evaluateFormat(theme.html, m_dateTime), theme.css, theme.script);
 }
 
 void Applet::updateTheme()
 {
     const QString html = m_currentHtml;
+    const Theme theme = this->theme();
 
     m_currentHtml = QString();
 
-    setTheme(html, theme().css);
+    setTheme(html, theme.css, theme.script);
 }
 
 void Applet::repaint()
@@ -923,9 +928,9 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
     return QString();
 }
 
-QString Applet::pageLayout(const QString &html, const QString &css, const QString &head)
+QString Applet::pageLayout(const QString &html, const QString &css, const QString &script, const QString &head)
 {
-    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
+    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div><script type=\"text/javascript\">") + script + QLatin1String("</script></body></html>"));
 }
 
 QStringList Applet::clipboardFormats() const

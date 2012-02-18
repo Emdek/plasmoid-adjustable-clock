@@ -7,7 +7,6 @@
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
 		<html><![CDATA[<div style="text-align: center;"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>]]></html>
-		<css></css>
 	</theme>
 	<theme>
 		<id>simple</id>
@@ -16,7 +15,6 @@
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
 		<html><![CDATA[<div style="text-align: center; font-size: 25px;">%h:%m</div>]]></html>
-		<css></css>
 	</theme>
 	<theme>
 		<id>verbose</id>
@@ -25,7 +23,6 @@
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
 		<html><![CDATA[<div style="text-align: center; opacity: 0.85;"><span style="font-size: 30px;">%h:%m:%s</span><br><span style="font-size: 12px;">%$w, %d.%M.%Y</span></div>]]></html>
-		<css></css>
 	</theme>
 	<theme>
 		<id>trainclock</id>

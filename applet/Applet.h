@@ -44,6 +44,7 @@ struct Theme
     QString author;
     QString html;
     QString css;
+    QString script;
     bool background;
     bool bundled;
 };
@@ -63,7 +64,7 @@ class Applet : public ClockApplet
         static QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime(), bool special = false);
         static QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         static QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
-        static QString pageLayout(const QString &html, const QString &css, const QString &heade = QString());
+        static QString pageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -73,7 +74,7 @@ class Applet : public ClockApplet
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
         void connectSource(const QString &timezone);
-        void setTheme(const QString &html, const QString &css);
+        void setTheme(const QString &html, const QString &css, const QString &script);
         static void updateEvents();
         static void updateHolidays();
         static QString extractExpression(const QString &format, int &i);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>597</width>
-    <height>253</height>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -381,6 +381,14 @@
              <widget class="KTextEdit" name="cssTextEdit">
               <property name="toolTip">
                <string>CSS</string>
+              </property>
+              <property name="acceptRichText">
+               <bool>false</bool>
+              </property>
+             </widget>
+             <widget class="KTextEdit" name="scriptTextEdit">
+              <property name="toolTip">
+               <string>JavaScript</string>
               </property>
               <property name="acceptRichText">
                <bool>false</bool>
