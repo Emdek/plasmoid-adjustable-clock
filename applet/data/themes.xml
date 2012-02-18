@@ -48,12 +48,9 @@
 	<div class="date">%!d %!$+M</div>
 </div>
 <script type="text/javascript">
-var blink = (%~1s %% 2);
-
-document.getElementById('dot_top').setAttribute('class', 'card dots' + (blink?'':' dark'));
-document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink?'':' dark'));
+blinkDots(%~1s %% 2);
 </script>]]></html>
-<css><![CDATA[.clock
+		<css><![CDATA[.clock
 {
 	width: 192px;
 	padding: 8px;
@@ -124,8 +121,12 @@ document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink
 	text-align: right;
 	line-height: 15px;
 	font-size: 15px;
-}
-]]></css>
+}]]></css>
+		<script><![CDATA[function blinkDots(blink)
+{
+	document.getElementById('dot_top').setAttribute('class', 'card dots' + (blink?'':' dark'));
+	document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink?'':' dark'));
+}]]></script>
 	</theme>
 	<theme>
 		<id>dbclock</id>
@@ -156,8 +157,7 @@ document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink
 	z-index: -1;
 	font-size: 30px;
 	opacity: 0.5;
-}
-]]></css>
+}]]></css>
 	</theme>
 	<theme>
 		<id>beclock</id>
@@ -174,21 +174,7 @@ document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink
 	</div>
 </div>
 <script type="text/javascript">
-var context = document.getElementById('canvas').getContext('2d');
-
-context.lineCap = 'round';
-context.lineWidth = 8;
-context.strokeStyle = document.body.style.color;
-
-context.beginPath();
-context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (%!m - 15) * 6)), false);
-context.globalAlpha = 0.5;
-context.stroke();
-
-context.beginPath();
-context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (%!+h - 15) * 30)), false);
-context.globalAlpha = 0.8;
-context.stroke();
+drawCircles(%!+h, %!m);
 </script>]]></html>
 		<css><![CDATA[.clock
 {
@@ -228,6 +214,24 @@ context.stroke();
 	font-size: 20px;
 	line-height: 25px;
 }]]></css>
+		<script><![CDATA[function drawCircles(hour, minute)
+{
+	var context = document.getElementById('canvas').getContext('2d');
+
+	context.lineCap = 'round';
+	context.lineWidth = 8;
+	context.strokeStyle = document.body.style.color;
+
+	context.beginPath();
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (minute - 15) * 6)), false);
+	context.globalAlpha = 0.5;
+	context.stroke();
+
+	context.beginPath();
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (hour - 15) * 30)), false);
+	context.globalAlpha = 0.8;
+	context.stroke();
+}]]></script>
 	</theme>
 	<theme>
 		<id>progress</id>
@@ -298,8 +302,7 @@ progress::-webkit-progress-value
 	text-align: right;
 	font-size: 50px;
 	opacity: 0.9;
-}
-]]></css>
+}]]></css>
 	</theme>
 	<theme>
 		<id>binary</id>
@@ -344,16 +347,7 @@ progress::-webkit-progress-value
 	</tbody>
 </table>
 <script type="text/javascript">
-var values = [%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s];
-var color = document.styleSheets[0].cssRules[0].style.getPropertyValue('color');
-
-for (var i = 0; i < values.length; ++i)
-{
-	for (var j = 1; j < 9; j *= 2)
-	{
-		document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
-	}
-}
+updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 </script>]]></html>
 		<css><![CDATA[.clock, .clock td
 {
@@ -375,8 +369,19 @@ for (var i = 0; i < values.length; ++i)
 	width: 10px;
 	height: 10px;
 	border-width: 0 0 1px 1px;
-}
-]]></css>
+}]]></css>
+		<script><![CDATA[function updateClock(values)
+{
+	var color = document.styleSheets[0].cssRules[0].style.getPropertyValue('color');
+
+	for (var i = 0; i < values.length; ++i)
+	{
+		for (var j = 1; j < 9; j *= 2)
+		{
+			document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
+		}
+	}
+}]]></script>
 	</theme>
 	<theme>
 		<id>calendar</id>
@@ -446,7 +451,6 @@ for (var i = 0; i < values.length; ++i)
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575));
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
-}
-]]></css>
+}]]></css>
 	</theme>
 </themes>

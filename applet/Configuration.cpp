@@ -595,14 +595,14 @@ void Configuration::richTextChanged()
     QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*<fix>.+</fix>.*((?=<).*>)?.*</placeholder>"));
     placeholder.setMinimal(true);
 
-    QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div><script type=\"text/javascript\">.*</script></body></html>"));
+    QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>"));
     page.setMinimal(true);
 
     QRegExp css = QRegExp(QLatin1String("<style type=\"text/css\">(.+)</style>"));
     css.setMinimal(true);
     css.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
-    QRegExp script = QRegExp(QLatin1String("<script type=\"text/javascript\">(.*)</script></body>"));
+    QRegExp script = QRegExp(QLatin1String("<script type=\"text/javascript\">(.*)</script><script"));
     script.setMinimal(true);
     script.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
