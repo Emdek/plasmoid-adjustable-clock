@@ -34,7 +34,16 @@
 namespace AdjustableClock
 {
 
-enum ClockFeature { NoFeatures = 0, SecondsClockFeature = 1, SecondsToolTipFeature = 2, HolidaysFeature = 4, EventsFeature = 8 };
+enum ClockFeature
+{
+    NoFeatures = 0,
+    SecondsClockFeature = 1,
+    SecondsToolTipFeature = 2,
+    HolidaysFeature = 4,
+    EventsFeature = 8
+};
+
+Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 
 struct Theme
 {
@@ -103,8 +112,6 @@ class Applet : public ClockApplet
         QAction *m_clipboardAction;
         QList<Theme> m_themes;
         int m_theme;
-
-        Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 };
 
 }
