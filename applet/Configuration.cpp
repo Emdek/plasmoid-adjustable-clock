@@ -609,13 +609,14 @@ void Configuration::richTextChanged()
     Theme theme;
     theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(QLatin1String(" class=\"Apple-style-span\""))).replace(page, QLatin1String("\\1")).replace(placeholder, QLatin1String("\\2\\1\\3")).replace(fontColor, QLatin1String("<span style=\"color:\\1;\">\\2</span>")).replace(fontFamily, QLatin1String("<span style=\"font-family:'\\1';\">\\2</span>"));
     theme.css = css.cap(1).remove(QLatin1String("* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + QLatin1String(PLACEHOLDERSTYLE));
-    theme.script = script.cap(1);
+    theme.script = script.cap(1).replace(placeholder, QLatin1String("\\2\\1\\3"));
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disableUpdates();
 
     m_appearanceUi.htmlTextEdit->setPlainText(theme.html);
     m_appearanceUi.cssTextEdit->setPlainText(theme.css);
+    m_appearanceUi.scriptTextEdit->setPlainText(theme.script);
 
     enableUpdates();
     updateTheme(theme);
@@ -626,6 +627,7 @@ void Configuration::sourceChanged()
     Theme theme;
     theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
     theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disableUpdates();
