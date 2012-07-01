@@ -271,7 +271,7 @@
          <item>
           <widget class="QToolButton" name="placeholdersButton">
            <property name="toolTip">
-            <string>Insert Format Component</string>
+            <string>Insert Format Component...</string>
            </property>
            <property name="popupMode">
             <enum>QToolButton::InstantPopup</enum>

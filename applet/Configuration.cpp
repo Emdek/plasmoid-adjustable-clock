@@ -128,7 +128,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         preview = m_applet->evaluateFormat(clipboardFormats.at(i), QDateTime::currentDateTime());
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
-        item->setFlags(Qt::ItemIsSelectable);
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         item->setToolTip(preview);
 
         m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
@@ -638,7 +638,7 @@ void Configuration::sourceChanged()
 
 void Configuration::itemSelectionChanged()
 {
-    QList<QTableWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsTable->selectedItems();
+    const QList<QTableWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsTable->selectedItems();
 
     m_clipboardUi.moveUpButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.first()) != 0);
     m_clipboardUi.moveDownButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.last()) != (m_clipboardUi.clipboardActionsTable->rowCount() - 1));
@@ -651,6 +651,10 @@ void Configuration::editRow(QTableWidgetItem *item)
         m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
     }
 
+    if (item->column() == 1) {
+        item = m_clipboardUi.clipboardActionsTable->item(item->row(), 0);
+    }
+
     m_editedItem = item;
 
     m_clipboardUi.clipboardActionsTable->openPersistentEditor(m_editedItem);
@@ -660,6 +664,7 @@ void Configuration::insertRow()
 {
     const int row = ((m_clipboardUi.clipboardActionsTable->rowCount() && m_clipboardUi.clipboardActionsTable->currentRow() >= 0) ? m_clipboardUi.clipboardActionsTable->currentRow() : 0);
     QTableWidgetItem *item = new QTableWidgetItem(QString());
+    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
 
     m_clipboardUi.clipboardActionsTable->insertRow(row);
     m_clipboardUi.clipboardActionsTable->setItem(row, 0, item);
@@ -667,7 +672,7 @@ void Configuration::insertRow()
     editRow(item);
 
     item = new QTableWidgetItem(QString());
-    item->setFlags(0);
+    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
     m_clipboardUi.clipboardActionsTable->setCurrentCell(row, 0);

@@ -44,7 +44,7 @@ void FormatLineEdit::insertPlaceholder(const QString &placeholder)
 void FormatLineEdit::extendContextMenu(QMenu *menu)
 {
     menu->addSeparator();
-    menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component"), this, SLOT(insertPlaceholder()));
+    menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
 }
 
 }
