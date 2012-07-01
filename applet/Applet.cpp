@@ -182,7 +182,10 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
-    new Configuration(this, parent);
+    Configuration *configuration = new Configuration(this, parent);
+
+    connect(configuration, SIGNAL(accepted()), this, SIGNAL(configNeedsSaving()));
+    connect(configuration, SIGNAL(accepted()), this, SLOT(configChanged()));
 }
 
 void Applet::clockConfigChanged()
