@@ -6,7 +6,10 @@
 		<description>Default clock theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="text-align: center;"><big>%h:%m:%s</big><br><small>%d.%M.%Y</small></div>]]></html>
+		<html><![CDATA[<div style="text-align: center;">
+	<big>%h:%m:%s</big><br>
+	<small>%d.%M.%Y</small>
+</div>]]></html>
 	</theme>
 	<theme>
 		<id>simple</id>
@@ -22,7 +25,10 @@
 		<description>More verbose clock with date</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div style="text-align: center; opacity: 0.85;"><span style="font-size: 30px;">%h:%m:%s</span><br><span style="font-size: 12px;">%$w, %d.%M.%Y</span></div>]]></html>
+		<html><![CDATA[<div style="text-align: center; opacity: 0.85;">
+	<span style="font-size: 30px;">%h:%m:%s</span><br>
+	<span style="font-size: 12px;">%$w, %d.%M.%Y</span>
+</div>]]></html>
 	</theme>
 	<theme>
 		<id>trainclock</id>
@@ -134,7 +140,9 @@ blinkDots(%~1s %% 2);
 		<description>dbClock like theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock"><div>%h:%m<span>%s</span></div></div>]]></html>
+		<html><![CDATA[<div class="clock">
+	<div>%h:%m<span>%s</span></div>
+</div>]]></html>
 		<css><![CDATA[.clock
 {
 	height: 50px;
