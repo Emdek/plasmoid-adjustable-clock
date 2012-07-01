@@ -145,7 +145,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
     parent->resize(500, 400);
 
-    connect(parent, SIGNAL(okClicked()), this, SLOT(accepted()));
+    connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(finished()), this, SLOT(disableUpdates()));
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateView(int)));
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor(int)));
@@ -173,6 +173,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
+    connect(m_clipboardUi.fastCopyFormatEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
@@ -184,7 +185,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     selectTheme(m_themesModel->index(currentTheme, 0));
 }
 
-void Configuration::accepted()
+void Configuration::save()
 {
     QStringList clipboardFormats;
 
@@ -227,16 +228,22 @@ void Configuration::accepted()
     m_applet->config().writeEntry("format", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
     m_applet->config().writeEntry("clipboardFormats", clipboardFormats);
     m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormatEdit->text());
+
+    static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
+
+    emit accepted();
+}
+
+void Configuration::modify()
+{
+    static_cast<KConfigDialog*>(parent())->enableButtonApply(true);
 }
 
 void Configuration::enableUpdates()
 {
-    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
-        connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
-        connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-        connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    }
-
+    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
@@ -264,6 +271,10 @@ void Configuration::insertPlaceholder(const QString &placeholder)
 
 void Configuration::selectTheme(const QModelIndex &index)
 {
+    if (m_appearanceUi.themesView->selectionModel()->hasSelection()) {
+        modify();
+    }
+
     disableUpdates();
 
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
@@ -332,6 +343,8 @@ void Configuration::newTheme(bool automatically)
 
     m_appearanceUi.themesView->setCurrentIndex(index);
 
+    modify();
+
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
 }
 
@@ -362,6 +375,8 @@ void Configuration::renameTheme()
     }
 
     m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), title, TitleRole);
+
+    modify();
 
     emit clearCache();
 }
@@ -568,6 +583,8 @@ void Configuration::showEditorContextMenu(const QPoint &position)
 
 void Configuration::themeChanged()
 {
+    modify();
+
     if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
         newTheme(true);
     }
@@ -659,6 +676,8 @@ void Configuration::editRow(QTableWidgetItem *item)
 
     m_editedItem = item;
 
+    modify();
+
     m_clipboardUi.clipboardActionsTable->openPersistentEditor(m_editedItem);
 }
 
@@ -678,11 +697,15 @@ void Configuration::insertRow()
 
     m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
     m_clipboardUi.clipboardActionsTable->setCurrentCell(row, 0);
+
+    modify();
 }
 
 void Configuration::deleteRow()
 {
     m_clipboardUi.clipboardActionsTable->removeRow(m_clipboardUi.clipboardActionsTable->row(m_clipboardUi.clipboardActionsTable->selectedItems().at(0)));
+
+    modify();
 }
 
 void Configuration::moveRow(bool up)
@@ -705,6 +728,8 @@ void Configuration::moveRow(bool up)
     }
 
     m_clipboardUi.clipboardActionsTable->setCurrentCell(destinationRow, 0);
+
+    modify();
 }
 
 void Configuration::moveRowUp()

@@ -3,6 +3,7 @@
 - added beClock theme, inspired by clock by Thomas Luebking;
 - added Binary Clock;
 - show placeholder category in title in rich text editor;
+- enable Apply button when configuration values are changed;
 - some other improvements and fixes.
 
 3.1 (15.02.2012):

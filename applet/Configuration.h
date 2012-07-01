@@ -51,7 +51,8 @@ class Configuration : public QObject
         int findRow(const QString &text, int role = TitleRole);
 
     protected slots:
-        void accepted();
+        void save();
+        void modify();
         void enableUpdates();
         void disableUpdates();
         void insertPlaceholder();
@@ -95,6 +96,7 @@ class Configuration : public QObject
         Ui::clipboard m_clipboardUi;
 
     signals:
+        void accepted();
         void clearCache();
 };
 
