@@ -168,6 +168,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertRow()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteRow()));
+    connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editRow()));
     connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveRowUp()));
     connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveRowDown()));
     connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
@@ -181,6 +182,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     const int currentTheme = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
 
     m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentTheme, 0));
+    m_appearanceUi.themesView->scrollTo(m_themesModel->index(currentTheme, 0));
 
     selectTheme(m_themesModel->index(currentTheme, 0));
 }
@@ -661,6 +663,7 @@ void Configuration::itemSelectionChanged()
 
     m_clipboardUi.moveUpButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.first()) != 0);
     m_clipboardUi.moveDownButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.last()) != (m_clipboardUi.clipboardActionsTable->rowCount() - 1));
+    m_clipboardUi.editButton->setEnabled(!selectedItems.isEmpty());
     m_clipboardUi.deleteButton->setEnabled(!selectedItems.isEmpty());
 }
 
@@ -668,6 +671,14 @@ void Configuration::editRow(QTableWidgetItem *item)
 {
     if (m_editedItem) {
         m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+    }
+
+    if (!item) {
+        item = m_clipboardUi.clipboardActionsTable->currentItem();
+    }
+
+    if (!item) {
+        return;
     }
 
     if (item->column() == 1) {

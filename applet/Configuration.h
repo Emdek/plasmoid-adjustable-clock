@@ -79,7 +79,7 @@ class Configuration : public QObject
         void richTextChanged();
         void sourceChanged();
         void itemSelectionChanged();
-        void editRow(QTableWidgetItem *item);
+        void editRow(QTableWidgetItem *item = NULL);
         void insertRow();
         void deleteRow();
         void moveRow(bool up);
