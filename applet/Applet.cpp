@@ -284,6 +284,7 @@ void Applet::clockConfigChanged()
         theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
         theme.html = themeConfiguration.readEntry("html", QString());
         theme.css = themeConfiguration.readEntry("css", QString());
+        theme.script = themeConfiguration.readEntry("script", QString());
         theme.background = themeConfiguration.readEntry("background", true);
         theme.bundled = false;
 
