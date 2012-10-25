@@ -461,4 +461,17 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 	box-shadow: 0 0 5px #AAA;
 }]]></css>
 	</theme>
+	<theme>
+		<id>vertical</id>
+		<title>Vertical</title>
+		<description>Clock theme for a vertical panel</description>
+		<author>Olaf Lenz</author>
+		<background>true</background>
+		<html><![CDATA[<div style="text-align: center;">
+          <big><b>%h:%m</b></big><br>
+          <small>%s</small><br>
+          <small>%!$w</small><br>
+          <small>%!d.%!M.</small>
+          </div>]]></html>
+	</theme>
 </themes>
