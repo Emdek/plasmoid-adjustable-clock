@@ -34,7 +34,7 @@
 
 #include <Plasma/Theme>
 
-#define PLACEHOLDERSTYLE " placeholder {background: rgba(252, 255, 225, 0.8); border: 1px solid #F5C800; border-radius: 0.3em;}"
+#define PLACEHOLDERSTYLE " placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;}"
 
 namespace AdjustableClock
 {
