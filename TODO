@@ -1,6 +1,6 @@
+- expose scripting API to allow scripts to fully control clock;
+- add API to display weather data;
 - try to reimplement analog clock using Plasma theme file (?);
 - option to disable placeholders substitution (?);
 - allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);
 - allow to edit placeholder (including text only ones - checking selection when button is pressed);
-- expose scripting API to allow scripts to fully control clock display (?);
-- allow to display weather data (?);
