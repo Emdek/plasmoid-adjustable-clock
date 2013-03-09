@@ -192,18 +192,14 @@ void Applet::clockConfigChanged()
 {
     const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml"));
     const QString id = config().readEntry("format", "%default%");
+    const QStringList customThemes = config().group("Formats").groupList();
 
     m_themes = loadThemes(path, true);
+    m_themes.append(loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/themes.xml")), false));
 
-    const QStringList userThemes = config().group("Formats").groupList();
-
-    if (userThemes.isEmpty()) {
-        m_themes.append(loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/themes.xml")), false));
-    } else {
-        QList<Theme> themes;
-
-        for (int i = 0; i < userThemes.count(); ++i) {
-            KConfigGroup themeConfiguration = config().group("Formats").group(userThemes.at(i));
+    if (!customThemes.isEmpty()) {
+        for (int i = 0; i < customThemes.count(); ++i) {
+            KConfigGroup themeConfiguration = config().group("Formats").group(customThemes.at(i));
             Theme theme;
             theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
             theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
@@ -213,10 +209,8 @@ void Applet::clockConfigChanged()
             theme.background = themeConfiguration.readEntry("background", true);
             theme.bundled = false;
 
-            themes.append(theme);
+            m_themes.append(theme);
         }
-
-        m_themes.append(themes);
     }
 
     if (m_themes.isEmpty()) {
