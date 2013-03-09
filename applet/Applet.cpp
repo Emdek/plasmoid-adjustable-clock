@@ -25,6 +25,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
+#include <QtCore/QFileSystemWatcher>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
@@ -89,8 +90,13 @@ void Applet::init()
     constraintsEvent(Plasma::SizeConstraint);
     configChanged();
 
+    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
+    watcher->addPath(KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml")));
+    watcher->addPath(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")));
+
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
+    connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
@@ -242,10 +248,10 @@ void Applet::clockConfigChanged()
                 break;
             }
         }
-    }
 
-    if (m_theme < 0 && m_themes.count()) {
-        m_theme = 0;
+        if (m_theme < 0) {
+            m_theme = 0;
+        }
     }
 
     changeEngineTimezone(currentTimezone(), currentTimezone());
