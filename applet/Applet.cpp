@@ -204,10 +204,16 @@ void Applet::clockConfigChanged()
     m_themes = loadThemes(path, true);
 
     QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")), false);
+    const int amount = themes.count();
 
     if (!customThemes.isEmpty()) {
         for (int i = 0; i < customThemes.count(); ++i) {
             KConfigGroup themeConfiguration = config().group("Formats").group(customThemes.at(i));
+
+            if (themeConfiguration.readEntry("html", QString()).isEmpty()) {
+                continue;
+            }
+
             Theme theme;
             theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
             theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
@@ -220,9 +226,11 @@ void Applet::clockConfigChanged()
             themes.append(theme);
         }
 
-        saveCustomThemes(themes);
-
         config().deleteGroup(QLatin1String("Formats"));
+
+        if (themes.count() != amount) {
+            saveCustomThemes(themes);
+        }
     }
 
     m_themes.append(themes);

@@ -44,8 +44,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL)
 {
-    QWidget *appearanceConfiguration = new QWidget;
-    QWidget *clipboardActions = new QWidget;
+    QWidget *appearanceConfiguration = new QWidget();
+    QWidget *clipboardActions = new QWidget();
     const QStringList clipboardFormats = m_applet->clipboardFormats();
     QString preview;
     int row;
