@@ -146,6 +146,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(clipboardActions, i18n("Clipboard actions"), QLatin1String("edit-copy"));
     parent->resize(500, 400);
 
+    connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(finished()), this, SLOT(disableUpdates()));
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateView(int)));
