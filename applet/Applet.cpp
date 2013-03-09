@@ -852,7 +852,7 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
                     break;
                 }
 
-                substitution = QLatin1String("<placeholder title=") + title + QLatin1String(" alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\"> <fix>") + substitution + QLatin1String("</fix> </placeholder>");
+                substitution = QLatin1String("<placeholder title=") + title + QLatin1String(" alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\">") + substitution + QLatin1String("</placeholder>");
             }
         }
 

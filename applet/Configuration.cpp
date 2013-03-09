@@ -34,7 +34,7 @@
 
 #include <Plasma/Theme>
 
-#define PLACEHOLDERSTYLE " placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;}"
+#define PLACEHOLDERSTYLE " placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}"
 
 namespace AdjustableClock
 {
@@ -608,7 +608,7 @@ void Configuration::richTextChanged()
     QRegExp fontFamily = QRegExp(QLatin1String("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>"));
     fontFamily.setMinimal(true);
 
-    QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*<fix>.+</fix>.*((?=<).*>)?.*</placeholder>"));
+    QRegExp placeholder = QRegExp(QLatin1String("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*((?=<).*>)?.*</placeholder>"));
     placeholder.setMinimal(true);
 
     QRegExp page = QRegExp(QLatin1String("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>"));
