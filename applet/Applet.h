@@ -66,7 +66,7 @@ class Applet : public ClockApplet
         Applet(QObject *parent, const QVariantList &args);
 
         void init();
-        void setCustomThemes(const QList<Theme> &themes);
+        void saveCustomThemes(const QList<Theme> &themes);
         QDateTime currentDateTime() const;
         QStringList clipboardFormats() const;
         QList<Theme> themes() const;

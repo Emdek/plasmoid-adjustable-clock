@@ -208,6 +208,7 @@ void Configuration::save()
 
         Theme theme;
         theme.bundled = false;
+        theme.id = index.data(IdRole).toString();
         theme.title = index.data(TitleRole).toString();
         theme.html = index.data(HtmlRole).toString();
         theme.css = index.data(CssRole).toString();
@@ -217,7 +218,7 @@ void Configuration::save()
         themes.append(theme);
     }
 
-    m_applet->setCustomThemes(themes);
+    m_applet->saveCustomThemes(themes);
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
         clipboardFormats.append(m_clipboardUi.clipboardActionsTable->item(i, 0)->text());

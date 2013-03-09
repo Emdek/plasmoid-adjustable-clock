@@ -220,7 +220,7 @@ void Applet::clockConfigChanged()
             themes.append(theme);
         }
 
-        setCustomThemes(themes);
+        saveCustomThemes(themes);
 
         config().deleteGroup(QLatin1String("Formats"));
     }
@@ -525,7 +525,7 @@ void Applet::repaint()
     update();
 }
 
-void Applet::setCustomThemes(const QList<Theme> &themes)
+void Applet::saveCustomThemes(const QList<Theme> &themes)
 {
     QFile file(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")));
     file.open(QFile::WriteOnly | QFile::Text);
@@ -547,13 +547,13 @@ void Applet::setCustomThemes(const QList<Theme> &themes)
         stream.writeCharacters(themes.at(i).background?QLatin1String("true"):QLatin1String("false"));
         stream.writeEndElement();
         stream.writeStartElement(QLatin1String("html"));
-        stream.writeCharacters(themes.at(i).html);
+        stream.writeCDATA(themes.at(i).html);
         stream.writeEndElement();
         stream.writeStartElement(QLatin1String("css"));
-        stream.writeCharacters(themes.at(i).css);
+        stream.writeCDATA(themes.at(i).css);
         stream.writeEndElement();
         stream.writeStartElement(QLatin1String("script"));
-        stream.writeCharacters(themes.at(i).script);
+        stream.writeCDATA(themes.at(i).script);
         stream.writeEndElement();
         stream.writeEndElement();
     }
@@ -1119,7 +1119,11 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
         }
 
         if (reader.name().toString() == QLatin1String("id")) {
-            theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
+            if (bundled) {
+                theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
+            } else {
+                theme.id = reader.readElementText();
+           }
         }
 
         if (reader.name().toString() == QLatin1String("title")) {
