@@ -199,7 +199,7 @@ void Applet::clockConfigChanged()
 
     QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")), false);
 
-    if (customThemes.isEmpty()) {
+    if (!customThemes.isEmpty()) {
         for (int i = 0; i < customThemes.count(); ++i) {
             KConfigGroup themeConfiguration = config().group("Formats").group(customThemes.at(i));
             Theme theme;
