@@ -515,6 +515,8 @@ void Applet::updateTheme()
     const QString html = m_currentHtml;
     const Theme theme = this->theme();
 
+    m_page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
+
     m_currentHtml = QString();
 
     setTheme(html, theme.css, theme.script);
@@ -1034,7 +1036,7 @@ QString Applet::evaluatePlaceholder(ushort placeholder, int alternativeForm, boo
 
 QString Applet::pageLayout(const QString &html, const QString &css, const QString &script, const QString &head)
 {
-    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {font-family: sans, '") + Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family() + QLatin1String("'; color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style><script type=\"text/javascript\">") + script + QLatin1String("</script>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
+    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style><script type=\"text/javascript\">") + script + QLatin1String("</script>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
 }
 
 QStringList Applet::clipboardFormats() const
