@@ -192,78 +192,35 @@ void Applet::clockConfigChanged()
 {
     const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml"));
     const QString id = config().readEntry("format", "%default%");
-    QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
 
-    m_themes.clear();
-    m_theme = -1;
+    m_themes = loadThemes(path, true);
 
-    QXmlStreamReader reader(&file);
-    Theme theme;
-    theme.bundled = true;
+    const QStringList userThemes = config().group("Formats").groupList();
 
-    while (!reader.atEnd()) {
-        reader.readNext();
+    if (userThemes.isEmpty()) {
+        m_themes.append(loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/themes.xml")), false));
+    } else {
+        QList<Theme> themes;
 
-        if (!reader.isStartElement()) {
-            if (reader.name().toString() == QLatin1String("theme")) {
-                m_themes.append(theme);
+        for (int i = 0; i < userThemes.count(); ++i) {
+            KConfigGroup themeConfiguration = config().group("Formats").group(userThemes.at(i));
+            Theme theme;
+            theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
+            theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
+            theme.html = themeConfiguration.readEntry("html", QString());
+            theme.css = themeConfiguration.readEntry("css", QString());
+            theme.script = themeConfiguration.readEntry("script", QString());
+            theme.background = themeConfiguration.readEntry("background", true);
+            theme.bundled = false;
 
-                if (id == theme.id) {
-                    m_theme = (m_themes.count() - 1);
-                }
-            }
-
-            continue;
+            themes.append(theme);
         }
 
-        if (reader.name().toString() == QLatin1String("theme")) {
-            theme.id = QString();
-            theme.title = QString();
-            theme.description = QString();
-            theme.author = QString();
-            theme.html = QString();
-            theme.css = QString();
-            theme.script = QString();
-            theme.background = true;
-        }
-
-        if (reader.name().toString() == QLatin1String("id")) {
-            theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
-        }
-
-        if (reader.name().toString() == QLatin1String("title")) {
-            theme.title = i18n(reader.readElementText().toUtf8().data());
-        }
-
-        if (reader.name().toString() == QLatin1String("description")) {
-            theme.description = i18n(reader.readElementText().toUtf8().data());
-        }
-
-        if (reader.name().toString() == QLatin1String("author")) {
-            theme.author = reader.readElementText();
-        }
-
-        if (reader.name().toString() == QLatin1String("background")) {
-            theme.background = (reader.readElementText().toLower() == QLatin1String("true"));
-        }
-
-        if (reader.name().toString() == QLatin1String("html")) {
-            theme.html = reader.readElementText();
-        }
-
-        if (reader.name().toString() == QLatin1String("css")) {
-            theme.css = reader.readElementText();
-        }
-
-        if (reader.name().toString() == QLatin1String("script")) {
-            theme.script = reader.readElementText();
-        }
+        m_themes.append(themes);
     }
 
-    file.close();
-
     if (m_themes.isEmpty()) {
+        Theme theme;
         theme.id = QLatin1String("%default%");
         theme.title = i18n("Error");
         theme.html = i18n("Missing or invalid data file: %1.").arg(path);
@@ -273,25 +230,15 @@ void Applet::clockConfigChanged()
         m_theme = 0;
 
         m_themes.append(theme);
-    }
+    } else {
+        m_theme = -1;
 
-    const QStringList userThemes = config().group("Formats").groupList();
+        for (int i = 0; i < m_themes.count(); ++i) {
+            if (id == m_themes.at(i).id) {
+                m_theme = i;
 
-    for (int i = 0; i < userThemes.count(); ++i) {
-        KConfigGroup themeConfiguration = config().group("Formats").group(userThemes.at(i));
-        Theme theme;
-        theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
-        theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
-        theme.html = themeConfiguration.readEntry("html", QString());
-        theme.css = themeConfiguration.readEntry("css", QString());
-        theme.script = themeConfiguration.readEntry("script", QString());
-        theme.background = themeConfiguration.readEntry("background", true);
-        theme.bundled = false;
-
-        m_themes.append(theme);
-
-        if (id == theme.id) {
-            m_theme = (m_themes.count() - 1);
+                break;
+            }
         }
     }
 
@@ -1090,6 +1037,76 @@ QPair<QString, QString> Applet::toolTipFormat() const
     toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%!Z%E"));
 
     return toolTipFormat;
+}
+
+QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
+{
+    QList<Theme> themes;
+    QFile file(path);
+    file.open(QFile::ReadOnly | QFile::Text);
+
+    QXmlStreamReader reader(&file);
+    Theme theme;
+    theme.bundled = bundled;
+
+    while (!reader.atEnd()) {
+        reader.readNext();
+
+        if (!reader.isStartElement()) {
+            if (reader.name().toString() == QLatin1String("theme")) {
+                themes.append(theme);
+            }
+
+            continue;
+        }
+
+        if (reader.name().toString() == QLatin1String("theme")) {
+            theme.id = QString();
+            theme.title = QString();
+            theme.description = QString();
+            theme.author = QString();
+            theme.html = QString();
+            theme.css = QString();
+            theme.script = QString();
+            theme.background = true;
+        }
+
+        if (reader.name().toString() == QLatin1String("id")) {
+            theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
+        }
+
+        if (reader.name().toString() == QLatin1String("title")) {
+            theme.title = i18n(reader.readElementText().toUtf8().data());
+        }
+
+        if (reader.name().toString() == QLatin1String("description")) {
+            theme.description = i18n(reader.readElementText().toUtf8().data());
+        }
+
+        if (reader.name().toString() == QLatin1String("author")) {
+            theme.author = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("background")) {
+            theme.background = (reader.readElementText().toLower() == QLatin1String("true"));
+        }
+
+        if (reader.name().toString() == QLatin1String("html")) {
+            theme.html = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("css")) {
+            theme.css = reader.readElementText();
+        }
+
+        if (reader.name().toString() == QLatin1String("script")) {
+            theme.script = reader.readElementText();
+        }
+    }
+
+    file.close();
+
+    return themes;
 }
 
 QList<QAction*> Applet::contextualActions()

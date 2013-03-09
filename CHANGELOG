@@ -5,6 +5,7 @@
 - show placeholder category in title in rich text editor;
 - enable Apply button when configuration values are changed;
 - added Edit button to trigger clipboard action editor;
+- moved custom themes to separate, shared data file;
 - some other improvements and fixes.
 
 3.1 (15.02.2012):

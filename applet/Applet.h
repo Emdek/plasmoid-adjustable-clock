@@ -90,6 +90,7 @@ class Applet : public ClockApplet
         static QString extractNumber(const QString &format, int &i);
         static QString formatNumber(int number, int length);
         QPair<QString, QString> toolTipFormat() const;
+        QList<Theme> loadThemes(const QString &path, bool bundled) const;
         QList<QAction*> contextualActions();
 
     protected slots:
