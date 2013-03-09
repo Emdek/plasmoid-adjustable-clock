@@ -24,7 +24,6 @@
 #include "FormatDelegate.h"
 #include "FormatLineEdit.h"
 
-#include <QtCore/QXmlStreamWriter>
 #include <QtWebKit/QWebFrame>
 
 #include <KMenu>
@@ -32,7 +31,6 @@
 #include <KMessageBox>
 #include <KColorDialog>
 #include <KInputDialog>
-#include <KStandardDirs>
 
 #include <Plasma/Theme>
 
@@ -199,13 +197,7 @@ void Configuration::save()
         m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
     }
 
-    QFile file(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/themes.xml")));
-    file.open(QFile::WriteOnly | QFile::Text);
-
-    QXmlStreamWriter stream;
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-    stream.writeStartElement(QLatin1String("themes"));
+    QList<Theme> themes;
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
         QModelIndex index = m_themesModel->index(i, 0);
@@ -214,32 +206,18 @@ void Configuration::save()
             continue;
         }
 
-        stream.writeStartElement(QLatin1String("theme"));
-        stream.writeStartElement(QLatin1String("id"));
-        stream.writeCharacters(index.data(IdRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("title"));
-        stream.writeCharacters(index.data(TitleRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("background"));
-        stream.writeCharacters(index.data(BackgroundRole).toBool()?QLatin1String("true"):QLatin1String("false"));
-        stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("html"));
-        stream.writeCharacters(index.data(HtmlRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("css"));
-        stream.writeCharacters(index.data(CssRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("script"));
-        stream.writeCharacters(index.data(ScriptRole).toString());
-        stream.writeEndElement();
-        stream.writeEndElement();
+        Theme theme;
+        theme.bundled = false;
+        theme.title = index.data(TitleRole).toString();
+        theme.html = index.data(HtmlRole).toString();
+        theme.css = index.data(CssRole).toString();
+        theme.script = index.data(ScriptRole).toString();
+        theme.background = index.data(BackgroundRole).toBool();
+
+        themes.append(theme);
     }
 
-    stream.writeEndElement();
-    stream.writeEndDocument();
-
-    file.close();
+    m_applet->setCustomThemes(themes);
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
         clipboardFormats.append(m_clipboardUi.clipboardActionsTable->item(i, 0)->text());

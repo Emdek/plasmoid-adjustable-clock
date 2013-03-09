@@ -23,11 +23,12 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QRegExp>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamWriter>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
-#include <QtXml/QXmlStreamReader>
 
 #include <KMenu>
 #include <KLocale>
@@ -195,9 +196,10 @@ void Applet::clockConfigChanged()
     const QStringList customThemes = config().group("Formats").groupList();
 
     m_themes = loadThemes(path, true);
-    m_themes.append(loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/themes.xml")), false));
 
-    if (!customThemes.isEmpty()) {
+    QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")), false);
+
+    if (customThemes.isEmpty()) {
         for (int i = 0; i < customThemes.count(); ++i) {
             KConfigGroup themeConfiguration = config().group("Formats").group(customThemes.at(i));
             Theme theme;
@@ -209,9 +211,15 @@ void Applet::clockConfigChanged()
             theme.background = themeConfiguration.readEntry("background", true);
             theme.bundled = false;
 
-            m_themes.append(theme);
+            themes.append(theme);
         }
+
+        setCustomThemes(themes);
+
+        config().deleteGroup(QLatin1String("Formats"));
     }
+
+    m_themes.append(themes);
 
     if (m_themes.isEmpty()) {
         Theme theme;
@@ -509,6 +517,45 @@ void Applet::updateTheme()
 void Applet::repaint()
 {
     update();
+}
+
+void Applet::setCustomThemes(const QList<Theme> &themes)
+{
+    QFile file(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")));
+    file.open(QFile::WriteOnly | QFile::Text);
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+    stream.writeStartElement(QLatin1String("themes"));
+
+    for (int i = 0; i < themes.count(); ++i) {
+        stream.writeStartElement(QLatin1String("theme"));
+        stream.writeStartElement(QLatin1String("id"));
+        stream.writeCharacters(themes.at(i).id);
+        stream.writeEndElement();
+        stream.writeStartElement(QLatin1String("title"));
+        stream.writeCharacters(themes.at(i).title);
+        stream.writeEndElement();
+        stream.writeStartElement(QLatin1String("background"));
+        stream.writeCharacters(themes.at(i).background?QLatin1String("true"):QLatin1String("false"));
+        stream.writeEndElement();
+        stream.writeStartElement(QLatin1String("html"));
+        stream.writeCharacters(themes.at(i).html);
+        stream.writeEndElement();
+        stream.writeStartElement(QLatin1String("css"));
+        stream.writeCharacters(themes.at(i).css);
+        stream.writeEndElement();
+        stream.writeStartElement(QLatin1String("script"));
+        stream.writeCharacters(themes.at(i).script);
+        stream.writeEndElement();
+        stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
+    stream.writeEndDocument();
+
+    file.close();
 }
 
 QDateTime Applet::currentDateTime() const
