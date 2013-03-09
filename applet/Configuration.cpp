@@ -22,7 +22,6 @@
 #include "PlaceholderDialog.h"
 #include "PreviewDelegate.h"
 #include "FormatDelegate.h"
-#include "FormatLineEdit.h"
 
 #include <QtWebKit/QWebFrame>
 
@@ -115,7 +114,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
-    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(this));
+    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(m_applet, this));
     m_clipboardUi.clipboardActionsTable->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
     m_clipboardUi.fastCopyFormatEdit->setApplet(m_applet);
