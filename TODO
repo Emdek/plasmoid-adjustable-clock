@@ -2,4 +2,3 @@
 - add API to display weather data;
 - try to reimplement analog clock using Plasma theme file (?);
 - allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);
-- allow to edit placeholder (including text only ones - checking selection when button is pressed);
