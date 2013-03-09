@@ -26,14 +26,17 @@
 namespace AdjustableClock
 {
 
-FormatLineEdit::FormatLineEdit(QWidget *parent) : KLineEdit(parent)
+FormatLineEdit::FormatLineEdit(QWidget *parent) : KLineEdit(parent),
+    m_applet(NULL)
 {
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
 }
 
 void FormatLineEdit::insertPlaceholder()
 {
-    connect(new PlaceholderDialog(this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    if (m_applet) {
+        connect(new PlaceholderDialog(m_applet, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    }
 }
 
 void FormatLineEdit::insertPlaceholder(const QString &placeholder)
@@ -45,6 +48,11 @@ void FormatLineEdit::extendContextMenu(QMenu *menu)
 {
     menu->addSeparator();
     menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
+}
+
+void FormatLineEdit::setApplet(Applet *applet)
+{
+    m_applet = applet;
 }
 
 }

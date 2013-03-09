@@ -27,13 +27,15 @@
 
 namespace AdjustableClock
 {
+	
+class Applet;
 
 class PlaceholderDialog : public KDialog
 {
     Q_OBJECT
 
     public:
-        PlaceholderDialog(QWidget *parent);
+        PlaceholderDialog(Applet *applet, QWidget *parent);
 
     protected:
         QString placeholder();
@@ -48,6 +50,7 @@ class PlaceholderDialog : public KDialog
         void setAlternativeForm(bool alternativeForm);
 
     private:
+        Applet *m_applet;
         Ui::placeholder m_placeholderUi;
 
     signals:

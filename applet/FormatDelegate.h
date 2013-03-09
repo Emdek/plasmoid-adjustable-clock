@@ -26,8 +26,6 @@
 namespace AdjustableClock
 {
 
-class Applet;
-
 class FormatDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

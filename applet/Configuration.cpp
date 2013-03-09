@@ -71,7 +71,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_appearanceUi.themesView);
+    PreviewDelegate *delegate = new PreviewDelegate(m_applet, m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
@@ -118,6 +118,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(this));
     m_clipboardUi.clipboardActionsTable->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
+    m_clipboardUi.fastCopyFormatEdit->setApplet(m_applet);
 
     for (int i = 0; i < clipboardFormats.count(); ++i) {
         row = m_clipboardUi.clipboardActionsTable->rowCount();
@@ -256,7 +257,7 @@ void Configuration::disableUpdates()
 
 void Configuration::insertPlaceholder()
 {
-    connect(new PlaceholderDialog(m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    connect(new PlaceholderDialog(m_applet, m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
 }
 
 void Configuration::insertPlaceholder(const QString &placeholder)
@@ -264,7 +265,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + Applet::evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("')"));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + m_applet->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("')"));
     }
 }
 
@@ -648,7 +649,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(Applet::evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), theme.script, QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(m_applet->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), theme.script, QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
 
     enableUpdates();
     updateTheme(theme);

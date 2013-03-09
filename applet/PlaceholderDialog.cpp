@@ -24,7 +24,8 @@
 namespace AdjustableClock
 {
 
-PlaceholderDialog::PlaceholderDialog(QWidget *parent) : KDialog(parent)
+PlaceholderDialog::PlaceholderDialog(Applet *applet, QWidget *parent) : KDialog(parent),
+    m_applet(applet)
 {
     m_placeholderUi.setupUi(mainWidget());
 
@@ -74,7 +75,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(Applet::evaluateFormat(placeholder(), QDateTime::currentDateTime()));
+    m_placeholderUi.previewLabel->setText(m_applet->evaluateFormat(placeholder(), QDateTime::currentDateTime()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)

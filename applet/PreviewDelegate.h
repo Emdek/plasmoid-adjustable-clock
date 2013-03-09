@@ -26,12 +26,14 @@
 namespace AdjustableClock
 {
 
+class Applet;
+
 class PreviewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
     public:
-        PreviewDelegate(QObject *parent = NULL);
+        PreviewDelegate(Applet *applet, QObject *parent = NULL);
         ~PreviewDelegate();
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -39,6 +41,9 @@ class PreviewDelegate : public QStyledItemDelegate
 
     public slots:
         void clear();
+
+    private:
+        Applet *m_applet;
 };
 
 }
