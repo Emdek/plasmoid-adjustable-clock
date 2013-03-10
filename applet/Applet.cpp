@@ -23,7 +23,6 @@
 #include "Configuration.h"
 
 #include <QtCore/QFile>
-#include <QtCore/QRegExp>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
 #include <QtCore/QFileSystemWatcher>
