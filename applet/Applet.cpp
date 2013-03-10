@@ -388,6 +388,31 @@ QString Applet::getPageLayout(const QString &html, const QString &css, const QSt
     return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style><script type=\"text/javascript\">") + script + QLatin1String("</script>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
 }
 
+Theme Applet::getTheme() const
+{
+    if (m_theme >= 0 && m_theme < m_themes.count()) {
+        return m_themes[m_theme];
+    }
+
+    Theme theme;
+    theme.id = QLatin1String("%default%");
+    theme.title = i18n("Error");
+    theme.html = i18n("Invalid theme identifier.");
+    theme.background = true;
+    theme.bundled = false;
+
+    return theme;
+}
+
+QPair<QString, QString> Applet::getToolTipFormat() const
+{
+    QPair<QString, QString> toolTipFormat;
+    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>"));
+    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%!Z%E"));
+
+    return toolTipFormat;
+}
+
 QStringList Applet::getClipboardFormats() const
 {
     QStringList clipboardFormats;
@@ -410,31 +435,6 @@ QStringList Applet::getClipboardFormats() const
 QList<Theme> Applet::getThemes() const
 {
     return m_themes;
-}
-
-QPair<QString, QString> Applet::getToolTipFormat() const
-{
-    QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>"));
-    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%!Z%E"));
-
-    return toolTipFormat;
-}
-
-Theme Applet::getTheme() const
-{
-    if (m_theme >= 0 && m_theme < m_themes.count()) {
-        return m_themes[m_theme];
-    }
-
-    Theme theme;
-    theme.id = QLatin1String("%default%");
-    theme.title = i18n("Error");
-    theme.html = i18n("Invalid theme identifier.");
-    theme.background = true;
-    theme.bundled = false;
-
-    return theme;
 }
 
 QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const

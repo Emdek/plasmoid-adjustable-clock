@@ -58,11 +58,11 @@ class Applet : public ClockApplet
         void saveCustomThemes(const QList<Theme> &getThemes);
         void setTheme(const QString &html, const QString &css, const QString &script);
         Clock* getClock() const;
+        static QString getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
+        Theme getTheme() const;
+        QPair<QString, QString> getToolTipFormat() const;
         QStringList getClipboardFormats() const;
         QList<Theme> getThemes() const;
-        QPair<QString, QString> getToolTipFormat() const;
-        Theme getTheme() const;
-        static QString getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
 
     public slots:
         void updateToolTipContent();
