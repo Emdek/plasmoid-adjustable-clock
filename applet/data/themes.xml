@@ -192,13 +192,14 @@ blinkDots(%~1s %% 2);
 	</div>
 </div>
 <script type="text/javascript">
-updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
+updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m]);
 
 document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidden');
 </script>]]></html>
 		<css><![CDATA[.clock
 {
-	width: 170px;
+	margin:1px 3px;
+	white-space: nowrap;
 }
 
 .digit
