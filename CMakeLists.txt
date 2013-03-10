@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8)
 add_subdirectory(applet)
 
 set(MAJOR_VERSION "3")
-set(MINOR_VERSION "2")
+set(MINOR_VERSION "3")
 set(PATCH_VERSION "0")
 
 if (EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
