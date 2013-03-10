@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_adjustableclock\n"
 "Report-Msgid-Bugs-To: emdeck@gmail.com\n"
-"POT-Creation-Date: 2012-02-17 12:48+0100\n"
+"POT-Creation-Date: 2013-03-10 11:09+0100\n"
 "PO-Revision-Date: 2009-04-14 03:55+0300\n"
 "Last-Translator: Marek Laane <bald@smail.ee>\n"
 "Language-Team: Estonian <kde-et@linux.ee>\n"
@@ -18,52 +18,135 @@ msgstr ""
 "X-Generator: Lokalize 0.3\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: Applet.cpp:254 Applet.cpp:950
-msgid "Error"
-msgstr ""
-
-#: Applet.cpp:255
-msgid "Missing or invalid data file: %1."
-msgstr ""
-
-#: Applet.cpp:269 Applet.cpp:270
+#: Applet.cpp:202 Applet.cpp:203
 msgid "Custom"
 msgstr ""
 
-#: Applet.cpp:345
+#: Applet.cpp:225 Applet.cpp:1066
+msgid "Error"
+msgstr ""
+
+#: Applet.cpp:226
+msgid "Missing or invalid data file: %1."
+msgstr ""
+
+#: Applet.cpp:304
 msgid "UTC"
 msgstr ""
 
-#: Applet.cpp:452
+#: Applet.cpp:409
 msgid "Event"
 msgstr ""
 
-#: Applet.cpp:452
+#: Applet.cpp:409
 msgid "To do"
 msgstr ""
 
-#: Applet.cpp:456
+#: Applet.cpp:413
 msgid "All day"
 msgstr ""
 
-#: Applet.cpp:755 Applet.cpp:853
+#: Applet.cpp:745 PlaceholderDialog.cpp:35
+msgid "Second"
+msgstr ""
+
+#: Applet.cpp:750 PlaceholderDialog.cpp:36
+msgid "Minute"
+msgstr ""
+
+#: Applet.cpp:755 PlaceholderDialog.cpp:37
+msgid "Hour"
+msgstr ""
+
+#: Applet.cpp:760 PlaceholderDialog.cpp:38
+msgid "The pm or am string"
+msgstr ""
+
+#: Applet.cpp:765 PlaceholderDialog.cpp:39
+#, fuzzy
+msgid "Day of the month"
+msgstr "Kuupäev ja aeg vorming:"
+
+#: Applet.cpp:770 PlaceholderDialog.cpp:40
+msgid "Weekday"
+msgstr ""
+
+#: Applet.cpp:775 PlaceholderDialog.cpp:41
+#, fuzzy
+msgid "Day of the year"
+msgstr "Kuupäev ja aeg vorming:"
+
+#: Applet.cpp:780 PlaceholderDialog.cpp:42
+msgid "Week"
+msgstr ""
+
+#: Applet.cpp:785 PlaceholderDialog.cpp:43
+msgid "Month"
+msgstr ""
+
+#: Applet.cpp:790 PlaceholderDialog.cpp:44
+msgid "Year"
+msgstr ""
+
+#: Applet.cpp:795 PlaceholderDialog.cpp:45
+msgid "UNIX timestamp"
+msgstr ""
+
+#: Applet.cpp:800 PlaceholderDialog.cpp:46
+msgid "Time"
+msgstr ""
+
+#: Applet.cpp:805 PlaceholderDialog.cpp:47
+msgid "Date"
+msgstr ""
+
+#: Applet.cpp:810 PlaceholderDialog.cpp:48
+#, fuzzy
+msgid "Date and time"
+msgstr "Kuupäev ja aeg vorming:"
+
+#: Applet.cpp:815 PlaceholderDialog.cpp:49
+msgid "Timezone"
+msgstr ""
+
+#: Applet.cpp:820 PlaceholderDialog.cpp:50
+msgid "Timezones list"
+msgstr ""
+
+#: Applet.cpp:825 PlaceholderDialog.cpp:51
+msgid "Holidays list"
+msgstr ""
+
+#: Applet.cpp:830 PlaceholderDialog.cpp:52
+msgid "Events list"
+msgstr ""
+
+#: Applet.cpp:835 PlaceholderDialog.cpp:53
+msgid "Sunrise time"
+msgstr ""
+
+#: Applet.cpp:840 PlaceholderDialog.cpp:54
+msgid "Sunset time"
+msgstr ""
+
+#: Applet.cpp:871 Applet.cpp:969
 msgid "pm"
 msgstr "p.l."
 
-#: Applet.cpp:755 Applet.cpp:853
+#: Applet.cpp:871 Applet.cpp:969
 msgid "am"
 msgstr "e.l."
 
-#: Applet.cpp:951
+#: Applet.cpp:1067
 #, fuzzy
 msgid "Invalid theme identifier."
 msgstr "Vorming"
 
-#: Applet.cpp:972 Applet.cpp:981
+#: Applet.cpp:1162 Applet.cpp:1171
 msgid "C&opy to Clipboard"
 msgstr "K&opeeri lõikepuhvrisse"
 
-#: Configuration.cpp:68 PreviewDelegate.cpp:109
+#: Configuration.cpp:68 PreviewDelegate.cpp:110
 msgid "\"%1\" by %2"
 msgstr ""
 
@@ -91,458 +174,122 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:87
-#. i18n: ectx: property (toolTip), widget (QToolButton, boldButton)
-#: Configuration.cpp:94 locale/rc.cpp:21 rc.cpp:21
+#: Configuration.cpp:94
 msgid "Bold"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:100
-#. i18n: ectx: property (toolTip), widget (QToolButton, italicButton)
-#: Configuration.cpp:96 locale/rc.cpp:24 rc.cpp:24
+#: Configuration.cpp:96
 msgid "Italic"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:113
-#. i18n: ectx: property (toolTip), widget (QToolButton, underlineButton)
-#: Configuration.cpp:98 locale/rc.cpp:27 rc.cpp:27
+#: Configuration.cpp:98
 msgid "Underline"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:130
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyLeftButton)
-#: Configuration.cpp:100 locale/rc.cpp:30 rc.cpp:30
+#: Configuration.cpp:100
 msgid "Justify Left"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:143
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyCenterButton)
-#: Configuration.cpp:102 locale/rc.cpp:33 rc.cpp:33
+#: Configuration.cpp:102
 msgid "Justify Center"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:156
-#. i18n: ectx: property (toolTip), widget (QToolButton, justifyRightButton)
-#: Configuration.cpp:104 locale/rc.cpp:36 rc.cpp:36
+#: Configuration.cpp:104
 msgid "Justify Right"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:14
-#. i18n: ectx: property (windowTitle), widget (QWidget, appearance)
-#: Configuration.cpp:143 locale/rc.cpp:3 rc.cpp:3
+#: Configuration.cpp:144
 msgid "Appearance"
 msgstr "Välimus"
 
-#. i18n: file: ui/clipboard.ui:14
-#. i18n: ectx: property (windowTitle), widget (QWidget, clipboard)
-#: Configuration.cpp:144 locale/rc.cpp:70 rc.cpp:70
+#: Configuration.cpp:145
 msgid "Clipboard actions"
 msgstr "Lõikepuhver toimingud"
 
-#: Configuration.cpp:290 Configuration.cpp:346
+#: Configuration.cpp:306 Configuration.cpp:365
 msgid "Add new theme"
 msgstr ""
 
-#: Configuration.cpp:290 Configuration.cpp:346
+#: Configuration.cpp:306 Configuration.cpp:365
 #, fuzzy
 msgid "Theme name:"
 msgstr "Vorming"
 
-#: Configuration.cpp:298 Configuration.cpp:353
+#: Configuration.cpp:314 Configuration.cpp:372
 msgid "A theme with this name already exists."
 msgstr ""
 
-#: Configuration.cpp:304
+#: Configuration.cpp:320
 #, fuzzy
 msgid "Invalid theme name."
 msgstr "Vorming"
 
-#: Configuration.cpp:334
+#: Configuration.cpp:353
 msgid "Do you really want to delete theme \"%1\"?"
 msgstr ""
 
-#: Configuration.cpp:334
+#: Configuration.cpp:353
 #, fuzzy
 msgid "Delete Theme"
 msgstr "Kustuta"
 
-#: Configuration.cpp:538
+#: Configuration.cpp:560
 msgid "Zoom: %1%"
 msgstr ""
 
-#. i18n: file: ui/appearance.ui:274
-#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
-#. i18n: file: ui/placeholder.ui:14
-#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
-#. i18n: file: ui/appearance.ui:274
-#. i18n: ectx: property (toolTip), widget (QToolButton, placeholdersButton)
-#. i18n: file: ui/placeholder.ui:14
-#. i18n: ectx: property (windowTitle), widget (QWidget, placeholder)
-#: FormatLineEdit.cpp:47 locale/rc.cpp:51 locale/rc.cpp:97 rc.cpp:51 rc.cpp:97
-msgid "Insert Format Component"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:24
-#. i18n: ectx: attribute (title), widget (QWidget, themeTab)
-#: locale/rc.cpp:6 rc.cpp:6
-msgid "Theme"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:55
-#. i18n: ectx: property (text), widget (QPushButton, newButton)
-#: locale/rc.cpp:9 rc.cpp:9
-msgid "New..."
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:62
-#. i18n: ectx: property (text), widget (QPushButton, renameButton)
-#: locale/rc.cpp:12 rc.cpp:12
-msgid "Rename..."
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:69
-#. i18n: ectx: property (text), widget (QPushButton, deleteButton)
-#: locale/rc.cpp:15 rc.cpp:15
+#: FormatLineEdit.cpp:50
 #, fuzzy
-msgid "Delete..."
-msgstr "Kustuta"
-
-#. i18n: file: ui/appearance.ui:79
-#. i18n: ectx: attribute (title), widget (QWidget, detailsTab)
-#: locale/rc.cpp:18 rc.cpp:18
-msgid "Details"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:176
-#. i18n: ectx: property (toolTip), widget (QToolButton, colorButton)
-#: locale/rc.cpp:39 rc.cpp:39
-msgid "Font Color"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:186
-#. i18n: ectx: property (toolTip), widget (QToolButton, backgroundButton)
-#: locale/rc.cpp:42 rc.cpp:42
-msgid "Use Standard Background"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:215
-#. i18n: ectx: property (toolTip), widget (KComboBox, fontSizeComboBox)
-#: locale/rc.cpp:45 rc.cpp:45
-msgid "Font Size"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:260
-#. i18n: ectx: property (toolTip), widget (QFontComboBox, fontFamilyComboBox)
-#: locale/rc.cpp:48 rc.cpp:48
-msgid "Font Family"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:293
-#. i18n: ectx: attribute (title), widget (QWidget, richTextTab)
-#: locale/rc.cpp:54 rc.cpp:54
-msgid "Rich text"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:337
-#. i18n: ectx: property (toolTip), widget (QSlider, zoomSlider)
-#: locale/rc.cpp:58 rc.cpp:58
-#, no-c-format
-msgid "Zoom: 100%"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:365
-#. i18n: ectx: attribute (title), widget (QWidget, sourceTab)
-#: locale/rc.cpp:61 rc.cpp:61
-msgid "Source"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:375
-#. i18n: ectx: property (toolTip), widget (KTextEdit, htmlTextEdit)
-#: locale/rc.cpp:64 rc.cpp:64
-msgid "HTML"
-msgstr ""
-
-#. i18n: file: ui/appearance.ui:383
-#. i18n: ectx: property (toolTip), widget (KTextEdit, cssTextEdit)
-#: locale/rc.cpp:67 rc.cpp:67
-msgid "CSS"
-msgstr ""
-
-#. i18n: file: ui/clipboard.ui:41
-#. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
-#: locale/rc.cpp:73 rc.cpp:73
-msgid "Format"
+msgid "Insert Format Component..."
 msgstr "Vorming"
 
-#. i18n: file: ui/clipboard.ui:46
-#. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
-#. i18n: file: ui/placeholder.ui:157
-#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#. i18n: file: ui/clipboard.ui:46
-#. i18n: ectx: property (text), widget (QTableWidget, clipboardActionsTable)
-#. i18n: file: ui/placeholder.ui:157
-#. i18n: ectx: property (title), widget (QGroupBox, groupBox)
-#: locale/rc.cpp:76 locale/rc.cpp:130 rc.cpp:76 rc.cpp:130
-msgid "Preview"
-msgstr "Eelvaatlus"
-
-#. i18n: file: ui/clipboard.ui:56
-#. i18n: ectx: property (text), widget (QPushButton, addButton)
-#: locale/rc.cpp:79 rc.cpp:79
-msgid "Add"
-msgstr "Lisa"
-
-#. i18n: file: ui/clipboard.ui:66
-#. i18n: ectx: property (text), widget (QPushButton, deleteButton)
-#: locale/rc.cpp:82 rc.cpp:82
-#, fuzzy
-msgid "Delete"
-msgstr "Kustuta"
-
-#. i18n: file: ui/clipboard.ui:91
-#. i18n: ectx: property (toolTip), widget (QToolButton, moveUpButton)
-#: locale/rc.cpp:85 rc.cpp:85
-#, fuzzy
-msgid "Move Up"
-msgstr "Liiguta üles"
-
-#. i18n: file: ui/clipboard.ui:104
-#. i18n: ectx: property (toolTip), widget (QToolButton, moveDownButton)
-#: locale/rc.cpp:88 rc.cpp:88
-#, fuzzy
-msgid "Move Down"
-msgstr "Liiguta alla"
-
-#. i18n: file: ui/clipboard.ui:122
-#. i18n: ectx: property (text), widget (QLabel, fastCopyFormatLabel)
-#: locale/rc.cpp:91 rc.cpp:91
-msgid "Fast copy format:"
-msgstr "Kiire kopeerimise vorming:"
-
-#. i18n: file: ui/clipboard.ui:135
-#. i18n: ectx: property (toolTip), widget (AdjustableClock::FormatLineEdit, fastCopyFormatEdit)
-#: locale/rc.cpp:94 rc.cpp:94
-msgid ""
-"Format of string copied to clipboard after middle clicking on the clock, or "
-"activation of the relevant keyboard shortcut."
-msgstr ""
-"Stringi vorming, mis kopeeritakse lõikepuhvrisse hiire keskmise nupu "
-"klõpsuga kellal või vastava kiirklahvi kasutamisel."
-
-#. i18n: file: ui/placeholder.ui:25
-#. i18n: ectx: property (text), widget (QLabel, placeholderLabel)
-#: locale/rc.cpp:100 rc.cpp:100
-#, fuzzy
-msgid "Format component:"
-msgstr "Vorming"
-
-#. i18n: file: ui/placeholder.ui:38
-#. i18n: ectx: property (text), widget (QLabel, shortFormLabel)
-#: locale/rc.cpp:103 rc.cpp:103
-msgid "Short form"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:55
-#. i18n: ectx: property (text), widget (QLabel, leadingZerosLabel)
-#: locale/rc.cpp:106 rc.cpp:106
-msgid "Show leading zeros"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:72
-#. i18n: ectx: property (text), widget (QLabel, hoursModeLabel)
-#: locale/rc.cpp:109 rc.cpp:109
-msgid "12 hours mode"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:89
-#. i18n: ectx: property (text), widget (QLabel, textualFormLabel)
-#: locale/rc.cpp:112 rc.cpp:112
-msgid "Textual form"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:106
-#. i18n: ectx: property (text), widget (QLabel, possessiveFormLabel)
-#: locale/rc.cpp:115 rc.cpp:115
-msgid "Possessive form"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:127
-#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:118 rc.cpp:118
-msgid "Area"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:132
-#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:121 rc.cpp:121
-msgid "Abbreviation"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:137
-#. i18n: ectx: property (text), item, widget (KComboBox, timezoneModeComboBox)
-#: locale/rc.cpp:124 rc.cpp:124
-msgid "Offset to UTC"
-msgstr ""
-
-#. i18n: file: ui/placeholder.ui:145
-#. i18n: ectx: property (text), widget (QLabel, timezoneModeLabel)
-#: locale/rc.cpp:127 rc.cpp:127
-msgid "Timezone mode:"
-msgstr ""
-
-#. i18n: file: data/themes.xml:5
-#: locale/rc.cpp:132 rc.cpp:132
-#, fuzzy
-msgid "Default"
-msgstr "Kustuta"
-
-#. i18n: file: data/themes.xml:6
-#: locale/rc.cpp:134 rc.cpp:134
-msgid "Default clock theme"
-msgstr ""
-
-#. i18n: file: data/themes.xml:14
-#: locale/rc.cpp:136 rc.cpp:136
-msgid "Simple"
-msgstr ""
-
-#. i18n: file: data/themes.xml:15
-#: locale/rc.cpp:138 rc.cpp:138
-msgid "Simple clock, similar to default digital clock"
-msgstr ""
-
-#. i18n: file: data/themes.xml:23
-#: locale/rc.cpp:140 rc.cpp:140
-msgid "Verbose"
-msgstr ""
-
-#. i18n: file: data/themes.xml:24
-#: locale/rc.cpp:142 rc.cpp:142
-msgid "More verbose clock with date"
-msgstr ""
-
-#. i18n: file: data/themes.xml:32
-#: locale/rc.cpp:144 rc.cpp:144
-msgid "dbClock"
-msgstr ""
-
-#. i18n: file: data/themes.xml:33
-#: locale/rc.cpp:146 rc.cpp:146
-msgid "dbClock like theme"
-msgstr ""
-
-#. i18n: file: data/themes.xml:64
-#: locale/rc.cpp:148 rc.cpp:148
-msgid "Progress"
-msgstr ""
-
-#. i18n: file: data/themes.xml:65
-#: locale/rc.cpp:150 rc.cpp:150
-msgid "Clock with original seconds visualization"
-msgstr ""
-
-#. i18n: file: data/themes.xml:136
-#: locale/rc.cpp:152 rc.cpp:152
-msgid "Calendar"
-msgstr ""
-
-#. i18n: file: data/themes.xml:137
-#: locale/rc.cpp:154 rc.cpp:154
-msgid "Calendar like theme"
-msgstr ""
-
-#: locale/rc.cpp:155 rc.cpp:155
+#: locale/rc.cpp:1 rc.cpp:1
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr ""
 
-#: locale/rc.cpp:156 rc.cpp:156
+#: locale/rc.cpp:2 rc.cpp:2
 msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr ""
 
-#: PlaceholderDialog.cpp:34
-msgid "Second"
-msgstr ""
-
-#: PlaceholderDialog.cpp:35
-msgid "Minute"
-msgstr ""
-
-#: PlaceholderDialog.cpp:36
-msgid "Hour"
-msgstr ""
-
-#: PlaceholderDialog.cpp:37
-msgid "The pm or am string"
-msgstr ""
-
-#: PlaceholderDialog.cpp:38
 #, fuzzy
-msgid "Day of the month"
-msgstr "Kuupäev ja aeg vorming:"
+#~ msgid "Delete..."
+#~ msgstr "Kustuta"
 
-#: PlaceholderDialog.cpp:39
-msgid "Weekday"
-msgstr ""
+#~ msgid "Format"
+#~ msgstr "Vorming"
 
-#: PlaceholderDialog.cpp:40
+#~ msgid "Preview"
+#~ msgstr "Eelvaatlus"
+
+#~ msgid "Add"
+#~ msgstr "Lisa"
+
 #, fuzzy
-msgid "Day of the year"
-msgstr "Kuupäev ja aeg vorming:"
+#~ msgid "Delete"
+#~ msgstr "Kustuta"
 
-#: PlaceholderDialog.cpp:41
-msgid "Week"
-msgstr ""
-
-#: PlaceholderDialog.cpp:42
-msgid "Month"
-msgstr ""
-
-#: PlaceholderDialog.cpp:43
-msgid "Year"
-msgstr ""
-
-#: PlaceholderDialog.cpp:44
-msgid "UNIX timestamp"
-msgstr ""
-
-#: PlaceholderDialog.cpp:45
-msgid "Time"
-msgstr ""
-
-#: PlaceholderDialog.cpp:46
-msgid "Date"
-msgstr ""
-
-#: PlaceholderDialog.cpp:47
 #, fuzzy
-msgid "Date and time"
-msgstr "Kuupäev ja aeg vorming:"
+#~ msgid "Move Up"
+#~ msgstr "Liiguta üles"
 
-#: PlaceholderDialog.cpp:48
-msgid "Timezone"
-msgstr ""
+#, fuzzy
+#~ msgid "Move Down"
+#~ msgstr "Liiguta alla"
 
-#: PlaceholderDialog.cpp:49
-msgid "Timezones list"
-msgstr ""
+#~ msgid "Fast copy format:"
+#~ msgstr "Kiire kopeerimise vorming:"
 
-#: PlaceholderDialog.cpp:50
-msgid "Holidays list"
-msgstr ""
+#~ msgid ""
+#~ "Format of string copied to clipboard after middle clicking on the clock, "
+#~ "or activation of the relevant keyboard shortcut."
+#~ msgstr ""
+#~ "Stringi vorming, mis kopeeritakse lõikepuhvrisse hiire keskmise nupu "
+#~ "klõpsuga kellal või vastava kiirklahvi kasutamisel."
 
-#: PlaceholderDialog.cpp:51
-msgid "Events list"
-msgstr ""
-
-#: PlaceholderDialog.cpp:52
-msgid "Sunrise time"
-msgstr ""
-
-#: PlaceholderDialog.cpp:53
-msgid "Sunset time"
-msgstr ""
+#, fuzzy
+#~ msgid "Default"
+#~ msgstr "Kustuta"
 
 #, fuzzy
 #~ msgid "Flat"
