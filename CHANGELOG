@@ -1,4 +1,5 @@
 3.3 (--.--.2013):
+- added Digital Clock theme;
 - removed support for expressions (to be superseded by standard JavaScript).
 
 3.2 (10.03.2013):
