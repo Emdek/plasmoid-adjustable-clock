@@ -44,7 +44,7 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
         return;
     }
 
-    m_dateTime = QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
+    m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
     const int second = ((m_features & SecondsClockFeature || m_features & SecondsToolTipFeature) ? m_dateTime.time().second() : 0);
 
@@ -53,18 +53,18 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
     }
 
     if (m_features & EventsFeature && QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
-        m_applet->dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
+        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
-        m_eventsQuery = QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate);
+        m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-        m_applet->dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
+        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
     }
 
     if (force || (m_dateTime.time().minute() == 0 && second == 0)) {
-        Plasma::DataEngine::Data sunData = m_applet->dataEngine(QLatin1String("time"))->query(m_applet->currentTimezone() + QLatin1String("|Solar"));
+        Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
 
-        m_sunrise = sunData[QLatin1String("Sunrise")].toDateTime().time();
-        m_sunset = sunData[QLatin1String("Sunset")].toDateTime().time();
+        m_sunrise = sunData["Sunrise"].toDateTime().time();
+        m_sunset = sunData["Sunset"].toDateTime().time();
     }
 
     if (force || m_features & SecondsClockFeature || second == 0) {
@@ -80,12 +80,12 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
 
 void Clock::connectSource(const QString &timezone)
 {
-    QRegExp formatWithSeconds = QRegExp(QLatin1String("%[\\~\\d\\!\\$\\:\\+\\-]*[ast]"));
+    QRegExp formatWithSeconds = QRegExp("%[\\~\\d\\!\\$\\:\\+\\-]*[ast]");
     QFlags<ClockFeature> features;
     const Theme theme = m_applet->getTheme();
     const QPair<QString, QString> toolTipFormat = m_applet->getToolTipFormat();
-    const QString toolTip = (toolTipFormat.first + QLatin1Char('|') + toolTipFormat.second);
-    const QString string = (theme.html + QLatin1Char('|')) + toolTip;
+    const QString toolTip = (toolTipFormat.first + QChar('|') + toolTipFormat.second);
+    const QString string = (theme.html + QChar('|')) + toolTip;
 
     if (theme.html.contains(formatWithSeconds)) {
         features |= SecondsClockFeature;
@@ -95,20 +95,20 @@ void Clock::connectSource(const QString &timezone)
         features |= SecondsToolTipFeature;
     }
 
-    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*H")))) {
+    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*H"))) {
         features |= HolidaysFeature;
     }
 
-    if (string.contains(QRegExp(QLatin1String("%[\\d\\!\\$\\:\\+\\-]*E")))) {
+    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*E"))) {
         features |= EventsFeature;
 
         if (m_eventsQuery.isEmpty()) {
-            m_eventsQuery = QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate);
+            m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-            m_applet->dataEngine(QLatin1String("calendar"))->connectSource(m_eventsQuery, this);
+            m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
         }
     } else if (!m_eventsQuery.isEmpty()) {
-        m_applet->dataEngine(QLatin1String("calendar"))->disconnectSource(m_eventsQuery, this);
+        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
 
         m_eventsQuery = QString();
     }
@@ -117,7 +117,7 @@ void Clock::connectSource(const QString &timezone)
 
     const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
 
-    m_applet->dataEngine(QLatin1String("time"))->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
+    m_applet->dataEngine("time")->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
     const KTimeZone timezoneData = (m_applet->isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(m_applet->currentTimezone()));
 
@@ -127,7 +127,7 @@ void Clock::connectSource(const QString &timezone)
         m_timezoneAbbreviation = i18n("UTC");
     }
 
-    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' ')).split(QLatin1Char('/'));
+    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QChar('_'), QChar(' ')).split(QChar('/'));
 
     int seconds = timezoneData.currentOffset(Qt::UTC);
     int minutes = abs(seconds / 60);
@@ -138,18 +138,18 @@ void Clock::connectSource(const QString &timezone)
     m_timezoneOffset = QString::number(hours);
 
     if (minutes) {
-        m_timezoneOffset.append(QLatin1Char(':'));
+        m_timezoneOffset.append(QChar(':'));
         m_timezoneOffset.append(formatNumber(minutes, 2));
     }
 
-    m_timezoneOffset = (QChar((seconds >= 0) ? QLatin1Char('+') : QLatin1Char('-')) + m_timezoneOffset);
+    m_timezoneOffset = (QChar((seconds >= 0) ? QChar('+') : QChar('-')) + m_timezoneOffset);
 
-    dataUpdated(QString(), m_applet->dataEngine(QLatin1String("time"))->query(m_applet->currentTimezone()), true);
+    dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
 }
 
 void Clock::updateEvents()
 {
-    Plasma::DataEngine::Data eventsData = m_applet->dataEngine(QLatin1String("calendar"))->query(QLatin1String("events:") + QDate::currentDate().toString(Qt::ISODate) + QLatin1Char(':') + QDate::currentDate().addDays(1).toString(Qt::ISODate));
+    Plasma::DataEngine::Data eventsData = m_applet->dataEngine("calendar")->query(QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate)));
 
     m_eventsShort = m_eventsLong = QString();
 
@@ -165,15 +165,15 @@ void Clock::updateEvents()
     for (i = eventsData.begin(); i != eventsData.end(); ++i) {
         QVariantHash event = i.value().toHash();
 
-        if (event[QLatin1String("Type")] == QLatin1String("Event") || event[QLatin1String("Type")] == QLatin1String("Todo")) {
-            KDateTime startTime = event[QLatin1String("StartDate")].value<KDateTime>();
-            KDateTime endTime = event[QLatin1String("EndDate")].value<KDateTime>();
+        if (event["Type"] == "Event" || event["Type"] == "Todo") {
+            KDateTime startTime = event["StartDate"].value<KDateTime>();
+            KDateTime endTime = event["EndDate"].value<KDateTime>();
 
             if ((endTime.isValid() && endTime.dateTime() < limits.first && endTime != startTime) || startTime.dateTime() > limits.second) {
                 continue;
             }
 
-            QString type = ((event[QLatin1String("Type")] == QLatin1String("Event")) ? i18n("Event") : i18n("To do"));
+            QString type = ((event["Type"] == "Event") ? i18n("Event") : i18n("To do"));
             QString time;
 
             if (startTime.time().hour() == 0 && startTime.time().minute() == 0 && endTime.time().hour() == 0 && endTime.time().minute() == 0) {
@@ -182,24 +182,24 @@ void Clock::updateEvents()
                 time = KGlobal::locale()->formatTime(startTime.time(), false);
 
                 if (endTime.isValid()) {
-                    time.append(QLatin1String(" - ") + KGlobal::locale()->formatTime(endTime.time(), false));
+                    time.append(QString(" - %1").arg(KGlobal::locale()->formatTime(endTime.time(), false)));
                 }
             }
 
-            eventsShort.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2</td>")).arg(type).arg(event[QLatin1String("Summary")].toString()));
-            eventsLong.append(QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2 <nobr>(%3)</nobr></td>")).arg(type).arg(event[QLatin1String("Summary")].toString()).arg(time));
+            eventsShort.append(QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2</td>").arg(type).arg(event["Summary"].toString()));
+            eventsLong.append(QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\">%2 <nobr>(%3)</nobr></td>").arg(type).arg(event["Summary"].toString()).arg(time));
         }
     }
 
-    m_eventsShort = QLatin1String("<table>\n<tr>") + eventsShort.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
-    m_eventsLong = QLatin1String("<table>\n<tr>") + eventsLong.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+    m_eventsShort = QString("<table>\n<tr>%1</tr>\n</table>").arg(eventsShort.join("</tr>\n<tr>"));
+    m_eventsLong = QString("<table>\n<tr>%1</tr>\n</table>").arg(eventsLong.join("</tr>\n<tr>"));
 }
 
 void Clock::updateHolidays()
 {
-    const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine(QLatin1String("calendar"))->query(QLatin1String("holidaysDefaultRegion"))[QLatin1String("holidaysDefaultRegion")]).toString().split(QLatin1Char(',')).first();
-    const QString key = QLatin1String("holidays:") + region + QLatin1Char(':') + getCurrentDateTime().date().toString(Qt::ISODate);
-    Plasma::DataEngine::Data holidaysData = m_applet->dataEngine(QLatin1String("calendar"))->query(key);
+    const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
+    const QString key = QString("holidays:%1:%2").arg(region).arg(getCurrentDateTime().date().toString(Qt::ISODate));
+    Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
 
     m_holidays.clear();
 
@@ -208,7 +208,7 @@ void Clock::updateHolidays()
         QStringList holidays;
 
         for (int i = 0; i < holidaysList.length(); ++i) {
-            m_holidays.append(holidaysList[i].toHash()[QLatin1String("Name")].toString());
+            m_holidays.append(holidaysList[i].toHash()["Name"].toString());
         }
     }
 }
@@ -274,16 +274,16 @@ QDateTime Clock::getCurrentDateTime(bool refresh) const
         return m_dateTime;
     }
 
-    Plasma::DataEngine::Data data = m_applet->dataEngine(QLatin1String("time"))->query(m_applet->currentTimezone());
+    Plasma::DataEngine::Data data = m_applet->dataEngine("time")->query(m_applet->currentTimezone());
 
-    return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
+    return QDateTime(data["Date"].toDate(), data["Time"].toTime());
 }
 
 QString Clock::extractNumber(const QString &format, int &i)
 {
     QString number;
 
-    while ((format.at(i).isDigit() || format.at(i) == QLatin1Char('-')) && i < format.length()) {
+    while ((format.at(i).isDigit() || format.at(i) == QChar('-')) && i < format.length()) {
         number.append(format.at(i));
 
         ++i;
@@ -294,7 +294,7 @@ QString Clock::extractNumber(const QString &format, int &i)
 
 QString Clock::formatNumber(int number, int length)
 {
-    return QString(QLatin1String("%1")).arg(number, length, 10, QLatin1Char('0'));
+    return QString("%1").arg(number, length, 10, QChar('0'));
 }
 
 QString Clock::evaluateFormat(const QString &format, QDateTime dateTime, bool special)
@@ -306,7 +306,7 @@ QString Clock::evaluateFormat(const QString &format, QDateTime dateTime, bool sp
     QString string;
 
     for (int i = 0; i < format.length(); ++i) {
-        if (format.at(i) != QLatin1Char('%')) {
+        if (format.at(i) != QChar('%')) {
             string.append(format.at(i));
 
             continue;
@@ -322,48 +322,48 @@ QString Clock::evaluateFormat(const QString &format, QDateTime dateTime, bool sp
 
         ++i;
 
-        if (format.at(i) == QLatin1Char('~')) {
+        if (format.at(i) == QChar('~')) {
             ++i;
 
             exclude = true;
         }
 
-        if (format.at(i).isDigit() || ((format.at(i) == QLatin1Char('-') || format.at(i) == QLatin1Char(':')) && format.at(i + 1).isDigit())) {
-            if (format.at(i) == QLatin1Char(':')) {
+        if (format.at(i).isDigit() || ((format.at(i) == QChar('-') || format.at(i) == QChar(':')) && format.at(i + 1).isDigit())) {
+            if (format.at(i) == QChar(':')) {
                 range.first = 0;
             } else {
                 range.first = extractNumber(format, i).toInt();
             }
 
-            if (format.at(i) == QLatin1Char(':')) {
+            if (format.at(i) == QChar(':')) {
                 range.second = extractNumber(format, ++i).toInt();
             }
         }
 
-        if (format.at(i) == QLatin1Char('!')) {
+        if (format.at(i) == QChar('!')) {
             ++i;
 
             shortForm = true;
         }
 
-        if (format.at(i) == QLatin1Char('$')) {
+        if (format.at(i) == QChar('$')) {
             ++i;
 
             textualForm = true;
         }
 
-        if (format.at(i) == QLatin1Char('+')) {
+        if (format.at(i) == QChar('+')) {
             ++i;
 
             alternativeForm = 1;
-        } else if (format.at(i) == QLatin1Char('-')) {
+        } else if (format.at(i) == QChar('-')) {
             ++i;
 
             alternativeForm = -1;
         }
 
         if (!format.at(i).isLetter()) {
-            if (format.at(i - 1) != QLatin1Char('%')) {
+            if (format.at(i - 1) != QChar('%')) {
                 string.append(format.at(i - 1));
             }
 
@@ -401,97 +401,78 @@ QString Clock::evaluateFormat(const QString &format, QDateTime dateTime, bool sp
                     title = i18n("Second");
 
                     break;
-
                 case 'm':
                     title = i18n("Minute");
 
                     break;
-
                 case 'h':
                     title = i18n("Hour");
 
                     break;
-
                 case 'p':
                     title = i18n("The pm or am string");
 
                     break;
-
                 case 'd':
                     title = i18n("Day of the month");
 
                     break;
-
                 case 'w':
                     title = i18n("Weekday");
 
                     break;
-
                 case 'D':
                     title = i18n("Day of the year");
 
                     break;
-
                 case 'W':
                     title = i18n("Week");
 
                     break;
-
                 case 'M':
                     title = i18n("Month");
 
                     break;
-
                 case 'Y':
                     title = i18n("Year");
 
                     break;
-
                 case 'U':
                     title = i18n("UNIX timestamp");
 
                     break;
-
                 case 't':
                     title = i18n("Time");
 
                     break;
-
                 case 'T':
                     title = i18n("Date");
 
                     break;
-
                 case 'A':
                     title = i18n("Date and time");
 
                     break;
-
                 case 'z':
                     title = i18n("Timezone");
 
                     break;
-
                 case 'Z':
                     title = i18n("Timezones list");
 
                     break;
-
                 case 'H':
                     title = i18n("Holidays list");
 
                     break;
-
                 case 'E':
                     title = i18n("Events list");
 
                     break;
-
                 case 'R':
                     title = i18n("Sunrise time");
 
                     break;
-
                 case 'S':
                     title = i18n("Sunset time");
 
@@ -500,7 +481,7 @@ QString Clock::evaluateFormat(const QString &format, QDateTime dateTime, bool sp
                     break;
                 }
 
-                substitution = QLatin1String("<placeholder title=") + title + QLatin1String(" alt=\"") + format.mid(start, (1 + i - start)) + QLatin1String("\">") + substitution + QLatin1String("</placeholder>");
+                substitution = QString("<placeholder title=\"%1\" alt=\"%2\">%3</placeholder>").arg(title).arg(format.mid(start, (1 + i - start))).arg(substitution);
             }
         }
 
@@ -561,31 +542,31 @@ QString Clock::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int a
                 return m_timezoneAbbreviation;
             }
 
-            return (shortForm ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QLatin1Char('/'))));
+            return (shortForm ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
         }
 
         return m_timezoneOffset;
     case 'Z':
         timezones = m_applet->config().readEntry("timeZones", QStringList());
-        timezones.prepend(QLatin1String(""));
+        timezones.prepend("");
 
         if (timezones.length() == 1) {
             return QString();
         }
 
         for (int i = 0; i < timezones.length(); ++i) {
-            QString timezone = i18n((timezones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(timezones.at(i))).name().toUtf8().data()).replace(QLatin1Char('_'), QLatin1Char(' '));
+            QString timezone = i18n((timezones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(timezones.at(i))).name().toUtf8().data()).replace(QChar('_'), QChar(' '));
 
-            if (shortForm && timezone.contains(QLatin1Char('/'))) {
-                timezone = timezone.split(QLatin1Char('/')).last();
+            if (shortForm && timezone.contains(QChar('/'))) {
+                timezone = timezone.split(QChar('/')).last();
             }
 
-            Plasma::DataEngine::Data data = m_applet->dataEngine(QLatin1String("time"))->query(timezones.at(i));
+            Plasma::DataEngine::Data data = m_applet->dataEngine("time")->query(timezones.at(i));
 
-            timezones[i] = QString(QLatin1String("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\"><nobr>%2 %3</nobr></td>")).arg(timezone).arg(KGlobal::locale()->formatTime(data[QLatin1String("Time")].toTime(), false)).arg(KGlobal::locale()->formatDate(data[QLatin1String("Date")].toDate(), KLocale::LongDate));
+            timezones[i] = QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\"><nobr>%2 %3</nobr></td>").arg(timezone).arg(KGlobal::locale()->formatTime(data["Time"].toTime(), false)).arg(KGlobal::locale()->formatDate(data["Date"].toDate(), KLocale::LongDate));
         }
 
-        return QLatin1String("<table>\n<tr>") + timezones.join(QLatin1String("</tr>\n<tr>")) + QLatin1String("</tr>\n</table>");
+        return QString("<table>\n<tr>%1</tr>\n</table>").arg(timezones.join("</tr>\n<tr>"));
     case 'E': // Events list
         if (!(m_features & EventsFeature)) {
             updateEvents();
@@ -597,7 +578,7 @@ QString Clock::evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int a
             updateHolidays();
         }
 
-        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join(QLatin1String("<br>\n")));
+        return (shortForm ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
     case 'R': // Sunrise time
         return KGlobal::locale()->formatTime(m_sunrise, false);
     case 'S': // Sunset time
@@ -620,7 +601,7 @@ QString Clock::evaluatePlaceholder(ushort placeholder, int alternativeForm, bool
     case 'm':
     case 'h':
     case 'd':
-        return QLatin1String("00");
+        return "00";
     case 'p':
         return ((i18n("pm").length() > i18n("am").length()) ? i18n("pm") : i18n("am"));
     case 'w':
@@ -638,11 +619,11 @@ QString Clock::evaluatePlaceholder(ushort placeholder, int alternativeForm, bool
             return longest;
         }
 
-        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->daysInWeek(m_dateTime.date())).length());
+        return QString(QChar('0')).repeated(QString::number(m_applet->calendar()->daysInWeek(m_dateTime.date())).length());
     case 'D':
-        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->daysInYear(m_dateTime.date())).length());
+        return QString(QChar('0')).repeated(QString::number(m_applet->calendar()->daysInYear(m_dateTime.date())).length());
     case 'W':
-        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->weeksInYear(m_dateTime.date())).length());
+        return QString(QChar('0')).repeated(QString::number(m_applet->calendar()->weeksInYear(m_dateTime.date())).length());
     case 'M':
         if (textualForm) {
             alternativeForm = ((alternativeForm == 0) ? KGlobal::locale()->dateMonthNamePossessive() : (alternativeForm == 1));
@@ -660,11 +641,11 @@ QString Clock::evaluatePlaceholder(ushort placeholder, int alternativeForm, bool
             return longest;
         }
 
-        return QString(QLatin1Char('0')).repeated(QString::number(m_applet->calendar()->monthsInYear(m_dateTime.date())).length());
+        return QString(QChar('0')).repeated(QString::number(m_applet->calendar()->monthsInYear(m_dateTime.date())).length());
     case 'Y':
-        return (shortForm ? QLatin1String("00") : QLatin1String("0000"));
+        return (shortForm ? "00" : "0000");
     case 'U':
-        return QString(QLatin1Char('0')).repeated(QString::number(m_dateTime.toTime_t()).length());
+        return QString(QChar('0')).repeated(QString::number(m_dateTime.toTime_t()).length());
     case 't':
     case 'T':
     case 'A':

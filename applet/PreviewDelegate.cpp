@@ -42,7 +42,7 @@ KPixmapCache *m_cache = NULL;
 PreviewDelegate::PreviewDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
     m_clock(clock)
 {
-    m_cache = new KPixmapCache(QLatin1String("AdjustableClockPreviews"));
+    m_cache = new KPixmapCache("AdjustableClockPreviews");
     m_cache->discard();
 }
 
@@ -68,7 +68,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 
         if (index.data(BackgroundRole).toBool()) {
             Plasma::FrameSvg background;
-            background.setImagePath(Plasma::Theme::defaultTheme()->imagePath(QLatin1String("widgets/background")));
+            background.setImagePath(Plasma::Theme::defaultTheme()->imagePath("widgets/background"));
             background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
             background.resizeFrame(size);
             background.paintFrame(&pixmapPainter);

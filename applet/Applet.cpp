@@ -49,9 +49,9 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
     m_clipboardAction(NULL),
     m_theme(-1)
 {
-    KGlobal::locale()->insertCatalog(QLatin1String("libplasmaclock"));
-    KGlobal::locale()->insertCatalog(QLatin1String("timezones4"));
-    KGlobal::locale()->insertCatalog(QLatin1String("adjustableclock"));
+    KGlobal::locale()->insertCatalog("libplasmaclock");
+    KGlobal::locale()->insertCatalog("timezones4");
+    KGlobal::locale()->insertCatalog("adjustableclock");
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setHasConfigurationInterface(true);
@@ -73,8 +73,8 @@ void Applet::init()
     configChanged();
 
     QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-    watcher->addPath(KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml")));
-    watcher->addPath(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")));
+    watcher->addPath(KStandardDirs::locate("data", "adjustableclock/themes.xml"));
+    watcher->addPath(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
@@ -133,12 +133,12 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml"));
+    const QString path = KStandardDirs::locate("data", "adjustableclock/themes.xml");
     const QStringList customThemes = config().group("Formats").groupList();
 
     m_themes = loadThemes(path, true);
 
-    QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")), false);
+    QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"), false);
     const int amount = themes.count();
 
     if (!customThemes.isEmpty()) {
@@ -161,7 +161,7 @@ void Applet::clockConfigChanged()
             themes.append(theme);
         }
 
-        config().deleteGroup(QLatin1String("Formats"));
+        config().deleteGroup("Formats");
 
         if (themes.count() != amount) {
             saveCustomThemes(themes);
@@ -172,7 +172,7 @@ void Applet::clockConfigChanged()
 
     if (m_themes.isEmpty()) {
         Theme theme;
-        theme.id = QLatin1String("%default%");
+        theme.id = "%default%";
         theme.title = i18n("Error");
         theme.html = i18n("Missing or invalid data file: %1.").arg(path);
         theme.background = true;
@@ -209,7 +209,7 @@ void Applet::clockConfigAccepted()
 
 void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
 {
-    dataEngine(QLatin1String("time"))->disconnectSource(oldTimezone, m_clock);
+    dataEngine("time")->disconnectSource(oldTimezone, m_clock);
 
     m_clock->connectSource(newTimezone);
 
@@ -244,32 +244,32 @@ void Applet::repaint()
 
 void Applet::saveCustomThemes(const QList<Theme> &themes)
 {
-    QFile file(KStandardDirs::locateLocal("data", QLatin1String("adjustableclock/custom-themes.xml")));
+    QFile file(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
     file.open(QFile::WriteOnly | QFile::Text);
 
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
     stream.writeStartDocument();
-    stream.writeStartElement(QLatin1String("themes"));
+    stream.writeStartElement("themes");
 
     for (int i = 0; i < themes.count(); ++i) {
-        stream.writeStartElement(QLatin1String("theme"));
-        stream.writeStartElement(QLatin1String("id"));
+        stream.writeStartElement("theme");
+        stream.writeStartElement("id");
         stream.writeCharacters(themes.at(i).id);
         stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("title"));
+        stream.writeStartElement("title");
         stream.writeCharacters(themes.at(i).title);
         stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("background"));
-        stream.writeCharacters(themes.at(i).background?QLatin1String("true"):QLatin1String("false"));
+        stream.writeStartElement("background");
+        stream.writeCharacters(themes.at(i).background?"true":"false");
         stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("html"));
+        stream.writeStartElement("html");
         stream.writeCDATA(themes.at(i).html);
         stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("css"));
+        stream.writeStartElement("css");
         stream.writeCDATA(themes.at(i).css);
         stream.writeEndElement();
-        stream.writeStartElement(QLatin1String("script"));
+        stream.writeStartElement("script");
         stream.writeCDATA(themes.at(i).script);
         stream.writeEndElement();
         stream.writeEndElement();
@@ -307,7 +307,7 @@ void Applet::updateToolTipContent()
     if (!toolTipFormat.first.isEmpty() || !toolTipFormat.second.isEmpty()) {
         const QDateTime dateTime = m_clock->getCurrentDateTime();
 
-        toolTipData.setImage(KIcon(QLatin1String("chronometer")).pixmap(IconSize(KIconLoader::Desktop)));
+        toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
         toolTipData.setMainText(m_clock->evaluateFormat(toolTipFormat.first, dateTime));
         toolTipData.setSubText(m_clock->evaluateFormat(toolTipFormat.second, dateTime));
         toolTipData.setAutohide(false);
@@ -385,7 +385,7 @@ Clock* Applet::getClock() const
 
 QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head)
 {
-    return (QLatin1String("<!DOCTYPE html><html><head><style type=\"text/css\">* {color: ") + Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name() + QLatin1String(";} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}") + css + QLatin1String("</style><script type=\"text/javascript\">") + script + QLatin1String("</script>") + head + QLatin1String("</head><body><div>") + html + QLatin1String("</div></body></html>"));
+    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">* {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}%2</style><script type=\"text/javascript\">%3</script>%4</head><body><div>%5</div></body></html>").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).arg(css).arg(script).arg(head).arg(html);
 }
 
 Theme Applet::getTheme() const
@@ -395,7 +395,7 @@ Theme Applet::getTheme() const
     }
 
     Theme theme;
-    theme.id = QLatin1String("%default%");
+    theme.id = "%default%";
     theme.title = i18n("Error");
     theme.html = i18n("Invalid theme identifier.");
     theme.background = true;
@@ -407,8 +407,8 @@ Theme Applet::getTheme() const
 QPair<QString, QString> Applet::getToolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains(QLatin1String("toolTipFormatMain")) ? config().readEntry("toolTipFormatMain", QString()) : QLatin1String("<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>"));
-    toolTipFormat.second = (config().keyList().contains(QLatin1String("toolTipFormatSub")) ? config().readEntry("toolTipFormatSub", QString()) : QLatin1String("%!Z%E"));
+    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>");
+    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "%!Z%E");
 
     return toolTipFormat;
 }
@@ -416,18 +416,18 @@ QPair<QString, QString> Applet::getToolTipFormat() const
 QStringList Applet::getClipboardFormats() const
 {
     QStringList clipboardFormats;
-    clipboardFormats << QLatin1String("%!t")
-    << QLatin1String("%t")
-    << QLatin1String("%h:%m:%s")
+    clipboardFormats << "%!t"
+    << "%t"
+    << "%h:%m:%s"
     << QString()
-    << QLatin1String("%!T")
-    << QLatin1String("%T")
+    << "%!T"
+    << "%T"
     << QString()
-    << QLatin1String("%!A")
-    << QLatin1String("%A")
-    << QLatin1String("%Y-%M-%d %h:%m:%s")
+    << "%!A"
+    << "%A"
+    << "%Y-%M-%d %h:%m:%s"
     << QString()
-    << QLatin1String("%U");
+    << "%U";
 
     return config().readEntry("clipboardFormats", clipboardFormats);
 }
@@ -451,14 +451,14 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
         reader.readNext();
 
         if (!reader.isStartElement()) {
-            if (reader.name().toString() == QLatin1String("theme")) {
+            if (reader.name().toString() == "theme") {
                 themes.append(theme);
             }
 
             continue;
         }
 
-        if (reader.name().toString() == QLatin1String("theme")) {
+        if (reader.name().toString() == "theme") {
             theme.id = QString();
             theme.title = QString();
             theme.description = QString();
@@ -469,39 +469,39 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
             theme.background = true;
         }
 
-        if (reader.name().toString() == QLatin1String("id")) {
+        if (reader.name().toString() == "id") {
             if (bundled) {
-                theme.id = QLatin1Char('%') + reader.readElementText() + QLatin1Char('%');
+                theme.id = QString("%%1%").arg(reader.readElementText());
             } else {
                 theme.id = reader.readElementText();
            }
         }
 
-        if (reader.name().toString() == QLatin1String("title")) {
+        if (reader.name().toString() == "title") {
             theme.title = i18n(reader.readElementText().toUtf8().data());
         }
 
-        if (reader.name().toString() == QLatin1String("description")) {
+        if (reader.name().toString() == "description") {
             theme.description = i18n(reader.readElementText().toUtf8().data());
         }
 
-        if (reader.name().toString() == QLatin1String("author")) {
+        if (reader.name().toString() == "author") {
             theme.author = reader.readElementText();
         }
 
-        if (reader.name().toString() == QLatin1String("background")) {
-            theme.background = (reader.readElementText().toLower() == QLatin1String("true"));
+        if (reader.name().toString() == "background") {
+            theme.background = (reader.readElementText().toLower() == "true");
         }
 
-        if (reader.name().toString() == QLatin1String("html")) {
+        if (reader.name().toString() == "html") {
             theme.html = reader.readElementText();
         }
 
-        if (reader.name().toString() == QLatin1String("css")) {
+        if (reader.name().toString() == "css") {
             theme.css = reader.readElementText();
         }
 
-        if (reader.name().toString() == QLatin1String("script")) {
+        if (reader.name().toString() == "script") {
             theme.script = reader.readElementText();
         }
     }
@@ -516,7 +516,7 @@ QList<QAction*> Applet::contextualActions()
     QList<QAction*> actions = ClockApplet::contextualActions();
 
     if (!m_clipboardAction) {
-        m_clipboardAction = new QAction(SmallIcon(QLatin1String("edit-copy")), i18n("C&opy to Clipboard"), this);
+        m_clipboardAction = new QAction(SmallIcon("edit-copy"), i18n("C&opy to Clipboard"), this);
         m_clipboardAction->setMenu(new KMenu);
 
         connect(this, SIGNAL(destroyed()), m_clipboardAction->menu(), SLOT(deleteLater()));
