@@ -87,7 +87,6 @@ class Applet : public ClockApplet
         void setTheme(const QString &html, const QString &css, const QString &script);
         void updateEvents();
         void updateHolidays();
-        static QString extractExpression(const QString &format, int &i);
         static QString extractNumber(const QString &format, int &i);
         static QString formatNumber(int number, int length);
         QPair<QString, QString> toolTipFormat() const;

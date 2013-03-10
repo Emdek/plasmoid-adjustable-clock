@@ -1,3 +1,6 @@
+3.3 (--.--.2013):
+- removed support for expressions (to be superseded by standard JavaScript).
+
 3.2 (10.03.2013):
 - added Train Clock, based on design by Nuno Pinheiro;
 - added beClock theme, inspired by clock by Thomas Luebking;

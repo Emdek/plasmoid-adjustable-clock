@@ -565,38 +565,6 @@ QDateTime Applet::currentDateTime() const
     return QDateTime(data[QLatin1String("Date")].toDate(), data[QLatin1String("Time")].toTime());
 }
 
-QString Applet::extractExpression(const QString &format, int &i)
-{
-    if ((format.length() - i) < 2 || !format.mid(i).contains(QLatin1Char('}'))) {
-        return QString();
-    }
-
-    ++i;
-
-    QString expression;
-    int braces = 1;
-
-    while (i < format.length()) {
-        if (format.at(i) == QLatin1Char('{')) {
-            ++braces;
-        } else if (format.at(i) == QLatin1Char('}')) {
-            --braces;
-
-            if (braces == 0) {
-                ++i;
-
-                break;
-            }
-        }
-
-        expression.append(format.at(i));
-
-        ++i;
-    }
-
-    return expression;
-}
-
 QString Applet::extractNumber(const QString &format, int &i)
 {
     QString number;
@@ -680,33 +648,7 @@ QString Applet::evaluateFormat(const QString &format, QDateTime dateTime, bool s
             alternativeForm = -1;
         }
 
-        if (format.at(i) == QLatin1Char('{')) {
-            QString expression = extractExpression(format, i);
-            QScriptValue scriptExpression = m_engine.evaluate(evaluateFormat(expression, dateTime));
-
-            if ((format.at(i) == QLatin1Char('?') || format.at(i) == QLatin1Char(':')) && format.at(i + 1) == QLatin1Char('{')) {
-                QString trueSubstitution;
-                QString falseSubstitution;
-
-                if (format.at(i) == QLatin1Char('?')) {
-                    trueSubstitution = extractExpression(format, ++i);
-                }
-
-                if (format.at(i) == QLatin1Char(':')) {
-                    falseSubstitution = extractExpression(format, ++i);
-                }
-
-                if (scriptExpression.toBool()) {
-                    substitution.append(evaluateFormat(trueSubstitution, dateTime));
-                } else {
-                    substitution.append(evaluateFormat(falseSubstitution, dateTime));
-                }
-
-                --i;
-            } else {
-                substitution.append(scriptExpression.toString());
-            }
-        } else if (!format.at(i).isLetter()) {
+        if (!format.at(i).isLetter()) {
             if (format.at(i - 1) != QLatin1Char('%')) {
                 string.append(format.at(i - 1));
             }

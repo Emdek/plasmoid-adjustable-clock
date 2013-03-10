@@ -21,4 +21,4 @@ Must be put in exact same order to be parsed properly, those with same number ar
 4. $     - force textual form of substitution (if available);
 5. +     - force possessive form of substitution (if available);
 5. -     - force non possessive form of substitution (if available);
-Followed by placeholder letter or {expression} (for script expressions) or conditional statement: {expression}?{expression for TRUE}:{expression for FALSE} (where expression TRUE or FALSE can be omitted).
+Followed by placeholder letter.
