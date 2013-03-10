@@ -200,7 +200,6 @@ void Applet::clockConfigChanged()
     }
 
     changeEngineTimezone(currentTimezone(), currentTimezone());
-    updateSize();
 }
 
 void Applet::clockConfigAccepted()
