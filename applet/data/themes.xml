@@ -570,7 +570,7 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 }]]></css>
 		<script><![CDATA[function updateClock(values)
 {
-	var color = document.styleSheets[0].cssRules[0].style.getPropertyValue('color');
+	var color = window.getComputedStyle(document.body).getPropertyValue('color');
 
 	for (var i = 0; i < values.length; ++i)
 	{
