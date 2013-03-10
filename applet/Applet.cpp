@@ -134,7 +134,6 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 void Applet::clockConfigChanged()
 {
     const QString path = KStandardDirs::locate("data", QLatin1String("adjustableclock/themes.xml"));
-    const QString id = config().readEntry("format", "%default%");
     const QStringList customThemes = config().group("Formats").groupList();
 
     m_themes = loadThemes(path, true);
@@ -183,10 +182,12 @@ void Applet::clockConfigChanged()
 
         m_themes.append(theme);
     } else {
+        const QString id = config().readEntry("format", "%default%");
+
         m_theme = -1;
 
         for (int i = 0; i < m_themes.count(); ++i) {
-            if (id == m_themes.at(i).id) {
+            if (m_themes.at(i).id == id) {
                 m_theme = i;
 
                 break;
