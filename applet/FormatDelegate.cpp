@@ -19,14 +19,14 @@
 ***********************************************************************************/
 
 #include "FormatDelegate.h"
+#include "Clock.h"
 #include "FormatLineEdit.h"
-#include "Applet.h"
 
 namespace AdjustableClock
 {
 
-FormatDelegate::FormatDelegate(Applet *applet, QObject *parent) : QStyledItemDelegate(parent),
-    m_applet(applet)
+FormatDelegate::FormatDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+    m_clock(clock)
 {
 }
 
@@ -53,7 +53,7 @@ QWidget* FormatDelegate::createEditor(QWidget *parent, const QStyleOptionViewIte
     Q_UNUSED(option)
 
     FormatLineEdit *lineEdit = new FormatLineEdit(parent);
-    lineEdit->setApplet(m_applet);
+    lineEdit->setClock(m_clock);
 
     setEditorData(lineEdit, index);
 

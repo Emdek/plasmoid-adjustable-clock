@@ -26,14 +26,14 @@
 namespace AdjustableClock
 {
 
-class Applet;
+class Clock;
 
 class FormatDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
     public:
-        FormatDelegate(Applet *applet, QObject *parent = NULL);
+        FormatDelegate(Clock *clock, QObject *parent = NULL);
 
         void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         void setEditorData(QWidget *editor, const QModelIndex &index) const;
@@ -42,7 +42,7 @@ class FormatDelegate : public QStyledItemDelegate
         QString displayText(const QVariant &value, const QLocale &locale) const;
 
     private:
-        Applet *m_applet;
+        Clock *m_clock;
 };
 
 }

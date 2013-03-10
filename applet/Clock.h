@@ -26,6 +26,8 @@
 #include <QtWebKit/QWebElementCollection>
 #include <QtWebKit/QWebFrame>
 
+#include <Plasma/DataEngine>
+
 namespace AdjustableClock
 {
 
@@ -81,16 +83,16 @@ enum IntervalAlignment
     YearAlignment = 7
 };
 
-// enum ClockFeature
-// {
-//     NoFeatures = 0,
-//     SecondsClockFeature = 1,
-//     SecondsToolTipFeature = 2,
-//     HolidaysFeature = 4,
-//     EventsFeature = 8
-// };
-//
-// Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
+enum ClockFeature
+{
+    NoFeatures = 0,
+    SecondsClockFeature = 1,
+    SecondsToolTipFeature = 2,
+    HolidaysFeature = 4,
+    EventsFeature = 8
+};
+
+Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 
 struct PlaceholderRule
 {
@@ -100,30 +102,56 @@ struct PlaceholderRule
     IntervalAlignment alignment;
 };
 
+class Applet;
+
 class Clock : public QObject
 {
     Q_OBJECT
 
     public:
-        Clock(QObject *parent);
+        Clock(Applet *parent);
 
+        void connectSource(const QString &timezone);
         void setDocument(QWebFrame *document);
         Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, const QString &expression, IntervalAlignment alignment);
         Q_INVOKABLE void setRule(const QString &rule, const QString &expression, IntervalAlignment alignment);
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         Q_INVOKABLE QString getTimeString(ClockTimeValue type, ValueOptions options) const;
+        QDateTime getCurrentDateTime(bool refresh = true) const;
+        QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime(), bool special = false);
+        QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
+        QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         Q_INVOKABLE QVariantList getEventsList(ClockEventsValue type, ValueOptions options) const;
 
     protected:
+        void updateEvents();
+        void updateHolidays();
         void applyRule(const PlaceholderRule &rule);
         void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
         void setValue(const QWebElementCollection &elements, const QString &value);
+        static QString extractNumber(const QString &format, int &i);
+        static QString formatNumber(int number, int length);
+
+    protected slots:
+        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool force = false);
 
     private:
-        QHash<IntervalAlignment, QList<PlaceholderRule> > m_rules;
+        Applet *m_applet;
         QWebFrame *m_document;
         QScriptEngine m_engine;
+        QStringList m_holidays;
+        QStringList m_timezoneArea;
+        QString m_timezoneAbbreviation;
+        QString m_timezoneOffset;
+        QString m_eventsShort;
+        QString m_eventsLong;
+        QString m_eventsQuery;
+        QDateTime m_dateTime;
+        QTime m_sunrise;
+        QTime m_sunset;
+        QHash<IntervalAlignment, QList<PlaceholderRule> > m_rules;
+        QFlags<ClockFeature> m_features;
 
     signals:
         void timezoneChanged(QString timezone);

@@ -19,13 +19,13 @@
 ***********************************************************************************/
 
 #include "PlaceholderDialog.h"
-#include "Applet.h"
+#include "Clock.h"
 
 namespace AdjustableClock
 {
 
-PlaceholderDialog::PlaceholderDialog(Applet *applet, QWidget *parent) : KDialog(parent),
-    m_applet(applet)
+PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(parent),
+    m_clock(clock)
 {
     m_placeholderUi.setupUi(mainWidget());
 
@@ -75,7 +75,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(m_applet->evaluateFormat(placeholder(), QDateTime::currentDateTime()));
+    m_placeholderUi.previewLabel->setText(m_clock->evaluateFormat(placeholder(), QDateTime::currentDateTime()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)

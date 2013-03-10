@@ -28,7 +28,7 @@
 namespace AdjustableClock
 {
 
-class Applet;
+class Clock;
 
 class FormatLineEdit : public KLineEdit
 {
@@ -37,7 +37,7 @@ class FormatLineEdit : public KLineEdit
     public:
         FormatLineEdit(QWidget *parent = NULL);
 
-        void setApplet(Applet *applet);
+        void setClock(Clock *clock);
 
     protected slots:
         void insertPlaceholder();
@@ -45,7 +45,7 @@ class FormatLineEdit : public KLineEdit
         void extendContextMenu(QMenu *menu);
 
     private:
-        Applet *m_applet;
+        Clock *m_clock;
 };
 
 }

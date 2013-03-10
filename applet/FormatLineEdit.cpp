@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "FormatLineEdit.h"
+#include "Clock.h"
 #include "PlaceholderDialog.h"
 
 #include <KLocale>
@@ -27,15 +28,15 @@ namespace AdjustableClock
 {
 
 FormatLineEdit::FormatLineEdit(QWidget *parent) : KLineEdit(parent),
-    m_applet(NULL)
+    m_clock(NULL)
 {
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
 }
 
 void FormatLineEdit::insertPlaceholder()
 {
-    if (m_applet) {
-        connect(new PlaceholderDialog(m_applet, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    if (m_clock) {
+        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
     }
 }
 
@@ -46,13 +47,15 @@ void FormatLineEdit::insertPlaceholder(const QString &placeholder)
 
 void FormatLineEdit::extendContextMenu(QMenu *menu)
 {
-    menu->addSeparator();
-    menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
+    if (m_clock) {
+        menu->addSeparator();
+        menu->addAction(KIcon(QLatin1String("chronometer")), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
+    }
 }
 
-void FormatLineEdit::setApplet(Applet *applet)
+void FormatLineEdit::setClock(Clock *clock)
 {
-    m_applet = applet;
+    m_clock = clock;
 }
 
 }

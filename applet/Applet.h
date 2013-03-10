@@ -24,26 +24,13 @@
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
 #include <QtWebKit/QWebPage>
-#include <QtScript/QScriptEngine>
 
 #include <Plasma/Applet>
-#include <Plasma/DataEngine>
 
 #include <plasmaclock/clockapplet.h>
 
 namespace AdjustableClock
 {
-
-enum ClockFeature
-{
-    NoFeatures = 0,
-    SecondsClockFeature = 1,
-    SecondsToolTipFeature = 2,
-    HolidaysFeature = 4,
-    EventsFeature = 8
-};
-
-Q_DECLARE_FLAGS(ClockFeatures, ClockFeature)
 
 struct Theme
 {
@@ -58,6 +45,8 @@ struct Theme
     bool bundled;
 };
 
+class Clock;
+
 class Applet : public ClockApplet
 {
     Q_OBJECT
@@ -66,15 +55,17 @@ class Applet : public ClockApplet
         Applet(QObject *parent, const QVariantList &args);
 
         void init();
-        void saveCustomThemes(const QList<Theme> &themes);
-        QDateTime currentDateTime() const;
-        QStringList clipboardFormats() const;
-        QList<Theme> themes() const;
-        Theme theme() const;
-        QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime(), bool special = false);
-        QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
-        QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
-        static QString pageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
+        void saveCustomThemes(const QList<Theme> &getThemes);
+        void setTheme(const QString &html, const QString &css, const QString &script);
+        Clock* getClock() const;
+        QStringList getClipboardFormats() const;
+        QList<Theme> getThemes() const;
+        QPair<QString, QString> getToolTipFormat() const;
+        Theme getTheme() const;
+        static QString getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
+
+    public slots:
+        void updateToolTipContent();
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -83,46 +74,26 @@ class Applet : public ClockApplet
         void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
-        void connectSource(const QString &timezone);
-        void setTheme(const QString &html, const QString &css, const QString &script);
-        void updateEvents();
-        void updateHolidays();
-        static QString extractNumber(const QString &format, int &i);
-        static QString formatNumber(int number, int length);
-        QPair<QString, QString> toolTipFormat() const;
         QList<Theme> loadThemes(const QString &path, bool bundled) const;
         QList<QAction*> contextualActions();
 
     protected slots:
-        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool force = false);
         void clockConfigChanged();
         void clockConfigAccepted();
         void copyToClipboard();
+        void copyToClipboard(QAction *action);
         void toolTipAboutToShow();
         void toolTipHidden();
-        void copyToClipboard(QAction *action);
+        void repaint();
         void updateClipboardMenu();
-        void updateToolTipContent();
         void updateSize();
         void updateTheme();
-        void repaint();
 
     private:
-        QWebPage m_page;
-        QScriptEngine m_engine;
-        QStringList m_holidays;
-        QStringList m_timezoneArea;
-        QString m_currentHtml;
-        QString m_timezoneAbbreviation;
-        QString m_timezoneOffset;
-        QString m_eventsShort;
-        QString m_eventsLong;
-        QString m_eventsQuery;
-        QDateTime m_dateTime;
-        QTime m_sunrise;
-        QTime m_sunset;
-        QFlags<ClockFeature> m_features;
+        Clock *m_clock;
         QAction *m_clipboardAction;
+        QWebPage m_page;
+        QString m_currentHtml;
         QList<Theme> m_themes;
         int m_theme;
 };

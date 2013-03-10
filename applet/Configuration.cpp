@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
+#include "Clock.h"
 #include "PlaceholderDialog.h"
 #include "PreviewDelegate.h"
 #include "FormatDelegate.h"
@@ -45,14 +46,14 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardActions = new QWidget();
-    const QStringList clipboardFormats = m_applet->clipboardFormats();
+    const QStringList clipboardFormats = m_applet->getClipboardFormats();
     QString preview;
     int row;
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
 
-    const QList<Theme> themes = m_applet->themes();
+    const QList<Theme> themes = m_applet->getThemes();
 
     for (int i = 0; i < themes.count(); ++i) {
         QStandardItem *item = new QStandardItem();
@@ -70,7 +71,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_applet, m_appearanceUi.themesView);
+    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock(), m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
@@ -114,10 +115,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon(QLatin1String("arrow-up")));
     m_clipboardUi.moveDownButton->setIcon(KIcon(QLatin1String("arrow-down")));
-    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(m_applet, this));
+    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(m_applet->getClock(), this));
     m_clipboardUi.clipboardActionsTable->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
-    m_clipboardUi.fastCopyFormatEdit->setApplet(m_applet);
+    m_clipboardUi.fastCopyFormatEdit->setClock(m_applet->getClock());
 
     for (int i = 0; i < clipboardFormats.count(); ++i) {
         row = m_clipboardUi.clipboardActionsTable->rowCount();
@@ -125,7 +126,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_clipboardUi.clipboardActionsTable->insertRow(row);
         m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
 
-        preview = m_applet->evaluateFormat(clipboardFormats.at(i), QDateTime::currentDateTime());
+        preview = m_applet->getClock()->evaluateFormat(clipboardFormats.at(i), QDateTime::currentDateTime());
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -257,7 +258,7 @@ void Configuration::disableUpdates()
 
 void Configuration::insertPlaceholder()
 {
-    connect(new PlaceholderDialog(m_applet, m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    connect(new PlaceholderDialog(m_applet->getClock(), m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
 }
 
 void Configuration::insertPlaceholder(const QString &placeholder)
@@ -265,7 +266,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + m_applet->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("')"));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QLatin1String("document.execCommand('inserthtml', false, '") + m_applet->getClock()->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true) + QLatin1String("')"));
     }
 }
 
@@ -649,7 +650,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::pageLayout(m_applet->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), theme.script, QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), (QLatin1String(PLACEHOLDERSTYLE) + theme.css), theme.script, QLatin1String("<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>")));
 
     enableUpdates();
     updateTheme(theme);
@@ -757,7 +758,7 @@ void Configuration::updateRow(int row)
         return;
     }
 
-    const QString preview = m_applet->evaluateFormat(m_clipboardUi.clipboardActionsTable->item(row, 0)->text(), QDateTime::currentDateTime());
+    const QString preview = m_applet->getClock()->evaluateFormat(m_clipboardUi.clipboardActionsTable->item(row, 0)->text(), QDateTime::currentDateTime());
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
