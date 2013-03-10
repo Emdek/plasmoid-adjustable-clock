@@ -359,14 +359,9 @@ void Applet::updateSize()
 
 void Applet::updateTheme()
 {
-    const QString html = m_currentHtml;
-    const Theme theme = getTheme();
-
+    m_page.settings()->setUserStyleSheetUrl(QUrl(getPageStyleSheet()));
     m_page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-
-    m_currentHtml = QString();
-
-    setTheme(html, theme.css, theme.script);
+    m_page.mainFrame()->setHtml(m_page.mainFrame()->toHtml());
 }
 
 void Applet::setTheme(const QString &html, const QString &css, const QString &script)
@@ -385,7 +380,12 @@ Clock* Applet::getClock() const
 
 QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head)
 {
-    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">* {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}%2</style><script type=\"text/javascript\">%3</script>%4</head><body><div>%5</div></body></html>").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).arg(css).arg(script).arg(head).arg(html);
+    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style><script type=\"text/javascript\">%2</script>%3</head><body><div>%4</div></body></html>").arg(css).arg(script).arg(head).arg(html);
+}
+
+QString Applet::getPageStyleSheet()
+{
+    return QString("data:text/css;charset=utf-8;base64,").append(QString("* {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64());
 }
 
 Theme Applet::getTheme() const

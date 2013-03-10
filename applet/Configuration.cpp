@@ -80,6 +80,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
+    m_appearanceUi.webView->page()->settings()->setUserStyleSheetUrl(QUrl(Applet::getPageStyleSheet()));
+    m_appearanceUi.webView->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
     m_appearanceUi.webView->page()->action(QWebPage::Redo)->setText(i18n("Redo"));
@@ -626,7 +628,7 @@ void Configuration::richTextChanged()
 
     Theme theme;
     theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(page, "\\1").replace(placeholder, "\\2\\1\\3").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
-    theme.css = css.cap(1).remove(QString("* {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}%2").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).arg(PLACEHOLDERSTYLE));
+    theme.css = css.cap(1);
     theme.script = script.cap(1).replace(placeholder, "\\2\\1\\3");
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
@@ -650,7 +652,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), QString(PLACEHOLDERSTYLE).append(theme.css), theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
 
     enableUpdates();
     updateTheme(theme);
