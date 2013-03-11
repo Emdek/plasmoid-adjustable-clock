@@ -91,7 +91,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     if (second == 0) {
         if (m_dateTime.time().minute() == 0) {
             if (m_dateTime.time().hour() == 0) {
-                if (m_dateTime.date().day() == 1) {
+                if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
                         emit yearChanged();
                     }
@@ -209,7 +209,7 @@ QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QD
     case TimeOfDayValue:
         return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
     case DayOfMonthValue:
-        return formatNumber(dateTime.date().day(), ((options & ShortFormOption) ? 0 : 2));
+        return formatNumber(m_applet->calendar()->day(dateTime.date()), ((options & ShortFormOption) ? 0 : 2));
     case DayOfWeekValue:
         if (options & TextualFormOption) {
             return m_applet->calendar()->weekDayName(m_applet->calendar()->dayOfWeek(dateTime.date()), ((options & ShortFormOption) ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
