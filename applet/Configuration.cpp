@@ -79,7 +79,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
-    m_appearanceUi.webView->page()->settings()->setUserStyleSheetUrl(QUrl(Applet::getPageStyleSheet() + QString(" placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}")));
+    m_appearanceUi.webView->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString(Applet::getPageStyleSheet().append(" placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}").toAscii().toBase64()))));
     m_appearanceUi.webView->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
@@ -271,7 +271,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     const QString html = QString("<span id=\"placeholder_%1\">%2</span>").arg(id).arg(m_clock->evaluate(QString("Clock.getTimeString(%1)").arg(placeholder)));
 
     m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
-    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"placeholder_%1\", %2);\n").arg(id).arg(placeholder));
+    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#placeholder_%1\", %2);\n").arg(id).arg(placeholder));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(html);
@@ -620,14 +620,14 @@ void Configuration::richTextChanged()
     QRegExp fontFamily = QRegExp("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>");
     fontFamily.setMinimal(true);
 
-    QRegExp placeholder = QRegExp("<placeholder.+alt=\"([^\"]+)\">.*((?=<).*>)?.*((?=<).*>)?.*</placeholder>");
+    QRegExp placeholder = QRegExp("<placeholder.+\">.*</fix>(.*)<fix>.*</placeholder>");
     placeholder.setMinimal(true);
 
-    QRegExp page = QRegExp("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>");
-    page.setMinimal(true);
+    QRegExp page = QRegExp(".+<body><div>(.+)</div><script type=\"text/javascript\" id=\"script\">.+");
+    page.setMinimal(false);
 
     Theme theme;
-    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(page, "\\1").replace(placeholder, "\\2\\1\\3").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
+    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(page, "\\1").replace(placeholder, "\\1").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
     theme.css = m_appearanceUi.cssTextEdit->toPlainText();
     theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
@@ -652,7 +652,11 @@ void Configuration::sourceChanged()
 
     m_clock->setDocument(m_appearanceUi.webView->page()->mainFrame());
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
+    QFile file(":/editor.js");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script));
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
 
     enableUpdates();
     updateTheme(theme);
