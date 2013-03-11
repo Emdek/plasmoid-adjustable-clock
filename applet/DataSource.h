@@ -73,7 +73,9 @@ Q_DECLARE_FLAGS(ValueOptions, ValueOption)
 
 struct Event
 {
-
+    QString type;
+    QString time;
+    QString summary;
 }
 
 class Applet;
@@ -103,6 +105,7 @@ class DataSource : public QObject
         QString m_timeQuery;
         QString m_eventsQuery;
         QStringList m_holidays;
+        QList<Event> m_events;
 
     signals:
         void timezoneChanged(QString timezone);
