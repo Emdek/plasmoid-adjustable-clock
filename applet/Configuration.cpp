@@ -39,6 +39,7 @@ namespace AdjustableClock
 
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
+    m_clock(new Clock(applet->getDataSource(), EditorClock)),
     m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL)
 {
@@ -261,10 +262,21 @@ void Configuration::insertPlaceholder()
 
 void Configuration::insertPlaceholder(const QString &placeholder)
 {
+    int id = 0;
+
+    while (m_appearanceUi.webView->page()->mainFrame()->findAllElements(QString("#placeholder_%1").arg(id)).count() > 0) {
+        ++id;
+    }
+
+    const QString html = QString("<span id=\"placeholder_%1\">%2</span>").arg(id).arg(m_clock->evaluate(QString("Clock.getTimeString(%1)").arg(placeholder)));
+
+    m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
+    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"placeholder_%1\", %2);\n").arg(id).arg(placeholder));
+
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
+        m_appearanceUi.htmlTextEdit->insertPlainText(html);
     } else {
-//        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, ''%1')").arg(m_applet->getClock()->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true)));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, '%1')").arg(html));
     }
 }
 
@@ -638,8 +650,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    Clock clock(m_applet->getDataSource(), EditorClock);
-    clock.setDocument(m_appearanceUi.webView->page()->mainFrame());
+    m_clock->setDocument(m_appearanceUi.webView->page()->mainFrame());
 
     m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
 

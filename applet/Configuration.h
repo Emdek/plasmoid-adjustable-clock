@@ -46,6 +46,8 @@ enum ModelRole
     BundledRole = (Qt::UserRole + 9)
 };
 
+class Clock;
+
 class Configuration : public QObject
 {
     Q_OBJECT
@@ -97,6 +99,7 @@ class Configuration : public QObject
 
     private:
         Applet *m_applet;
+        Clock *m_clock;
         QStandardItemModel *m_themesModel;
         QTableWidgetItem *m_editedItem;
         int m_fontSize;
