@@ -86,7 +86,6 @@ class Clock : public QObject
         void minuteChanged();
         void hourChanged();
         void dayChanged();
-        void weekChanged();
         void monthChanged();
         void yearChanged();
 };

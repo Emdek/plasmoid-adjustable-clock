@@ -116,13 +116,12 @@ class DataSource : public QObject
         QList<Event> m_events;
 
     signals:
-        void eventsChanged();
         void timezoneChanged();
+        void eventsChanged();
         void secondChanged();
         void minuteChanged();
         void hourChanged();
         void dayChanged();
-        void weekChanged();
         void monthChanged();
         void yearChanged();
 };

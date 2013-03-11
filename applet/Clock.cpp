@@ -45,7 +45,6 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
         connect(m_source, SIGNAL(minuteChanged()), this, SIGNAL(minuteChanged()));
         connect(m_source, SIGNAL(hourChanged()), this, SIGNAL(hourChanged()));
         connect(m_source, SIGNAL(dayChanged()), this, SIGNAL(dayChanged()));
-        connect(m_source, SIGNAL(weekChanged()), this, SIGNAL(weekChanged()));
         connect(m_source, SIGNAL(monthChanged()), this, SIGNAL(monthChanged()));
         connect(m_source, SIGNAL(yearChanged()), this, SIGNAL(yearChanged()));
     }

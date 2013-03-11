@@ -88,31 +88,49 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
     emit secondChanged();
 
-    if (QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
-        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
+    if (second == 0) {
+        if (m_dateTime.time().minute() == 0) {
+            if (m_dateTime.time().hour() == 0) {
+                if (m_dateTime.date().day() == 1) {
+                    if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
+                        emit yearChanged();
+                    }
 
-        m_eventsQuery = QString("evens:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+                    emit monthChanged();
+                }
 
-        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
+                m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
 
-        Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
+                m_eventsQuery = QString("evens:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-        m_sunrise = sunData["Sunrise"].toDateTime().time();
-        m_sunset = sunData["Sunset"].toDateTime().time();
+                m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
-        const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
-        const QString key = QString("holidays:%1:%2").arg(region).arg(getCurrentDateTime().date().toString(Qt::ISODate));
-        Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
+                Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
 
-        m_holidays.clear();
+                m_sunrise = sunData["Sunrise"].toDateTime().time();
+                m_sunset = sunData["Sunset"].toDateTime().time();
 
-        if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
-            QVariantList holidays = holidaysData[key].toList();
+                const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
+                const QString key = QString("holidays:%1:%2").arg(region).arg(getCurrentDateTime().date().toString(Qt::ISODate));
+                Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
 
-            for (int i = 0; i < holidays.length(); ++i) {
-                m_holidays.append(holidays[i].toHash()["Name"].toString());
+                m_holidays.clear();
+
+                if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
+                    QVariantList holidays = holidaysData[key].toList();
+
+                    for (int i = 0; i < holidays.length(); ++i) {
+                        m_holidays.append(holidays[i].toHash()["Name"].toString());
+                    }
+                }
+
+                emit dayChanged();
             }
+
+            emit hourChanged();
         }
+
+        emit minuteChanged();
     }
 }
 
