@@ -51,7 +51,7 @@ Clock::Clock(DataSource *parent, bool dynamic) : QObject(parent),
 }
 
 
-void Clock::applyRule(const PlaceholderRule &rule)
+void Clock::applyRule(const Placeholder &rule)
 {
     if (m_document) {
         setValue(m_document->findAllElements(rule.rule), rule.attribute, getTimeString(rule.value, rule.options));
@@ -60,20 +60,39 @@ void Clock::applyRule(const PlaceholderRule &rule)
 
 void Clock::setDocument(QWebFrame *document)
 {
+    m_rules.clear();
+
     m_document = document;
 }
 
-void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue type, ValueOptions options)
+void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options)
 {
+    Placeholder placeholder;
+    placeholder.rule = rule;
+    placeholder.attribute = attribute;
+    placeholder.value = value;
+    placeholder.options = options;
+
+    if (!m_rules.contains(value)) {
+        m_rules[value] = QList<Placeholder>();
+    }
+
+    m_rules[value].append(placeholder);
+
+    applyRule(placeholder);
 }
 
-void Clock::setRule(const QString &rule, ClockTimeValue type, ValueOptions options)
+void Clock::setRule(const QString &rule, ClockTimeValue value, ValueOptions options)
 {
-    setRule(rule, QString(), type, options);
+    setRule(rule, QString(), value, options);
 }
 
 void Clock::setValue(const QString &rule, const QString &attribute, const QString &value)
 {
+    if (!m_document) {
+        return;
+    }
+
     const QWebElementCollection elements = m_document->findAllElements(rule);
 
     for (int i = 0; i < elements.count(); ++i) {

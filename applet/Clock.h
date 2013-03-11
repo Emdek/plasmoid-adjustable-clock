@@ -33,7 +33,7 @@
 namespace AdjustableClock
 {
 
-struct PlaceholderRule
+struct Placeholder
 {
     QString rule;
     QString attribute;
@@ -49,8 +49,8 @@ class Clock : public QObject
         Clock(DataSource *parent, bool dynamic = true);
 
         void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, ClockTimeValue type, ValueOptions options = ValueDefaultForm);
-        Q_INVOKABLE void setRule(const QString &rule, ClockTimeValue type, ValueOptions options = ValueDefaultForm);
+        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options = ValueDefaultForm);
+        Q_INVOKABLE void setRule(const QString &rule, ClockTimeValue value, ValueOptions options = ValueDefaultForm);
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script) const;
@@ -58,7 +58,7 @@ class Clock : public QObject
         Q_INVOKABLE QVariantList getEventsList(ClockEventsType type, ValueOptions options) const;
 
     protected:
-        void applyRule(const PlaceholderRule &rule);
+        void applyRule(const Placeholder &rule);
         void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
         void setValue(const QWebElementCollection &elements, const QString &value);
 
@@ -66,7 +66,7 @@ class Clock : public QObject
         DataSource *m_source;
         QWebFrame *m_document;
         QScriptEngine m_engine;
-        QHash<ClockTimeValue, QList<PlaceholderRule> > m_rules;
+        QHash<ClockTimeValue, QList<Placeholder> > m_rules;
         bool m_dynamic;
 
     signals:
