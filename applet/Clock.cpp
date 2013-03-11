@@ -41,7 +41,6 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
     if (m_mode == StandardClock) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
         connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
-        connect(m_source, SIGNAL(timezoneChanged()), this, SIGNAL(timezoneChanged()));
         connect(m_source, SIGNAL(secondChanged()), this, SIGNAL(secondChanged()));
         connect(m_source, SIGNAL(minuteChanged()), this, SIGNAL(minuteChanged()));
         connect(m_source, SIGNAL(hourChanged()), this, SIGNAL(hourChanged()));
