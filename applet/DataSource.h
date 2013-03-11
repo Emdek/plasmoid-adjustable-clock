@@ -93,8 +93,8 @@ class DataSource : public QObject
 
         void setTimezone(const QString &timezone);
         QDateTime getCurrentDateTime() const;
-        QString getTimeString(ClockTimeValue type, ValueOptions options = ValueDefaultForm, QDateTime dateTime = QDateTime()) const;
-        QVariantList getEventsList(ClockEventsType type, ValueOptions options = ValueDefaultForm) const;
+        QString getTimeString(ClockTimeValue value, ValueOptions options = ValueDefaultForm, QDateTime dateTime = QDateTime()) const;
+        QVariantList getEventsList(ClockEventsType value, ValueOptions options = ValueDefaultForm) const;
 
     protected:
         static QString formatNumber(int number, int length);

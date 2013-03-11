@@ -31,12 +31,12 @@
 namespace AdjustableClock
 {
 
-Clock::Clock(DataSource *parent, bool dynamic) : QObject(parent),
+Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
     m_source(parent),
     m_document(NULL),
-    m_dynamic(dynamic)
+    m_mode(mode)
 {
-    if (dynamic) {
+    if (m_mode == StandardClock) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
         connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
         connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
@@ -71,17 +71,126 @@ void Clock::setDocument(QWebFrame *document)
 
 void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options)
 {
+    if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
+        QString title;
+
+        switch (value) {
+        case SecondValue:
+            title = i18n("Second");
+
+            break;
+        case MinuteValue:
+            title = i18n("Minute");
+
+            break;
+        case HourValue:
+            title = i18n("Hour");
+
+            break;
+        case TimeOfDayValue:
+            title = i18n("The pm or am string");
+
+            break;
+        case DayOfWeekValue:
+            title = i18n("Weekday");
+
+            break;
+        case DayOfMonthValue:
+            title = i18n("Day of the month");
+
+            break;
+        case DayOfYearValue:
+            title = i18n("Day of the year");
+
+            break;
+        case WeekValue:
+            title = i18n("Week");
+
+            break;
+        case MonthValue:
+            title = i18n("Month");
+
+            break;
+        case YearValue:
+            title = i18n("Year");
+
+            break;
+        case TimestampValue:
+            title = i18n("UNIX timestamp");
+
+            break;
+        case TimeValue:
+            title = i18n("Time");
+
+            break;
+        case DateValue:
+            title = i18n("Date");
+
+            break;
+        case DateTimeValue:
+            title = i18n("Date and time");
+
+            break;
+        case TimezoneNameValue:
+            title = i18n("Timezone name");
+
+            break;
+        case TimezoneAbbreviationValue:
+            title = i18n("Timezone abbreviation");
+
+            break;
+        case TimezoneOffsetValue:
+            title = i18n("Timezone offset");
+
+            break;
+        case TimezoneListValue:
+            title = i18n("Timezones list");
+
+            break;
+        case HolidaysValue:
+            title = i18n("Holidays list");
+
+            break;
+        case EventsValue:
+            title = i18n("Events list");
+
+            break;
+        case SunriseValue:
+            title = i18n("Sunrise time");
+
+            break;
+        case SunsetValue:
+            title = i18n("Sunset time");
+
+            break;
+        default:
+            title = QString();
+
+            break;
+        }
+
+        const QWebElementCollection elements = m_document->findAllElements(rule);
+
+        for (int i = 0; i < elements.count(); ++i) {
+            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->getTimeString(value, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+        }
+
+        return;
+    }
+
     Placeholder placeholder;
     placeholder.rule = rule;
     placeholder.attribute = attribute;
     placeholder.value = value;
     placeholder.options = options;
 
-    if (!m_rules.contains(value)) {
-        m_rules[value] = QList<Placeholder>();
-    }
+    if (m_mode == StandardClock) {
+        if (!m_rules.contains(value)) {
+            m_rules[value] = QList<Placeholder>();
+        }
 
-    m_rules[value].append(placeholder);
+        m_rules[value].append(placeholder);
+    }
 
     applyRule(placeholder);
 }
@@ -134,14 +243,14 @@ QString Clock::evaluate(const QString &script) const
     return QString();
 }
 
-QString Clock::getTimeString(ClockTimeValue type, ValueOptions options) const
+QString Clock::getTimeString(ClockTimeValue value, ValueOptions options) const
 {
-    return m_source->getTimeString(type, options, (m_dynamic ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->getTimeString(value, options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
-QVariantList Clock::getEventsList(ClockEventsType type, ValueOptions options) const
+QVariantList Clock::getEventsList(ClockEventsType value, ValueOptions options) const
 {
-    return m_source->getEventsList(type, options);
+    return m_source->getEventsList(value, options);
 }
 
 }

@@ -172,7 +172,7 @@ QDateTime DataSource::getCurrentDateTime() const
     return m_dateTime;
 }
 
-QString DataSource::getTimeString(ClockTimeValue type, ValueOptions options, QDateTime dateTime) const
+QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QDateTime dateTime) const
 {
     QStringList timezones;
     bool possesiveForm = false;
@@ -181,7 +181,7 @@ QString DataSource::getTimeString(ClockTimeValue type, ValueOptions options, QDa
         dateTime = m_dateTime;
     }
 
-    switch (type) {
+    switch (value) {
     case SecondValue:
         return formatNumber(dateTime.time().second(), ((options & ValueShortForm) ? 0 : 2));
     case MinuteValue:
@@ -262,7 +262,7 @@ QString DataSource::getTimeString(ClockTimeValue type, ValueOptions options, QDa
     return QString();
 }
 
-QVariantList DataSource::getEventsList(ClockEventsType type, ValueOptions options) const
+QVariantList DataSource::getEventsList(ClockEventsType value, ValueOptions options) const
 {
     return QVariantList();
 }

@@ -638,7 +638,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    Clock clock(m_applet->getDataSource(), false);
+    Clock clock(m_applet->getDataSource(), EditorClock);
     clock.setDocument(m_appearanceUi.webView->page()->mainFrame());
 
     m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));

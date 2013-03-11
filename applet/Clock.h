@@ -33,6 +33,13 @@
 namespace AdjustableClock
 {
 
+enum ClockMode
+{
+    StandardClock = 0,
+    StaticClock = 2,
+    EditorClock = 3
+};
+
 struct Placeholder
 {
     QString rule;
@@ -46,7 +53,7 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(DataSource *parent, bool dynamic = true);
+        Clock(DataSource *parent, ClockMode mode = StandardClock);
 
         void setDocument(QWebFrame *document);
         Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options = ValueDefaultForm);
@@ -54,8 +61,8 @@ class Clock : public QObject
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script) const;
-        Q_INVOKABLE QString getTimeString(ClockTimeValue type, ValueOptions options = ValueDefaultForm) const;
-        Q_INVOKABLE QVariantList getEventsList(ClockEventsType type, ValueOptions options = ValueDefaultForm) const;
+        Q_INVOKABLE QString getTimeString(ClockTimeValue value, ValueOptions options = ValueDefaultForm) const;
+        Q_INVOKABLE QVariantList getEventsList(ClockEventsType value, ValueOptions options = ValueDefaultForm) const;
 
     protected:
         void applyRule(const Placeholder &rule);
@@ -67,7 +74,7 @@ class Clock : public QObject
         QWebFrame *m_document;
         QScriptEngine m_engine;
         QHash<ClockTimeValue, QList<Placeholder> > m_rules;
-        bool m_dynamic;
+        ClockMode m_mode;
 
     signals:
         void themeChanged();

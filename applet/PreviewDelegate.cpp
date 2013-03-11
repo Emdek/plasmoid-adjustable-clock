@@ -85,7 +85,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-        Clock clock(m_source, false);
+        Clock clock(m_source, StaticClock);
         clock.setDocument(page.mainFrame());
 
         page.mainFrame()->setHtml(Applet::getPageLayout(index.data(HtmlRole).toString(), index.data(CssRole).toString(), index.data(ScriptRole).toString()));
