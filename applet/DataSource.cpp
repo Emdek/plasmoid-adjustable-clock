@@ -86,7 +86,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
     const int second = m_dateTime.time().second();
 
-    emit secondChanged(second);
+    emit secondChanged();
 
     if (QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
         m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
@@ -159,7 +159,7 @@ void DataSource::setTimezone(const QString &timezone)
 
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()));
 
-    emit timezoneChanged(m_timezoneAbbreviation);
+    emit timezoneChanged();
 }
 
 QString DataSource::formatNumber(int number, int length)

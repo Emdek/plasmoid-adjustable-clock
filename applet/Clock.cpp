@@ -41,14 +41,14 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
     if (m_mode == StandardClock) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
         connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
-        connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
-        connect(m_source, SIGNAL(secondChanged(int)), this, SIGNAL(secondChanged(int)));
-        connect(m_source, SIGNAL(minuteChanged(int)), this, SIGNAL(minuteChanged(int)));
-        connect(m_source, SIGNAL(hourChanged(int)), this, SIGNAL(hourChanged(int)));
-        connect(m_source, SIGNAL(dayChanged(int)), this, SIGNAL(dayChanged(int)));
-        connect(m_source, SIGNAL(weekChanged(int)), this, SIGNAL(weekChanged(int)));
-        connect(m_source, SIGNAL(monthChanged(int)), this, SIGNAL(monthChanged(int)));
-        connect(m_source, SIGNAL(yearChanged(int)), this, SIGNAL(yearChanged(int)));
+        connect(m_source, SIGNAL(timezoneChanged()), this, SIGNAL(timezoneChanged()));
+        connect(m_source, SIGNAL(secondChanged()), this, SIGNAL(secondChanged()));
+        connect(m_source, SIGNAL(minuteChanged()), this, SIGNAL(minuteChanged()));
+        connect(m_source, SIGNAL(hourChanged()), this, SIGNAL(hourChanged()));
+        connect(m_source, SIGNAL(dayChanged()), this, SIGNAL(dayChanged()));
+        connect(m_source, SIGNAL(weekChanged()), this, SIGNAL(weekChanged()));
+        connect(m_source, SIGNAL(monthChanged()), this, SIGNAL(monthChanged()));
+        connect(m_source, SIGNAL(yearChanged()), this, SIGNAL(yearChanged()));
     }
 
     QFile file(":/enums.js");
