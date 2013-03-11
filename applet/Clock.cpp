@@ -48,8 +48,16 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
         connect(m_source, SIGNAL(monthChanged(int)), this, SIGNAL(monthChanged(int)));
         connect(m_source, SIGNAL(yearChanged(int)), this, SIGNAL(yearChanged(int)));
     }
+
+    m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
 }
 
+void Clock::exposeClock()
+{
+    if (m_document) {
+        m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
+    }
+}
 
 void Clock::applyRule(const Placeholder &rule)
 {
@@ -64,17 +72,20 @@ void Clock::setDocument(QWebFrame *document)
 
     m_document = document;
 
-    if (m_document) {
-        m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
-    }
+    exposeClock();
+
+    connect(m_document, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(exposeClock()));
 }
 
-void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options)
+void Clock::setRule(const QString &rule, const QString &attribute, int value, int options)
 {
+    const ClockTimeValue nativeValue  = static_cast<ClockTimeValue>(value);
+    const ValueOptions nativeOptions = static_cast<ValueOptions>(options);
+
     if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
         QString title;
 
-        switch (value) {
+        switch (nativeValue) {
         case SecondValue:
             title = i18n("Second");
 
@@ -172,7 +183,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValu
         const QWebElementCollection elements = m_document->findAllElements(rule);
 
         for (int i = 0; i < elements.count(); ++i) {
-            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->getTimeString(value, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->getTimeString(nativeValue, nativeOptions, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
         }
 
         return;
@@ -181,21 +192,21 @@ void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValu
     Placeholder placeholder;
     placeholder.rule = rule;
     placeholder.attribute = attribute;
-    placeholder.value = value;
-    placeholder.options = options;
+    placeholder.value = nativeValue;
+    placeholder.options = nativeOptions;
 
     if (m_mode == StandardClock) {
-        if (!m_rules.contains(value)) {
-            m_rules[value] = QList<Placeholder>();
+        if (!m_rules.contains(nativeValue)) {
+            m_rules[nativeValue] = QList<Placeholder>();
         }
 
-        m_rules[value].append(placeholder);
+        m_rules[nativeValue].append(placeholder);
     }
 
     applyRule(placeholder);
 }
 
-void Clock::setRule(const QString &rule, ClockTimeValue value, ValueOptions options)
+void Clock::setRule(const QString &rule, int value, int options)
 {
     setRule(rule, QString(), value, options);
 }
@@ -238,19 +249,19 @@ void Clock::setValue(const QWebElementCollection &elements, const QString &value
     setValue(elements, QString(), value);
 }
 
-QString Clock::evaluate(const QString &script) const
+QString Clock::evaluate(const QString &script)
 {
-    return QString();
+    return m_engine.evaluate(script).toString();
 }
 
-QString Clock::getTimeString(ClockTimeValue value, ValueOptions options) const
+QString Clock::getTimeString(int value, int options) const
 {
-    return m_source->getTimeString(value, options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->getTimeString(static_cast<ClockTimeValue>(value), static_cast<ValueOptions>(options), ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
-QVariantList Clock::getEventsList(ClockEventsType value, ValueOptions options) const
+QVariantList Clock::getEventsList(int value, int options) const
 {
-    return m_source->getEventsList(value, options);
+    return m_source->getEventsList(static_cast<ClockEventsType>(value), static_cast<ValueOptions>(options));
 }
 
 }

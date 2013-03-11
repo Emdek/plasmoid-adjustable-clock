@@ -56,18 +56,21 @@ class Clock : public QObject
         Clock(DataSource *parent, ClockMode mode = StandardClock);
 
         void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options = ValueDefaultForm);
-        Q_INVOKABLE void setRule(const QString &rule, ClockTimeValue value, ValueOptions options = ValueDefaultForm);
+        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, int value, int options = 0);
+        Q_INVOKABLE void setRule(const QString &rule, int value, int options = 0);
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
-        QString evaluate(const QString &script) const;
-        Q_INVOKABLE QString getTimeString(ClockTimeValue value, ValueOptions options = ValueDefaultForm) const;
-        Q_INVOKABLE QVariantList getEventsList(ClockEventsType value, ValueOptions options = ValueDefaultForm) const;
+        QString evaluate(const QString &script);
+        Q_INVOKABLE QString getTimeString(int value, int options = 0) const;
+        Q_INVOKABLE QVariantList getEventsList(int value, int options = 0) const;
 
     protected:
         void applyRule(const Placeholder &rule);
         void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
         void setValue(const QWebElementCollection &elements, const QString &value);
+
+    protected slots:
+        void exposeClock();
 
     private:
         DataSource *m_source;
