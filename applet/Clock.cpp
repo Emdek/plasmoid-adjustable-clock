@@ -25,6 +25,7 @@
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
 
+#include <Plasma/Theme>
 #include <Plasma/ToolTipManager>
 
 namespace AdjustableClock
@@ -34,6 +35,7 @@ Clock::Clock(Applet *parent) : QObject(parent),
     m_applet(parent),
     m_document(NULL)
 {
+    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
 }
 
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)

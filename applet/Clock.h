@@ -154,6 +154,7 @@ class Clock : public QObject
         QFlags<ClockFeature> m_features;
 
     signals:
+        void themeChanged();
         void timezoneChanged(QString timezone);
         void secondChanged(int second);
         void minuteChanged(int minute);
