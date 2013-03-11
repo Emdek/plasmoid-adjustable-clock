@@ -57,7 +57,6 @@ class Applet : public ClockApplet
 
         void init();
         void saveCustomThemes(const QList<Theme> &getThemes);
-        void setTheme(const QString &html, const QString &css, const QString &script);
         Clock* getClock() const;
         static QString getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head = QString());
         static QString getPageStyleSheet();
@@ -96,7 +95,6 @@ class Applet : public ClockApplet
         Clock *m_clock;
         QAction *m_clipboardAction;
         QWebPage m_page;
-        QString m_currentHtml;
         QList<Theme> m_themes;
         int m_theme;
 };

@@ -219,6 +219,10 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
+
+    const Theme theme = getTheme();
+
+    m_page.mainFrame()->setHtml(getPageLayout(theme.html, theme.css, theme.script));
 }
 
 void Applet::copyToClipboard()
@@ -325,7 +329,7 @@ void Applet::updateSize()
 {
     const Theme theme = getTheme();
 
-    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
+//    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
 
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
@@ -359,7 +363,7 @@ void Applet::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
+//    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
 }
 
 void Applet::updateTheme()
@@ -367,15 +371,6 @@ void Applet::updateTheme()
     m_page.settings()->setUserStyleSheetUrl(QUrl(getPageStyleSheet()));
     m_page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
     m_page.mainFrame()->setHtml(m_page.mainFrame()->toHtml());
-}
-
-void Applet::setTheme(const QString &html, const QString &css, const QString &script)
-{
-    if (html != m_currentHtml) {
-        m_currentHtml = html;
-
-        m_page.mainFrame()->setHtml(getPageLayout(html, css, script));
-    }
 }
 
 Clock* Applet::getClock() const

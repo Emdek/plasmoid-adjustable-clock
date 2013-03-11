@@ -1,4 +1,3 @@
-- expose scripting API to allow scripts to fully control clock;
 - add API to display weather data;
 - try to reimplement analog clock using Plasma theme file (?);
 - allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);
