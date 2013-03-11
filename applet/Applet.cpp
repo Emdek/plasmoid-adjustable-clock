@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "Applet.h"
+#include "DataSource.h"
 #include "Clock.h"
 #include "Configuration.h"
 
@@ -45,7 +46,8 @@ namespace AdjustableClock
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_clock(new Clock(this)),
+    m_source(new DataSource(this)),
+    m_clock(new Clock(m_source)),
     m_clipboardAction(NULL),
     m_theme(-1)
 {
@@ -213,7 +215,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 {
     dataEngine("time")->disconnectSource(oldTimezone, m_clock);
 
-    m_clock->connectSource(newTimezone);
+    m_source->connectSource(newTimezone);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -221,7 +223,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluateFormat(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"), m_clock->getCurrentDateTime()));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -231,11 +233,15 @@ void Applet::copyToClipboard(QAction *action)
 
 void Applet::toolTipAboutToShow()
 {
+    connect(m_source, SIGNAL(secondChanged(int)), this, SLOT(updateToolTipContent()));
+
     updateToolTipContent();
 }
 
 void Applet::toolTipHidden()
 {
+    disconnect(m_source, SIGNAL(secondChanged(int)), this, SLOT(updateToolTipContent()));
+
     Plasma::ToolTipManager::self()->clearContent(this);
 }
 
@@ -285,7 +291,6 @@ void Applet::saveCustomThemes(const QList<Theme> &themes)
 
 void Applet::updateClipboardMenu()
 {
-    const QDateTime dateTime = m_clock->getCurrentDateTime();
     const QStringList clipboardFormats = getClipboardFormats();
 
     qDeleteAll(m_clipboardAction->menu()->actions());
@@ -296,7 +301,7 @@ void Applet::updateClipboardMenu()
         if (clipboardFormats.at(i).isEmpty()) {
             m_clipboardAction->menu()->addSeparator();
         } else {
-            m_clipboardAction->menu()->addAction(m_clock->evaluateFormat(clipboardFormats.at(i), dateTime));
+            m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardFormats.at(i)));
         }
     }
 }
@@ -307,11 +312,9 @@ void Applet::updateToolTipContent()
     QPair<QString, QString> toolTipFormat = getToolTipFormat();
 
     if (!toolTipFormat.first.isEmpty() || !toolTipFormat.second.isEmpty()) {
-        const QDateTime dateTime = m_clock->getCurrentDateTime();
-
         toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(m_clock->evaluateFormat(toolTipFormat.first, dateTime));
-        toolTipData.setSubText(m_clock->evaluateFormat(toolTipFormat.second, dateTime));
+        toolTipData.setMainText(m_clock->evaluate(toolTipFormat.first));
+        toolTipData.setSubText(m_clock->evaluate(toolTipFormat.second));
         toolTipData.setAutohide(false);
     }
 
@@ -322,7 +325,7 @@ void Applet::updateSize()
 {
     const Theme theme = getTheme();
 
-    setTheme(m_clock->evaluateFormat(theme.html), theme.css, theme.script);
+    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
 
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
@@ -356,7 +359,7 @@ void Applet::updateSize()
 
     m_page.setViewportSize(boundingRect().size().toSize());
 
-    setTheme(m_clock->evaluateFormat(theme.html, m_clock->getCurrentDateTime(false)), theme.css, theme.script);
+    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
 }
 
 void Applet::updateTheme()

@@ -128,7 +128,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_clipboardUi.clipboardActionsTable->insertRow(row);
         m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
 
-        preview = m_applet->getClock()->evaluateFormat(clipboardFormats.at(i), QDateTime::currentDateTime());
+        preview = m_applet->getClock()->evaluate(clipboardFormats.at(i));
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -268,7 +268,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(placeholder);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, ''%1')").arg(m_applet->getClock()->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true)));
+//        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, ''%1')").arg(m_applet->getClock()->evaluateFormat(placeholder, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true)));
     }
 }
 
@@ -652,7 +652,7 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
+//    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
 
     enableUpdates();
     updateTheme(theme);
@@ -760,7 +760,7 @@ void Configuration::updateRow(int row)
         return;
     }
 
-    const QString preview = m_applet->getClock()->evaluateFormat(m_clipboardUi.clipboardActionsTable->item(row, 0)->text(), QDateTime::currentDateTime());
+    const QString preview = m_applet->getClock()->evaluate(m_clipboardUi.clipboardActionsTable->item(row, 0)->text());
 
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
     m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);

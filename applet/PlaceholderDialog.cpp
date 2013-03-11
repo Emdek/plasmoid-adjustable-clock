@@ -75,7 +75,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(m_clock->evaluateFormat(placeholder(), QDateTime::currentDateTime()));
+    m_placeholderUi.previewLabel->setText(m_clock->evaluate(placeholder()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)

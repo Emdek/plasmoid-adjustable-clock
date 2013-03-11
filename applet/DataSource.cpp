@@ -86,6 +86,8 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
     const int second = m_dateTime.time().second();
 
+    emit secondChanged(second);
+
     if (QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
         m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
 

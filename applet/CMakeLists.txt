@@ -7,7 +7,7 @@ add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 
-set(adjustableclock_SRCS Applet.cpp Clock.cpp Configuration.cpp DataSource.cpp PlaceholderDialog.cpp PreviewDelegate.cpp FormatDelegate.cpp FormatLineEdit.cpp)
+set(adjustableclock_SRCS Applet.cpp DataSource.cpp Clock.cpp Configuration.cpp PlaceholderDialog.cpp PreviewDelegate.cpp FormatDelegate.cpp FormatLineEdit.cpp)
 
 add_subdirectory(locale)
 

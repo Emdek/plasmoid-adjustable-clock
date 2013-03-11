@@ -46,6 +46,7 @@ struct Theme
 };
 
 class Clock;
+class DataSource;
 
 class Applet : public ClockApplet
 {
@@ -91,6 +92,7 @@ class Applet : public ClockApplet
         void updateTheme();
 
     private:
+        DataSource *m_source;
         Clock *m_clock;
         QAction *m_clipboardAction;
         QWebPage m_page;
