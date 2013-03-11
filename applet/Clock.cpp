@@ -54,7 +54,7 @@ Clock::Clock(DataSource *parent, bool dynamic) : QObject(parent),
 void Clock::applyRule(const PlaceholderRule &rule)
 {
     if (m_document) {
-        setValue(m_document->findAllElements(rule.rule), rule.attribute, m_engine.evaluate(rule.expression).toString());
+        setValue(m_document->findAllElements(rule.rule), rule.attribute, getTimeString(rule.value, rule.options));
     }
 }
 
@@ -63,13 +63,13 @@ void Clock::setDocument(QWebFrame *document)
     m_document = document;
 }
 
-void Clock::setRule(const QString &rule, const QString &attribute, const QString &expression, IntervalAlignment alignment)
+void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue type, ValueOptions options)
 {
 }
 
-void Clock::setRule(const QString &rule, const QString &expression, IntervalAlignment alignment)
+void Clock::setRule(const QString &rule, ClockTimeValue type, ValueOptions options)
 {
-    setRule(rule, QString(), expression, alignment);
+    setRule(rule, QString(), type, options);
 }
 
 void Clock::setValue(const QString &rule, const QString &attribute, const QString &value)

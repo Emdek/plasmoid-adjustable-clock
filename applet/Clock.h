@@ -33,24 +33,12 @@
 namespace AdjustableClock
 {
 
-enum IntervalAlignment
-{
-    NoAlignment = 0,
-    SecondAlignment = 1,
-    MinuteAlignment = 2,
-    HourAlignment = 3,
-    DayAlignment = 4,
-    WeekAlignment = 5,
-    MonthAlignment = 6,
-    YearAlignment = 7
-};
-
 struct PlaceholderRule
 {
     QString rule;
     QString attribute;
-    QString expression;
-    IntervalAlignment alignment;
+    ClockTimeValue value;
+    ValueOptions options;
 };
 
 class Clock : public QObject
@@ -61,8 +49,8 @@ class Clock : public QObject
         Clock(DataSource *parent, bool dynamic = true);
 
         void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, const QString &expression, IntervalAlignment alignment);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &expression, IntervalAlignment alignment);
+        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, ClockTimeValue type, ValueOptions options = ValueDefaultForm);
+        Q_INVOKABLE void setRule(const QString &rule, ClockTimeValue type, ValueOptions options = ValueDefaultForm);
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script) const;
@@ -78,7 +66,7 @@ class Clock : public QObject
         DataSource *m_source;
         QWebFrame *m_document;
         QScriptEngine m_engine;
-        QHash<IntervalAlignment, QList<PlaceholderRule> > m_rules;
+        QHash<ClockTimeValue, QList<PlaceholderRule> > m_rules;
         bool m_dynamic;
 
     signals:
