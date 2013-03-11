@@ -56,7 +56,7 @@ class PlaceholderDialog : public KDialog
         Ui::placeholder m_placeholderUi;
 
     signals:
-        void insertPlaceholder(ClockTimeValue value, ValueOptions options);
+        void insertPlaceholder(QString script);
 };
 
 }

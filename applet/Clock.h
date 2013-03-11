@@ -54,8 +54,8 @@ class Clock : public QObject
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script) const;
-        Q_INVOKABLE QString getTimeString(ClockTimeValue type, ValueOptions options) const;
-        Q_INVOKABLE QVariantList getEventsList(ClockEventsType type, ValueOptions options) const;
+        Q_INVOKABLE QString getTimeString(ClockTimeValue type, ValueOptions options = ValueDefaultForm) const;
+        Q_INVOKABLE QVariantList getEventsList(ClockEventsType type, ValueOptions options = ValueDefaultForm) const;
 
     protected:
         void applyRule(const Placeholder &rule);

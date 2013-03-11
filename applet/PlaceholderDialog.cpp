@@ -71,7 +71,130 @@ PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(pa
 
 void PlaceholderDialog::sendSignal()
 {
-    emit insertPlaceholder(getPlaceholder(), getOptions());
+    QString scriptValue;
+    QStringList scriptOptions;
+    const ValueOptions options = getOptions();
+
+    switch (getPlaceholder()) {
+    case SecondValue:
+        scriptValue = "SecondValue";
+
+        break;
+    case MinuteValue:
+        scriptValue = "MinuteValue";
+
+        break;
+    case HourValue:
+        scriptValue = "HourValue";
+
+        break;
+    case TimeOfDayValue:
+        scriptValue = "TimeOfDayValue";
+
+        break;
+    case DayOfMonthValue:
+        scriptValue = "DayOfMonthValue";
+
+        break;
+    case DayOfWeekValue:
+        scriptValue = "DayOfWeekValue";
+
+        break;
+    case DayOfYearValue:
+        scriptValue = "DayOfYearValue";
+
+        break;
+    case WeekValue:
+        scriptValue = "WeekValue";
+
+        break;
+    case MonthValue:
+        scriptValue = "MonthValue";
+
+        break;
+    case YearValue:
+        scriptValue = "YearValue";
+
+        break;
+    case TimestampValue:
+        scriptValue = "TimestampValue";
+
+        break;
+    case TimeValue:
+        scriptValue = "TimeValue";
+
+        break;
+    case DateValue:
+        scriptValue = "DateValue";
+
+        break;
+    case DateTimeValue:
+        scriptValue = "DateTimeValue";
+
+        break;
+    case TimezoneNameValue:
+        scriptValue = "TimezoneNameValue";
+
+        break;
+    case TimezoneAbbreviationValue:
+        scriptValue = "TimezoneAbbreviationValue";
+
+        break;
+    case TimezoneOffsetValue:
+        scriptValue = "TimezoneOffsetValue";
+
+        break;
+    case TimezoneListValue:
+        scriptValue = "TimezoneListValue";
+
+        break;
+    case EventsValue:
+        scriptValue = "EventsValue";
+
+        break;
+    case HolidaysValue:
+        scriptValue = "HolidaysValue";
+
+        break;
+    case SunriseValue:
+        scriptValue = "SunriseValue";
+
+        break;
+    case SunsetValue:
+        scriptValue = "SunsetValue";
+
+        break;
+    default:
+        scriptValue = QString();
+
+        break;
+    }
+
+    if (options & ValueAlternativeForm) {
+        scriptOptions.append("Clock.ValueAlternativeForm");
+    }
+
+    if (options & ValueShortForm) {
+        scriptOptions.append("Clock.ValueShortForm");
+    }
+
+    if (options & ValueTextualForm) {
+        scriptOptions.append("Clock.ValueTextualForm");
+    }
+
+    if (options & ValuePossessiveForm) {
+        scriptOptions.append("Clock.ValuePossessiveForm");
+    }
+
+    if (options & ValueNonPossessiveForm) {
+        scriptOptions.append("Clock.ValueNonPossessiveForm");
+    }
+
+    if (scriptOptions.isEmpty()) {
+        emit insertPlaceholder(QString("Clock.%1").arg(scriptValue));
+    } else {
+        emit insertPlaceholder(QString("Clock.%1, (%2)").arg(scriptValue).arg(scriptOptions.join(QString(" | "))));
+    }
 }
 
 void PlaceholderDialog::updatePreview()

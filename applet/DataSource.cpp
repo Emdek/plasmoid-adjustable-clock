@@ -221,7 +221,7 @@ QString DataSource::getTimeString(ClockTimeValue type, ValueOptions options, QDa
     case DateTimeValue:
         return KGlobal::locale()->formatDateTime(dateTime, ((options & ValueShortForm) ? KLocale::ShortDate : KLocale::LongDate));
     case TimezoneNameValue:
-            return ((options & ValueShortForm) ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
+        return ((options & ValueShortForm) ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
     case TimezoneAbbreviationValue:
         return m_timezoneAbbreviation;
     case TimezoneOffsetValue:
