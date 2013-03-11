@@ -21,9 +21,9 @@
 #ifndef ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
 #define ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
 
-#include <KDialog>
-
 #include "DataSource.h"
+
+#include <KDialog>
 
 #include "ui_placeholder.h"
 

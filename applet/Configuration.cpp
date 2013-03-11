@@ -246,7 +246,6 @@ void Configuration::enableUpdates()
 {
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
@@ -254,7 +253,6 @@ void Configuration::disableUpdates()
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
@@ -618,25 +616,15 @@ void Configuration::richTextChanged()
     QRegExp page = QRegExp("<!DOCTYPE html><html><head>.+</head><body><div>(.+)</div></body></html>");
     page.setMinimal(true);
 
-    QRegExp css = QRegExp("<style type=\"text/css\">(.+)</style>");
-    css.setMinimal(true);
-    css.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
-
-    QRegExp script = QRegExp("<script type=\"text/javascript\">(.*)</script><script");
-    script.setMinimal(true);
-    script.indexIn(m_appearanceUi.webView->page()->mainFrame()->toHtml());
-
     Theme theme;
     theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(page, "\\1").replace(placeholder, "\\2\\1\\3").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
-    theme.css = css.cap(1);
-    theme.script = script.cap(1).replace(placeholder, "\\2\\1\\3");
+    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     disableUpdates();
 
     m_appearanceUi.htmlTextEdit->setPlainText(theme.html);
-    m_appearanceUi.cssTextEdit->setPlainText(theme.css);
-    m_appearanceUi.scriptTextEdit->setPlainText(theme.script);
 
     enableUpdates();
     updateTheme(theme);
