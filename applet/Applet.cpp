@@ -81,6 +81,7 @@ void Applet::init()
     m_clock->setDocument(m_page.mainFrame());
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
+    connect(m_source, SIGNAL(dayChanged(int)), this, SLOT(updateSize()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
     connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
@@ -329,8 +330,6 @@ void Applet::updateSize()
 {
     const Theme theme = getTheme();
 
-//    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
-
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
 
@@ -362,8 +361,6 @@ void Applet::updateSize()
     }
 
     m_page.setViewportSize(boundingRect().size().toSize());
-
-//    setTheme(m_clock->evaluate(theme.html), theme.css, theme.script);
 }
 
 void Applet::updateTheme()
