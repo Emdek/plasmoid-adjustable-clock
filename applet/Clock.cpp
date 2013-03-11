@@ -21,6 +21,8 @@
 #include "Clock.h"
 #include "DataSource.h"
 
+#include <QtCore/QFile>
+
 #include <KDateTime>
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
@@ -49,13 +51,21 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
         connect(m_source, SIGNAL(yearChanged(int)), this, SIGNAL(yearChanged(int)));
     }
 
+    QFile file(":/enums.js");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
+    m_engine.evaluate(QString(file.readAll()));
 }
 
 void Clock::exposeClock()
 {
     if (m_document) {
+        QFile file(":/enums.js");
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
         m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
+        m_document->evaluateJavaScript(QString(file.readAll()));
     }
 }
 
