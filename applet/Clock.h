@@ -82,14 +82,14 @@ class Clock : public QObject
     signals:
         void themeChanged();
         void eventsChanged();
-        void timezoneChanged(QString timezone);
-        void secondChanged(int second);
-        void minuteChanged(int minute);
-        void hourChanged(int hour);
-        void dayChanged(int day);
-        void weekChanged(int week);
-        void monthChanged(int month);
-        void yearChanged(int year);
+        void timezoneChanged();
+        void secondChanged();
+        void minuteChanged();
+        void hourChanged();
+        void dayChanged();
+        void weekChanged();
+        void monthChanged();
+        void yearChanged();
 };
 
 }
