@@ -71,6 +71,7 @@ class Clock : public QObject
 
     protected slots:
         void exposeClock();
+        void updateClock(const QList<ClockTimeValue> &changes);
 
     private:
         DataSource *m_source;

@@ -47,6 +47,7 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
         connect(m_source, SIGNAL(dayChanged()), this, SIGNAL(dayChanged()));
         connect(m_source, SIGNAL(monthChanged()), this, SIGNAL(monthChanged()));
         connect(m_source, SIGNAL(yearChanged()), this, SIGNAL(yearChanged()));
+        connect(m_source, SIGNAL(dataChanged(QList<ClockTimeValue>)), this, SLOT(updateClock(QList<ClockTimeValue>)));
     }
 
     QFile file(":/enums.js");
@@ -54,6 +55,17 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
 
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
     m_engine.evaluate(QString(file.readAll()));
+}
+
+void Clock::updateClock(const QList<ClockTimeValue> &changes)
+{
+    for (int i = 0; i < changes.count(); ++i) {
+        if (m_rules.contains(changes.at(i))) {
+            for (int j = 0; j < m_rules[changes.at(i)].count(); ++j) {
+                applyRule(m_rules[changes.at(i)].at(j));
+            }
+        }
+    }
 }
 
 void Clock::exposeClock()
