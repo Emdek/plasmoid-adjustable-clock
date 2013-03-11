@@ -32,33 +32,34 @@ PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(pa
     setButtons(KDialog::Cancel | KDialog::Ok);
     setModal(true);
 
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Second"), QVariant(QLatin1Char('s')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Minute"), QVariant(QLatin1Char('m')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Hour"), QVariant(QLatin1Char('h')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("The pm or am string"), QVariant(QLatin1Char('p')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Day of the month"), QVariant(QLatin1Char('d')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Weekday"), QVariant(QLatin1Char('w')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Day of the year"), QVariant(QLatin1Char('D')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Week"), QVariant(QLatin1Char('W')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Month"), QVariant(QLatin1Char('M')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Year"), QVariant(QLatin1Char('Y')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("UNIX timestamp"), QVariant(QLatin1Char('U')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Time"), QVariant(QLatin1Char('t')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Date"), QVariant(QLatin1Char('T')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Date and time"), QVariant(QLatin1Char('A')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone"), QVariant(QLatin1Char('z')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(QLatin1Char('Z')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(QLatin1Char('H')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(QLatin1Char('E')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(QLatin1Char('R')));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Sunset time"), QVariant(QLatin1Char('S')));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Second"), QVariant(SecondValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Minute"), QVariant(MinuteValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Hour"), QVariant(HourValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("The pm or am string"), QVariant(TimeOfDayValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Weekday"), QVariant(DayOfWeekValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Day of the month"), QVariant(DayOfMonthValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Day of the year"), QVariant(DayOfYearValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Week"), QVariant(WeekValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Month"), QVariant(MonthValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Year"), QVariant(YearValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("UNIX timestamp"), QVariant(TimestampValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Time"), QVariant(TimeValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Date"), QVariant(DateValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Date and time"), QVariant(DateTimeValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone name"), QVariant(TimezoneNameValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimezoneAbbreviationValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone offset"), QVariant(TimezoneOffsetValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(TimezoneListValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(EventsValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Sunset time"), QVariant(SunsetValue));
 
     selectPlaceholder(0);
     adjustSize();
     show();
 
     connect(m_placeholderUi.placeholderComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectPlaceholder(int)));
-    connect(m_placeholderUi.timezoneModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectTimezoneMode(int)));
     connect(m_placeholderUi.shortFormCheckBox, SIGNAL(toggled(bool)), this, SLOT(setShortForm(bool)));
     connect(m_placeholderUi.leadingZerosCheckBox, SIGNAL(toggled(bool)), this, SLOT(setShortForm(bool)));
     connect(m_placeholderUi.hoursModeCheckBox, SIGNAL(toggled(bool)), this, SLOT(setAlternativeForm(bool)));
@@ -70,41 +71,35 @@ PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(pa
 
 void PlaceholderDialog::sendSignal()
 {
-    emit insertPlaceholder(placeholder());
+    emit insertPlaceholder(getPlaceholder(), getOptions());
 }
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(m_clock->evaluate(placeholder()));
+    m_placeholderUi.previewLabel->setText(m_clock->getTimeString(getPlaceholder(), getOptions()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)
 {
-    const QChar placeholder = m_placeholderUi.placeholderComboBox->itemData(index).toChar();
+    const ClockTimeValue placeholder = static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(index).toInt());
 
-    if (placeholder == QLatin1Char('p') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('Z') || placeholder == QLatin1Char('H') || placeholder == QLatin1Char('E')) {
+    if (placeholder == TimeOfDayValue || placeholder == TimezoneNameValue || placeholder == TimezoneAbbreviationValue || placeholder == TimezoneOffsetValue || placeholder == TimezoneListValue || placeholder == HolidaysValue || placeholder == EventsValue) {
         m_placeholderUi.textualFormCheckBox->setChecked(true);
-    } else if (!(placeholder == QLatin1Char('m') || placeholder == QLatin1Char('w'))) {
+    } else if (!(placeholder == MinuteValue || placeholder == DayOfWeekValue)) {
         m_placeholderUi.textualFormCheckBox->setChecked(false);
     }
 
-    m_placeholderUi.timezoneModeComboBox->setEnabled(placeholder == QLatin1Char('z'));
-    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M') || placeholder == QLatin1Char('Y') || placeholder == QLatin1Char('t') || placeholder == QLatin1Char('T') || placeholder == QLatin1Char('z') || placeholder == QLatin1Char('Z') || placeholder == QLatin1Char('H') || placeholder == QLatin1Char('E'));
-    m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == QLatin1Char('h'));
-    m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M'));
-    m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == QLatin1Char('M'));
-    m_placeholderUi.leadingZerosCheckBox->setEnabled(placeholder == QLatin1Char('s') || placeholder == QLatin1Char('m') || placeholder == QLatin1Char('h') || placeholder == QLatin1Char('d') || placeholder == QLatin1Char('D') || placeholder == QLatin1Char('w') || placeholder == QLatin1Char('W') || placeholder == QLatin1Char('M'));
+    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue || placeholder == YearValue || placeholder == TimeValue || placeholder == DateValue || placeholder == TimezoneNameValue || placeholder == TimezoneListValue || placeholder == HolidaysValue || placeholder == EventsValue);
+    m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == HourValue);
+    m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue);
+    m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == MonthValue);
+    m_placeholderUi.leadingZerosCheckBox->setEnabled(placeholder == SecondValue || placeholder == MinuteValue || placeholder == HourValue || placeholder == DayOfMonthValue || placeholder == DayOfYearValue || placeholder == DayOfWeekValue || placeholder == WeekValue || placeholder == MonthValue);
     m_placeholderUi.leadingZerosCheckBox->setChecked(m_placeholderUi.leadingZerosCheckBox->isEnabled());
-    m_placeholderUi.timezoneModeLabel->setEnabled(m_placeholderUi.timezoneModeComboBox->isEnabled());
     m_placeholderUi.shortFormLabel->setEnabled(m_placeholderUi.shortFormCheckBox->isEnabled());
     m_placeholderUi.hoursModeLabel->setEnabled(m_placeholderUi.hoursModeCheckBox->isEnabled());
     m_placeholderUi.textualFormLabel->setEnabled(m_placeholderUi.textualFormCheckBox->isEnabled());
     m_placeholderUi.possessiveFormLabel->setEnabled(m_placeholderUi.possessiveFormCheckBox->isEnabled());
     m_placeholderUi.leadingZerosLabel->setEnabled(m_placeholderUi.leadingZerosCheckBox->isEnabled());
-
-    if (!m_placeholderUi.timezoneModeComboBox->isEnabled()) {
-        m_placeholderUi.timezoneModeComboBox->setCurrentIndex(0);
-    }
 
     if (!m_placeholderUi.shortFormCheckBox->isEnabled()) {
         m_placeholderUi.shortFormCheckBox->setChecked(false);
@@ -121,19 +116,11 @@ void PlaceholderDialog::selectPlaceholder(int index)
     updatePreview();
 }
 
-void PlaceholderDialog::selectTimezoneMode(int index)
-{
-    m_placeholderUi.shortFormCheckBox->setEnabled(index == 0);
-    m_placeholderUi.shortFormLabel->setEnabled(index == 0);
-
-    updatePreview();
-}
-
 void PlaceholderDialog::setShortForm(bool shortForm)
 {
-    const QChar placeholder = m_placeholderUi.placeholderComboBox->itemData(m_placeholderUi.placeholderComboBox->currentIndex()).toChar();
+    const ClockTimeValue placeholder = static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(m_placeholderUi.placeholderComboBox->currentIndex()).toInt());
 
-    if (sender() == m_placeholderUi.leadingZerosCheckBox && (placeholder == QLatin1Char('w') || placeholder == QLatin1Char('M'))) {
+    if (sender() == m_placeholderUi.leadingZerosCheckBox && (placeholder == DayOfWeekValue || placeholder == MonthValue)) {
         m_placeholderUi.textualFormCheckBox->setEnabled(!shortForm);
         m_placeholderUi.textualFormLabel->setEnabled(!shortForm);
     }
@@ -156,29 +143,30 @@ void PlaceholderDialog::setAlternativeForm(bool alternativeForm)
     updatePreview();
 }
 
-QString PlaceholderDialog::placeholder()
+ClockTimeValue PlaceholderDialog::getPlaceholder() const
 {
-    QString placeholder(QLatin1Char('%'));
+    return static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(m_placeholderUi.placeholderComboBox->currentIndex()).toInt());
+}
+
+ValueOptions PlaceholderDialog::getOptions() const
+{
+    ValueOptions options;
 
     if (m_placeholderUi.shortFormCheckBox->isChecked() || (m_placeholderUi.leadingZerosCheckBox->isEnabled() && !m_placeholderUi.leadingZerosCheckBox->isChecked())) {
-        placeholder.append(QLatin1Char('!'));
+        options |= ValueShortForm;
     }
 
-    if ((m_placeholderUi.textualFormCheckBox->isEnabled() && m_placeholderUi.textualFormCheckBox->isChecked()) || (m_placeholderUi.timezoneModeComboBox->isEnabled() && m_placeholderUi.timezoneModeComboBox->currentIndex() != 2)) {
-        placeholder.append(QLatin1Char('$'));
+    if (m_placeholderUi.textualFormCheckBox->isEnabled() && m_placeholderUi.textualFormCheckBox->isChecked()) {
+        options |= ValueTextualForm;
     }
 
     if (m_placeholderUi.textualFormCheckBox->isChecked() && m_placeholderUi.possessiveFormCheckBox->checkState() != Qt::PartiallyChecked) {
-        placeholder.append(m_placeholderUi.possessiveFormCheckBox->isChecked() ? QLatin1Char('+') : QLatin1Char('-'));
+        options |= (m_placeholderUi.possessiveFormCheckBox->isChecked() ? ValuePossessiveForm : ValueNonPossessiveForm);
     } else  if (m_placeholderUi.hoursModeCheckBox->checkState() != Qt::PartiallyChecked) {
-        placeholder.append(m_placeholderUi.hoursModeCheckBox->isChecked() ? QLatin1Char('+') : QLatin1Char('-'));
-    } else if (m_placeholderUi.timezoneModeComboBox->isEnabled() && m_placeholderUi.timezoneModeComboBox->currentIndex() == 1) {
-        placeholder.append(QLatin1Char('+'));
+        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? ValuePossessiveForm : ValueNonPossessiveForm);
     }
 
-    placeholder.append(m_placeholderUi.placeholderComboBox->itemData(m_placeholderUi.placeholderComboBox->currentIndex(), Qt::UserRole).toString());
-
-    return placeholder;
+    return options;
 }
 
 }

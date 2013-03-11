@@ -23,6 +23,8 @@
 
 #include <KDialog>
 
+#include "DataSource.h"
+
 #include "ui_placeholder.h"
 
 namespace AdjustableClock
@@ -38,13 +40,13 @@ class PlaceholderDialog : public KDialog
         PlaceholderDialog(Clock *clock, QWidget *parent);
 
     protected:
-        QString placeholder();
+        ClockTimeValue getPlaceholder() const;
+        ValueOptions getOptions() const;
 
     protected slots:
         void sendSignal();
         void updatePreview();
         void selectPlaceholder(int index);
-        void selectTimezoneMode(int index);
         void setShortForm(bool shortForm);
         void setTextualForm(bool textualForm);
         void setAlternativeForm(bool alternativeForm);
@@ -54,7 +56,7 @@ class PlaceholderDialog : public KDialog
         Ui::placeholder m_placeholderUi;
 
     signals:
-        void insertPlaceholder(QString placeholder);
+        void insertPlaceholder(ClockTimeValue value, ValueOptions options);
 };
 
 }
