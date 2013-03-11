@@ -127,7 +127,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_clipboardUi.clipboardActionsTable->insertRow(row);
         m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
 
-        preview = m_applet->getClock()->evaluate(clipboardFormats.at(i));
+        preview = (clipboardFormats.at(i).isEmpty() ? QString() : m_applet->getClock()->evaluate(clipboardFormats.at(i)));
 
         QTableWidgetItem *item = new QTableWidgetItem(preview);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

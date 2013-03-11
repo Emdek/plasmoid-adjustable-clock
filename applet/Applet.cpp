@@ -228,7 +228,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s")));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "Clock.getTimeString(Clock.YearValue) + '-' + Clock.getTimeString(Clock.MonthValue) + '-' + Clock.getTimeString(Clock.DayOfMonthValue) + ' ' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -418,18 +418,18 @@ QPair<QString, QString> Applet::getToolTipFormat() const
 QStringList Applet::getClipboardFormats() const
 {
     QStringList clipboardFormats;
-    clipboardFormats << "%!t"
-    << "%t"
-    << "%h:%m:%s"
+    clipboardFormats << "Clock.getTimeString(Clock.TimeValue, Clock.ShortFormOption)"
+    << "Clock.getTimeString(Clock.TimeValue)"
+    << "Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)"
     << QString()
-    << "%!T"
-    << "%T"
+    << "Clock.getTimeString(Clock.DateValue, Clock.ShortFormOption)"
+    << "Clock.getTimeString(Clock.DateValue)"
     << QString()
-    << "%!A"
-    << "%A"
-    << "%Y-%M-%d %h:%m:%s"
+    << "Clock.getTimeString(Clock.DateTimeValue, Clock.ShortFormOption)"
+    << "Clock.getTimeString(Clock.DateTimeValue)"
+    << "Clock.getTimeString(Clock.YearValue) + '-' + Clock.getTimeString(Clock.MonthValue) + '-' + Clock.getTimeString(Clock.DayOfMonthValue) + ' ' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)"
     << QString()
-    << "%U";
+    << "Clock.getTimeString(Clock.TimestampValue)";
 
     return config().readEntry("clipboardFormats", clipboardFormats);
 }
