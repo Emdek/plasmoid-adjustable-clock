@@ -409,8 +409,8 @@ Theme Applet::getTheme() const
 QPair<QString, QString> Applet::getToolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "<div style=\"text-align:center;\">%h:%m:%s<br>%$w, %d.%M.%Y</div>");
-    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "%!Z%E");
+    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue) +'<br>' + Clock.getTimeString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.getTimeString(Clock.DayOfMonthValue) + '.' + Clock.getTimeString(Clock.MonthValue) + '.' + Clock.getTimeString(Clock.YearValue) + '</div>'");
+    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.getTimeString(Clock.TimezoneListValue, Clock.ShortFormOption) + Clock.getTimeString(Clock.EventsValue)");
 
     return toolTipFormat;
 }
