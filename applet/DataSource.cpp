@@ -183,45 +183,45 @@ QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QD
 
     switch (value) {
     case SecondValue:
-        return formatNumber(dateTime.time().second(), ((options & ValueShortForm) ? 0 : 2));
+        return formatNumber(dateTime.time().second(), ((options & ShortFormOption) ? 0 : 2));
     case MinuteValue:
-        return formatNumber(dateTime.time().minute(), ((options & ValueShortForm) ? 0 : 2));
+        return formatNumber(dateTime.time().minute(), ((options & ShortFormOption) ? 0 : 2));
     case HourValue:
-        return formatNumber(((options & ValueAlternativeForm || KGlobal::locale()->use12Clock()) ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), ((options & ValueShortForm) ? 0 : 2));
+        return formatNumber(((options & AlternativeFormOption || KGlobal::locale()->use12Clock()) ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), ((options & ShortFormOption) ? 0 : 2));
     case TimeOfDayValue:
         return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
     case DayOfMonthValue:
-        return formatNumber(dateTime.date().day(), ((options & ValueShortForm) ? 0 : 2));
+        return formatNumber(dateTime.date().day(), ((options & ShortFormOption) ? 0 : 2));
     case DayOfWeekValue:
-        if (options & ValueTextualForm) {
-            return m_applet->calendar()->weekDayName(m_applet->calendar()->dayOfWeek(dateTime.date()), ((options & ValueShortForm) ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
+        if (options & TextualFormOption) {
+            return m_applet->calendar()->weekDayName(m_applet->calendar()->dayOfWeek(dateTime.date()), ((options & ShortFormOption) ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
         }
 
-        return formatNumber(m_applet->calendar()->dayOfWeek(dateTime.date()), ((options & ValueShortForm) ? 0 : QString::number(m_applet->calendar()->daysInWeek(dateTime.date())).length()));
+        return formatNumber(m_applet->calendar()->dayOfWeek(dateTime.date()), ((options & ShortFormOption) ? 0 : QString::number(m_applet->calendar()->daysInWeek(dateTime.date())).length()));
     case DayOfYearValue:
-        return formatNumber(m_applet->calendar()->dayOfYear(dateTime.date()), ((options & ValueShortForm) ? 0 : QString::number(m_applet->calendar()->daysInYear(dateTime.date())).length()));
+        return formatNumber(m_applet->calendar()->dayOfYear(dateTime.date()), ((options & ShortFormOption) ? 0 : QString::number(m_applet->calendar()->daysInYear(dateTime.date())).length()));
     case WeekValue:
-        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, ((options & ValueShortForm) ? KLocale::ShortNumber : KLocale::LongNumber));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, ((options & ShortFormOption) ? KLocale::ShortNumber : KLocale::LongNumber));
     case MonthValue:
-        if (options & ValueTextualForm) {
-            possesiveForm = ((!(options & ValuePossessiveForm) && !(options & ValueNonPossessiveForm)) ? KGlobal::locale()->dateMonthNamePossessive() : (options & ValuePossessiveForm));
+        if (options & TextualFormOption) {
+            possesiveForm = ((!(options & PossessiveFormOption) && !(options & NonPossessiveFormOption)) ? KGlobal::locale()->dateMonthNamePossessive() : (options & PossessiveFormOption));
 
-            return m_applet->calendar()->monthName(dateTime.date(), ((options & ValueShortForm) ? (possesiveForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (possesiveForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+            return m_applet->calendar()->monthName(dateTime.date(), ((options & ShortFormOption) ? (possesiveForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (possesiveForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
         }
 
-        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Month, ((options & ValueShortForm) ? KLocale::ShortNumber : KLocale::LongNumber));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Month, ((options & ShortFormOption) ? KLocale::ShortNumber : KLocale::LongNumber));
     case YearValue:
-        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, ((options & ValueShortForm) ? KLocale::ShortNumber : KLocale::LongNumber));
+        return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, ((options & ShortFormOption) ? KLocale::ShortNumber : KLocale::LongNumber));
     case TimestampValue:
         return QString::number(dateTime.toTime_t());
     case TimeValue:
-        return KGlobal::locale()->formatTime(dateTime.time(), !(options & ValueShortForm));
+        return KGlobal::locale()->formatTime(dateTime.time(), !(options & ShortFormOption));
     case DateValue:
-        return KGlobal::locale()->formatDate(dateTime.date(), ((options & ValueShortForm) ? KLocale::ShortDate : KLocale::LongDate));
+        return KGlobal::locale()->formatDate(dateTime.date(), ((options & ShortFormOption) ? KLocale::ShortDate : KLocale::LongDate));
     case DateTimeValue:
-        return KGlobal::locale()->formatDateTime(dateTime, ((options & ValueShortForm) ? KLocale::ShortDate : KLocale::LongDate));
+        return KGlobal::locale()->formatDateTime(dateTime, ((options & ShortFormOption) ? KLocale::ShortDate : KLocale::LongDate));
     case TimezoneNameValue:
-        return ((options & ValueShortForm) ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
+        return ((options & ShortFormOption) ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
     case TimezoneAbbreviationValue:
         return m_timezoneAbbreviation;
     case TimezoneOffsetValue:
@@ -237,7 +237,7 @@ QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QD
         for (int i = 0; i < timezones.length(); ++i) {
             QString timezone = i18n((timezones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(timezones.at(i))).name().toUtf8().data()).replace(QChar('_'), QChar(' '));
 
-            if ((options & ValueShortForm) && timezone.contains(QChar('/'))) {
+            if ((options & ShortFormOption) && timezone.contains(QChar('/'))) {
                 timezone = timezone.split(QChar('/')).last();
             }
 
@@ -248,9 +248,9 @@ QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QD
 
         return QString("<table>\n<tr>%1</tr>\n</table>").arg(timezones.join("</tr>\n<tr>"));
     case EventsValue:
-//        return ((options & ValueShortForm) ? m_eventsShort : m_eventsLong);
+//        return ((options & ShortFormOption) ? m_eventsShort : m_eventsLong);
     case HolidaysValue:
-        return ((options & ValueShortForm) ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
+        return ((options & ShortFormOption) ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
     case SunriseValue:
         return KGlobal::locale()->formatTime(m_sunrise, false);
     case SunsetValue:

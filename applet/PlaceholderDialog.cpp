@@ -170,24 +170,24 @@ void PlaceholderDialog::sendSignal()
         break;
     }
 
-    if (options & ValueAlternativeForm) {
-        scriptOptions.append("Clock.ValueAlternativeForm");
+    if (options & AlternativeFormOption) {
+        scriptOptions.append("Clock.AlternativeFormOption");
     }
 
-    if (options & ValueShortForm) {
-        scriptOptions.append("Clock.ValueShortForm");
+    if (options & ShortFormOption) {
+        scriptOptions.append("Clock.ShortFormOption");
     }
 
-    if (options & ValueTextualForm) {
-        scriptOptions.append("Clock.ValueTextualForm");
+    if (options & TextualFormOption) {
+        scriptOptions.append("Clock.TextualFormOption");
     }
 
-    if (options & ValuePossessiveForm) {
-        scriptOptions.append("Clock.ValuePossessiveForm");
+    if (options & PossessiveFormOption) {
+        scriptOptions.append("Clock.PossessiveFormOption");
     }
 
-    if (options & ValueNonPossessiveForm) {
-        scriptOptions.append("Clock.ValueNonPossessiveForm");
+    if (options & NonPossessiveFormOption) {
+        scriptOptions.append("Clock.NonPossessiveFormOption");
     }
 
     if (scriptOptions.isEmpty()) {
@@ -278,17 +278,17 @@ ValueOptions PlaceholderDialog::getOptions() const
     ValueOptions options;
 
     if (m_placeholderUi.shortFormCheckBox->isChecked() || (m_placeholderUi.leadingZerosCheckBox->isEnabled() && !m_placeholderUi.leadingZerosCheckBox->isChecked())) {
-        options |= ValueShortForm;
+        options |= ShortFormOption;
     }
 
     if (m_placeholderUi.textualFormCheckBox->isEnabled() && m_placeholderUi.textualFormCheckBox->isChecked()) {
-        options |= ValueTextualForm;
+        options |= TextualFormOption;
     }
 
     if (m_placeholderUi.textualFormCheckBox->isChecked() && m_placeholderUi.possessiveFormCheckBox->checkState() != Qt::PartiallyChecked) {
-        options |= (m_placeholderUi.possessiveFormCheckBox->isChecked() ? ValuePossessiveForm : ValueNonPossessiveForm);
+        options |= (m_placeholderUi.possessiveFormCheckBox->isChecked() ? PossessiveFormOption : NonPossessiveFormOption);
     } else  if (m_placeholderUi.hoursModeCheckBox->checkState() != Qt::PartiallyChecked) {
-        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? ValuePossessiveForm : ValueNonPossessiveForm);
+        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? PossessiveFormOption : NonPossessiveFormOption);
     }
 
     return options;
