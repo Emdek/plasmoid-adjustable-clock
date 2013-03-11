@@ -84,7 +84,7 @@ class Clock : public QObject
         QString evaluateFormat(const QString &format, QDateTime dateTime = QDateTime(), bool special = false);
         QString evaluatePlaceholder(ushort placeholder, QDateTime dateTime, int alternativeForm, bool shortForm, bool textualForm);
         QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
-        Q_INVOKABLE QVariantList getEventsList(ClockEventsValue type, ValueOptions options) const;
+        Q_INVOKABLE QVariantList getEventsList(ClockEventsType type, ValueOptions options) const;
 
     public slots:
         void reset();

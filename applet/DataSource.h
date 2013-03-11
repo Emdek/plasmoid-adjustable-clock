@@ -46,27 +46,32 @@ enum ClockTimeValue
     TimestampValue = 10,
     TimeValue = 11,
     DateValue = 12,
-    TimezoneValue = 13,
-    SunriseValue = 14,
-    SunsetValue = 15
+    DateTimeValue = 13,
+    TimezoneNameValue = 14,
+    TimezoneAbbreviationValue = 15,
+    TimezoneOffsetValue = 16,
+    TimezoneListValue = 17,
+    SunriseValue = 18,
+    SunsetValue = 19,
+    EventsValue = 20,
+    HolidaysValue = 21
 };
 
-enum ClockEventsValue
+enum ClockEventsType
 {
-    EventsValue = 0,
-    HolidaysValue = 1
+    EventsType = 0,
+    HolidaysType = 1
 };
 
 enum ValueOption
 {
     ValueDefaultForm = 0,
-    ValueShortForm = 1,
-    ValueLongForm = 2,
-    ValueTextualForm = 4,
-    ValuePossessiveForm = 8,
-    ValueTimezoneName = 16,
-    ValueTimezoneAbbreviation = 32,
-    ValueTimezoneOffset = 64
+    ValueAlternativeForm = 1,
+    ValueShortForm = 2,
+    ValueLongForm = 4,
+    ValueTextualForm = 8,
+    ValuePossessiveForm = 16,
+    ValueNonPossessiveForm = 32
 };
 
 Q_DECLARE_FLAGS(ValueOptions, ValueOption)
@@ -90,7 +95,7 @@ class DataSource : public QObject
         void connectSource(const QString &timezone);
         QDateTime getCurrentDateTime() const;
         QString getTimeString(ClockTimeValue type, ValueOptions options) const;
-        QVariantList getEventsList(ClockEventsValue type, ValueOptions options) const;
+        QVariantList getEventsList(ClockEventsType type, ValueOptions options) const;
 
     protected:
         static QString formatNumber(int number, int length);

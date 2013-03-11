@@ -683,7 +683,7 @@ QString Clock::getTimeString(ClockTimeValue type, ValueOptions options) const
     return QString();
 }
 
-QVariantList Clock::getEventsList(ClockEventsValue type, ValueOptions options) const
+QVariantList Clock::getEventsList(ClockEventsType type, ValueOptions options) const
 {
     return QVariantList();
 }
