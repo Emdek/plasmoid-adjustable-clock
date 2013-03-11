@@ -31,20 +31,23 @@
 namespace AdjustableClock
 {
 
-Clock::Clock(DataSource *parent) : QObject(parent),
+Clock::Clock(DataSource *parent, bool dynamic) : QObject(parent),
     m_source(parent),
-    m_document(NULL)
+    m_document(NULL),
+    m_dynamic(dynamic)
 {
-    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
-    connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
-    connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
-    connect(m_source, SIGNAL(secondChanged(int)), this, SIGNAL(secondChanged(int)));
-    connect(m_source, SIGNAL(minuteChanged(int)), this, SIGNAL(minuteChanged(int)));
-    connect(m_source, SIGNAL(hourChanged(int)), this, SIGNAL(hourChanged(int)));
-    connect(m_source, SIGNAL(dayChanged(int)), this, SIGNAL(dayChanged(int)));
-    connect(m_source, SIGNAL(weekChanged(int)), this, SIGNAL(weekChanged(int)));
-    connect(m_source, SIGNAL(monthChanged(int)), this, SIGNAL(monthChanged(int)));
-    connect(m_source, SIGNAL(yearChanged(int)), this, SIGNAL(yearChanged(int)));
+    if (dynamic) {
+        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
+        connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
+        connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
+        connect(m_source, SIGNAL(secondChanged(int)), this, SIGNAL(secondChanged(int)));
+        connect(m_source, SIGNAL(minuteChanged(int)), this, SIGNAL(minuteChanged(int)));
+        connect(m_source, SIGNAL(hourChanged(int)), this, SIGNAL(hourChanged(int)));
+        connect(m_source, SIGNAL(dayChanged(int)), this, SIGNAL(dayChanged(int)));
+        connect(m_source, SIGNAL(weekChanged(int)), this, SIGNAL(weekChanged(int)));
+        connect(m_source, SIGNAL(monthChanged(int)), this, SIGNAL(monthChanged(int)));
+        connect(m_source, SIGNAL(yearChanged(int)), this, SIGNAL(yearChanged(int)));
+    }
 }
 
 
@@ -110,7 +113,7 @@ QString Clock::evaluate(const QString &script) const
 
 QString Clock::getTimeString(ClockTimeValue type, ValueOptions options) const
 {
-    return m_source->getTimeString(type, options);
+    return m_source->getTimeString(type, options, (m_dynamic ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
 QVariantList Clock::getEventsList(ClockEventsType type, ValueOptions options) const

@@ -58,7 +58,7 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(DataSource *parent);
+        Clock(DataSource *parent, bool dynamic = true);
 
         void setDocument(QWebFrame *document);
         Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, const QString &expression, IntervalAlignment alignment);
@@ -79,6 +79,7 @@ class Clock : public QObject
         QWebFrame *m_document;
         QScriptEngine m_engine;
         QHash<IntervalAlignment, QList<PlaceholderRule> > m_rules;
+        bool m_dynamic;
 
     signals:
         void themeChanged();
