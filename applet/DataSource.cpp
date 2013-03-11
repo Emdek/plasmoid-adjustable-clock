@@ -25,7 +25,7 @@
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
 
-namespace AdjustableDataSource
+namespace AdjustableClock
 {
 
 DataSource::DataSource(Applet *parent) : QObject(parent),
@@ -33,9 +33,9 @@ DataSource::DataSource(Applet *parent) : QObject(parent),
 {
 }
 
-void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
+void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
 {
-    if (!source.isEmpty() && source == m_eventDatasQuery) {
+    if (!source.isEmpty() && source == m_eventsQuery) {
 
         m_events.clear();
 
@@ -45,12 +45,10 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             return;
         }
 
-        QHash<QString, QVariant>::iterator i;
-        QStringList eventDatasShort;
-        QStringList eventDatasLong;
+        QHash<QString, QVariant>::const_iterator i;
         QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
 
-        for (i = data.begin(); i != data.end(); ++i) {
+        for (i = data.constBegin(); i != data.constEnd(); ++i) {
             QVariantHash eventData = i.value().toHash();
 
             if (eventData["Type"] == "Event" || eventData["Type"] == "Todo") {
@@ -86,14 +84,14 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
-    const int second = ((m_features & SecondsDataSourceFeature || m_features & SecondsToolTipFeature) ? m_dateTime.time().second() : 0);
+    const int second = m_dateTime.time().second();
 
     if (QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
-        m_applet->dataEngine("calendar")->disconnectSource(m_eventDatasQuery, this);
+        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
 
-        m_eventDatasQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+        m_eventsQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-        m_applet->dataEngine("calendar")->connectSource(m_eventDatasQuery, this);
+        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
         Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
 
@@ -126,10 +124,10 @@ void DataSource::connectSource(const QString &timezone)
 
     m_applet->dataEngine("time")->connectSource(m_timeQuery, this, 1000, Plasma::NoAlignment);
 
-    if (m_eventDatasQuery.isEmpty()) {
-        m_eventDatasQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+    if (m_eventsQuery.isEmpty()) {
+        m_eventsQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
-        m_applet->dataEngine("calendar")->connectSource(m_eventDatasQuery, this);
+        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
     }
 
     const KTimeZone timezoneData = (m_applet->isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(m_applet->currentTimezone()));
@@ -162,17 +160,22 @@ void DataSource::connectSource(const QString &timezone)
     emit timezoneChanged(m_timezoneAbbreviation);
 }
 
+QString DataSource::formatNumber(int number, int length)
+{
+    return QString("%1").arg(number, length, 10, QChar('0'));
+}
+
 QDateTime DataSource::getCurrentDateTime() const
 {
     return m_dateTime;
 }
 
-QString DataSource::getTimeString(DataSourceTimeValue type, ValueOptions options) const
+QString DataSource::getTimeString(ClockTimeValue type, ValueOptions options) const
 {
     return QString();
 }
 
-QVariantList DataSource::getEventsList(DataSourceEventsValue type, ValueOptions options) const
+QVariantList DataSource::getEventsList(ClockEventsValue type, ValueOptions options) const
 {
     return QVariantList();
 }

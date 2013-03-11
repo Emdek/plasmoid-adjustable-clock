@@ -28,48 +28,10 @@
 
 #include <Plasma/DataEngine>
 
+#include "DataSource.h"
+
 namespace AdjustableClock
 {
-
-enum ClockTimeValue
-{
-    SecondValue = 0,
-    MinuteValue = 1,
-    HourValue = 2,
-    TimeOfDayValue = 3,
-    DayOfWeekValue = 4,
-    DayOfMonthValue = 5,
-    DayOfYearValue = 6,
-    WeekValue = 7,
-    MonthValue = 8,
-    YearValue = 9,
-    TimestampValue = 10,
-    TimeValue = 11,
-    DateValue = 12,
-    TimezoneValue = 13,
-    SunriseValue = 14,
-    SunsetValue = 15
-};
-
-enum ClockEventsValue
-{
-    EventsValue = 0,
-    HolidaysValue = 1
-};
-
-enum ValueOption
-{
-    ValueDefaultForm = 0,
-    ValueShortForm = 1,
-    ValueLongForm = 2,
-    ValueTextualForm = 4,
-    ValuePossessiveForm = 8,
-    ValueTimezoneName = 16,
-    ValueTimezoneAbbreviation = 32,
-    ValueTimezoneOffset = 64
-};
-
-Q_DECLARE_FLAGS(ValueOptions, ValueOption)
 
 enum IntervalAlignment
 {

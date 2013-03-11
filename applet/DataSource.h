@@ -76,7 +76,7 @@ struct Event
     QString type;
     QString time;
     QString summary;
-}
+};
 
 class Applet;
 
@@ -92,6 +92,9 @@ class DataSource : public QObject
         QString getTimeString(ClockTimeValue type, ValueOptions options) const;
         QVariantList getEventsList(ClockEventsValue type, ValueOptions options) const;
 
+    protected:
+        static QString formatNumber(int number, int length);
+
     protected slots:
         void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data);
 
@@ -104,6 +107,7 @@ class DataSource : public QObject
         QString m_timezoneOffset;
         QString m_timeQuery;
         QString m_eventsQuery;
+        QStringList m_timezoneArea;
         QStringList m_holidays;
         QList<Event> m_events;
 
