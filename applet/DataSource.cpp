@@ -116,7 +116,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     }
 }
 
-void DataSource::connectSource(const QString &timezone)
+void DataSource::setTimezone(const QString &timezone)
 {
     if (!m_timeQuery.isEmpty()) {
         m_applet->dataEngine("time")->disconnectSource(m_timeQuery, this);

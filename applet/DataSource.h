@@ -92,7 +92,7 @@ class DataSource : public QObject
     public:
         DataSource(Applet *parent);
 
-        void connectSource(const QString &timezone);
+        void setTimezone(const QString &timezone);
         QDateTime getCurrentDateTime() const;
         QString getTimeString(ClockTimeValue type, ValueOptions options) const;
         QVariantList getEventsList(ClockEventsType type, ValueOptions options) const;

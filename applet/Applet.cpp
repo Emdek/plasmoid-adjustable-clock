@@ -213,9 +213,9 @@ void Applet::clockConfigAccepted()
 
 void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
 {
-    dataEngine("time")->disconnectSource(oldTimezone, m_clock);
+    Q_UNUSED(oldTimezone)
 
-    m_source->connectSource(newTimezone);
+    m_source->setTimezone(newTimezone);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
