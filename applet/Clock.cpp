@@ -38,6 +38,50 @@ Clock::Clock(Applet *parent) : QObject(parent),
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
 }
 
+void Clock::reset()
+{
+    QRegExp formatWithSeconds = QRegExp("%[\\~\\d\\!\\$\\:\\+\\-]*[ast]");
+    QFlags<ClockFeature> features;
+    const Theme theme = m_applet->getTheme();
+    const QPair<QString, QString> toolTipFormat = m_applet->getToolTipFormat();
+    const QString toolTip = (toolTipFormat.first + QChar('|') + toolTipFormat.second);
+    const QString string = (theme.html + QChar('|') + toolTip);
+
+    if (theme.html.contains(formatWithSeconds)) {
+        features |= SecondsClockFeature;
+    }
+
+    if (toolTip.contains(formatWithSeconds)) {
+        features |= SecondsToolTipFeature;
+    }
+
+    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*H"))) {
+        features |= HolidaysFeature;
+    }
+
+    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*E"))) {
+        features |= EventsFeature;
+
+        if (m_eventsQuery.isEmpty()) {
+            m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+
+            m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
+        }
+    } else if (!m_eventsQuery.isEmpty()) {
+        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
+
+        m_eventsQuery = QString();
+    }
+
+    m_features = features;
+
+    if (m_document) {
+        m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
+    }
+
+    m_rules.clear();
+}
+
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool force)
 {
     if (!source.isEmpty() && source == m_eventsQuery) {
@@ -82,42 +126,9 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
 
 void Clock::connectSource(const QString &timezone)
 {
-    QRegExp formatWithSeconds = QRegExp("%[\\~\\d\\!\\$\\:\\+\\-]*[ast]");
-    QFlags<ClockFeature> features;
-    const Theme theme = m_applet->getTheme();
-    const QPair<QString, QString> toolTipFormat = m_applet->getToolTipFormat();
-    const QString toolTip = (toolTipFormat.first + QChar('|') + toolTipFormat.second);
-    const QString string = (theme.html + QChar('|')) + toolTip;
+    reset();
 
-    if (theme.html.contains(formatWithSeconds)) {
-        features |= SecondsClockFeature;
-    }
-
-    if (toolTip.contains(formatWithSeconds)) {
-        features |= SecondsToolTipFeature;
-    }
-
-    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*H"))) {
-        features |= HolidaysFeature;
-    }
-
-    if (string.contains(QRegExp("%[\\d\\!\\$\\:\\+\\-]*E"))) {
-        features |= EventsFeature;
-
-        if (m_eventsQuery.isEmpty()) {
-            m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
-
-            m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
-        }
-    } else if (!m_eventsQuery.isEmpty()) {
-        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
-
-        m_eventsQuery = QString();
-    }
-
-    m_features = features;
-
-    const bool alignToSeconds = (features & SecondsClockFeature || features & SecondsToolTipFeature);
+    const bool alignToSeconds = (m_features & SecondsClockFeature || m_features & SecondsToolTipFeature);
 
     m_applet->dataEngine("time")->connectSource(timezone, this, (alignToSeconds ? 1000 : 60000), (alignToSeconds ? Plasma::NoAlignment : Plasma::AlignToMinute));
 
@@ -225,6 +236,8 @@ void Clock::applyRule(const PlaceholderRule &rule)
 void Clock::setDocument(QWebFrame *document)
 {
     m_document = document;
+
+    reset();
 }
 
 void Clock::setRule(const QString &rule, const QString &attribute, const QString &expression, IntervalAlignment alignment)

@@ -76,6 +76,8 @@ void Applet::init()
     watcher->addPath(KStandardDirs::locate("data", "adjustableclock/themes.xml"));
     watcher->addPath(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
 
+    m_clock->setDocument(m_page.mainFrame());
+
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
     connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));

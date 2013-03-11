@@ -124,6 +124,9 @@ class Clock : public QObject
         QString evaluatePlaceholder(ushort placeholder, int alternativeForm, bool shortForm, bool textualForm);
         Q_INVOKABLE QVariantList getEventsList(ClockEventsValue type, ValueOptions options) const;
 
+    public slots:
+        void reset();
+
     protected:
         void updateEvents();
         void updateHolidays();
