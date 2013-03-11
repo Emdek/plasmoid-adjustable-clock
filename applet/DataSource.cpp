@@ -91,7 +91,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     if (QTime::currentTime().hour() == 0 && m_dateTime.time().minute() == 0 && second == 0) {
         m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
 
-        m_eventsQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+        m_eventsQuery = QString("evens:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
         m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
@@ -127,7 +127,7 @@ void DataSource::setTimezone(const QString &timezone)
     m_applet->dataEngine("time")->connectSource(m_timeQuery, this, 1000, Plasma::NoAlignment);
 
     if (m_eventsQuery.isEmpty()) {
-        m_eventsQuery = QString("eventDatas:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+        m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
         m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
     }
