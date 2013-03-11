@@ -63,6 +63,10 @@ void Clock::setDocument(QWebFrame *document)
     m_rules.clear();
 
     m_document = document;
+
+    if (m_document) {
+        m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
+    }
 }
 
 void Clock::setRule(const QString &rule, const QString &attribute, ClockTimeValue value, ValueOptions options)
