@@ -124,6 +124,7 @@ class DataSource : public QObject
         void dayChanged();
         void monthChanged();
         void yearChanged();
+        void dataChanged(QList<ClockTimeValue> changes);
 };
 
 }

@@ -35,12 +35,16 @@ DataSource::DataSource(Applet *parent) : QObject(parent),
 
 void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
 {
-    if (!source.isEmpty() && source == m_eventsQuery) {
+    QList<ClockTimeValue> changes;
 
+    if (!source.isEmpty() && source == m_eventsQuery) {
         m_events.clear();
+
+        changes.append(EventsValue);
 
         if (data.isEmpty()) {
             emit eventsChanged();
+            emit dataChanged(changes);
 
             return;
         }
@@ -78,25 +82,35 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         }
 
         emit eventsChanged();
+        emit dataChanged(changes);
 
         return;
     }
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
-    const int second = m_dateTime.time().second();
-
     emit secondChanged();
 
-    if (second == 0) {
+    changes.append(SecondValue);
+    changes.append(TimestampValue);
+    changes.append(TimeValue);
+    changes.append(DateTimeValue);
+
+    if (m_dateTime.time().second() == 0) {
         if (m_dateTime.time().minute() == 0) {
-            if (m_dateTime.time().hour() == 0) {
+            const int hour = m_dateTime.time().hour();
+
+            if (hour == 0) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
                         emit yearChanged();
+
+                        changes.append(YearValue);
                     }
 
                     emit monthChanged();
+
+                    changes.append(MonthValue);
                 }
 
                 m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
@@ -125,13 +139,29 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 }
 
                 emit dayChanged();
+
+                changes.append(DayOfWeekValue);
+                changes.append(DayOfMonthValue);
+                changes.append(DayOfYearValue);
+                changes.append(DateValue);
+                changes.append(SunriseValue);
+                changes.append(SunsetValue);
+                changes.append(HolidaysValue);
+            } else if (hour == 0 || hour == 12) {
+                changes.append(TimeOfDayValue);
             }
 
             emit hourChanged();
+
+            changes.append(HourValue);
         }
 
         emit minuteChanged();
+
+        changes.append(MinuteValue);
     }
+
+    emit dataChanged(changes);
 }
 
 void DataSource::setTimezone(const QString &timezone)
