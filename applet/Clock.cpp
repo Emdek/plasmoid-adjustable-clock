@@ -38,8 +38,8 @@ Clock::Clock(DataSource *parent, bool dynamic) : QObject(parent),
 {
     if (dynamic) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
-        connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
         connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
+        connect(m_source, SIGNAL(timezoneChanged(QString)), this, SIGNAL(timezoneChanged(QString)));
         connect(m_source, SIGNAL(secondChanged(int)), this, SIGNAL(secondChanged(int)));
         connect(m_source, SIGNAL(minuteChanged(int)), this, SIGNAL(minuteChanged(int)));
         connect(m_source, SIGNAL(hourChanged(int)), this, SIGNAL(hourChanged(int)));

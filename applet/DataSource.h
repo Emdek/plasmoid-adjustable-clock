@@ -116,8 +116,8 @@ class DataSource : public QObject
         QList<Event> m_events;
 
     signals:
-        void timezoneChanged(QString timezone);
         void eventsChanged();
+        void timezoneChanged(QString timezone);
         void secondChanged(int second);
         void minuteChanged(int minute);
         void hourChanged(int hour);

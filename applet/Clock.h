@@ -71,6 +71,7 @@ class Clock : public QObject
 
     signals:
         void themeChanged();
+        void eventsChanged();
         void timezoneChanged(QString timezone);
         void secondChanged(int second);
         void minuteChanged(int minute);
