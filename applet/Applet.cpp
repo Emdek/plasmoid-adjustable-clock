@@ -375,6 +375,11 @@ Clock* Applet::getClock() const
     return m_clock;
 }
 
+DataSource* Applet::getDataSource() const
+{
+    return m_source;
+}
+
 QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script, const QString &head)
 {
     return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style><script type=\"text/javascript\">%2</script>%3</head><body><div>%4</div></body></html>").arg(css).arg(script).arg(head).arg(html);

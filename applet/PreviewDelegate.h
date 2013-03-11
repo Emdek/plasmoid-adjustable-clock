@@ -26,14 +26,14 @@
 namespace AdjustableClock
 {
 
-class Clock;
+class DataSource;
 
 class PreviewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
     public:
-        PreviewDelegate(Clock *clock, QObject *parent = NULL);
+        PreviewDelegate(DataSource *source, QObject *parent = NULL);
         ~PreviewDelegate();
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -43,7 +43,7 @@ class PreviewDelegate : public QStyledItemDelegate
         void clear();
 
     private:
-        Clock *m_clock;
+        DataSource *m_source;
 };
 
 }

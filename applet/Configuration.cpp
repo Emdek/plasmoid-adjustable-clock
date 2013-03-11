@@ -71,7 +71,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock(), m_appearanceUi.themesView);
+    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getDataSource(), m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
@@ -652,7 +652,10 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-//    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(m_applet->getClock()->evaluateFormat(theme.html, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)), true), theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
+    Clock clock(m_applet->getDataSource(), false);
+    clock.setDocument(m_appearanceUi.webView->page()->mainFrame());
+
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script, "<script type=\"text/javascript\" src=\"qrc:/editor.js\"></script>"));
 
     enableUpdates();
     updateTheme(theme);

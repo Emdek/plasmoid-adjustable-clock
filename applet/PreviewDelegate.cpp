@@ -20,6 +20,7 @@
 
 #include "PreviewDelegate.h"
 #include "Applet.h"
+#include "DataSource.h"
 #include "Clock.h"
 #include "Configuration.h"
 
@@ -39,8 +40,8 @@ namespace AdjustableClock
 
 KPixmapCache *m_cache = NULL;
 
-PreviewDelegate::PreviewDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
-    m_clock(clock)
+PreviewDelegate::PreviewDelegate(DataSource *source, QObject *parent) : QStyledItemDelegate(parent),
+    m_source(source)
 {
     m_cache = new KPixmapCache("AdjustableClockPreviews");
     m_cache->discard();
@@ -83,7 +84,11 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-//        page.mainFrame()->setHtml(Applet::getPageLayout(m_clock->evaluateFormat(index.data(HtmlRole).toString(), QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))), index.data(CssRole).toString(), index.data(ScriptRole).toString()));
+
+        Clock clock(m_source, false);
+        clock.setDocument(page.mainFrame());
+
+        page.mainFrame()->setHtml(Applet::getPageLayout(index.data(HtmlRole).toString(), index.data(CssRole).toString(), index.data(ScriptRole).toString()));
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
