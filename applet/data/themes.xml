@@ -7,9 +7,15 @@
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
 		<html><![CDATA[<div style="text-align: center;">
-	<big>%h:%m:%s</big><br>
-	<small>%d.%M.%Y</small>
+	<big><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></big><br>
+	<small><span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></small>
 </div>]]></html>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', Clock.SecondValue);
+Clock.setRule('#day', Clock.DayOfMonthValue);
+Clock.setRule('#month', Clock.MonthValue);
+Clock.setRule('#year', Clock.YearValue);]]></script>
 	</theme>
 	<theme>
 		<id>simple</id>
@@ -17,7 +23,9 @@
 		<description>Simple clock, similar to default digital clock</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="text-align: center; font-size: 25px;">%h:%m</div>]]></html>
+		<html><![CDATA[<div style="text-align: center; font-size: 25px;"><span id="hour">12</span>:<span id="minute">30</span></div>]]></html>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);]]></script>
 	</theme>
 	<theme>
 		<id>verbose</id>
@@ -26,9 +34,16 @@
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
 		<html><![CDATA[<div style="text-align: center; opacity: 0.85;">
-	<span style="font-size: 30px;">%h:%m:%s</span><br>
-	<span style="font-size: 12px;">%$w, %d.%M.%Y</span>
+	<span style="font-size: 30px;"><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></span><br>
+	<span style="font-size: 12px;"><span id="weekday">Saturday</span>, <span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></span>
 </div>]]></html>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', Clock.SecondValue);
+Clock.setRule('#weekday', Clock.DayOfWeekValue, Clock.TextualFormOption);
+Clock.setRule('#day', Clock.DayOfMonthValue);
+Clock.setRule('#month', Clock.MonthValue);
+Clock.setRule('#year', Clock.YearValue);]]></script>
 	</theme>
 	<theme>
 		<id>trainclock</id>
@@ -331,7 +346,7 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
 		<html><![CDATA[<div class="clock">
-	<div>%h:%m<span>%s</span></div>
+	<div><span id="hour">12</span>:<span id="minute">30</span><span id="second">15</span></div>
 </div>]]></html>
 		<css><![CDATA[.clock
 {
@@ -347,7 +362,7 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 	-webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));
 }
 
-.clock span
+.clock #second
 {
 	position: relative;
 	left: -8px;
@@ -356,6 +371,9 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 	font-size: 30px;
 	opacity: 0.5;
 }]]></css>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', Clock.SecondValue);]]></script>
 	</theme>
 	<theme>
 		<id>beclock</id>
@@ -367,8 +385,8 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 	<canvas id="canvas" width="200" height="200"></canvas>
 	<div class="back">%p</div>
 	<div class="front">
-		%-h:%m
-		<div>%Y-%M-%d</div>
+		%-h:<span id="minute">30</span>
+		<div><span id="year">2000</span>-<span id="month">01</span>-<span id="day">01</span></div>
 	</div>
 </div>
 <script type="text/javascript">
@@ -434,15 +452,15 @@ drawCircles(%!+h, %!m);
 	<theme>
 		<id>progress</id>
 		<title>Progress</title>
-		<description>Clock with original seconds visualization</description>
+		<description>Clock with original second visualization</description>
 		<author>Peter Fajdiga &amp; Michał Dutkiewicz</author>
 		<background>false</background>
 		<html><![CDATA[<div class="clock">
 	<div>
-		<span>%m</span><br />
-		<progress value="%~!s" max="59" />
+		<span id="minute">30</span><br>
+		<progress id="second" value="15" max="59">
 	</div>
-	<p>%!-h</p>
+	<p id="hour">12</p>
 </div>]]></html>
 		<css><![CDATA[*
 {
@@ -488,7 +506,7 @@ progress::-webkit-progress-value
 	float: right;
 }
 
-.clock span
+.clock #minute
 {
 	font-size: 30px;
 	opacity: 0.8;
@@ -501,6 +519,10 @@ progress::-webkit-progress-value
 	font-size: 50px;
 	opacity: 0.9;
 }]]></css>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue, Clock.ShortFormOption);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
+]]></script>
 	</theme>
 	<theme>
 		<id>binary</id>
@@ -589,10 +611,10 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 		<background>false</background>
 		<html><![CDATA[<div class="clock">
 	<div class="calendar">
-		%$w<br>
-		<span style="font-size: 130px; line-height: 140px;">%!d</span><br>
-		<span style="font-size: 35px;">%$M %Y</span><br>
-		%!H
+		<span id="weekday">Saturday</span><br>
+		<span style="font-size: 130px; line-height: 140px;" id="day">1</span><br>
+			<span style="font-size: 35px;"><span id="month">January</span> <span id="year">2000</span></span><br>
+		<span id="holiday"></span>
 		<div class="decor">
 			<div></div>
 			<div></div>
@@ -650,6 +672,10 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
 }]]></css>
+		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonthValue, Clock.ShortFormOption);
+Clock.setRule('#month', Clock.MonthValue, (Clock.TextualFormOption | Clock.NonPossessiveFormOption));
+Clock.setRule('#year', Clock.YearValue);
+Clock.setRule('#holiday', Clock.HolidaysValue, Clock.ShortFormOption);]]></script>
 	</theme>
 	<theme>
 		<id>vertical</id>
@@ -657,12 +683,19 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 		<description>Clock theme for a vertical panel</description>
 		<author>Olaf Lenz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="margin:5px;text-align:center;">
-	<big><b>%h:%m</b></big><br>
-	%s<br>
-	<small>%!$w</small><br>
-	<small>%!d.%!M.</small><br>
-	<small>%Y</small>
+		<html><![CDATA[<div style="margin: 5px; text-align: center;">
+	<big><b><span id="hour">12</span>:<span id="minute">30</span></b></big><br>
+	<span id="second">15</span><br>
+	<small id="weekday">Sat</small><br>
+	<small><span id="day">1</span>.<span id="month"></span>.</small><br>
+	<small id="year">2000</small>
 </div>]]></html>
+		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', Clock.SecondValue);
+Clock.setRule('#weekday', Clock.DayOfWeekValue, (Clock.ShortFormOption | Clock.TextualFormOption));
+Clock.setRule('#day', Clock.DayOfMonthValue, Clock.ShortFormOption);
+Clock.setRule('#month', Clock.MonthValue, Clock.ShortFormOption);
+Clock.setRule('#year', Clock.YearValue);]]></script>
 	</theme>
 </themes>
