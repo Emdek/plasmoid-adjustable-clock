@@ -68,6 +68,7 @@ class Applet : public ClockApplet
 
     public slots:
         void updateToolTipContent();
+        void updateSize();
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -88,7 +89,6 @@ class Applet : public ClockApplet
         void toolTipHidden();
         void repaint();
         void updateClipboardMenu();
-        void updateSize();
         void updateTheme();
 
     private:

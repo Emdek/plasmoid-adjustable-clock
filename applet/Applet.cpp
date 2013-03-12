@@ -81,7 +81,6 @@ void Applet::init()
     m_clock->setDocument(m_page.mainFrame());
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
-    connect(m_source, SIGNAL(dayChanged(int)), this, SLOT(updateSize()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
     connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));

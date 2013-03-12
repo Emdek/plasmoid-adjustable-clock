@@ -72,6 +72,7 @@ class Clock : public QObject
     protected slots:
         void exposeClock();
         void updateClock(const QList<ClockTimeValue> &changes);
+        void updateTheme();
 
     private:
         DataSource *m_source;
@@ -79,16 +80,6 @@ class Clock : public QObject
         QScriptEngine m_engine;
         QHash<ClockTimeValue, QList<Placeholder> > m_rules;
         ClockMode m_mode;
-
-    signals:
-        void themeChanged();
-        void eventsChanged();
-        void secondChanged();
-        void minuteChanged();
-        void hourChanged();
-        void dayChanged();
-        void monthChanged();
-        void yearChanged();
 };
 
 }

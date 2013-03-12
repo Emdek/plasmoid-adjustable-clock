@@ -43,7 +43,6 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         changes.append(EventsValue);
 
         if (data.isEmpty()) {
-            emit eventsChanged();
             emit dataChanged(changes);
 
             return;
@@ -81,15 +80,12 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             }
         }
 
-        emit eventsChanged();
         emit dataChanged(changes);
 
         return;
     }
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
-
-    emit secondChanged();
 
     changes.append(SecondValue);
     changes.append(TimestampValue);
@@ -103,12 +99,8 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             if (hour == 0) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
-                        emit yearChanged();
-
                         changes.append(YearValue);
                     }
-
-                    emit monthChanged();
 
                     changes.append(MonthValue);
                 }
@@ -138,7 +130,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                     }
                 }
 
-                emit dayChanged();
+                m_applet->updateSize();
 
                 changes.append(DayOfWeekValue);
                 changes.append(DayOfMonthValue);
@@ -151,12 +143,8 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 changes.append(TimeOfDayValue);
             }
 
-            emit hourChanged();
-
             changes.append(HourValue);
         }
-
-        emit minuteChanged();
 
         changes.append(MinuteValue);
     }
@@ -206,8 +194,6 @@ void DataSource::setTimezone(const QString &timezone)
     m_timezoneOffset = (QChar((seconds >= 0) ? QChar('+') : QChar('-')) + m_timezoneOffset);
 
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()));
-
-    emit timezoneChanged();
 }
 
 QString DataSource::formatNumber(int number, int length)

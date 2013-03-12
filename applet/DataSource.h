@@ -116,14 +116,6 @@ class DataSource : public QObject
         QList<Event> m_events;
 
     signals:
-        void timezoneChanged();
-        void eventsChanged();
-        void secondChanged();
-        void minuteChanged();
-        void hourChanged();
-        void dayChanged();
-        void monthChanged();
-        void yearChanged();
         void dataChanged(QList<ClockTimeValue> changes);
 };
 

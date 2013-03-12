@@ -39,27 +39,132 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
     m_mode(mode)
 {
     if (m_mode == StandardClock) {
-        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SIGNAL(themeChanged()));
-        connect(m_source, SIGNAL(eventsChanged()), this, SIGNAL(eventsChanged()));
-        connect(m_source, SIGNAL(secondChanged()), this, SIGNAL(secondChanged()));
-        connect(m_source, SIGNAL(minuteChanged()), this, SIGNAL(minuteChanged()));
-        connect(m_source, SIGNAL(hourChanged()), this, SIGNAL(hourChanged()));
-        connect(m_source, SIGNAL(dayChanged()), this, SIGNAL(dayChanged()));
-        connect(m_source, SIGNAL(monthChanged()), this, SIGNAL(monthChanged()));
-        connect(m_source, SIGNAL(yearChanged()), this, SIGNAL(yearChanged()));
+        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(m_source, SIGNAL(dataChanged(QList<ClockTimeValue>)), this, SLOT(updateClock(QList<ClockTimeValue>)));
     }
 
-    QFile file(":/enums.js");
+    QFile file(":/clock.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
     m_engine.evaluate(QString(file.readAll()));
 }
 
+void Clock::exposeClock()
+{
+    if (m_document) {
+        QFile file(":/clock.js");
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        m_document->addToJavaScriptWindowObject("Clock", this);
+        m_document->evaluateJavaScript(QString(file.readAll()));
+    }
+}
+
 void Clock::updateClock(const QList<ClockTimeValue> &changes)
 {
     for (int i = 0; i < changes.count(); ++i) {
+        if (m_document) {
+            QString event;
+
+            switch (changes.at(i)) {
+            case SecondValue:
+                event = "Second";
+
+                break;
+            case MinuteValue:
+                event = "Minute";
+
+                break;
+            case HourValue:
+                event = "Hour";
+
+                break;
+            case TimeOfDayValue:
+                event = "TimeOfDay";
+
+                break;
+            case DayOfWeekValue:
+                event = "DayOfWeek";
+
+                break;
+            case DayOfMonthValue:
+                event = "DayOfMonth";
+
+                break;
+            case DayOfYearValue:
+                event = "DayOfYear";
+
+                break;
+            case WeekValue:
+                event = "Week";
+
+                break;
+            case MonthValue:
+                event = "Month";
+
+                break;
+            case YearValue:
+                event = "Year";
+
+                break;
+            case TimestampValue:
+                event = "Timestamp";
+
+                break;
+            case TimeValue:
+                event = "Time";
+
+                break;
+            case DateValue:
+                event = "Date";
+
+                break;
+            case DateTimeValue:
+                event = "DateTime";
+
+                break;
+            case TimezoneNameValue:
+                event = "TimezoneName";
+
+                break;
+            case TimezoneAbbreviationValue:
+                event = "TimezoneAbbreviation";
+
+                break;
+            case TimezoneOffsetValue:
+                event = "TimezoneOffset";
+
+                break;
+            case TimezoneListValue:
+                event = "TimezoneList";
+
+                break;
+            case HolidaysValue:
+                event = "Holidays";
+
+                break;
+            case EventsValue:
+                event = "Events";
+
+                break;
+            case SunriseValue:
+                event = "Sunrise";
+
+                break;
+            case SunsetValue:
+                event = "Sunset";
+
+                break;
+            default:
+                event = QString();
+
+                break;
+            }
+
+            m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(event));
+        }
+
         if (m_rules.contains(changes.at(i))) {
             for (int j = 0; j < m_rules[changes.at(i)].count(); ++j) {
                 applyRule(m_rules[changes.at(i)].at(j));
@@ -68,14 +173,10 @@ void Clock::updateClock(const QList<ClockTimeValue> &changes)
     }
 }
 
-void Clock::exposeClock()
+void Clock::updateTheme()
 {
     if (m_document) {
-        QFile file(":/enums.js");
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-        m_document->addToJavaScriptWindowObject("Clock", this, QScriptEngine::QtOwnership);
-        m_document->evaluateJavaScript(QString(file.readAll()));
+        m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
     }
 }
 

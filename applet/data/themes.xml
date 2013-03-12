@@ -162,7 +162,8 @@ updateClock();
 
 Clock.setRule('#day', Clock.DayOfMonthValue, Clock.ShortFormOption);
 Clock.setRule('#month', Clock.MonthValue, (Clock.ShortFormOption | Clock.TextualFormOption | Clock.NonPossessiveFormOption));
-Clock.secondChanged.connect(updateClock);]]></script>
+
+document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>digitalclock</id>
@@ -359,7 +360,7 @@ Clock.secondChanged.connect(updateClock);]]></script>
 
 updateClock();
 
-Clock.secondChanged.connect(updateClock);]]></script>
+document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>dbclock</id>
@@ -458,12 +459,12 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 	context.strokeStyle = document.body.style.color;
 
 	context.beginPath();
-	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (Clock.getTimeString(Clock.MinuteValue, Clock.ShortFormOption) - 15) * 6)), false);
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getTimeString(Clock.MinuteValue, Clock.ShortFormOption)) - 15) * 6)), false);
 	context.globalAlpha = 0.5;
 	context.stroke();
 
 	context.beginPath();
-	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (Clock.getTimeString(Clock.HourValue, Clock.ShortFormOption) - 15) * 30)), false);
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getTimeString(Clock.HourValue, Clock.ShortFormOption)) - 15) * 30)), false);
 	context.globalAlpha = 0.8;
 	context.stroke();
 }
@@ -477,7 +478,8 @@ Clock.setRule('#day', Clock.DayOfMonthValue);
 Clock.setRule('#month', Clock.MonthValue);
 Clock.setRule('#year', Clock.YearValue);
 Clock.setRule("#timeofday", Clock.TimeOfDayValue);
-Clock.secondChanged.connect(updateClock);]]></script>
+
+document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>progress</id>
@@ -636,7 +638,7 @@ Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
 
 updateClock();
 
-Clock.secondChanged.connect(updateClock);]]></script>
+document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>calendar</id>
