@@ -45,8 +45,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardActions = new QWidget();
-    const QStringList clipboardFormats = m_applet->getClipboardFormats();
- 
+
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
 
@@ -119,6 +118,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
     m_clipboardUi.fastCopyFormatEdit->setClock(m_applet->getClock());
 
+    const QStringList clipboardFormats = m_applet->getClipboardFormats();
+
     for (int i = 0; i < clipboardFormats.count(); ++i) {
         QListWidgetItem *item = new QListWidgetItem(clipboardFormats.at(i));
 
@@ -185,8 +186,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    QStringList clipboardFormats;
-
     updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
 
     if (m_editedItem) {
@@ -216,6 +215,8 @@ void Configuration::save()
 
     m_applet->saveCustomThemes(themes);
 
+    QStringList clipboardFormats;
+
     for (int i = 0; i < m_clipboardUi.clipboardActionsList->count(); ++i) {
         clipboardFormats.append(m_clipboardUi.clipboardActionsList->item(i)->text());
     }
@@ -238,14 +239,12 @@ void Configuration::enableUpdates()
 {
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
 void Configuration::disableUpdates()
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
 }
 
 void Configuration::insertPlaceholder()
@@ -412,7 +411,7 @@ void Configuration::updateView(int tab)
 
 void Configuration::updateEditor(int tab)
 {
-    if (tab) {
+    if (tab == 1) {
         richTextChanged();
     } else {
         sourceChanged();
@@ -690,7 +689,7 @@ void Configuration::insertItem()
 {
     QListWidgetItem *item = new QListWidgetItem(QString());
 
-    m_clipboardUi.clipboardActionsList->insertItem(((m_clipboardUi.clipboardActionsList->count() && m_clipboardUi.clipboardActionsList->currentRow() >= 0) ? m_clipboardUi.clipboardActionsList->currentRow() : 0), item);
+    m_clipboardUi.clipboardActionsList->insertItem(m_clipboardUi.clipboardActionsList->currentRow(), item);
 
     editItem(item);
 
@@ -700,7 +699,7 @@ void Configuration::insertItem()
 
 void Configuration::deleteItem()
 {
-    QListWidgetItem *item = m_clipboardUi.clipboardActionsList->takeItem(m_clipboardUi.clipboardActionsList->row(m_clipboardUi.clipboardActionsList->selectedItems().at(0)));
+    QListWidgetItem *item = m_clipboardUi.clipboardActionsList->takeItem(m_clipboardUi.clipboardActionsList->currentRow());
 
     if (item) {
         delete item;
@@ -712,7 +711,7 @@ void Configuration::deleteItem()
 
 void Configuration::moveItem(bool up)
 {
-    int sourceRow = m_clipboardUi.clipboardActionsList->row(m_clipboardUi.clipboardActionsList->selectedItems().at(0));
+    int sourceRow = m_clipboardUi.clipboardActionsList->currentRow();
     int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
 
     QListWidgetItem *sourceItem = m_clipboardUi.clipboardActionsList->takeItem(sourceRow);

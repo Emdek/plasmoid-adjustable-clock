@@ -1,7 +1,8 @@
 3.3 (--.03.2013):
 - replaced parser by scripting API;
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);
-- added Digital Clock theme.
+- added Digital Clock theme;
+- many code cleanups and fixes.
 
 3.2 (10.03.2013):
 - added Train Clock, based on design by Nuno Pinheiro;
