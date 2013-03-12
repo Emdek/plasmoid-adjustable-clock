@@ -1,5 +1,6 @@
 3.3 (--.03.2013):
-- replace parser by scripting API;
+- replaced parser by scripting API;
+- improved theme previews (better contrast for some Plasma theme and applications style combinations);
 - added Digital Clock theme.
 
 3.2 (10.03.2013):
