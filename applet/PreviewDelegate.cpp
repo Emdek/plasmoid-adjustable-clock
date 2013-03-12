@@ -77,6 +77,12 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             size = background.contentsRect().size();
 
             pixmapPainter.translate(QPointF(background.contentsRect().x(), background.contentsRect().y()));
+        } else {
+            pixmapPainter.setOpacity(0.1);
+            pixmapPainter.setBrush(QBrush(Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor)));
+            pixmapPainter.setPen(QPen(Qt::transparent));
+            pixmapPainter.drawRoundedRect(QRect(QPoint(0, 0), size.toSize()), 10, 10);
+            pixmapPainter.setOpacity(1);
         }
 
         QWebPage page;
