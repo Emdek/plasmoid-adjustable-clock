@@ -70,7 +70,7 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 </div>]]></html>
 		<css><![CDATA[.clock
 {
-	width: 192px;
+	width: 190px;
 	padding: 8px;
 	border-radius: 10px;
 	background: #202020;
@@ -85,12 +85,12 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 .clock .card
 {
 	width: 40px;
-	margin: 0 2px;
+	margin: 0 1px;
 	overflow: hidden;
 	float: left;
-	text-align: center;
 	font-weight: bold;
 	font-size: 55px;
+	text-align: center;
 }
 
 .clock .dots

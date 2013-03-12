@@ -327,11 +327,6 @@ void Applet::updateToolTipContent()
 
 void Applet::updateSize()
 {
-    const Theme theme = getTheme();
-
-    m_page.setViewportSize(QSize(0, 0));
-    m_page.mainFrame()->setZoomFactor(1);
-
     QSizeF size;
 
     if (formFactor() == Plasma::Horizontal) {
@@ -339,12 +334,15 @@ void Applet::updateSize()
     } else if (formFactor() == Plasma::Vertical) {
         size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
     } else {
-        if (theme.background) {
+        if (getTheme().background) {
             size = contentsRect().size();
         } else {
             size = boundingRect().size();
         }
     }
+
+    m_page.setViewportSize(QSize(0, 0));
+    m_page.mainFrame()->setZoomFactor(1);
 
     const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
     const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
