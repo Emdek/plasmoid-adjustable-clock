@@ -694,6 +694,7 @@ void Configuration::insertItem()
 
     editItem(item);
 
+    itemSelectionChanged();
     modify();
 }
 
@@ -705,6 +706,7 @@ void Configuration::deleteItem()
         delete item;
     }
 
+    itemSelectionChanged();
     modify();
 }
 
@@ -720,6 +722,7 @@ void Configuration::moveItem(bool up)
     m_clipboardUi.clipboardActionsList->insertItem(destinationRow, sourceItem);
     m_clipboardUi.clipboardActionsList->setCurrentRow(destinationRow);
 
+    itemSelectionChanged();
     modify();
 }
 
