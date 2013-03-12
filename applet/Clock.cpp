@@ -380,9 +380,4 @@ QString Clock::toString(int value, int options) const
     return m_source->toString(static_cast<ClockTimeValue>(value), static_cast<ValueOptions>(options), ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
-QVariantList Clock::toList(int value, int options) const
-{
-    return m_source->toList(static_cast<ClockEventsType>(value), static_cast<ValueOptions>(options));
-}
-
 }

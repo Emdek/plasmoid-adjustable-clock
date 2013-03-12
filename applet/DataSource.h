@@ -57,12 +57,6 @@ enum ClockTimeValue
     HolidaysValue = 21
 };
 
-enum ClockEventsType
-{
-    EventsType = 0,
-    HolidaysType = 1
-};
-
 enum ValueOption
 {
     DefaultFormOption = 0,
@@ -94,7 +88,6 @@ class DataSource : public QObject
         void setTimezone(const QString &timezone);
         QDateTime getCurrentDateTime() const;
         QString toString(ClockTimeValue value, ValueOptions options = DefaultFormOption, QDateTime dateTime = QDateTime()) const;
-        QVariantList toList(ClockEventsType value, ValueOptions options = DefaultFormOption) const;
 
     protected:
         static QString formatNumber(int number, int length);

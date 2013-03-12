@@ -20,8 +20,7 @@ Clock.SunriseValue = 18;
 Clock.SunsetValue = 19;
 Clock.EventsValue = 20;
 Clock.HolidaysValue = 21;
-Clock.EventsType = 0;
-Clock.HolidaysType = 1
+
 Clock.DefaultFormOption = 0;
 Clock.AlternativeFormOption = 1;
 Clock.ShortFormOption = 2;

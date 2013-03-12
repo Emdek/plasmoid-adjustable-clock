@@ -296,9 +296,4 @@ QString DataSource::toString(ClockTimeValue value, ValueOptions options, QDateTi
     return QString();
 }
 
-QVariantList DataSource::toList(ClockEventsType value, ValueOptions options) const
-{
-    return QVariantList();
-}
-
 }
