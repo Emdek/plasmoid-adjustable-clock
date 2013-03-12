@@ -282,7 +282,21 @@ QString DataSource::toString(ClockTimeValue value, ValueOptions options, QDateTi
 
         return QString("<table>\n<tr>%1</tr>\n</table>").arg(timezones.join("</tr>\n<tr>"));
     case EventsValue:
-//        return ((options & ShortFormOption) ? m_eventsShort : m_eventsLong);
+        if (m_events.isEmpty()) {
+            return QString();
+        } else {
+            QStringList events;
+
+            for (int i = 0; i < m_events.count(); ++i) {
+                if (options & ShortFormOption) {
+                    events.append(QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td>\n<td align=\"left\">%2</td>\n").arg(m_events.at(i).type).arg(m_events.at(i).summary));
+                } else {
+                    events.append(QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td>\n<td align=\"left\">%2 <nobr>(%3)</nobr></td>\n").arg(m_events.at(i).type).arg(m_events.at(i).summary).arg(m_events.at(i).time));
+                }
+            }
+
+            return QString("<table>\n<tr>\n%1</tr>\n</table>").arg(events.join("</tr>\n<tr>\n"));
+        }
     case HolidaysValue:
         return ((options & ShortFormOption) ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
     case SunriseValue:
