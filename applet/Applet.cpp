@@ -384,7 +384,7 @@ QString Applet::getPageLayout(const QString &html, const QString &css, const QSt
 
 QString Applet::getPageStyleSheet()
 {
-    return QString("* {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name());
+    return QString("body {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name());
 }
 
 Theme Applet::getTheme() const
