@@ -49,7 +49,7 @@ PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(pa
     m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone name"), QVariant(TimezoneNameValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimezoneAbbreviationValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone offset"), QVariant(TimezoneOffsetValue));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(TimezoneListValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(TimezonesValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(EventsValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseValue));
@@ -144,8 +144,8 @@ void PlaceholderDialog::sendSignal()
         scriptValue = "TimezoneOffsetValue";
 
         break;
-    case TimezoneListValue:
-        scriptValue = "TimezoneListValue";
+    case TimezonesValue:
+        scriptValue = "TimezonesValue";
 
         break;
     case EventsValue:
@@ -208,13 +208,13 @@ void PlaceholderDialog::selectPlaceholder(int index)
 {
     const ClockTimeValue placeholder = static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(index).toInt());
 
-    if (placeholder == TimeOfDayValue || placeholder == TimezoneNameValue || placeholder == TimezoneAbbreviationValue || placeholder == TimezoneOffsetValue || placeholder == TimezoneListValue || placeholder == HolidaysValue || placeholder == EventsValue) {
+    if (placeholder == TimeOfDayValue || placeholder == TimezoneNameValue || placeholder == TimezoneAbbreviationValue || placeholder == TimezoneOffsetValue || placeholder == TimezonesValue || placeholder == HolidaysValue || placeholder == EventsValue) {
         m_placeholderUi.textualFormCheckBox->setChecked(true);
     } else if (!(placeholder == MinuteValue || placeholder == DayOfWeekValue)) {
         m_placeholderUi.textualFormCheckBox->setChecked(false);
     }
 
-    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue || placeholder == YearValue || placeholder == TimeValue || placeholder == DateValue || placeholder == TimezoneNameValue || placeholder == TimezoneListValue || placeholder == HolidaysValue || placeholder == EventsValue);
+    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue || placeholder == YearValue || placeholder == TimeValue || placeholder == DateValue || placeholder == TimezoneNameValue || placeholder == TimezonesValue || placeholder == HolidaysValue || placeholder == EventsValue);
     m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == HourValue);
     m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue);
     m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == MonthValue);

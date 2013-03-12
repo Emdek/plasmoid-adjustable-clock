@@ -260,7 +260,7 @@ QString DataSource::toString(ClockTimeValue value, ValueOptions options, QDateTi
         return m_timezoneAbbreviation;
     case TimezoneOffsetValue:
         return m_timezoneOffset;
-    case TimezoneListValue:
+    case TimezonesValue:
         timezones = m_applet->config().readEntry("timeZones", QStringList());
         timezones.prepend("");
 

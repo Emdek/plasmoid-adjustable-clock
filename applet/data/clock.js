@@ -15,11 +15,11 @@ Clock.DateTimeValue = 13;
 Clock.TimezoneNameValue = 14;
 Clock.TimezoneAbbreviationValue = 15;
 Clock.TimezoneOffsetValue = 16;
-Clock.TimezoneListValue = 17;
-Clock.SunriseValue = 18;
-Clock.SunsetValue = 19;
-Clock.EventsValue = 20;
-Clock.HolidaysValue = 21;
+Clock.TimezonesValue = 17;
+Clock.EventsValue = 18;
+Clock.HolidaysValue = 19;
+Clock.SunriseValue = 20;
+Clock.SunsetValue = 21;
 
 Clock.DefaultFormOption = 0;
 Clock.ShortFormOption = 1;

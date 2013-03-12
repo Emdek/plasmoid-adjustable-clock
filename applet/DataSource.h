@@ -50,11 +50,11 @@ enum ClockTimeValue
     TimezoneNameValue = 14,
     TimezoneAbbreviationValue = 15,
     TimezoneOffsetValue = 16,
-    TimezoneListValue = 17,
-    SunriseValue = 18,
-    SunsetValue = 19,
-    EventsValue = 20,
-    HolidaysValue = 21
+    TimezonesValue = 17,
+    EventsValue = 18,
+    HolidaysValue = 19,
+    SunriseValue = 20,
+    SunsetValue = 21
 };
 
 enum ValueOption

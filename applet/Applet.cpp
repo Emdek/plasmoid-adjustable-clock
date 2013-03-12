@@ -409,7 +409,7 @@ QPair<QString, QString> Applet::getToolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
     toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
-    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.toString(Clock.TimezoneListValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
+    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.toString(Clock.TimezonesValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
 
     return toolTipFormat;
 }

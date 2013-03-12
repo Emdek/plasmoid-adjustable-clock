@@ -136,7 +136,7 @@ void Clock::updateClock(const QList<ClockTimeValue> &changes)
                 event = "TimezoneOffset";
 
                 break;
-            case TimezoneListValue:
+            case TimezonesValue:
                 event = "TimezoneList";
 
                 break;
@@ -275,7 +275,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, in
             title = i18n("Timezone offset");
 
             break;
-        case TimezoneListValue:
+        case TimezonesValue:
             title = i18n("Timezones list");
 
             break;
