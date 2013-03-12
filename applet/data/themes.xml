@@ -358,9 +358,25 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	}
 }
 
-updateClock();
+function updateTheme()
+{
+	var color = window.getComputedStyle(document.body).getPropertyValue('color');
+	var rules = document.styleSheets[0].cssRules;
+	
+	for (var index in rules)
+	{
+		if (rules[index].style && rules[index].style.getPropertyValue('border-color'))
+		{
+			rules[index].style.setProperty('border-color', rules[index].style.getPropertyValue('border-color').replace(/rgb\([0-9, ]+\)/, color));
+		}
+	}
+}
 
-document.addEventListener('ClockSecondChanged', updateClock);]]></script>
+updateClock();
+updateTheme();
+
+document.addEventListener('ClockSecondChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 	</theme>
 	<theme>
 		<id>dbclock</id>
@@ -481,7 +497,8 @@ Clock.setRule('#month', Clock.MonthValue);
 Clock.setRule('#year', Clock.YearValue);
 Clock.setRule("#timeofday", Clock.TimeOfDayValue);
 
-document.addEventListener('ClockMinuteChanged', updateClock);]]></script>
+document.addEventListener('ClockMinuteChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>progress</id>
@@ -640,7 +657,8 @@ Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
 
 updateClock();
 
-document.addEventListener('ClockSecondChanged', updateClock);]]></script>
+document.addEventListener('ClockSecondChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>calendar</id>
