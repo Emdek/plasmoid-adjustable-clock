@@ -456,7 +456,9 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 
 	context.lineCap = 'round';
 	context.lineWidth = 8;
-	context.strokeStyle = document.body.style.color;
+	context.strokeStyle = window.getComputedStyle(document.body).getPropertyValue('color');
+
+	context.clearRect(0, 0, 200, 200);
 
 	context.beginPath();
 	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getTimeString(Clock.MinuteValue, Clock.ShortFormOption)) - 15) * 6)), false);
@@ -479,7 +481,7 @@ Clock.setRule('#month', Clock.MonthValue);
 Clock.setRule('#year', Clock.YearValue);
 Clock.setRule("#timeofday", Clock.TimeOfDayValue);
 
-document.addEventListener('ClockSecondChanged', updateClock);]]></script>
+document.addEventListener('ClockMinuteChanged', updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>progress</id>
