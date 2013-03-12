@@ -60,11 +60,12 @@ enum ClockTimeValue
 enum ValueOption
 {
     DefaultFormOption = 0,
-    AlternativeFormOption = 1,
-    ShortFormOption = 2,
-    TextualFormOption = 4,
-    PossessiveFormOption = 8,
-    NonPossessiveFormOption = 16
+    ShortFormOption = 1,
+    TextualFormOption = 2,
+    StandardFormOption = 4,
+    AlternativeFormOption = 8,
+    PossessiveFormOption = 16,
+    NonPossessiveFormOption = 32
 };
 
 Q_DECLARE_FLAGS(ValueOptions, ValueOption)

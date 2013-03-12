@@ -221,7 +221,7 @@ QString DataSource::toString(ClockTimeValue value, ValueOptions options, QDateTi
     case MinuteValue:
         return formatNumber(dateTime.time().minute(), ((options & ShortFormOption) ? 0 : 2));
     case HourValue:
-        return formatNumber(((options & AlternativeFormOption || KGlobal::locale()->use12Clock()) ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), ((options & ShortFormOption) ? 0 : 2));
+        return formatNumber(((!(options & StandardFormOption) && ((options & AlternativeFormOption) || KGlobal::locale()->use12Clock())) ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), ((options & ShortFormOption) ? 0 : 2));
     case TimeOfDayValue:
         return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
     case DayOfMonthValue:

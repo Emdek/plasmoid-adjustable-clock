@@ -22,8 +22,9 @@ Clock.EventsValue = 20;
 Clock.HolidaysValue = 21;
 
 Clock.DefaultFormOption = 0;
-Clock.AlternativeFormOption = 1;
-Clock.ShortFormOption = 2;
-Clock.TextualFormOption = 4;
-Clock.PossessiveFormOption = 8;
-Clock.NonPossessiveFormOption = 16;
+Clock.ShortFormOption = 1;
+Clock.TextualFormOption = 2;
+Clock.StandardFormOption = 4;
+Clock.AlternativeFormOption = 8;
+Clock.PossessiveFormOption = 16;
+Clock.NonPossessiveFormOption = 32;

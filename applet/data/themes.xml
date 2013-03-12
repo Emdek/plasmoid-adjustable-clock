@@ -489,7 +489,7 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 
 updateClock();
 
-Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#hour', Clock.HourValue, Clock.AlternativeFormOption);
 Clock.setRule('#minute', Clock.MinuteValue);
 Clock.setRule('#second', Clock.SecondValue);
 Clock.setRule('#day', Clock.DayOfMonthValue);

@@ -288,7 +288,7 @@ ValueOptions PlaceholderDialog::getOptions() const
     if (m_placeholderUi.textualFormCheckBox->isChecked() && m_placeholderUi.possessiveFormCheckBox->checkState() != Qt::PartiallyChecked) {
         options |= (m_placeholderUi.possessiveFormCheckBox->isChecked() ? PossessiveFormOption : NonPossessiveFormOption);
     } else  if (m_placeholderUi.hoursModeCheckBox->checkState() != Qt::PartiallyChecked) {
-        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? PossessiveFormOption : NonPossessiveFormOption);
+        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? AlternativeFormOption : StandardFormOption);
     }
 
     return options;
