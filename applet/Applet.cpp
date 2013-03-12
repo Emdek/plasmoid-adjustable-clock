@@ -217,12 +217,12 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
     m_source->setTimezone(newTimezone);
 
-    constraintsEvent(Plasma::SizeConstraint);
-    updateSize();
-
     const Theme theme = getTheme();
 
     m_page.mainFrame()->setHtml(getPageLayout(theme.html, theme.css, theme.script));
+
+    constraintsEvent(Plasma::SizeConstraint);
+    updateSize();
 }
 
 void Applet::copyToClipboard()
