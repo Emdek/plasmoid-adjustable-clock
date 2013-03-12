@@ -53,24 +53,21 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 		<background>false</background>
 		<html><![CDATA[<div class="clock">
 	<div class="top">
-		<div class="card">%0:1h</div>
-		<div class="card">%1:2h</div>
+		<div id="c_0_1" class="card">1</div>
+		<div id="c_1_1" class="card">2</div>
 		<div id="dot_top" class="card dots">•</div>
-		<div class="card">%0:1m</div>
-		<div class="card">%1:2m</div>
+		<div id="c_2_1" class="card">3</div>
+		<div id="c_3_1" class="card">0</div>
 	</div>
 	<div class="bottom">
-		<div class="card">%0:1h</div>
-		<div class="card">%1:2h</div>
+		<div id="c_0_2" class="card">1</div>
+		<div id="c_1_2" class="card">2</div>
 		<div id="dot_bottom" class="card dots">•</div>
-		<div class="card">%0:1m</div>
-		<div class="card">%1:2m</div>
+		<div id="c_2_2" class="card">3</div>
+		<div id="c_3_2" class="card">0</div>
 	</div>
-	<div class="date">%!d %!$+M</div>
-</div>
-<script type="text/javascript">
-blinkDots(%~1s %% 2);
-</script>]]></html>
+	<div class="date"><span id="day">1</span> <span id="month">Jan</span></div>
+</div>]]></html>
 		<css><![CDATA[.clock
 {
 	width: 192px;
@@ -143,11 +140,29 @@ blinkDots(%~1s %% 2);
 	line-height: 15px;
 	font-size: 15px;
 }]]></css>
-		<script><![CDATA[function blinkDots(blink)
+		<script><![CDATA[function updateClock()
 {
+	var hour = Clock.getTimeString(Clock.HourValue);
+	var minute = Clock.getTimeString(Clock.MinuteValue);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
+
+	for (var i = 0; i < values.length; ++i)
+	{
+		document.getElementById('c_' + i + '_1').innerHTML = values[i];
+		document.getElementById('c_' + i + '_2').innerHTML = values[i];
+	}
+
+	var blink = (Clock.getTimeString(Clock.SecondValue, Clock.ShortFormOption) % 2);
+
 	document.getElementById('dot_top').setAttribute('class', 'card dots' + (blink?'':' dark'));
 	document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink?'':' dark'));
-}]]></script>
+}
+
+updateClock();
+
+Clock.setRule('#day', Clock.DayOfMonthValue, Clock.ShortFormOption);
+Clock.setRule('#month', Clock.MonthValue, (Clock.ShortFormOption | Clock.TextualFormOption | Clock.NonPossessiveFormOption));
+Clock.secondChanged.connect(updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>digitalclock</id>
@@ -207,9 +222,6 @@ blinkDots(%~1s %% 2);
 	</div>
 </div>
 <script type="text/javascript">
-updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m]);
-
-document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidden');
 </script>]]></html>
 		<css><![CDATA[.clock
 {
@@ -323,8 +335,14 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 	font-size: 45px;
 	text-align: center;
 }]]></css>
-		<script><![CDATA[function updateClock(values)
+		<script><![CDATA[function updateClock()
 {
+	var hour = Clock.getTimeString(Clock.HourValue);
+	var minute = Clock.getTimeString(Clock.MinuteValue);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
+
+	document.getElementById('dots').style.visibility = ((Clock.getTimeString(Clock.SecondValue, Clock.ShortFormOption) % 2)?'visible':'hidden');
+
 	for (var i = 0; i < values.length; ++i)
 	{
 		var digit = document.getElementById('digit_' + i);
@@ -337,7 +355,11 @@ document.getElementById('dots').style.visibility = ((%~1s %% 2)?'visible':'hidde
 		digit.getElementsByClassName('segment_6')[0].style.visibility = ((values[i] != 1 && values[i] != 2 && values[i] != 3 && values[i] != 7)?'visible':'hidden');
 		digit.getElementsByClassName('segment_7')[0].style.visibility = ((values[i] != 0 && values[i] != 1 && values[i] != 7)?'visible':'hidden');
 	}
-}]]></script>
+}
+
+updateClock();
+
+Clock.secondChanged.connect(updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>dbclock</id>
@@ -383,15 +405,12 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 		<background>false</background>
 		<html><![CDATA[<div class="clock">
 	<canvas id="canvas" width="200" height="200"></canvas>
-	<div class="back">%p</div>
+	<div id="timeofday" class="back"></div>
 	<div class="front">
-		%-h:<span id="minute">30</span>
+		<span id="hour">12</span>:<span id="minute">30</span>
 		<div><span id="year">2000</span>-<span id="month">01</span>-<span id="day">01</span></div>
 	</div>
-</div>
-<script type="text/javascript">
-drawCircles(%!+h, %!m);
-</script>]]></html>
+</div>]]></html>
 		<css><![CDATA[.clock
 {
 	width: 200px;
@@ -430,7 +449,7 @@ drawCircles(%!+h, %!m);
 	font-size: 20px;
 	line-height: 25px;
 }]]></css>
-		<script><![CDATA[function drawCircles(hour, minute)
+		<script><![CDATA[function updateClock()
 {
 	var context = document.getElementById('canvas').getContext('2d');
 
@@ -439,15 +458,26 @@ drawCircles(%!+h, %!m);
 	context.strokeStyle = document.body.style.color;
 
 	context.beginPath();
-	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (minute - 15) * 6)), false);
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (Clock.getTimeString(Clock.MinuteValue, Clock.ShortFormOption) - 15) * 6)), false);
 	context.globalAlpha = 0.5;
 	context.stroke();
 
 	context.beginPath();
-	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (hour - 15) * 30)), false);
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (Clock.getTimeString(Clock.HourValue, Clock.ShortFormOption) - 15) * 30)), false);
 	context.globalAlpha = 0.8;
 	context.stroke();
-}]]></script>
+}
+
+updateClock();
+
+Clock.setRule('#hour', Clock.HourValue);
+Clock.setRule('#minute', Clock.MinuteValue);
+Clock.setRule('#second', Clock.SecondValue);
+Clock.setRule('#day', Clock.DayOfMonthValue);
+Clock.setRule('#month', Clock.MonthValue);
+Clock.setRule('#year', Clock.YearValue);
+Clock.setRule("#timeofday", Clock.TimeOfDayValue);
+Clock.secondChanged.connect(updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>progress</id>
@@ -530,7 +560,7 @@ Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
 		<description>Classic binary clock</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<table class="clock">
+		<html><![CDATA[<span id="test"></span><table class="clock">
 	<tbody>
 		<tr>
 			<td id="v_0_8"></td>
@@ -565,10 +595,7 @@ Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
 			<td id="v_5_1"></td>
 		</tr>
 	</tbody>
-</table>
-<script type="text/javascript">
-updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
-</script>]]></html>
+</table>]]></html>
 		<css><![CDATA[.clock, .clock td
 {
 	margin: auto;
@@ -590,9 +617,13 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 	height: 10px;
 	border-width: 0 0 1px 1px;
 }]]></css>
-		<script><![CDATA[function updateClock(values)
+		<script><![CDATA[function updateClock()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
+	var hour = Clock.getTimeString(Clock.HourValue);
+	var minute = Clock.getTimeString(Clock.MinuteValue);
+	var second = Clock.getTimeString(Clock.SecondValue);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
 
 	for (var i = 0; i < values.length; ++i)
 	{
@@ -601,7 +632,11 @@ updateClock([%~0:1h, %~1:2h, %~0:1m, %~1:2m, %~0:1s, %~1:2s]);
 			document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
 		}
 	}
-}]]></script>
+}
+
+updateClock();
+
+Clock.secondChanged.connect(updateClock);]]></script>
 	</theme>
 	<theme>
 		<id>calendar</id>

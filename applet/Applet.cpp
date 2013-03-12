@@ -238,14 +238,14 @@ void Applet::copyToClipboard(QAction *action)
 
 void Applet::toolTipAboutToShow()
 {
-    connect(m_source, SIGNAL(secondChanged()), this, SLOT(updateToolTipContent()));
+    connect(m_source, SIGNAL(dataChanged(QList<ClockTimeValue>)), this, SLOT(updateToolTipContent()));
 
     updateToolTipContent();
 }
 
 void Applet::toolTipHidden()
 {
-    disconnect(m_source, SIGNAL(secondChanged()), this, SLOT(updateToolTipContent()));
+    disconnect(m_source, SIGNAL(dataChanged(QList<ClockTimeValue>)), this, SLOT(updateToolTipContent()));
 
     Plasma::ToolTipManager::self()->clearContent(this);
 }

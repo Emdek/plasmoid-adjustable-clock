@@ -37,7 +37,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 {
     QList<ClockTimeValue> changes;
 
-    if (!source.isEmpty() && source == m_eventsQuery) {
+    if (source == m_eventsQuery) {
         m_events.clear();
 
         changes.append(EventsValue);
