@@ -1,7 +1,6 @@
 3.3 (--.03.2013):
 - replace parser by scripting API;
-- added Digital Clock theme;
-- removed support for expressions (to be superseded by standard JavaScript).
+- added Digital Clock theme.
 
 3.2 (10.03.2013):
 - added Train Clock, based on design by Nuno Pinheiro;

@@ -64,7 +64,18 @@ QString FormatDelegate::displayText(const QVariant &value, const QLocale &locale
 {
     Q_UNUSED(locale)
 
-    return value.toString();
+    return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString()));
+}
+
+QSize FormatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QSize size = QStyledItemDelegate::sizeHint(option, index);
+
+    if (size.height() < 30) {
+        size.setHeight(30);
+    }
+
+    return size;
 }
 
 }

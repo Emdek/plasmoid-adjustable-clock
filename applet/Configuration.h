@@ -23,6 +23,7 @@
 
 #include "Applet.h"
 
+#include <QtGui/QListWidgetItem>
 #include <QtGui/QStandardItemModel>
 
 #include <KConfigDialog>
@@ -89,19 +90,19 @@ class Configuration : public QObject
         void richTextChanged();
         void sourceChanged();
         void itemSelectionChanged();
-        void editRow(QTableWidgetItem *item = NULL);
-        void insertRow();
-        void deleteRow();
-        void moveRow(bool up);
-        void moveRowUp();
-        void moveRowDown();
-        void updateRow(int row);
+        void editItem(QListWidgetItem *item = NULL);
+        void insertItem();
+        void deleteItem();
+        void moveItem(bool up);
+        void moveItemUp();
+        void moveItemDown();
+        void updateItem(QListWidgetItem *item);
 
     private:
         Applet *m_applet;
         Clock *m_clock;
         QStandardItemModel *m_themesModel;
-        QTableWidgetItem *m_editedItem;
+        QListWidgetItem *m_editedItem;
         int m_fontSize;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;

@@ -40,6 +40,7 @@ class FormatDelegate : public QStyledItemDelegate
         void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
         QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         QString displayText(const QVariant &value, const QLocale &locale) const;
+        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
     private:
         Clock *m_clock;

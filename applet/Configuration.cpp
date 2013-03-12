@@ -46,9 +46,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardActions = new QWidget();
     const QStringList clipboardFormats = m_applet->getClipboardFormats();
-    QString preview;
-    int row;
-
+ 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardActions);
 
@@ -116,24 +114,19 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
-    m_clipboardUi.clipboardActionsTable->setItemDelegate(new FormatDelegate(m_applet->getClock(), this));
-    m_clipboardUi.clipboardActionsTable->viewport()->installEventFilter(this);
+    m_clipboardUi.clipboardActionsList->setItemDelegate(new FormatDelegate(m_clock, this));
+    m_clipboardUi.clipboardActionsList->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
     m_clipboardUi.fastCopyFormatEdit->setClock(m_applet->getClock());
 
     for (int i = 0; i < clipboardFormats.count(); ++i) {
-        row = m_clipboardUi.clipboardActionsTable->rowCount();
+        QListWidgetItem *item = new QListWidgetItem(clipboardFormats.at(i));
 
-        m_clipboardUi.clipboardActionsTable->insertRow(row);
-        m_clipboardUi.clipboardActionsTable->setItem(row, 0, new QTableWidgetItem(clipboardFormats.at(i)));
+        if (!clipboardFormats.at(i).isEmpty()) {
+            item->setToolTip(m_clock->evaluate(clipboardFormats.at(i)));
+        }
 
-        preview = (clipboardFormats.at(i).isEmpty() ? QString() : m_applet->getClock()->evaluate(clipboardFormats.at(i)));
-
-        QTableWidgetItem *item = new QTableWidgetItem(preview);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        item->setToolTip(preview);
-
-        m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
+        m_clipboardUi.clipboardActionsList->addItem(item);
     }
 
     itemSelectionChanged();
@@ -169,14 +162,14 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
     connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
-    connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertRow()));
-    connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteRow()));
-    connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editRow()));
-    connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveRowUp()));
-    connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveRowDown()));
-    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
-    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateRow(int)));
-    connect(m_clipboardUi.clipboardActionsTable, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editRow(QTableWidgetItem*)));
+    connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertItem()));
+    connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteItem()));
+    connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editItem()));
+    connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveItemUp()));
+    connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveItemDown()));
+    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
+    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateItem(QListWidgetItem*)));
+    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(editItem(QListWidgetItem*)));
     connect(m_clipboardUi.fastCopyFormatEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
@@ -197,7 +190,7 @@ void Configuration::save()
     updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
 
     if (m_editedItem) {
-        m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+        m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
     }
 
     QList<Theme> themes;
@@ -223,8 +216,8 @@ void Configuration::save()
 
     m_applet->saveCustomThemes(themes);
 
-    for (int i = 0; i < m_clipboardUi.clipboardActionsTable->rowCount(); ++i) {
-        clipboardFormats.append(m_clipboardUi.clipboardActionsTable->item(i, 0)->text());
+    for (int i = 0; i < m_clipboardUi.clipboardActionsList->count(); ++i) {
+        clipboardFormats.append(m_clipboardUi.clipboardActionsList->item(i)->text());
     }
 
     m_applet->config().writeEntry("format", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
@@ -664,110 +657,87 @@ void Configuration::sourceChanged()
 
 void Configuration::itemSelectionChanged()
 {
-    const QList<QTableWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsTable->selectedItems();
+    const QList<QListWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsList->selectedItems();
 
-    m_clipboardUi.moveUpButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.first()) != 0);
-    m_clipboardUi.moveDownButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsTable->row(selectedItems.last()) != (m_clipboardUi.clipboardActionsTable->rowCount() - 1));
+    m_clipboardUi.moveUpButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsList->row(selectedItems.first()) != 0);
+    m_clipboardUi.moveDownButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsList->row(selectedItems.last()) != (m_clipboardUi.clipboardActionsList->count() - 1));
     m_clipboardUi.editButton->setEnabled(!selectedItems.isEmpty());
     m_clipboardUi.deleteButton->setEnabled(!selectedItems.isEmpty());
 }
 
-void Configuration::editRow(QTableWidgetItem *item)
+void Configuration::editItem(QListWidgetItem *item)
 {
     if (m_editedItem) {
-        m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+        m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
     }
 
     if (!item) {
-        item = m_clipboardUi.clipboardActionsTable->currentItem();
+        item = m_clipboardUi.clipboardActionsList->currentItem();
     }
 
     if (!item) {
         return;
-    }
-
-    if (item->column() == 1) {
-        item = m_clipboardUi.clipboardActionsTable->item(item->row(), 0);
     }
 
     m_editedItem = item;
 
     modify();
 
-    m_clipboardUi.clipboardActionsTable->openPersistentEditor(m_editedItem);
+    m_clipboardUi.clipboardActionsList->openPersistentEditor(m_editedItem);
 }
 
-void Configuration::insertRow()
+void Configuration::insertItem()
 {
-    const int row = ((m_clipboardUi.clipboardActionsTable->rowCount() && m_clipboardUi.clipboardActionsTable->currentRow() >= 0) ? m_clipboardUi.clipboardActionsTable->currentRow() : 0);
-    QTableWidgetItem *item = new QTableWidgetItem(QString());
-    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
+    QListWidgetItem *item = new QListWidgetItem(QString());
 
-    m_clipboardUi.clipboardActionsTable->insertRow(row);
-    m_clipboardUi.clipboardActionsTable->setItem(row, 0, item);
+    m_clipboardUi.clipboardActionsList->insertItem(((m_clipboardUi.clipboardActionsList->count() && m_clipboardUi.clipboardActionsList->currentRow() >= 0) ? m_clipboardUi.clipboardActionsList->currentRow() : 0), item);
 
-    editRow(item);
-
-    item = new QTableWidgetItem(QString());
-    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-
-    m_clipboardUi.clipboardActionsTable->setItem(row, 1, item);
-    m_clipboardUi.clipboardActionsTable->setCurrentCell(row, 0);
+    editItem(item);
 
     modify();
 }
 
-void Configuration::deleteRow()
+void Configuration::deleteItem()
 {
-    m_clipboardUi.clipboardActionsTable->removeRow(m_clipboardUi.clipboardActionsTable->row(m_clipboardUi.clipboardActionsTable->selectedItems().at(0)));
+    QListWidgetItem *item = m_clipboardUi.clipboardActionsList->takeItem(m_clipboardUi.clipboardActionsList->row(m_clipboardUi.clipboardActionsList->selectedItems().at(0)));
+
+    if (item) {
+        delete item;
+    }
 
     modify();
 }
 
-void Configuration::moveRow(bool up)
+void Configuration::moveItem(bool up)
 {
-    int sourceRow = m_clipboardUi.clipboardActionsTable->row(m_clipboardUi.clipboardActionsTable->selectedItems().at(0));
+    int sourceRow = m_clipboardUi.clipboardActionsList->row(m_clipboardUi.clipboardActionsList->selectedItems().at(0));
     int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
 
-    QList<QTableWidgetItem*> sourceItems;
-    QList<QTableWidgetItem*> destinationItems;
+    QListWidgetItem *sourceItem = m_clipboardUi.clipboardActionsList->takeItem(sourceRow);
+    QListWidgetItem *destinationItem = m_clipboardUi.clipboardActionsList->takeItem(destinationRow);
 
-    for (int i = 0; i < 2; ++i) {
-        sourceItems.append(m_clipboardUi.clipboardActionsTable->takeItem(sourceRow, i));
-
-        destinationItems.append(m_clipboardUi.clipboardActionsTable->takeItem(destinationRow, i));
-    }
-
-    for (int i = 0; i < 2; ++i) {
-        m_clipboardUi.clipboardActionsTable->setItem(sourceRow, i, destinationItems.at(i));
-        m_clipboardUi.clipboardActionsTable->setItem(destinationRow, i, sourceItems.at(i));
-    }
-
-    m_clipboardUi.clipboardActionsTable->setCurrentCell(destinationRow, 0);
+    m_clipboardUi.clipboardActionsList->insertItem(sourceRow, destinationItem);
+    m_clipboardUi.clipboardActionsList->insertItem(destinationRow, sourceItem);
+    m_clipboardUi.clipboardActionsList->setCurrentRow(destinationRow);
 
     modify();
 }
 
-void Configuration::moveRowUp()
+void Configuration::moveItemUp()
 {
-    moveRow(true);
+    moveItem(true);
 }
 
-void Configuration::moveRowDown()
+void Configuration::moveItemDown()
 {
-    moveRow(false);
+    moveItem(false);
 }
 
-void Configuration::updateRow(int row)
+void Configuration::updateItem(QListWidgetItem *item)
 {
-    if (!m_clipboardUi.clipboardActionsTable->item(row, 1)) {
-        return;
+    if (item) {
+        item->setToolTip(m_clock->evaluate(item->text()));
     }
-
-    const QString preview = m_applet->getClock()->evaluate(m_clipboardUi.clipboardActionsTable->item(row, 0)->text());
-
-    m_clipboardUi.clipboardActionsTable->item(row, 1)->setText(preview);
-    m_clipboardUi.clipboardActionsTable->item(row, 1)->setToolTip(preview);
 }
 
 int Configuration::findRow(const QString &text, int role)
@@ -786,14 +756,14 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
     if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-        if (m_clipboardUi.clipboardActionsTable->itemAt(mouseEvent->pos()) != m_editedItem) {
-            m_clipboardUi.clipboardActionsTable->closePersistentEditor(m_editedItem);
+        if (m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos()) != m_editedItem) {
+            m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
         }
     } else if (event->type() == QEvent::MouseButtonDblClick) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-        if (!m_clipboardUi.clipboardActionsTable->itemAt(mouseEvent->pos())) {
-            insertRow();
+        if (!m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos())) {
+            insertItem();
         }
     }
 

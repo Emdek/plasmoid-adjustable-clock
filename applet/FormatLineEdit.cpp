@@ -42,7 +42,7 @@ void FormatLineEdit::insertPlaceholder()
 
 void FormatLineEdit::insertPlaceholder(const QString &placeholder)
 {
-    insert(QString("Clock.getTimeString(%1)").arg(placeholder));
+    insert(QString("Clock.toString(%1)").arg(placeholder));
 }
 
 void FormatLineEdit::extendContextMenu(QMenu *menu)
