@@ -183,7 +183,7 @@ void Clock::updateTheme()
 void Clock::applyRule(const Placeholder &rule)
 {
     if (m_document) {
-        setValue(m_document->findAllElements(rule.rule), rule.attribute, getTimeString(rule.value, rule.options));
+        setValue(m_document->findAllElements(rule.rule), rule.attribute, toString(rule.value, rule.options));
     }
 }
 
@@ -304,7 +304,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, in
         const QWebElementCollection elements = m_document->findAllElements(rule);
 
         for (int i = 0; i < elements.count(); ++i) {
-            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->getTimeString(nativeValue, nativeOptions, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->toString(nativeValue, nativeOptions, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
         }
 
         return;
@@ -375,14 +375,14 @@ QString Clock::evaluate(const QString &script)
     return m_engine.evaluate(script).toString();
 }
 
-QString Clock::getTimeString(int value, int options) const
+QString Clock::toString(int value, int options) const
 {
-    return m_source->getTimeString(static_cast<ClockTimeValue>(value), static_cast<ValueOptions>(options), ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->toString(static_cast<ClockTimeValue>(value), static_cast<ValueOptions>(options), ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
-QVariantList Clock::getEventsList(int value, int options) const
+QVariantList Clock::toList(int value, int options) const
 {
-    return m_source->getEventsList(static_cast<ClockEventsType>(value), static_cast<ValueOptions>(options));
+    return m_source->toList(static_cast<ClockEventsType>(value), static_cast<ValueOptions>(options));
 }
 
 }

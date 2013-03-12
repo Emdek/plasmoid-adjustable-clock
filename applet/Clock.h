@@ -61,8 +61,8 @@ class Clock : public QObject
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script);
-        Q_INVOKABLE QString getTimeString(int value, int options = 0) const;
-        Q_INVOKABLE QVariantList getEventsList(int value, int options = 0) const;
+        Q_INVOKABLE QString toString(int value, int options = 0) const;
+        Q_INVOKABLE QVariantList toList(int value, int options = 0) const;
 
     protected:
         void applyRule(const Placeholder &rule);

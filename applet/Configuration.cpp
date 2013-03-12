@@ -268,7 +268,7 @@ void Configuration::insertPlaceholder(const QString &placeholder)
         ++id;
     }
 
-    const QString html = QString("<span id=\"placeholder_%1\">%2</span>").arg(id).arg(m_clock->evaluate(QString("Clock.getTimeString(%1)").arg(placeholder)));
+    const QString html = QString("<span id=\"placeholder_%1\">%2</span>").arg(id).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(placeholder)));
 
     m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
     m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#placeholder_%1\", %2);\n").arg(id).arg(placeholder));

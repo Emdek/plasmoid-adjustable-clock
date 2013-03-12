@@ -201,7 +201,7 @@ void PlaceholderDialog::sendSignal()
 
 void PlaceholderDialog::updatePreview()
 {
-    m_placeholderUi.previewLabel->setText(m_clock->getTimeString(getPlaceholder(), getOptions()));
+    m_placeholderUi.previewLabel->setText(m_clock->toString(getPlaceholder(), getOptions()));
 }
 
 void PlaceholderDialog::selectPlaceholder(int index)

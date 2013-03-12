@@ -227,7 +227,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "Clock.getTimeString(Clock.YearValue) + '-' + Clock.getTimeString(Clock.MonthValue) + '-' + Clock.getTimeString(Clock.DayOfMonthValue) + ' ' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)")));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -408,8 +408,8 @@ Theme Applet::getTheme() const
 QPair<QString, QString> Applet::getToolTipFormat() const
 {
     QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue) +'<br>' + Clock.getTimeString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.getTimeString(Clock.DayOfMonthValue) + '.' + Clock.getTimeString(Clock.MonthValue) + '.' + Clock.getTimeString(Clock.YearValue) + '</div>'");
-    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.getTimeString(Clock.TimezoneListValue, Clock.ShortFormOption) + Clock.getTimeString(Clock.EventsValue)");
+    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
+    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.toString(Clock.TimezoneListValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
 
     return toolTipFormat;
 }
@@ -417,18 +417,18 @@ QPair<QString, QString> Applet::getToolTipFormat() const
 QStringList Applet::getClipboardFormats() const
 {
     QStringList clipboardFormats;
-    clipboardFormats << "Clock.getTimeString(Clock.TimeValue, Clock.ShortFormOption)"
-    << "Clock.getTimeString(Clock.TimeValue)"
-    << "Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)"
+    clipboardFormats << "Clock.toString(Clock.TimeValue, Clock.ShortFormOption)"
+    << "Clock.toString(Clock.TimeValue)"
+    << "Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"
     << QString()
-    << "Clock.getTimeString(Clock.DateValue, Clock.ShortFormOption)"
-    << "Clock.getTimeString(Clock.DateValue)"
+    << "Clock.toString(Clock.DateValue, Clock.ShortFormOption)"
+    << "Clock.toString(Clock.DateValue)"
     << QString()
-    << "Clock.getTimeString(Clock.DateTimeValue, Clock.ShortFormOption)"
-    << "Clock.getTimeString(Clock.DateTimeValue)"
-    << "Clock.getTimeString(Clock.YearValue) + '-' + Clock.getTimeString(Clock.MonthValue) + '-' + Clock.getTimeString(Clock.DayOfMonthValue) + ' ' + Clock.getTimeString(Clock.HourValue) + ':' + Clock.getTimeString(Clock.MinuteValue) + ':' + Clock.getTimeString(Clock.SecondValue)"
+    << "Clock.toString(Clock.DateTimeValue, Clock.ShortFormOption)"
+    << "Clock.toString(Clock.DateTimeValue)"
+    << "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"
     << QString()
-    << "Clock.getTimeString(Clock.TimestampValue)";
+    << "Clock.toString(Clock.TimestampValue)";
 
     return config().readEntry("clipboardFormats", clipboardFormats);
 }

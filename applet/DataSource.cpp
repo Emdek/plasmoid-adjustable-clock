@@ -206,7 +206,7 @@ QDateTime DataSource::getCurrentDateTime() const
     return m_dateTime;
 }
 
-QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QDateTime dateTime) const
+QString DataSource::toString(ClockTimeValue value, ValueOptions options, QDateTime dateTime) const
 {
     QStringList timezones;
     bool possesiveForm = false;
@@ -296,7 +296,7 @@ QString DataSource::getTimeString(ClockTimeValue value, ValueOptions options, QD
     return QString();
 }
 
-QVariantList DataSource::getEventsList(ClockEventsType value, ValueOptions options) const
+QVariantList DataSource::toList(ClockEventsType value, ValueOptions options) const
 {
     return QVariantList();
 }

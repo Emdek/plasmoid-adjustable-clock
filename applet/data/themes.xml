@@ -142,8 +142,8 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 }]]></css>
 		<script><![CDATA[function updateClock()
 {
-	var hour = Clock.getTimeString(Clock.HourValue);
-	var minute = Clock.getTimeString(Clock.MinuteValue);
+	var hour = Clock.toString(Clock.HourValue);
+	var minute = Clock.toString(Clock.MinuteValue);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
 	for (var i = 0; i < values.length; ++i)
@@ -152,7 +152,7 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 		document.getElementById('c_' + i + '_2').innerHTML = values[i];
 	}
 
-	var blink = (Clock.getTimeString(Clock.SecondValue, Clock.ShortFormOption) % 2);
+	var blink = (Clock.toString(Clock.SecondValue, Clock.ShortFormOption) % 2);
 
 	document.getElementById('dot_top').setAttribute('class', 'card dots' + (blink?'':' dark'));
 	document.getElementById('dot_bottom').setAttribute('class', 'card dots' + (blink?'':' dark'));
@@ -338,11 +338,11 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 }]]></css>
 		<script><![CDATA[function updateClock()
 {
-	var hour = Clock.getTimeString(Clock.HourValue);
-	var minute = Clock.getTimeString(Clock.MinuteValue);
+	var hour = Clock.toString(Clock.HourValue);
+	var minute = Clock.toString(Clock.MinuteValue);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
-	document.getElementById('dots').style.visibility = ((Clock.getTimeString(Clock.SecondValue, Clock.ShortFormOption) % 2)?'visible':'hidden');
+	document.getElementById('dots').style.visibility = ((Clock.toString(Clock.SecondValue, Clock.ShortFormOption) % 2)?'visible':'hidden');
 
 	for (var i = 0; i < values.length; ++i)
 	{
@@ -461,12 +461,12 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 	context.clearRect(0, 0, 200, 200);
 
 	context.beginPath();
-	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getTimeString(Clock.MinuteValue, Clock.ShortFormOption)) - 15) * 6)), false);
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.MinuteValue, Clock.ShortFormOption)) - 15) * 6)), false);
 	context.globalAlpha = 0.5;
 	context.stroke();
 
 	context.beginPath();
-	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getTimeString(Clock.HourValue, Clock.ShortFormOption)) - 15) * 30)), false);
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.HourValue, Clock.ShortFormOption)) - 15) * 30)), false);
 	context.globalAlpha = 0.8;
 	context.stroke();
 }
@@ -624,9 +624,9 @@ Clock.setRule('#second', 'value', Clock.SecondValue, Clock.ShortFormOption);
 		<script><![CDATA[function updateClock()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
-	var hour = Clock.getTimeString(Clock.HourValue);
-	var minute = Clock.getTimeString(Clock.MinuteValue);
-	var second = Clock.getTimeString(Clock.SecondValue);
+	var hour = Clock.toString(Clock.HourValue);
+	var minute = Clock.toString(Clock.MinuteValue);
+	var second = Clock.toString(Clock.SecondValue);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
 
 	for (var i = 0; i < values.length; ++i)
