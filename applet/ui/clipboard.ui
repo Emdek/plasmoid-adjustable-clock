@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>346</width>
-    <height>235</height>
+    <height>256</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -100,28 +100,23 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="fastCopyLayout">
-     <item>
-      <widget class="QLabel" name="fastCopyFormatLabel">
-       <property name="text">
-        <string>Fast copy format:</string>
-       </property>
-       <property name="wordWrap">
-        <bool>false</bool>
-       </property>
-       <property name="buddy">
-        <cstring>fastCopyExpressionEdit</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="AdjustableClock::ExpressionLineEdit" name="fastCopyExpressionEdit">
-       <property name="toolTip">
-        <string>Format of string copied to clipboard after middle clicking on the clock, or activation of the relevant keyboard shortcut.</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QLabel" name="fastCopyExpressionLabel">
+     <property name="toolTip">
+      <string>Expression evaluated and copied to clipboard after middle mouse button click or activation of applet's keyboard shortcut</string>
+     </property>
+     <property name="text">
+      <string>Fast copy expression:</string>
+     </property>
+     <property name="wordWrap">
+      <bool>false</bool>
+     </property>
+     <property name="buddy">
+      <cstring>fastCopyExpressionEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="AdjustableClock::ExpressionLineEdit" name="fastCopyExpressionEdit"/>
    </item>
   </layout>
  </widget>
