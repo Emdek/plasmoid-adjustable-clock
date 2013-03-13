@@ -73,6 +73,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(delegate);
+    m_appearanceUi.themesView->installEventFilter(this);
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
@@ -175,13 +176,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
-
-    const int currentTheme = qMax(findRow(m_applet->config().readEntry("theme", "%default%"), IdRole), 0);
-
-    m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentTheme, 0));
-    m_appearanceUi.themesView->scrollTo(m_themesModel->index(currentTheme, 0));
-
-    selectTheme(m_themesModel->index(currentTheme, 0));
 }
 
 void Configuration::save()
@@ -280,6 +274,8 @@ void Configuration::selectTheme(const QModelIndex &index)
 
     disableUpdates();
 
+    m_appearanceUi.themesView->setCurrentIndex(index);
+    m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
     m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
     m_appearanceUi.scriptTextEdit->setPlainText(index.data(ScriptRole).toString());
@@ -755,17 +751,21 @@ int Configuration::findRow(const QString &text, int role)
 
 bool Configuration::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    if (object == m_appearanceUi.themesView && event->type() == QEvent::Paint && !m_appearanceUi.themesView->currentIndex().isValid()) {
+        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "%default%"), IdRole), 0), 0));
+    } else if (object == m_clipboardUi.clipboardActionsList->viewport()) {
+        if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-        if (m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos()) != m_editedItem) {
-            m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
-        }
-    } else if (event->type() == QEvent::MouseButtonDblClick) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            if (m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos()) != m_editedItem) {
+                m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
+            }
+        } else if (event->type() == QEvent::MouseButtonDblClick) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-        if (!m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos())) {
-            insertItem();
+            if (!m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos())) {
+                insertItem();
+            }
         }
     }
 
