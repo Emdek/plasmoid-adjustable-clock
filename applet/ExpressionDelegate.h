@@ -18,44 +18,34 @@
 *
 ***********************************************************************************/
 
-#include "FormatLineEdit.h"
-#include "Clock.h"
-#include "PlaceholderDialog.h"
+#ifndef ADJUSTABLECLOCKEXPRESSIONDELEGATE_HEADER
+#define ADJUSTABLECLOCKEXPRESSIONDELEGATE_HEADER
 
-#include <KLocale>
+#include <QtGui/QStyledItemDelegate>
 
 namespace AdjustableClock
 {
 
-FormatLineEdit::FormatLineEdit(QWidget *parent) : KLineEdit(parent),
-    m_clock(NULL)
-{
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
-}
+class Clock;
 
-void FormatLineEdit::insertPlaceholder()
+class ExpressionDelegate : public QStyledItemDelegate
 {
-    if (m_clock) {
-        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
-    }
-}
+    Q_OBJECT
 
-void FormatLineEdit::insertPlaceholder(const QString &placeholder)
-{
-    insert(QString("Clock.toString(%1)").arg(placeholder));
-}
+    public:
+        ExpressionDelegate(Clock *clock, QObject *parent = NULL);
 
-void FormatLineEdit::extendContextMenu(QMenu *menu)
-{
-    if (m_clock) {
-        menu->addSeparator();
-        menu->addAction(KIcon("chronometer"), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
-    }
-}
+        void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        void setEditorData(QWidget *editor, const QModelIndex &index) const;
+        void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        QString displayText(const QVariant &value, const QLocale &locale) const;
+        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-void FormatLineEdit::setClock(Clock *clock)
-{
-    m_clock = clock;
-}
+    private:
+        Clock *m_clock;
+};
 
 }
+
+#endif

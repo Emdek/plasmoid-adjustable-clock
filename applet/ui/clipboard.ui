@@ -110,12 +110,12 @@
         <bool>false</bool>
        </property>
        <property name="buddy">
-        <cstring>fastCopyFormatEdit</cstring>
+        <cstring>fastCopyExpressionEdit</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="AdjustableClock::FormatLineEdit" name="fastCopyFormatEdit">
+      <widget class="AdjustableClock::ExpressionLineEdit" name="fastCopyExpressionEdit">
        <property name="toolTip">
         <string>Format of string copied to clipboard after middle clicking on the clock, or activation of the relevant keyboard shortcut.</string>
        </property>
@@ -127,9 +127,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AdjustableClock::FormatLineEdit</class>
+   <class>AdjustableClock::ExpressionLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>FormatLineEdit.h</header>
+   <header>ExpressionLineEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

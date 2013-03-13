@@ -18,8 +18,8 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKFORMATLINEEDIT_HEADER
-#define ADJUSTABLECLOCKFORMATLINEEDIT_HEADER
+#ifndef ADJUSTABLECLOCKEXPRESSIONLINEEDIT_HEADER
+#define ADJUSTABLECLOCKEXPRESSIONLINEEDIT_HEADER
 
 #include <QtGui/QMenu>
 
@@ -30,12 +30,12 @@ namespace AdjustableClock
 
 class Clock;
 
-class FormatLineEdit : public KLineEdit
+class ExpressionLineEdit : public KLineEdit
 {
     Q_OBJECT
 
     public:
-        FormatLineEdit(QWidget *parent = NULL);
+        ExpressionLineEdit(QWidget *parent = NULL);
 
         void setClock(Clock *clock);
 

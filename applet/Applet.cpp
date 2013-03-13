@@ -138,41 +138,9 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 void Applet::clockConfigChanged()
 {
     const QString path = KStandardDirs::locate("data", "adjustableclock/themes.xml");
-    const QStringList customThemes = config().group("Formats").groupList();
 
     m_themes = loadThemes(path, true);
-
-    QList<Theme> themes = loadThemes(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"), false);
-    const int amount = themes.count();
-
-    if (!customThemes.isEmpty()) {
-        for (int i = 0; i < customThemes.count(); ++i) {
-            KConfigGroup themeConfiguration = config().group("Formats").group(customThemes.at(i));
-
-            if (themeConfiguration.readEntry("html", QString()).isEmpty()) {
-                continue;
-            }
-
-            Theme theme;
-            theme.id = themeConfiguration.readEntry("title", i18n("Custom"));
-            theme.title = themeConfiguration.readEntry("title", i18n("Custom"));
-            theme.html = themeConfiguration.readEntry("html", QString());
-            theme.css = themeConfiguration.readEntry("css", QString());
-            theme.script = themeConfiguration.readEntry("script", QString());
-            theme.background = themeConfiguration.readEntry("background", true);
-            theme.bundled = false;
-
-            themes.append(theme);
-        }
-
-        config().deleteGroup("Formats");
-
-        if (themes.count() != amount) {
-            saveCustomThemes(themes);
-        }
-    }
-
-    m_themes.append(themes);
+    m_themes.append(loadThemes(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"), false));
 
     if (m_themes.isEmpty()) {
         Theme theme;
@@ -186,7 +154,7 @@ void Applet::clockConfigChanged()
 
         m_themes.append(theme);
     } else {
-        const QString id = config().readEntry("format", "%default%");
+        const QString id = config().readEntry("theme", "%default%");
 
         m_theme = -1;
 
@@ -227,7 +195,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyFormat", "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)")));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyExpression", "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -313,12 +281,13 @@ void Applet::updateClipboardMenu()
 void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
-    QPair<QString, QString> toolTipFormat = getToolTipFormat();
+    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
+    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimezonesValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
 
-    if (!toolTipFormat.first.isEmpty() || !toolTipFormat.second.isEmpty()) {
+    if (!toolTipExpressionMain.isEmpty() || !toolTipExpressionSub.isEmpty()) {
         toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(m_clock->evaluate(toolTipFormat.first));
-        toolTipData.setSubText(m_clock->evaluate(toolTipFormat.second));
+        toolTipData.setMainText(m_clock->evaluate(toolTipExpressionMain));
+        toolTipData.setSubText(m_clock->evaluate(toolTipExpressionSub));
         toolTipData.setAutohide(false);
     }
 
@@ -403,15 +372,6 @@ Theme Applet::getTheme() const
     return theme;
 }
 
-QPair<QString, QString> Applet::getToolTipFormat() const
-{
-    QPair<QString, QString> toolTipFormat;
-    toolTipFormat.first = (config().keyList().contains("toolTipFormatMain") ? config().readEntry("toolTipFormatMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
-    toolTipFormat.second = (config().keyList().contains("toolTipFormatSub") ? config().readEntry("toolTipFormatSub", QString()) : "Clock.toString(Clock.TimezonesValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
-
-    return toolTipFormat;
-}
-
 QStringList Applet::getClipboardFormats() const
 {
     QStringList clipboardFormats;
@@ -428,7 +388,7 @@ QStringList Applet::getClipboardFormats() const
     << QString()
     << "Clock.toString(Clock.TimestampValue)";
 
-    return config().readEntry("clipboardFormats", clipboardFormats);
+    return config().readEntry("clipboardExpressions", clipboardFormats);
 }
 
 QList<Theme> Applet::getThemes() const

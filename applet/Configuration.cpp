@@ -22,7 +22,7 @@
 #include "Clock.h"
 #include "PlaceholderDialog.h"
 #include "PreviewDelegate.h"
-#include "FormatDelegate.h"
+#include "ExpressionDelegate.h"
 
 #include <QtWebKit/QWebFrame>
 
@@ -113,18 +113,18 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
-    m_clipboardUi.clipboardActionsList->setItemDelegate(new FormatDelegate(m_clock, this));
+    m_clipboardUi.clipboardActionsList->setItemDelegate(new ExpressionDelegate(m_clock, this));
     m_clipboardUi.clipboardActionsList->viewport()->installEventFilter(this);
-    m_clipboardUi.fastCopyFormatEdit->setText(m_applet->config().readEntry("fastCopyFormat", "%Y-%M-%d %h:%m:%s"));
-    m_clipboardUi.fastCopyFormatEdit->setClock(m_applet->getClock());
+    m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "%Y-%M-%d %h:%m:%s"));
+    m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
 
-    const QStringList clipboardFormats = m_applet->getClipboardFormats();
+    const QStringList clipboardExpressions = m_applet->getClipboardFormats();
 
-    for (int i = 0; i < clipboardFormats.count(); ++i) {
-        QListWidgetItem *item = new QListWidgetItem(clipboardFormats.at(i));
+    for (int i = 0; i < clipboardExpressions.count(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem(clipboardExpressions.at(i));
 
-        if (!clipboardFormats.at(i).isEmpty()) {
-            item->setToolTip(m_clock->evaluate(clipboardFormats.at(i)));
+        if (!clipboardExpressions.at(i).isEmpty()) {
+            item->setToolTip(m_clock->evaluate(clipboardExpressions.at(i)));
         }
 
         m_clipboardUi.clipboardActionsList->addItem(item);
@@ -171,12 +171,12 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
     connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateItem(QListWidgetItem*)));
     connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(editItem(QListWidgetItem*)));
-    connect(m_clipboardUi.fastCopyFormatEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
+    connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
 
-    const int currentTheme = qMax(findRow(m_applet->config().readEntry("format", "%default%"), IdRole), 0);
+    const int currentTheme = qMax(findRow(m_applet->config().readEntry("theme", "%default%"), IdRole), 0);
 
     m_appearanceUi.themesView->setCurrentIndex(m_themesModel->index(currentTheme, 0));
     m_appearanceUi.themesView->scrollTo(m_themesModel->index(currentTheme, 0));
@@ -215,15 +215,15 @@ void Configuration::save()
 
     m_applet->saveCustomThemes(themes);
 
-    QStringList clipboardFormats;
+    QStringList clipboardExpressions;
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsList->count(); ++i) {
-        clipboardFormats.append(m_clipboardUi.clipboardActionsList->item(i)->text());
+        clipboardExpressions.append(m_clipboardUi.clipboardActionsList->item(i)->text());
     }
 
-    m_applet->config().writeEntry("format", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
-    m_applet->config().writeEntry("clipboardFormats", clipboardFormats);
-    m_applet->config().writeEntry("fastCopyFormat", m_clipboardUi.fastCopyFormatEdit->text());
+    m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
+    m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
+    m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
 

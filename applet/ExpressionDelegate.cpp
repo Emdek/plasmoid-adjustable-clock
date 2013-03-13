@@ -18,41 +18,41 @@
 *
 ***********************************************************************************/
 
-#include "FormatDelegate.h"
+#include "ExpressionDelegate.h"
 #include "Clock.h"
-#include "FormatLineEdit.h"
+#include "ExpressionLineEdit.h"
 
 namespace AdjustableClock
 {
 
-FormatDelegate::FormatDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+ExpressionDelegate::ExpressionDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
     m_clock(clock)
 {
 }
 
-void FormatDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ExpressionDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(index)
 
     editor->setGeometry(option.rect);
 }
 
-void FormatDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void ExpressionDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    FormatLineEdit *lineEdit = static_cast<FormatLineEdit*>(editor);
+    ExpressionLineEdit *lineEdit = static_cast<ExpressionLineEdit*>(editor);
     lineEdit->setText(index.data(Qt::EditRole).toString());
 }
 
-void FormatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void ExpressionDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    model->setData(index, static_cast<FormatLineEdit*>(editor)->text(), Qt::EditRole);
+    model->setData(index, static_cast<ExpressionLineEdit*>(editor)->text(), Qt::EditRole);
 }
 
-QWidget* FormatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget* ExpressionDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
 
-    FormatLineEdit *lineEdit = new FormatLineEdit(parent);
+    ExpressionLineEdit *lineEdit = new ExpressionLineEdit(parent);
     lineEdit->setClock(m_clock);
 
     setEditorData(lineEdit, index);
@@ -60,14 +60,14 @@ QWidget* FormatDelegate::createEditor(QWidget *parent, const QStyleOptionViewIte
     return lineEdit;
 }
 
-QString FormatDelegate::displayText(const QVariant &value, const QLocale &locale) const
+QString ExpressionDelegate::displayText(const QVariant &value, const QLocale &locale) const
 {
     Q_UNUSED(locale)
 
     return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString()));
 }
 
-QSize FormatDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize ExpressionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
 

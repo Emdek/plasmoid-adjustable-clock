@@ -18,34 +18,44 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKFORMATDELEGATE_HEADER
-#define ADJUSTABLECLOCKFORMATDELEGATE_HEADER
+#include "ExpressionLineEdit.h"
+#include "Clock.h"
+#include "PlaceholderDialog.h"
 
-#include <QtGui/QStyledItemDelegate>
+#include <KLocale>
 
 namespace AdjustableClock
 {
 
-class Clock;
-
-class FormatDelegate : public QStyledItemDelegate
+ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
+    m_clock(NULL)
 {
-    Q_OBJECT
-
-    public:
-        FormatDelegate(Clock *clock, QObject *parent = NULL);
-
-        void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        void setEditorData(QWidget *editor, const QModelIndex &index) const;
-        void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        QString displayText(const QVariant &value, const QLocale &locale) const;
-        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-    private:
-        Clock *m_clock;
-};
-
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
 }
 
-#endif
+void ExpressionLineEdit::insertPlaceholder()
+{
+    if (m_clock) {
+        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    }
+}
+
+void ExpressionLineEdit::insertPlaceholder(const QString &placeholder)
+{
+    insert(QString("Clock.toString(%1)").arg(placeholder));
+}
+
+void ExpressionLineEdit::extendContextMenu(QMenu *menu)
+{
+    if (m_clock) {
+        menu->addSeparator();
+        menu->addAction(KIcon("chronometer"), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
+    }
+}
+
+void ExpressionLineEdit::setClock(Clock *clock)
+{
+    m_clock = clock;
+}
+
+}
