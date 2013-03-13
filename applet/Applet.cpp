@@ -25,7 +25,6 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
 #include <QtCore/QFileSystemWatcher>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
@@ -137,9 +136,6 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    if (config().hasKey("format")) {
-    }
-
     const QString path = KStandardDirs::locate("data", "adjustableclock/themes.xml");
 
     m_themes = loadThemes(path, true);
@@ -223,45 +219,6 @@ void Applet::toolTipHidden()
 void Applet::repaint()
 {
     update();
-}
-
-void Applet::saveCustomThemes(const QList<Theme> &themes)
-{
-    QFile file(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
-    file.open(QFile::WriteOnly | QFile::Text);
-
-    QXmlStreamWriter stream(&file);
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-    stream.writeStartElement("themes");
-
-    for (int i = 0; i < themes.count(); ++i) {
-        stream.writeStartElement("theme");
-        stream.writeStartElement("id");
-        stream.writeCharacters(themes.at(i).id);
-        stream.writeEndElement();
-        stream.writeStartElement("title");
-        stream.writeCharacters(themes.at(i).title);
-        stream.writeEndElement();
-        stream.writeStartElement("background");
-        stream.writeCharacters(themes.at(i).background?"true":"false");
-        stream.writeEndElement();
-        stream.writeStartElement("html");
-        stream.writeCDATA(themes.at(i).html);
-        stream.writeEndElement();
-        stream.writeStartElement("css");
-        stream.writeCDATA(themes.at(i).css);
-        stream.writeEndElement();
-        stream.writeStartElement("script");
-        stream.writeCDATA(themes.at(i).script);
-        stream.writeEndElement();
-        stream.writeEndElement();
-    }
-
-    stream.writeEndElement();
-    stream.writeEndDocument();
-
-    file.close();
 }
 
 void Applet::updateClipboardMenu()

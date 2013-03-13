@@ -24,6 +24,7 @@
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
 
+#include <QtCore/QXmlStreamWriter>
 #include <QtWebKit/QWebFrame>
 
 #include <KMenu>
@@ -31,6 +32,7 @@
 #include <KMessageBox>
 #include <KColorDialog>
 #include <KInputDialog>
+#include <KStandardDirs>
 
 #include <Plasma/Theme>
 
@@ -187,29 +189,6 @@ void Configuration::save()
         m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
     }
 
-    QList<Theme> themes;
-
-    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        QModelIndex index = m_themesModel->index(i, 0);
-
-        if (index.data(BundledRole).toBool()) {
-            continue;
-        }
-
-        Theme theme;
-        theme.bundled = false;
-        theme.id = index.data(IdRole).toString();
-        theme.title = index.data(TitleRole).toString();
-        theme.html = index.data(HtmlRole).toString();
-        theme.css = index.data(CssRole).toString();
-        theme.script = index.data(ScriptRole).toString();
-        theme.background = index.data(BackgroundRole).toBool();
-
-        themes.append(theme);
-    }
-
-    m_applet->saveCustomThemes(themes);
-
     QStringList clipboardExpressions;
 
     for (int i = 0; i < m_clipboardUi.clipboardActionsList->count(); ++i) {
@@ -219,6 +198,48 @@ void Configuration::save()
     m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
     m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
+
+    QFile file(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
+    file.open(QFile::WriteOnly | QFile::Text);
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+    stream.writeStartElement("themes");
+
+    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
+        QModelIndex index = m_themesModel->index(i, 0);
+
+        if (index.data(BundledRole).toBool()) {
+            continue;
+        }
+
+        stream.writeStartElement("theme");
+        stream.writeStartElement("id");
+        stream.writeCharacters(index.data(IdRole).toString());
+        stream.writeEndElement();
+        stream.writeStartElement("title");
+        stream.writeCharacters(index.data(TitleRole).toString());
+        stream.writeEndElement();
+        stream.writeStartElement("background");
+        stream.writeCharacters(index.data(BackgroundRole).toBool()?"true":"false");
+        stream.writeEndElement();
+        stream.writeStartElement("html");
+        stream.writeCDATA(index.data(HtmlRole).toString());
+        stream.writeEndElement();
+        stream.writeStartElement("css");
+        stream.writeCDATA(index.data(CssRole).toString());
+        stream.writeEndElement();
+        stream.writeStartElement("script");
+        stream.writeCDATA(index.data(ScriptRole).toString());
+        stream.writeEndElement();
+        stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
+    stream.writeEndDocument();
+
+    file.close();
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
 
