@@ -1,4 +1,4 @@
-3.3 (--.03.2013):
+4.0 (--.--.2013):
 - replaced parser by scripting API;
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);
 - added Digital Clock theme;
