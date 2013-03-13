@@ -242,7 +242,7 @@ void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
     const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
-    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimezonesValue, Clock.ShortFormOption) + Clock.toString(Clock.EventsValue)");
+    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimezonesValue, {'short': true}) + Clock.toString(Clock.EventsValue)");
 
     if (!toolTipExpressionMain.isEmpty() || !toolTipExpressionSub.isEmpty()) {
         toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
@@ -335,13 +335,13 @@ Theme Applet::getTheme() const
 QStringList Applet::getClipboardExpressions() const
 {
     QStringList clipboardExpressions;
-    clipboardExpressions << "Clock.toString(Clock.TimeValue, Clock.ShortFormOption)"
+    clipboardExpressions << "Clock.toString(Clock.TimeValue, {'short': true})"
     << "Clock.toString(Clock.TimeValue)"
     << QString()
-    << "Clock.toString(Clock.DateValue, Clock.ShortFormOption)"
+    << "Clock.toString(Clock.DateValue, {'short': true})"
     << "Clock.toString(Clock.DateValue)"
     << QString()
-    << "Clock.toString(Clock.DateTimeValue, Clock.ShortFormOption)"
+    << "Clock.toString(Clock.DateTimeValue, {'short': true})"
     << "Clock.toString(Clock.DateTimeValue)"
     << "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"
     << QString()

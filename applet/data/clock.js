@@ -20,11 +20,3 @@ Clock.EventsValue = 18;
 Clock.HolidaysValue = 19;
 Clock.SunriseValue = 20;
 Clock.SunsetValue = 21;
-
-Clock.DefaultFormOption = 0;
-Clock.ShortFormOption = 1;
-Clock.TextualFormOption = 2;
-Clock.StandardFormOption = 4;
-Clock.AlternativeFormOption = 8;
-Clock.PossessiveFormOption = 16;
-Clock.NonPossessiveFormOption = 32;

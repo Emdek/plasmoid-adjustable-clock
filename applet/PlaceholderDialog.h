@@ -41,7 +41,7 @@ class PlaceholderDialog : public KDialog
 
     protected:
         ClockTimeValue getPlaceholder() const;
-        ValueOptions getOptions() const;
+        QVariantMap getOptions() const;
 
     protected slots:
         void sendSignal();

@@ -45,7 +45,7 @@ struct Placeholder
     QString rule;
     QString attribute;
     ClockTimeValue value;
-    ValueOptions options;
+    QVariantMap options;
 };
 
 class Clock : public QObject
@@ -56,17 +56,16 @@ class Clock : public QObject
         Clock(DataSource *parent, ClockMode mode = StandardClock);
 
         void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, int value, int options = 0);
-        Q_INVOKABLE void setRule(const QString &rule, int value, int options = 0);
+        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, int value, const QVariantMap &options = QVariantMap());
+        Q_INVOKABLE void setRule(const QString &rule, int value, const QVariantMap &options = QVariantMap());
         Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script);
-        Q_INVOKABLE QString toString(int value, int options = 0) const;
+        Q_INVOKABLE QString toString(int value, const QVariantMap &options = QVariantMap()) const;
 
     protected:
         void applyRule(const Placeholder &rule);
         void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
-        void setValue(const QWebElementCollection &elements, const QString &value);
 
     protected slots:
         void exposeClock();

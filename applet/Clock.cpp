@@ -198,10 +198,9 @@ void Clock::setDocument(QWebFrame *document)
     connect(m_document, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(exposeClock()));
 }
 
-void Clock::setRule(const QString &rule, const QString &attribute, int value, int options)
+void Clock::setRule(const QString &rule, const QString &attribute, int value, const QVariantMap &options)
 {
     const ClockTimeValue nativeValue  = static_cast<ClockTimeValue>(value);
-    const ValueOptions nativeOptions = static_cast<ValueOptions>(options);
 
     if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
         QString title;
@@ -304,7 +303,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, in
         const QWebElementCollection elements = m_document->findAllElements(rule);
 
         for (int i = 0; i < elements.count(); ++i) {
-            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->toString(nativeValue, nativeOptions, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->toString(nativeValue, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
         }
 
         return;
@@ -314,7 +313,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, in
     placeholder.rule = rule;
     placeholder.attribute = attribute;
     placeholder.value = nativeValue;
-    placeholder.options = nativeOptions;
+    placeholder.options = options;
 
     if (m_mode == StandardClock) {
         if (!m_rules.contains(nativeValue)) {
@@ -327,7 +326,7 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, in
     applyRule(placeholder);
 }
 
-void Clock::setRule(const QString &rule, int value, int options)
+void Clock::setRule(const QString &rule, int value, const QVariantMap &options)
 {
     setRule(rule, QString(), value, options);
 }
@@ -365,19 +364,14 @@ void Clock::setValue(const QWebElementCollection &elements, const QString &attri
     }
 }
 
-void Clock::setValue(const QWebElementCollection &elements, const QString &value)
-{
-    setValue(elements, QString(), value);
-}
-
 QString Clock::evaluate(const QString &script)
 {
     return m_engine.evaluate(script).toString();
 }
 
-QString Clock::toString(int value, int options) const
+QString Clock::toString(int value, const QVariantMap &options) const
 {
-    return m_source->toString(static_cast<ClockTimeValue>(value), static_cast<ValueOptions>(options), ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->toString(static_cast<ClockTimeValue>(value), options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
 }

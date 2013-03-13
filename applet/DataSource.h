@@ -57,19 +57,6 @@ enum ClockTimeValue
     SunsetValue = 21
 };
 
-enum ValueOption
-{
-    DefaultFormOption = 0,
-    ShortFormOption = 1,
-    TextualFormOption = 2,
-    StandardFormOption = 4,
-    AlternativeFormOption = 8,
-    PossessiveFormOption = 16,
-    NonPossessiveFormOption = 32
-};
-
-Q_DECLARE_FLAGS(ValueOptions, ValueOption)
-
 struct Event
 {
     QString type;
@@ -88,7 +75,7 @@ class DataSource : public QObject
 
         void setTimezone(const QString &timezone);
         QDateTime getCurrentDateTime() const;
-        QString toString(ClockTimeValue value, ValueOptions options = DefaultFormOption, QDateTime dateTime = QDateTime()) const;
+        QString toString(ClockTimeValue value, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
 
     protected:
         static QString formatNumber(int number, int length);

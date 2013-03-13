@@ -73,7 +73,7 @@ void PlaceholderDialog::sendSignal()
 {
     QString scriptValue;
     QStringList scriptOptions;
-    const ValueOptions options = getOptions();
+    const QVariantMap options = getOptions();
 
     switch (getPlaceholder()) {
     case SecondValue:
@@ -170,32 +170,16 @@ void PlaceholderDialog::sendSignal()
         break;
     }
 
-    if (options & AlternativeFormOption) {
-        scriptOptions.append("Clock.AlternativeFormOption");
-    }
+    QVariantMap::const_iterator iterator;
 
-    if (options & ShortFormOption) {
-        scriptOptions.append("Clock.ShortFormOption");
-    }
-
-    if (options & TextualFormOption) {
-        scriptOptions.append("Clock.TextualFormOption");
-    }
-
-    if (options & PossessiveFormOption) {
-        scriptOptions.append("Clock.PossessiveFormOption");
-    }
-
-    if (options & NonPossessiveFormOption) {
-        scriptOptions.append("Clock.NonPossessiveFormOption");
+    for (iterator = options.constBegin(); iterator != options.constEnd(); ++iterator) {
+        scriptOptions.append(QString("'%1': %2").arg(iterator.key()).arg(iterator.value().toString()));
     }
 
     if (scriptOptions.isEmpty()) {
-        emit insertPlaceholder(QString("Clock.%1").arg(scriptValue));
-    } else if (scriptOptions.count() == 1) {
-        emit insertPlaceholder(QString("Clock.%1, %2").arg(scriptValue).arg(scriptOptions.first()));
+        emit insertPlaceholder(QString("Clock.").append(scriptValue));
     } else {
-        emit insertPlaceholder(QString("Clock.%1, (%2)").arg(scriptValue).arg(scriptOptions.join(QString(" | "))));
+        emit insertPlaceholder(QString("Clock.%1, {%2}").arg(scriptValue).arg(scriptOptions.join(QString(", "))));
     }
 }
 
@@ -273,22 +257,22 @@ ClockTimeValue PlaceholderDialog::getPlaceholder() const
     return static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(m_placeholderUi.placeholderComboBox->currentIndex()).toInt());
 }
 
-ValueOptions PlaceholderDialog::getOptions() const
+QVariantMap PlaceholderDialog::getOptions() const
 {
-    ValueOptions options;
+    QVariantMap options;
 
     if (m_placeholderUi.shortFormCheckBox->isChecked() || (m_placeholderUi.leadingZerosCheckBox->isEnabled() && !m_placeholderUi.leadingZerosCheckBox->isChecked())) {
-        options |= ShortFormOption;
+        options["short"] = true;
     }
 
     if (m_placeholderUi.textualFormCheckBox->isEnabled() && m_placeholderUi.textualFormCheckBox->isChecked()) {
-        options |= TextualFormOption;
+        options["text"] = true;
     }
 
     if (m_placeholderUi.textualFormCheckBox->isChecked() && m_placeholderUi.possessiveFormCheckBox->checkState() != Qt::PartiallyChecked) {
-        options |= (m_placeholderUi.possessiveFormCheckBox->isChecked() ? PossessiveFormOption : NonPossessiveFormOption);
+        options["possessive"] = m_placeholderUi.possessiveFormCheckBox->isChecked();
     } else  if (m_placeholderUi.hoursModeCheckBox->checkState() != Qt::PartiallyChecked) {
-        options |= (m_placeholderUi.hoursModeCheckBox->isChecked() ? AlternativeFormOption : StandardFormOption);
+        options["alternative"] = m_placeholderUi.hoursModeCheckBox->isChecked();
     }
 
     return options;
