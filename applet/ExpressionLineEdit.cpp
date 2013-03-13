@@ -45,6 +45,13 @@ void ExpressionLineEdit::insertPlaceholder(const QString &placeholder)
     insert(QString("Clock.toString(%1)").arg(placeholder));
 }
 
+void ExpressionLineEdit::updateToolTip(const QString &expression)
+{
+    if (!expression.isEmpty()) {
+        setToolTip(m_clock->evaluate(expression));
+    }
+}
+
 void ExpressionLineEdit::extendContextMenu(QMenu *menu)
 {
     if (m_clock) {
@@ -56,6 +63,10 @@ void ExpressionLineEdit::extendContextMenu(QMenu *menu)
 void ExpressionLineEdit::setClock(Clock *clock)
 {
     m_clock = clock;
+
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(updateToolTip(QString)));
+
+    updateToolTip(text());
 }
 
 }

@@ -42,6 +42,7 @@ class ExpressionLineEdit : public KLineEdit
     protected slots:
         void insertPlaceholder();
         void insertPlaceholder(const QString &placeholder);
+        void updateToolTip(const QString &expression);
         void extendContextMenu(QMenu *menu);
 
     private:
