@@ -377,7 +377,6 @@ QStringList Applet::getClipboardFormats() const
     QStringList clipboardFormats;
     clipboardFormats << "Clock.toString(Clock.TimeValue, Clock.ShortFormOption)"
     << "Clock.toString(Clock.TimeValue)"
-    << "Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"
     << QString()
     << "Clock.toString(Clock.DateValue, Clock.ShortFormOption)"
     << "Clock.toString(Clock.DateValue)"
