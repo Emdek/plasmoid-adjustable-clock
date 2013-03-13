@@ -263,17 +263,17 @@ void Applet::saveCustomThemes(const QList<Theme> &themes)
 
 void Applet::updateClipboardMenu()
 {
-    const QStringList clipboardFormats = getClipboardFormats();
+    const QStringList clipboardExpressions = getClipboardExpressions();
 
     qDeleteAll(m_clipboardAction->menu()->actions());
 
     m_clipboardAction->menu()->clear();
 
-    for (int i = 0; i < clipboardFormats.count(); ++i) {
-        if (clipboardFormats.at(i).isEmpty()) {
+    for (int i = 0; i < clipboardExpressions.count(); ++i) {
+        if (clipboardExpressions.at(i).isEmpty()) {
             m_clipboardAction->menu()->addSeparator();
         } else {
-            m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardFormats.at(i)));
+            m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardExpressions.at(i)));
         }
     }
 }
@@ -372,10 +372,10 @@ Theme Applet::getTheme() const
     return theme;
 }
 
-QStringList Applet::getClipboardFormats() const
+QStringList Applet::getClipboardExpressions() const
 {
-    QStringList clipboardFormats;
-    clipboardFormats << "Clock.toString(Clock.TimeValue, Clock.ShortFormOption)"
+    QStringList clipboardExpressions;
+    clipboardExpressions << "Clock.toString(Clock.TimeValue, Clock.ShortFormOption)"
     << "Clock.toString(Clock.TimeValue)"
     << QString()
     << "Clock.toString(Clock.DateValue, Clock.ShortFormOption)"
@@ -387,7 +387,7 @@ QStringList Applet::getClipboardFormats() const
     << QString()
     << "Clock.toString(Clock.TimestampValue)";
 
-    return config().readEntry("clipboardExpressions", clipboardFormats);
+    return config().readEntry("clipboardExpressions", clipboardExpressions);
 }
 
 QList<Theme> Applet::getThemes() const
@@ -487,7 +487,7 @@ QList<QAction*> Applet::contextualActions()
             actions.removeAt(i);
             actions.insert(i, m_clipboardAction);
 
-            m_clipboardAction->setVisible(!getClipboardFormats().isEmpty());
+            m_clipboardAction->setVisible(!getClipboardExpressions().isEmpty());
         }
     }
 

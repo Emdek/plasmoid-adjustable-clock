@@ -62,7 +62,7 @@ class Applet : public ClockApplet
         static QString getPageLayout(const QString &html, const QString &css, const QString &script);
         static QString getPageStyleSheet();
         Theme getTheme() const;
-        QStringList getClipboardFormats() const;
+        QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;
 
     public slots:
