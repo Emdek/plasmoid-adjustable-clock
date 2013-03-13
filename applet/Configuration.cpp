@@ -74,6 +74,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(delegate);
     m_appearanceUi.themesView->installEventFilter(this);
+    m_appearanceUi.themesView->viewport()->installEventFilter(this);
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
@@ -685,7 +686,7 @@ void Configuration::insertItem()
 {
     QListWidgetItem *item = new QListWidgetItem(QString());
 
-    m_clipboardUi.clipboardActionsList->insertItem(m_clipboardUi.clipboardActionsList->currentRow(), item);
+    m_clipboardUi.clipboardActionsList->insertItem((m_clipboardUi.clipboardActionsList->currentRow() + 1), item);
 
     editItem(item);
 
@@ -696,6 +697,10 @@ void Configuration::insertItem()
 void Configuration::deleteItem()
 {
     QListWidgetItem *item = m_clipboardUi.clipboardActionsList->takeItem(m_clipboardUi.clipboardActionsList->currentRow());
+
+    if (item == m_editedItem) {
+        m_editedItem = NULL;
+    }
 
     if (item) {
         delete item;
@@ -753,6 +758,12 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_appearanceUi.themesView && event->type() == QEvent::Paint && !m_appearanceUi.themesView->currentIndex().isValid()) {
         selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "%default%"), IdRole), 0), 0));
+    } else if (event->type() == QEvent::MouseButtonDblClick && object == m_appearanceUi.themesView->viewport()) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+        if (!m_appearanceUi.themesView->indexAt(mouseEvent->pos()).isValid()) {
+            newTheme();
+        }
     } else if (object == m_clipboardUi.clipboardActionsList->viewport()) {
         if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
