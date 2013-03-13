@@ -785,7 +785,7 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
         if (!m_appearanceUi.themesView->indexAt(mouseEvent->pos()).isValid()) {
             newTheme();
         }
-    } else if (object == m_clipboardUi.clipboardActionsList->viewport()) {
+    } else if ((event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) && object == m_clipboardUi.clipboardActionsList->viewport()) {
         if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
