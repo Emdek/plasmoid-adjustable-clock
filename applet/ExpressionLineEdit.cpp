@@ -56,7 +56,7 @@ void ExpressionLineEdit::extendContextMenu(QMenu *menu)
 {
     if (m_clock) {
         menu->addSeparator();
-        menu->addAction(KIcon("chronometer"), i18n("Insert Format Component..."), this, SLOT(insertPlaceholder()));
+        menu->addAction(KIcon("chronometer"), i18n("Insert Clock Component..."), this, SLOT(insertPlaceholder()));
     }
 }
 

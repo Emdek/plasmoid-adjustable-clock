@@ -137,6 +137,9 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
+    if (config().hasKey("format")) {
+    }
+
     const QString path = KStandardDirs::locate("data", "adjustableclock/themes.xml");
 
     m_themes = loadThemes(path, true);
