@@ -124,20 +124,20 @@ void Clock::updateClock(const QList<ClockTimeValue> &changes)
                 event = "DateTime";
 
                 break;
-            case TimezoneNameValue:
-                event = "TimezoneName";
+            case TimeZoneNameValue:
+                event = "TimeZoneName";
 
                 break;
-            case TimezoneAbbreviationValue:
-                event = "TimezoneAbbreviation";
+            case TimeZoneAbbreviationValue:
+                event = "TimeZoneAbbreviation";
 
                 break;
-            case TimezoneOffsetValue:
-                event = "TimezoneOffset";
+            case TimeZoneOffsetValue:
+                event = "TimeZoneOffset";
 
                 break;
-            case TimezonesValue:
-                event = "TimezoneList";
+            case TimeZonesValue:
+                event = "TimeZoneList";
 
                 break;
             case HolidaysValue:
@@ -262,19 +262,19 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, co
             title = i18n("Date and time");
 
             break;
-        case TimezoneNameValue:
+        case TimeZoneNameValue:
             title = i18n("Timezone name");
 
             break;
-        case TimezoneAbbreviationValue:
+        case TimeZoneAbbreviationValue:
             title = i18n("Timezone abbreviation");
 
             break;
-        case TimezoneOffsetValue:
+        case TimeZoneOffsetValue:
             title = i18n("Timezone offset");
 
             break;
-        case TimezonesValue:
+        case TimeZonesValue:
             title = i18n("Timezones list");
 
             break;

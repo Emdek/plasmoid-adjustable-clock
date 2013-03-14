@@ -46,10 +46,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_editedItem(NULL)
 {
     QWidget *appearanceConfiguration = new QWidget();
-    QWidget *clipboardActions = new QWidget();
+    QWidget *clipboardConfiguration = new QWidget();
 
     m_appearanceUi.setupUi(appearanceConfiguration);
-    m_clipboardUi.setupUi(clipboardActions);
+    m_clipboardUi.setupUi(clipboardConfiguration);
 
     const QList<Theme> themes = m_applet->getThemes();
 
@@ -142,7 +142,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.colorButton->setPalette(buttonPalette);
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
-    parent->addPage(clipboardActions, i18n("Clipboard actions"), "edit-copy");
+    parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
     parent->resize(500, 400);
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));

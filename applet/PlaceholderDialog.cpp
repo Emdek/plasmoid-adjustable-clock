@@ -46,10 +46,10 @@ PlaceholderDialog::PlaceholderDialog(Clock *clock, QWidget *parent) : KDialog(pa
     m_placeholderUi.placeholderComboBox->addItem(i18n("Time"), QVariant(TimeValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date"), QVariant(DateValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Date and time"), QVariant(DateTimeValue));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone name"), QVariant(TimezoneNameValue));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimezoneAbbreviationValue));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone offset"), QVariant(TimezoneOffsetValue));
-    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(TimezonesValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone name"), QVariant(TimeZoneNameValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimeZoneAbbreviationValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezone offset"), QVariant(TimeZoneOffsetValue));
+    m_placeholderUi.placeholderComboBox->addItem(i18n("Timezones list"), QVariant(TimeZonesValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Events list"), QVariant(EventsValue));
     m_placeholderUi.placeholderComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseValue));
@@ -132,20 +132,20 @@ void PlaceholderDialog::sendSignal()
         scriptValue = "DateTimeValue";
 
         break;
-    case TimezoneNameValue:
-        scriptValue = "TimezoneNameValue";
+    case TimeZoneNameValue:
+        scriptValue = "TimeZoneNameValue";
 
         break;
-    case TimezoneAbbreviationValue:
-        scriptValue = "TimezoneAbbreviationValue";
+    case TimeZoneAbbreviationValue:
+        scriptValue = "TimeZoneAbbreviationValue";
 
         break;
-    case TimezoneOffsetValue:
-        scriptValue = "TimezoneOffsetValue";
+    case TimeZoneOffsetValue:
+        scriptValue = "TimeZoneOffsetValue";
 
         break;
-    case TimezonesValue:
-        scriptValue = "TimezonesValue";
+    case TimeZonesValue:
+        scriptValue = "TimeZonesValue";
 
         break;
     case EventsValue:
@@ -192,13 +192,13 @@ void PlaceholderDialog::selectPlaceholder(int index)
 {
     const ClockTimeValue placeholder = static_cast<ClockTimeValue>(m_placeholderUi.placeholderComboBox->itemData(index).toInt());
 
-    if (placeholder == TimeOfDayValue || placeholder == TimezoneNameValue || placeholder == TimezoneAbbreviationValue || placeholder == TimezoneOffsetValue || placeholder == TimezonesValue || placeholder == HolidaysValue || placeholder == EventsValue) {
+    if (placeholder == TimeOfDayValue || placeholder == TimeZoneNameValue || placeholder == TimeZoneAbbreviationValue || placeholder == TimeZoneOffsetValue || placeholder == TimeZonesValue || placeholder == HolidaysValue || placeholder == EventsValue) {
         m_placeholderUi.textualFormCheckBox->setChecked(true);
     } else if (!(placeholder == MinuteValue || placeholder == DayOfWeekValue)) {
         m_placeholderUi.textualFormCheckBox->setChecked(false);
     }
 
-    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue || placeholder == YearValue || placeholder == TimeValue || placeholder == DateValue || placeholder == TimezoneNameValue || placeholder == TimezonesValue || placeholder == HolidaysValue || placeholder == EventsValue);
+    m_placeholderUi.shortFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue || placeholder == YearValue || placeholder == TimeValue || placeholder == DateValue || placeholder == TimeZoneNameValue || placeholder == TimeZonesValue || placeholder == HolidaysValue || placeholder == EventsValue);
     m_placeholderUi.hoursModeCheckBox->setEnabled(placeholder == HourValue);
     m_placeholderUi.textualFormCheckBox->setEnabled(placeholder == DayOfWeekValue || placeholder == MonthValue);
     m_placeholderUi.possessiveFormCheckBox->setEnabled(placeholder == MonthValue);

@@ -47,10 +47,10 @@ enum ClockTimeValue
     TimeValue = 11,
     DateValue = 12,
     DateTimeValue = 13,
-    TimezoneNameValue = 14,
-    TimezoneAbbreviationValue = 15,
-    TimezoneOffsetValue = 16,
-    TimezonesValue = 17,
+    TimeZoneNameValue = 14,
+    TimeZoneAbbreviationValue = 15,
+    TimeZoneOffsetValue = 16,
+    TimeZonesValue = 17,
     EventsValue = 18,
     HolidaysValue = 19,
     SunriseValue = 20,
@@ -88,11 +88,12 @@ class DataSource : public QObject
         QDateTime m_dateTime;
         QTime m_sunrise;
         QTime m_sunset;
-        QString m_timezoneAbbreviation;
-        QString m_timezoneOffset;
+        QString m_timeZoneAbbreviation;
+        QString m_timeZoneOffset;
         QString m_timeQuery;
         QString m_eventsQuery;
-        QStringList m_timezoneArea;
+        QStringList m_timeZones;
+        QStringList m_timeZoneArea;
         QStringList m_holidays;
         QList<Event> m_events;
 

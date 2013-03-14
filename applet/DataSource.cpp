@@ -170,13 +170,16 @@ void DataSource::setTimezone(const QString &timezone)
 
     const KTimeZone timezoneData = (m_applet->isLocalTimezone() ? KSystemTimeZones::local() : KSystemTimeZones::zone(m_applet->currentTimezone()));
 
-    m_timezoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
+    m_timeZoneAbbreviation = QString::fromLatin1(timezoneData.abbreviation(QDateTime::currentDateTime().toUTC()));
 
-    if (m_timezoneAbbreviation.isEmpty()) {
-        m_timezoneAbbreviation = i18n("UTC");
+    if (m_timeZoneAbbreviation.isEmpty()) {
+        m_timeZoneAbbreviation = i18n("UTC");
     }
 
-    m_timezoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QChar('_'), QChar(' ')).split(QChar('/'));
+    m_timeZoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QChar('_'), QChar(' ')).split(QChar('/'));
+
+    m_timeZones = m_applet->config().readEntry("timeZones", QStringList());
+    m_timeZones.prepend("");
 
     int seconds = timezoneData.currentOffset(Qt::UTC);
     int minutes = abs(seconds / 60);
@@ -184,14 +187,14 @@ void DataSource::setTimezone(const QString &timezone)
 
     minutes = (minutes - (hours * 60));
 
-    m_timezoneOffset = QString::number(hours);
+    m_timeZoneOffset = QString::number(hours);
 
     if (minutes) {
-        m_timezoneOffset.append(QChar(':'));
-        m_timezoneOffset.append(formatNumber(minutes, 2));
+        m_timeZoneOffset.append(QChar(':'));
+        m_timeZoneOffset.append(formatNumber(minutes, 2));
     }
 
-    m_timezoneOffset = (QChar((seconds >= 0) ? QChar('+') : QChar('-')) + m_timezoneOffset);
+    m_timeZoneOffset = (QChar((seconds >= 0) ? QChar('+') : QChar('-')) + m_timeZoneOffset);
 
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()));
 }
@@ -208,9 +211,6 @@ QDateTime DataSource::getCurrentDateTime() const
 
 QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, QDateTime dateTime) const
 {
-    QStringList timezones;
-    bool possesiveForm = false;
-
     if (!dateTime.isValid()) {
         dateTime = m_dateTime;
     }
@@ -238,7 +238,7 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
     case MonthValue:
         if (options.contains("text")) {
-            possesiveForm = (options.contains("possessive") ? options["possessive"].toBool() : KGlobal::locale()->dateMonthNamePossessive());
+            const bool possesiveForm = (options.contains("possessive") ? options["possessive"].toBool() : KGlobal::locale()->dateMonthNamePossessive());
 
             return m_applet->calendar()->monthName(dateTime.date(), (options.contains("short") ? (possesiveForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (possesiveForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
         }
@@ -254,33 +254,32 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
         return KGlobal::locale()->formatDate(dateTime.date(), (options.contains("short") ? KLocale::ShortDate : KLocale::LongDate));
     case DateTimeValue:
         return KGlobal::locale()->formatDateTime(dateTime, (options.contains("short") ? KLocale::ShortDate : KLocale::LongDate));
-    case TimezoneNameValue:
-        return (options.contains("short") ? (m_timezoneArea.isEmpty() ? QString() : m_timezoneArea.last()) : m_timezoneArea.join(QString(QChar('/'))));
-    case TimezoneAbbreviationValue:
-        return m_timezoneAbbreviation;
-    case TimezoneOffsetValue:
-        return m_timezoneOffset;
-    case TimezonesValue:
-        timezones = m_applet->config().readEntry("timeZones", QStringList());
-        timezones.prepend("");
-
-        if (timezones.length() == 1) {
+    case TimeZoneNameValue:
+        return (options.contains("short") ? (m_timeZoneArea.isEmpty() ? QString() : m_timeZoneArea.last()) : m_timeZoneArea.join(QString(QChar('/'))));
+    case TimeZoneAbbreviationValue:
+        return m_timeZoneAbbreviation;
+    case TimeZoneOffsetValue:
+        return m_timeZoneOffset;
+    case TimeZonesValue:
+        if (m_timeZones.length() == 1) {
             return QString();
-        }
+        } else {
+            QStringList timeZones;
 
-        for (int i = 0; i < timezones.length(); ++i) {
-            QString timezone = i18n((timezones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(timezones.at(i))).name().toUtf8().data()).replace(QChar('_'), QChar(' '));
+            for (int i = 0; i < m_timeZones.length(); ++i) {
+                QString timeZone = i18n((m_timeZones.at(i).isEmpty() ? KSystemTimeZones::local() : KSystemTimeZones::zone(m_timeZones.at(i))).name().toUtf8().data()).replace(QChar('_'), QChar(' '));
 
-            if (options.contains("short") && timezone.contains(QChar('/'))) {
-                timezone = timezone.split(QChar('/')).last();
+                if (options.contains("short") && timeZone.contains(QChar('/'))) {
+                    timeZone = timeZone.split(QChar('/')).last();
+                }
+
+                Plasma::DataEngine::Data data = m_applet->dataEngine("time")->query(m_timeZones.at(i));
+
+                timeZones[i] = QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\"><nobr>%2 %3</nobr></td>").arg(timeZone).arg(KGlobal::locale()->formatTime(data["Time"].toTime(), false)).arg(KGlobal::locale()->formatDate(data["Date"].toDate(), KLocale::LongDate));
             }
 
-            Plasma::DataEngine::Data data = m_applet->dataEngine("time")->query(timezones.at(i));
-
-            timezones[i] = QString("<td align=\"right\"><nobr><i>%1</i>:</nobr></td><td align=\"left\"><nobr>%2 %3</nobr></td>").arg(timezone).arg(KGlobal::locale()->formatTime(data["Time"].toTime(), false)).arg(KGlobal::locale()->formatDate(data["Date"].toDate(), KLocale::LongDate));
+            return QString("<table>\n<tr>%1</tr>\n</table>").arg(timeZones.join("</tr>\n<tr>"));
         }
-
-        return QString("<table>\n<tr>%1</tr>\n</table>").arg(timezones.join("</tr>\n<tr>"));
     case EventsValue:
         if (m_events.isEmpty()) {
             return QString();
