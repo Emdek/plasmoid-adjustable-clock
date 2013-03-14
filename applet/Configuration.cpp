@@ -120,7 +120,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_clipboardUi.clipboardActionsList->setItemDelegate(new ExpressionDelegate(m_clock, this));
     m_clipboardUi.clipboardActionsList->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"));
-    m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
+    m_clipboardUi.fastCopyExpressionEdit->setClock(m_clock);
 
     const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
 
