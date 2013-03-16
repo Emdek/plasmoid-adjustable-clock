@@ -241,7 +241,7 @@ void Applet::updateClipboardMenu()
 void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
-    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, Clock.TextualFormOption) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
+    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, {'text': true}) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
     const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimeZonesValue, {'short': true}) + Clock.toString(Clock.EventsValue)");
 
     if (!toolTipExpressionMain.isEmpty() || !toolTipExpressionSub.isEmpty()) {
