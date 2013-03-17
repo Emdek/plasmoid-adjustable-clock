@@ -633,7 +633,7 @@ void Configuration::richTextChanged()
     QRegExp placeholder = QRegExp("<placeholder.+\">.*</fix>(.*)<fix>.*</placeholder>");
     placeholder.setMinimal(true);
 
-    QRegExp page = QRegExp(".+<body><div>(.+)</div><script type=\"text/javascript\" id=\"script\">.+");
+    QRegExp page = QRegExp(".+<body>(.+)<script type=\"text/javascript\" id=\"script\">.+");
     page.setMinimal(false);
 
     Theme theme;
