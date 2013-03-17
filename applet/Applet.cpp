@@ -308,12 +308,12 @@ DataSource* Applet::getDataSource() const
 
 QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script)
 {
-    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style></head><body><div>%2</div><script type=\"text/javascript\" id=\"script\">%3</script></body></html>").arg(css).arg(html).arg(script);
+    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style></head><body>%2<script type=\"text/javascript\" id=\"script\">%3</script></body></html>").arg(css).arg(html).arg(script);
 }
 
 QString Applet::getPageStyleSheet()
 {
-    return QString("body {color: %1;} html, body, body > div {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} body {display: table;} body > div {display: table-cell;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name());
+    return QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name());
 }
 
 Theme Applet::getTheme() const
