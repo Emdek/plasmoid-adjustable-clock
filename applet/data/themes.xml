@@ -75,7 +75,7 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 			<div><div id="c_3_2">0</div></div>
 		</div>
 	</div>
-	<div class="date"><span id="day">1</span> <span id="month">Jan</span></div>
+	<div class="date"><span id="day">1</span> <span id="month">of January</span></div>
 </div>]]></html>
 		<css><![CDATA[.clock
 {
@@ -83,7 +83,6 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 	width: 190px;
 	border-radius: 10px;
 	border-spacing: 2px;
-	position: relative;
 	font-family: 'Nimbus Sans L';
 	background: #202020;
 	color: #DCDCDC;
