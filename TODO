@@ -1,3 +1,4 @@
 - expose weather data;
+- add support for QML themes;
 - try to reimplement analog clock using Plasma theme file (?);
 - allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);

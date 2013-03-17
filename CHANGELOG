@@ -1,6 +1,7 @@
 4.0 (--.--.2013):
 - replaced parser by scripting API;
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);
+- added animations to Train Clock;
 - added Digital Clock theme;
 - many code cleanups and fixes.
 
