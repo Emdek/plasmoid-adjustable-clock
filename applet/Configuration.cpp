@@ -255,12 +255,16 @@ void Configuration::enableUpdates()
 {
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
 void Configuration::disableUpdates()
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
 void Configuration::insertPlaceholder()
