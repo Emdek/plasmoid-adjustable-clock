@@ -238,9 +238,9 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
     case MonthValue:
         if (options.contains("text")) {
-            const bool possesiveForm = (options.contains("possessive") ? options["possessive"].toBool() : KGlobal::locale()->dateMonthNamePossessive());
+            const bool possessiveForm = (options.contains("possessive") ? options["possessive"].toBool() : KGlobal::locale()->dateMonthNamePossessive());
 
-            return m_applet->calendar()->monthName(dateTime.date(), (options.contains("short") ? (possesiveForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (possesiveForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
+            return m_applet->calendar()->monthName(dateTime.date(), (options.contains("short") ? (possessiveForm ? KCalendarSystem::ShortNamePossessive : KCalendarSystem::ShortName) : (possessiveForm ? KCalendarSystem::LongNamePossessive : KCalendarSystem::LongName)));
         }
 
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Month, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
