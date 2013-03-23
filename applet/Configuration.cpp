@@ -80,7 +80,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
-    m_appearanceUi.webView->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString(Applet::getPageStyleSheet().append(" placeholder {background: rgba(252, 255, 225, 0.8); border-radius: 0.3em; box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}").toAscii().toBase64()))));
+    m_appearanceUi.webView->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString(Applet::getPageStyleSheet().append(" placeholder {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} placeholder:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}").toAscii().toBase64()))));
     m_appearanceUi.webView->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
