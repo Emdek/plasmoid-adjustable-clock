@@ -194,7 +194,7 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyExpression", "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)")));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyExpression", "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -241,8 +241,8 @@ void Applet::updateClipboardMenu()
 void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
-    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue) +'<br>' + Clock.toString(Clock.DayOfWeekValue, {'text': true}) + ', ' + Clock.toString(Clock.DayOfMonthValue) + '.' + Clock.toString(Clock.MonthValue) + '.' + Clock.toString(Clock.YearValue) + '</div>'");
-    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimeZonesValue, {'short': true}) + Clock.toString(Clock.EventsValue)");
+    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second) +'<br>' + Clock.toString(Clock.DayOfWeek, {'text': true}) + ', ' + Clock.toString(Clock.DayOfMonth) + '.' + Clock.toString(Clock.Month) + '.' + Clock.toString(Clock.Year) + '</div>'");
+    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimeZones, {'short': true}) + Clock.toString(Clock.Events)");
 
     if (!toolTipExpressionMain.isEmpty() || !toolTipExpressionSub.isEmpty()) {
         toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
@@ -335,17 +335,17 @@ Theme Applet::getTheme() const
 QStringList Applet::getClipboardExpressions() const
 {
     QStringList clipboardExpressions;
-    clipboardExpressions << "Clock.toString(Clock.TimeValue, {'short': true})"
-    << "Clock.toString(Clock.TimeValue)"
+    clipboardExpressions << "Clock.toString(Clock.Time, {'short': true})"
+    << "Clock.toString(Clock.Time)"
     << QString()
-    << "Clock.toString(Clock.DateValue, {'short': true})"
-    << "Clock.toString(Clock.DateValue)"
+    << "Clock.toString(Clock.Date, {'short': true})"
+    << "Clock.toString(Clock.Date)"
     << QString()
-    << "Clock.toString(Clock.DateTimeValue, {'short': true})"
-    << "Clock.toString(Clock.DateTimeValue)"
-    << "Clock.toString(Clock.YearValue) + '-' + Clock.toString(Clock.MonthValue) + '-' + Clock.toString(Clock.DayOfMonthValue) + ' ' + Clock.toString(Clock.HourValue) + ':' + Clock.toString(Clock.MinuteValue) + ':' + Clock.toString(Clock.SecondValue)"
+    << "Clock.toString(Clock.DateTime, {'short': true})"
+    << "Clock.toString(Clock.DateTime)"
+    << "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)"
     << QString()
-    << "Clock.toString(Clock.TimestampValue)";
+    << "Clock.toString(Clock.Timestamp)";
 
     return config().readEntry("clipboardExpressions", clipboardExpressions);
 }

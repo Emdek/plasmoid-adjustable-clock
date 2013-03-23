@@ -10,12 +10,12 @@
 	<big><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></big><br>
 	<small><span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></small>
 </div>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', Clock.SecondValue);
-Clock.setRule('#day', Clock.DayOfMonthValue);
-Clock.setRule('#month', Clock.MonthValue);
-Clock.setRule('#year', Clock.YearValue);]]></script>
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', Clock.Second);
+Clock.setRule('#day', Clock.DayOfMonth);
+Clock.setRule('#month', Clock.Month);
+Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 	<theme>
 		<id>simple</id>
@@ -24,8 +24,8 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
 		<html><![CDATA[<div style="text-align: center; font-size: 25px;"><span id="hour">12</span>:<span id="minute">30</span></div>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
-Clock.setRule('#minute', Clock.MinuteValue);]]></script>
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
+Clock.setRule('#minute', Clock.Minute);]]></script>
 	</theme>
 	<theme>
 		<id>verbose</id>
@@ -37,13 +37,13 @@ Clock.setRule('#minute', Clock.MinuteValue);]]></script>
 	<span style="font-size: 30px;"><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></span><br>
 	<span style="font-size: 12px;"><span id="weekday">Saturday</span>, <span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></span>
 </div>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', Clock.SecondValue);
-Clock.setRule('#weekday', Clock.DayOfWeekValue, {'text': true});
-Clock.setRule('#day', Clock.DayOfMonthValue);
-Clock.setRule('#month', Clock.MonthValue);
-Clock.setRule('#year', Clock.YearValue);]]></script>
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', Clock.Second);
+Clock.setRule('#weekday', Clock.DayOfWeek, {'text': true});
+Clock.setRule('#day', Clock.DayOfMonth);
+Clock.setRule('#month', Clock.Month);
+Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 	<theme>
 		<id>trainclock</id>
@@ -181,13 +181,13 @@ Clock.setRule('#year', Clock.YearValue);]]></script>
 }]]></css>
 		<script><![CDATA[function updateClock()
 {
-	var blink = (Clock.toString(Clock.SecondValue, {'short': true}) % 2);
+	var blink = (Clock.toString(Clock.Second, {'short': true}) % 2);
 
 	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink?'':' dark'));
 	document.getElementById('dot_bottom').setAttribute('class', 'dots' + (blink?'':' dark'));
 
-	var hour = Clock.toString(Clock.HourValue);
-	var minute = Clock.toString(Clock.MinuteValue);
+	var hour = Clock.toString(Clock.Hour);
+	var minute = Clock.toString(Clock.Minute);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
 	for (var i = 0; i < values.length; ++i)
@@ -228,8 +228,8 @@ function flipCard(number, value)
 	}, 250);
 }
 
-var hour = Clock.toString(Clock.HourValue);
-var minute = Clock.toString(Clock.MinuteValue);
+var hour = Clock.toString(Clock.Hour);
+var minute = Clock.toString(Clock.Minute);
 var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
 for (var i = 0; i < values.length; ++i)
@@ -238,8 +238,8 @@ for (var i = 0; i < values.length; ++i)
 	document.getElementById('c_' + i + '_2').innerHTML = values[i];
 }
 
-Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
-Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possessive': false});
+Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
+Clock.setRule('#month', Clock.Month, {'text': true, 'possessive': false});
 
 document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
@@ -416,11 +416,11 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 }]]></css>
 		<script><![CDATA[function updateClock()
 {
-	var hour = Clock.toString(Clock.HourValue);
-	var minute = Clock.toString(Clock.MinuteValue);
+	var hour = Clock.toString(Clock.Hour);
+	var minute = Clock.toString(Clock.Minute);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
-	document.getElementById('dots').style.visibility = ((Clock.toString(Clock.SecondValue, {'short': true}) % 2)?'visible':'hidden');
+	document.getElementById('dots').style.visibility = ((Clock.toString(Clock.Second, {'short': true}) % 2)?'visible':'hidden');
 
 	for (var i = 0; i < values.length; ++i)
 	{
@@ -488,9 +488,9 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 	font-size: 30px;
 	opacity: 0.5;
 }]]></css>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', Clock.SecondValue);]]></script>
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', Clock.Second);]]></script>
 	</theme>
 	<theme>
 		<id>beclock</id>
@@ -555,25 +555,25 @@ Clock.setRule('#second', Clock.SecondValue);]]></script>
 	context.clearRect(0, 0, 200, 200);
 
 	context.beginPath();
-	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.MinuteValue, {'short': true})) - 15) * 6)), false);
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.Minute, {'short': true})) - 15) * 6)), false);
 	context.globalAlpha = 0.5;
 	context.stroke();
 
 	context.beginPath();
-	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.HourValue, {'short': true})) - 15) * 30)), false);
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.toString(Clock.Hour, {'short': true})) - 15) * 30)), false);
 	context.globalAlpha = 0.8;
 	context.stroke();
 }
 
 updateClock();
 
-Clock.setRule('#hour', Clock.HourValue, {'alternative': true});
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', Clock.SecondValue);
-Clock.setRule('#day', Clock.DayOfMonthValue);
-Clock.setRule('#month', Clock.MonthValue);
-Clock.setRule('#year', Clock.YearValue);
-Clock.setRule("#timeofday", Clock.TimeOfDayValue);
+Clock.setRule('#hour', Clock.Hour, {'alternative': true});
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', Clock.Second);
+Clock.setRule('#day', Clock.DayOfMonth);
+Clock.setRule('#month', Clock.Month);
+Clock.setRule('#year', Clock.Year);
+Clock.setRule("#timeofday", Clock.TimeOfDay);
 
 document.addEventListener('ClockMinuteChanged', updateClock);
 document.addEventListener('ClockThemeChanged', updateClock);]]></script>
@@ -648,9 +648,9 @@ progress::-webkit-progress-value
 	font-size: 50px;
 	opacity: 0.9;
 }]]></css>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue, {'short': true});
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', 'value', Clock.SecondValue, {'short': true});
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour, {'short': true});
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', 'value', Clock.Second, {'short': true});
 ]]></script>
 	</theme>
 	<theme>
@@ -719,9 +719,9 @@ Clock.setRule('#second', 'value', Clock.SecondValue, {'short': true});
 		<script><![CDATA[function updateClock()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
-	var hour = Clock.toString(Clock.HourValue);
-	var minute = Clock.toString(Clock.MinuteValue);
-	var second = Clock.toString(Clock.SecondValue);
+	var hour = Clock.toString(Clock.Hour);
+	var minute = Clock.toString(Clock.Minute);
+	var second = Clock.toString(Clock.Second);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
 
 	for (var i = 0; i < values.length; ++i)
@@ -807,11 +807,11 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
 }]]></css>
-		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
-Clock.setRule('#weekday', Clock.DayOfWeekValue, {'text': true});
-Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possessive': false});
-Clock.setRule('#year', Clock.YearValue);
-Clock.setRule('#holiday', Clock.HolidaysValue, {'short': true});]]></script>
+		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
+Clock.setRule('#weekday', Clock.DayOfWeek, {'text': true});
+Clock.setRule('#month', Clock.Month, {'text': true, 'possessive': false});
+Clock.setRule('#year', Clock.Year);
+Clock.setRule('#holiday', Clock.Holidays, {'short': true});]]></script>
 	</theme>
 	<theme>
 		<id>vertical</id>
@@ -826,12 +826,12 @@ Clock.setRule('#holiday', Clock.HolidaysValue, {'short': true});]]></script>
 	<small><span id="day">1</span>.<span id="month"></span>.</small><br>
 	<small id="year">2000</small>
 </div>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.HourValue);
-Clock.setRule('#minute', Clock.MinuteValue);
-Clock.setRule('#second', Clock.SecondValue);
-Clock.setRule('#weekday', Clock.DayOfWeekValue, {'short': true, 'text': true});
-Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
-Clock.setRule('#month', Clock.MonthValue, {'short': true});
-Clock.setRule('#year', Clock.YearValue);]]></script>
+		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
+Clock.setRule('#minute', Clock.Minute);
+Clock.setRule('#second', Clock.Second);
+Clock.setRule('#weekday', Clock.DayOfWeek, {'short': true, 'text': true});
+Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
+Clock.setRule('#month', Clock.Month, {'short': true});
+Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 </themes>

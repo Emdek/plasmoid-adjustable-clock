@@ -77,91 +77,91 @@ void PlaceholderDialog::sendSignal()
 
     switch (getPlaceholder()) {
     case SecondValue:
-        scriptValue = "SecondValue";
+        scriptValue = "Second";
 
         break;
     case MinuteValue:
-        scriptValue = "MinuteValue";
+        scriptValue = "Minute";
 
         break;
     case HourValue:
-        scriptValue = "HourValue";
+        scriptValue = "Hour";
 
         break;
     case TimeOfDayValue:
-        scriptValue = "TimeOfDayValue";
+        scriptValue = "TimeOfDay";
 
         break;
     case DayOfMonthValue:
-        scriptValue = "DayOfMonthValue";
+        scriptValue = "DayOfMonth";
 
         break;
     case DayOfWeekValue:
-        scriptValue = "DayOfWeekValue";
+        scriptValue = "DayOfWeek";
 
         break;
     case DayOfYearValue:
-        scriptValue = "DayOfYearValue";
+        scriptValue = "DayOfYear";
 
         break;
     case WeekValue:
-        scriptValue = "WeekValue";
+        scriptValue = "Week";
 
         break;
     case MonthValue:
-        scriptValue = "MonthValue";
+        scriptValue = "Month";
 
         break;
     case YearValue:
-        scriptValue = "YearValue";
+        scriptValue = "Year";
 
         break;
     case TimestampValue:
-        scriptValue = "TimestampValue";
+        scriptValue = "Timestamp";
 
         break;
     case TimeValue:
-        scriptValue = "TimeValue";
+        scriptValue = "Time";
 
         break;
     case DateValue:
-        scriptValue = "DateValue";
+        scriptValue = "Date";
 
         break;
     case DateTimeValue:
-        scriptValue = "DateTimeValue";
+        scriptValue = "DateTime";
 
         break;
     case TimeZoneNameValue:
-        scriptValue = "TimeZoneNameValue";
+        scriptValue = "TimeZoneName";
 
         break;
     case TimeZoneAbbreviationValue:
-        scriptValue = "TimeZoneAbbreviationValue";
+        scriptValue = "TimeZoneAbbreviation";
 
         break;
     case TimeZoneOffsetValue:
-        scriptValue = "TimeZoneOffsetValue";
+        scriptValue = "TimeZoneOffset";
 
         break;
     case TimeZonesValue:
-        scriptValue = "TimeZonesValue";
+        scriptValue = "TimeZones";
 
         break;
     case EventsValue:
-        scriptValue = "EventsValue";
+        scriptValue = "Events";
 
         break;
     case HolidaysValue:
-        scriptValue = "HolidaysValue";
+        scriptValue = "Holidays";
 
         break;
     case SunriseValue:
-        scriptValue = "SunriseValue";
+        scriptValue = "Sunrise";
 
         break;
     case SunsetValue:
-        scriptValue = "SunsetValue";
+        scriptValue = "Sunset";
 
         break;
     default:
