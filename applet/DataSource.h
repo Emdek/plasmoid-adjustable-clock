@@ -21,6 +21,8 @@
 #ifndef ADJUSTABLECLOCKDATASOURCE_HEADER
 #define ADJUSTABLECLOCKDATASOURCE_HEADER
 
+#include "Clock.h"
+
 #include <QtCore/QObject>
 #include <QtScript/QScriptEngine>
 #include <QtWebKit/QWebElementCollection>
@@ -30,32 +32,6 @@
 
 namespace AdjustableClock
 {
-
-enum ClockTimeValue
-{
-    SecondValue = 0,
-    MinuteValue = 1,
-    HourValue = 2,
-    TimeOfDayValue = 3,
-    DayOfWeekValue = 4,
-    DayOfMonthValue = 5,
-    DayOfYearValue = 6,
-    WeekValue = 7,
-    MonthValue = 8,
-    YearValue = 9,
-    TimestampValue = 10,
-    TimeValue = 11,
-    DateValue = 12,
-    DateTimeValue = 13,
-    TimeZoneNameValue = 14,
-    TimeZoneAbbreviationValue = 15,
-    TimeZoneOffsetValue = 16,
-    TimeZonesValue = 17,
-    EventsValue = 18,
-    HolidaysValue = 19,
-    SunriseValue = 20,
-    SunsetValue = 21
-};
 
 struct Event
 {

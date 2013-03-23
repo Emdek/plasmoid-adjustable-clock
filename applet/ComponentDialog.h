@@ -21,7 +21,7 @@
 #ifndef ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
 #define ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
 
-#include "DataSource.h"
+#include "Clock.h"
 
 #include <KDialog>
 

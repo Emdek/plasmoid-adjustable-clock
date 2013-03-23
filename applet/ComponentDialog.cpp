@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "ComponentDialog.h"
-#include "Clock.h"
 
 namespace AdjustableClock
 {
