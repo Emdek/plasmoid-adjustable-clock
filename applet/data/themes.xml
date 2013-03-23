@@ -239,7 +239,7 @@ for (var i = 0; i < values.length; ++i)
 }
 
 Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
-Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possesive': false});
+Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possessive': false});
 
 document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
@@ -807,8 +807,9 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
 }]]></css>
-		<script><![CDATA[Clock.setRule('#weekday', Clock.DayOfWeekValue, {'text': true});
-Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possesive': false});
+		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
+Clock.setRule('#weekday', Clock.DayOfWeekValue, {'text': true});
+Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possessive': false});
 Clock.setRule('#year', Clock.YearValue);
 Clock.setRule('#holiday', Clock.HolidaysValue, {'short': true});]]></script>
 	</theme>
