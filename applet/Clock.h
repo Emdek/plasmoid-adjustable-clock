@@ -62,6 +62,7 @@ class Clock : public QObject
         Q_INVOKABLE void setValue(const QString &rule, const QString &value);
         QString evaluate(const QString &script);
         Q_INVOKABLE QString toString(int value, const QVariantMap &options = QVariantMap()) const;
+        static QString getComponentString(ClockTimeValue value);
 
     protected:
         void applyRule(const Placeholder &rule);

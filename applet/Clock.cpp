@@ -65,104 +65,7 @@ void Clock::updateClock(const QList<ClockTimeValue> &changes)
 {
     for (int i = 0; i < changes.count(); ++i) {
         if (m_document) {
-            QString event;
-
-            switch (changes.at(i)) {
-            case SecondValue:
-                event = "Second";
-
-                break;
-            case MinuteValue:
-                event = "Minute";
-
-                break;
-            case HourValue:
-                event = "Hour";
-
-                break;
-            case TimeOfDayValue:
-                event = "TimeOfDay";
-
-                break;
-            case DayOfWeekValue:
-                event = "DayOfWeek";
-
-                break;
-            case DayOfMonthValue:
-                event = "DayOfMonth";
-
-                break;
-            case DayOfYearValue:
-                event = "DayOfYear";
-
-                break;
-            case WeekValue:
-                event = "Week";
-
-                break;
-            case MonthValue:
-                event = "Month";
-
-                break;
-            case YearValue:
-                event = "Year";
-
-                break;
-            case TimestampValue:
-                event = "Timestamp";
-
-                break;
-            case TimeValue:
-                event = "Time";
-
-                break;
-            case DateValue:
-                event = "Date";
-
-                break;
-            case DateTimeValue:
-                event = "DateTime";
-
-                break;
-            case TimeZoneNameValue:
-                event = "TimeZoneName";
-
-                break;
-            case TimeZoneAbbreviationValue:
-                event = "TimeZoneAbbreviation";
-
-                break;
-            case TimeZoneOffsetValue:
-                event = "TimeZoneOffset";
-
-                break;
-            case TimeZonesValue:
-                event = "TimeZoneList";
-
-                break;
-            case HolidaysValue:
-                event = "Holidays";
-
-                break;
-            case EventsValue:
-                event = "Events";
-
-                break;
-            case SunriseValue:
-                event = "Sunrise";
-
-                break;
-            case SunsetValue:
-                event = "Sunset";
-
-                break;
-            default:
-                event = QString();
-
-                break;
-            }
-
-            m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(event));
+            m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(getComponentString(changes.at(i))));
         }
 
         if (m_rules.contains(changes.at(i))) {
@@ -372,6 +275,60 @@ QString Clock::evaluate(const QString &script)
 QString Clock::toString(int value, const QVariantMap &options) const
 {
     return m_source->toString(static_cast<ClockTimeValue>(value), options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+}
+
+QString Clock::getComponentString(ClockTimeValue value)
+{
+    switch (value) {
+    case SecondValue:
+        return "Second";
+    case MinuteValue:
+        return "Minute";
+    case HourValue:
+        return "Hour";
+    case TimeOfDayValue:
+        return "TimeOfDay";
+    case DayOfMonthValue:
+        return "DayOfMonth";
+    case DayOfWeekValue:
+        return "DayOfWeek";
+    case DayOfYearValue:
+        return "DayOfYear";
+    case WeekValue:
+        return "Week";
+    case MonthValue:
+        return "Month";
+    case YearValue:
+        return "Year";
+    case TimestampValue:
+        return "Timestamp";
+    case TimeValue:
+        return "Time";
+    case DateValue:
+        return "Date";
+    case DateTimeValue:
+        return "DateTime";
+    case TimeZoneNameValue:
+        return "TimeZoneName";
+    case TimeZoneAbbreviationValue:
+        return "TimeZoneAbbreviation";
+    case TimeZoneOffsetValue:
+        return "TimeZoneOffset";
+    case TimeZonesValue:
+        return "TimeZones";
+    case EventsValue:
+        return "Events";
+    case HolidaysValue:
+        return "Holidays";
+    case SunriseValue:
+        return "Sunrise";
+    case SunsetValue:
+        return "Sunset";
+    default:
+        return QString();
+    }
+
+    return QString();
 }
 
 }
