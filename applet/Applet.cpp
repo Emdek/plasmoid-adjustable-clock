@@ -24,6 +24,7 @@
 #include "Configuration.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QTimer>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QFileSystemWatcher>
 #include <QtGui/QClipboard>
@@ -70,14 +71,13 @@ void Applet::init()
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    constraintsEvent(Plasma::SizeConstraint);
-    configChanged();
+    m_clock->setDocument(m_page.mainFrame());
 
     QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
     watcher->addPath(KStandardDirs::locate("data", "adjustableclock/themes.xml"));
     watcher->addPath(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
 
-    m_clock->setDocument(m_page.mainFrame());
+    QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
@@ -448,6 +448,8 @@ QList<QAction*> Applet::contextualActions()
             actions.insert(i, m_clipboardAction);
 
             m_clipboardAction->setVisible(!getClipboardExpressions().isEmpty());
+
+            break;
         }
     }
 
