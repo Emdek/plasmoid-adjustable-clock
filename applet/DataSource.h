@@ -51,7 +51,7 @@ class DataSource : public QObject
 
         void setTimezone(const QString &timezone);
         QDateTime getCurrentDateTime() const;
-        QString toString(ClockTimeValue value, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
+        QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
 
     protected:
         static QString formatNumber(int number, int length);
@@ -74,7 +74,7 @@ class DataSource : public QObject
         QList<Event> m_events;
 
     signals:
-        void dataChanged(QList<ClockTimeValue> changes);
+        void dataChanged(QList<ClockComponent> changes);
 };
 
 }

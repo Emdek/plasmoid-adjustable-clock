@@ -31,28 +31,28 @@ ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent
     setButtons(KDialog::Cancel | KDialog::Ok);
     setModal(true);
 
-    m_componentUi.componentComboBox->addItem(i18n("Second"), QVariant(SecondValue));
-    m_componentUi.componentComboBox->addItem(i18n("Minute"), QVariant(MinuteValue));
-    m_componentUi.componentComboBox->addItem(i18n("Hour"), QVariant(HourValue));
-    m_componentUi.componentComboBox->addItem(i18n("The pm or am string"), QVariant(TimeOfDayValue));
-    m_componentUi.componentComboBox->addItem(i18n("Weekday"), QVariant(DayOfWeekValue));
-    m_componentUi.componentComboBox->addItem(i18n("Day of the month"), QVariant(DayOfMonthValue));
-    m_componentUi.componentComboBox->addItem(i18n("Day of the year"), QVariant(DayOfYearValue));
-    m_componentUi.componentComboBox->addItem(i18n("Week"), QVariant(WeekValue));
-    m_componentUi.componentComboBox->addItem(i18n("Month"), QVariant(MonthValue));
-    m_componentUi.componentComboBox->addItem(i18n("Year"), QVariant(YearValue));
-    m_componentUi.componentComboBox->addItem(i18n("UNIX timestamp"), QVariant(TimestampValue));
-    m_componentUi.componentComboBox->addItem(i18n("Time"), QVariant(TimeValue));
-    m_componentUi.componentComboBox->addItem(i18n("Date"), QVariant(DateValue));
-    m_componentUi.componentComboBox->addItem(i18n("Date and time"), QVariant(DateTimeValue));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone name"), QVariant(TimeZoneNameValue));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimeZoneAbbreviationValue));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone offset"), QVariant(TimeZoneOffsetValue));
-    m_componentUi.componentComboBox->addItem(i18n("Timezones list"), QVariant(TimeZonesValue));
-    m_componentUi.componentComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysValue));
-    m_componentUi.componentComboBox->addItem(i18n("Events list"), QVariant(EventsValue));
-    m_componentUi.componentComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseValue));
-    m_componentUi.componentComboBox->addItem(i18n("Sunset time"), QVariant(SunsetValue));
+    m_componentUi.componentComboBox->addItem(i18n("Second"), QVariant(SecondComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Minute"), QVariant(MinuteComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Hour"), QVariant(HourComponent));
+    m_componentUi.componentComboBox->addItem(i18n("The pm or am string"), QVariant(TimeOfDayComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Weekday"), QVariant(DayOfWeekComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Day of the month"), QVariant(DayOfMonthComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Day of the year"), QVariant(DayOfYearComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Week"), QVariant(WeekComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Month"), QVariant(MonthComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Year"), QVariant(YearComponent));
+    m_componentUi.componentComboBox->addItem(i18n("UNIX timestamp"), QVariant(TimestampComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Time"), QVariant(TimeComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Date"), QVariant(DateComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Date and time"), QVariant(DateTimeComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Timezone name"), QVariant(TimeZoneNameComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimeZoneAbbreviationComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Timezone offset"), QVariant(TimeZoneOffsetComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Timezones list"), QVariant(TimeZonesComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Events list"), QVariant(EventsComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseComponent));
+    m_componentUi.componentComboBox->addItem(i18n("Sunset time"), QVariant(SunsetComponent));
 
     selectComponent(0);
     adjustSize();
@@ -94,19 +94,19 @@ void ComponentDialog::updatePreview()
 
 void ComponentDialog::selectComponent(int index)
 {
-    const ClockTimeValue component = static_cast<ClockTimeValue>(m_componentUi.componentComboBox->itemData(index).toInt());
+    const ClockComponent component = static_cast<ClockComponent>(m_componentUi.componentComboBox->itemData(index).toInt());
 
-    if (component == TimeOfDayValue || component == TimeZoneNameValue || component == TimeZoneAbbreviationValue || component == TimeZoneOffsetValue || component == TimeZonesValue || component == HolidaysValue || component == EventsValue) {
+    if (component == TimeOfDayComponent || component == TimeZoneNameComponent || component == TimeZoneAbbreviationComponent || component == TimeZoneOffsetComponent || component == TimeZonesComponent || component == HolidaysComponent || component == EventsComponent) {
         m_componentUi.textualFormCheckBox->setChecked(true);
-    } else if (!(component == MinuteValue || component == DayOfWeekValue)) {
+    } else if (!(component == MinuteComponent || component == DayOfWeekComponent)) {
         m_componentUi.textualFormCheckBox->setChecked(false);
     }
 
-    m_componentUi.shortFormCheckBox->setEnabled(component == DayOfWeekValue || component == MonthValue || component == YearValue || component == TimeValue || component == DateValue || component == TimeZoneNameValue || component == TimeZonesValue || component == HolidaysValue || component == EventsValue);
-    m_componentUi.hoursModeCheckBox->setEnabled(component == HourValue);
-    m_componentUi.textualFormCheckBox->setEnabled(component == DayOfWeekValue || component == MonthValue);
-    m_componentUi.possessiveFormCheckBox->setEnabled(component == MonthValue);
-    m_componentUi.leadingZerosCheckBox->setEnabled(component == SecondValue || component == MinuteValue || component == HourValue || component == DayOfMonthValue || component == DayOfYearValue || component == DayOfWeekValue || component == WeekValue || component == MonthValue);
+    m_componentUi.shortFormCheckBox->setEnabled(component == DayOfWeekComponent || component == MonthComponent || component == YearComponent || component == TimeComponent || component == DateComponent || component == TimeZoneNameComponent || component == TimeZonesComponent || component == HolidaysComponent || component == EventsComponent);
+    m_componentUi.hoursModeCheckBox->setEnabled(component == HourComponent);
+    m_componentUi.textualFormCheckBox->setEnabled(component == DayOfWeekComponent || component == MonthComponent);
+    m_componentUi.possessiveFormCheckBox->setEnabled(component == MonthComponent);
+    m_componentUi.leadingZerosCheckBox->setEnabled(component == SecondComponent || component == MinuteComponent || component == HourComponent || component == DayOfMonthComponent || component == DayOfYearComponent || component == DayOfWeekComponent || component == WeekComponent || component == MonthComponent);
     m_componentUi.leadingZerosCheckBox->setChecked(m_componentUi.leadingZerosCheckBox->isEnabled());
     m_componentUi.shortFormLabel->setEnabled(m_componentUi.shortFormCheckBox->isEnabled());
     m_componentUi.hoursModeLabel->setEnabled(m_componentUi.hoursModeCheckBox->isEnabled());
@@ -131,9 +131,9 @@ void ComponentDialog::selectComponent(int index)
 
 void ComponentDialog::setShortForm(bool shortForm)
 {
-    const ClockTimeValue component = static_cast<ClockTimeValue>(m_componentUi.componentComboBox->itemData(m_componentUi.componentComboBox->currentIndex()).toInt());
+    const ClockComponent component = static_cast<ClockComponent>(m_componentUi.componentComboBox->itemData(m_componentUi.componentComboBox->currentIndex()).toInt());
 
-    if (sender() == m_componentUi.leadingZerosCheckBox && (component == DayOfWeekValue || component == MonthValue)) {
+    if (sender() == m_componentUi.leadingZerosCheckBox && (component == DayOfWeekComponent || component == MonthComponent)) {
         m_componentUi.textualFormCheckBox->setEnabled(!shortForm);
         m_componentUi.textualFormLabel->setEnabled(!shortForm);
     }
@@ -156,9 +156,9 @@ void ComponentDialog::setAlternativeForm(bool alternativeForm)
     updatePreview();
 }
 
-ClockTimeValue ComponentDialog::getComponent() const
+ClockComponent ComponentDialog::getComponent() const
 {
-    return static_cast<ClockTimeValue>(m_componentUi.componentComboBox->itemData(m_componentUi.componentComboBox->currentIndex()).toInt());
+    return static_cast<ClockComponent>(m_componentUi.componentComboBox->itemData(m_componentUi.componentComboBox->currentIndex()).toInt());
 }
 
 QVariantMap ComponentDialog::getOptions() const

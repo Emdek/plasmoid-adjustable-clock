@@ -40,7 +40,7 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
 {
     if (m_mode == StandardClock) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
-        connect(m_source, SIGNAL(dataChanged(QList<ClockTimeValue>)), this, SLOT(updateClock(QList<ClockTimeValue>)));
+        connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateClock(QList<ClockComponent>)));
     }
 
     QFile file(":/clock.js");
@@ -61,7 +61,7 @@ void Clock::exposeClock()
     }
 }
 
-void Clock::updateClock(const QList<ClockTimeValue> &changes)
+void Clock::updateClock(const QList<ClockComponent> &changes)
 {
     for (int i = 0; i < changes.count(); ++i) {
         if (m_document) {
@@ -83,10 +83,10 @@ void Clock::updateTheme()
     }
 }
 
-void Clock::applyRule(const Placeholder &rule)
+void Clock::applyRule(const Rule &rule)
 {
     if (m_document) {
-        setValue(m_document->findAllElements(rule.rule), rule.attribute, toString(rule.value, rule.options));
+        setValue(m_document->findAllElements(rule.query), rule.attribute, toString(rule.component, rule.options));
     }
 }
 
@@ -101,99 +101,99 @@ void Clock::setDocument(QWebFrame *document)
     connect(m_document, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(exposeClock()));
 }
 
-void Clock::setRule(const QString &rule, const QString &attribute, int value, const QVariantMap &options)
+void Clock::setRule(const QString &query, const QString &attribute, int component, const QVariantMap &options)
 {
-    const ClockTimeValue nativeValue  = static_cast<ClockTimeValue>(value);
+    const ClockComponent nativeComponent  = static_cast<ClockComponent>(component);
 
     if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
         QString title;
 
-        switch (nativeValue) {
-        case SecondValue:
+        switch (nativeComponent) {
+        case SecondComponent:
             title = i18n("Second");
 
             break;
-        case MinuteValue:
+        case MinuteComponent:
             title = i18n("Minute");
 
             break;
-        case HourValue:
+        case HourComponent:
             title = i18n("Hour");
 
             break;
-        case TimeOfDayValue:
+        case TimeOfDayComponent:
             title = i18n("The pm or am string");
 
             break;
-        case DayOfWeekValue:
+        case DayOfWeekComponent:
             title = i18n("Weekday");
 
             break;
-        case DayOfMonthValue:
+        case DayOfMonthComponent:
             title = i18n("Day of the month");
 
             break;
-        case DayOfYearValue:
+        case DayOfYearComponent:
             title = i18n("Day of the year");
 
             break;
-        case WeekValue:
+        case WeekComponent:
             title = i18n("Week");
 
             break;
-        case MonthValue:
+        case MonthComponent:
             title = i18n("Month");
 
             break;
-        case YearValue:
+        case YearComponent:
             title = i18n("Year");
 
             break;
-        case TimestampValue:
+        case TimestampComponent:
             title = i18n("UNIX timestamp");
 
             break;
-        case TimeValue:
+        case TimeComponent:
             title = i18n("Time");
 
             break;
-        case DateValue:
+        case DateComponent:
             title = i18n("Date");
 
             break;
-        case DateTimeValue:
+        case DateTimeComponent:
             title = i18n("Date and time");
 
             break;
-        case TimeZoneNameValue:
+        case TimeZoneNameComponent:
             title = i18n("Timezone name");
 
             break;
-        case TimeZoneAbbreviationValue:
+        case TimeZoneAbbreviationComponent:
             title = i18n("Timezone abbreviation");
 
             break;
-        case TimeZoneOffsetValue:
+        case TimeZoneOffsetComponent:
             title = i18n("Timezone offset");
 
             break;
-        case TimeZonesValue:
+        case TimeZonesComponent:
             title = i18n("Timezones list");
 
             break;
-        case HolidaysValue:
+        case HolidaysComponent:
             title = i18n("Holidays list");
 
             break;
-        case EventsValue:
+        case EventsComponent:
             title = i18n("Events list");
 
             break;
-        case SunriseValue:
+        case SunriseComponent:
             title = i18n("Sunrise time");
 
             break;
-        case SunsetValue:
+        case SunsetComponent:
             title = i18n("Sunset time");
 
             break;
@@ -203,44 +203,44 @@ void Clock::setRule(const QString &rule, const QString &attribute, int value, co
             break;
         }
 
-        const QWebElementCollection elements = m_document->findAllElements(rule);
+        const QWebElementCollection elements = m_document->findAllElements(query);
 
         for (int i = 0; i < elements.count(); ++i) {
-            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->toString(nativeValue, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\"><fix> </fix>%2<fix> </fix></placeholder>").arg(title).arg(m_source->toString(nativeComponent, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
         }
 
         return;
     }
 
-    Placeholder placeholder;
-    placeholder.rule = rule;
-    placeholder.attribute = attribute;
-    placeholder.value = nativeValue;
-    placeholder.options = options;
+    Rule rule;
+    rule.query = query;
+    rule.attribute = attribute;
+    rule.component = nativeComponent;
+    rule.options = options;
 
     if (m_mode == StandardClock) {
-        if (!m_rules.contains(nativeValue)) {
-            m_rules[nativeValue] = QList<Placeholder>();
+        if (!m_rules.contains(nativeComponent)) {
+            m_rules[nativeComponent] = QList<Rule>();
         }
 
-        m_rules[nativeValue].append(placeholder);
+        m_rules[nativeComponent].append(rule);
     }
 
-    applyRule(placeholder);
+    applyRule(rule);
 }
 
-void Clock::setRule(const QString &rule, int value, const QVariantMap &options)
+void Clock::setRule(const QString &query, int component, const QVariantMap &options)
 {
-    setRule(rule, QString(), value, options);
+    setRule(query, QString(), component, options);
 }
 
-void Clock::setValue(const QString &rule, const QString &attribute, const QString &value)
+void Clock::setValue(const QString &query, const QString &attribute, const QString &value)
 {
     if (!m_document) {
         return;
     }
 
-    const QWebElementCollection elements = m_document->findAllElements(rule);
+    const QWebElementCollection elements = m_document->findAllElements(query);
 
     for (int i = 0; i < elements.count(); ++i) {
         if (attribute.isEmpty()) {
@@ -251,9 +251,9 @@ void Clock::setValue(const QString &rule, const QString &attribute, const QStrin
     }
 }
 
-void Clock::setValue(const QString &rule, const QString &value)
+void Clock::setValue(const QString &query, const QString &value)
 {
-    setValue(rule, QString(), value);
+    setValue(query, QString(), value);
 }
 
 void Clock::setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value)
@@ -272,57 +272,57 @@ QString Clock::evaluate(const QString &script)
     return m_engine.evaluate(script).toString();
 }
 
-QString Clock::toString(int value, const QVariantMap &options) const
+QString Clock::toString(int component, const QVariantMap &options) const
 {
-    return m_source->toString(static_cast<ClockTimeValue>(value), options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->toString(static_cast<ClockComponent>(component), options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
-QString Clock::getComponentString(ClockTimeValue value)
+QString Clock::getComponentString(ClockComponent component)
 {
-    switch (value) {
-    case SecondValue:
+    switch (component) {
+    case SecondComponent:
         return "Second";
-    case MinuteValue:
+    case MinuteComponent:
         return "Minute";
-    case HourValue:
+    case HourComponent:
         return "Hour";
-    case TimeOfDayValue:
+    case TimeOfDayComponent:
         return "TimeOfDay";
-    case DayOfMonthValue:
+    case DayOfMonthComponent:
         return "DayOfMonth";
-    case DayOfWeekValue:
+    case DayOfWeekComponent:
         return "DayOfWeek";
-    case DayOfYearValue:
+    case DayOfYearComponent:
         return "DayOfYear";
-    case WeekValue:
+    case WeekComponent:
         return "Week";
-    case MonthValue:
+    case MonthComponent:
         return "Month";
-    case YearValue:
+    case YearComponent:
         return "Year";
-    case TimestampValue:
+    case TimestampComponent:
         return "Timestamp";
-    case TimeValue:
+    case TimeComponent:
         return "Time";
-    case DateValue:
+    case DateComponent:
         return "Date";
-    case DateTimeValue:
+    case DateTimeComponent:
         return "DateTime";
-    case TimeZoneNameValue:
+    case TimeZoneNameComponent:
         return "TimeZoneName";
-    case TimeZoneAbbreviationValue:
+    case TimeZoneAbbreviationComponent:
         return "TimeZoneAbbreviation";
-    case TimeZoneOffsetValue:
+    case TimeZoneOffsetComponent:
         return "TimeZoneOffset";
-    case TimeZonesValue:
+    case TimeZonesComponent:
         return "TimeZones";
-    case EventsValue:
+    case EventsComponent:
         return "Events";
-    case HolidaysValue:
+    case HolidaysComponent:
         return "Holidays";
-    case SunriseValue:
+    case SunriseComponent:
         return "Sunrise";
-    case SunsetValue:
+    case SunsetComponent:
         return "Sunset";
     default:
         return QString();

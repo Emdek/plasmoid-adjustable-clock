@@ -268,12 +268,12 @@ void Configuration::disableUpdates()
 
 void Configuration::insertComponent()
 {
-    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockTimeValue)), this, SLOT(insertComponent(QString,ClockTimeValue)));
+    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
 }
 
-void Configuration::insertComponent(const QString &script, ClockTimeValue value)
+void Configuration::insertComponent(const QString &script, ClockComponent component)
 {
-    const QString type = Clock::getComponentString(value).toLower();
+    const QString type = Clock::getComponentString(component).toLower();
     QString identifier = type;
     int number = 0;
 

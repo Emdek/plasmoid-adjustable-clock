@@ -31,30 +31,30 @@
 namespace AdjustableClock
 {
 
-enum ClockTimeValue
+enum ClockComponent
 {
-    SecondValue = 0,
-    MinuteValue = 1,
-    HourValue = 2,
-    TimeOfDayValue = 3,
-    DayOfWeekValue = 4,
-    DayOfMonthValue = 5,
-    DayOfYearValue = 6,
-    WeekValue = 7,
-    MonthValue = 8,
-    YearValue = 9,
-    TimestampValue = 10,
-    TimeValue = 11,
-    DateValue = 12,
-    DateTimeValue = 13,
-    TimeZoneNameValue = 14,
-    TimeZoneAbbreviationValue = 15,
-    TimeZoneOffsetValue = 16,
-    TimeZonesValue = 17,
-    EventsValue = 18,
-    HolidaysValue = 19,
-    SunriseValue = 20,
-    SunsetValue = 21
+    SecondComponent = 0,
+    MinuteComponent = 1,
+    HourComponent = 2,
+    TimeOfDayComponent = 3,
+    DayOfWeekComponent = 4,
+    DayOfMonthComponent = 5,
+    DayOfYearComponent = 6,
+    WeekComponent = 7,
+    MonthComponent = 8,
+    YearComponent = 9,
+    TimestampComponent = 10,
+    TimeComponent = 11,
+    DateComponent = 12,
+    DateTimeComponent = 13,
+    TimeZoneNameComponent = 14,
+    TimeZoneAbbreviationComponent = 15,
+    TimeZoneOffsetComponent = 16,
+    TimeZonesComponent = 17,
+    EventsComponent = 18,
+    HolidaysComponent = 19,
+    SunriseComponent = 20,
+    SunsetComponent = 21
 };
 
 enum ClockMode
@@ -64,11 +64,11 @@ enum ClockMode
     EditorClock = 3
 };
 
-struct Placeholder
+struct Rule
 {
-    QString rule;
+    QString query;
     QString attribute;
-    ClockTimeValue value;
+    ClockComponent component;
     QVariantMap options;
 };
 
@@ -82,28 +82,28 @@ class Clock : public QObject
         Clock(DataSource *parent, ClockMode mode = StandardClock);
 
         void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &rule, const QString &attribute, int value, const QVariantMap &options = QVariantMap());
-        Q_INVOKABLE void setRule(const QString &rule, int value, const QVariantMap &options = QVariantMap());
-        Q_INVOKABLE void setValue(const QString &rule, const QString &attribute, const QString &value);
-        Q_INVOKABLE void setValue(const QString &rule, const QString &value);
+        Q_INVOKABLE void setRule(const QString &query, const QString &attribute, int component, const QVariantMap &options = QVariantMap());
+        Q_INVOKABLE void setRule(const QString &query, int component, const QVariantMap &options = QVariantMap());
+        Q_INVOKABLE void setValue(const QString &query, const QString &attribute, const QString &value);
+        Q_INVOKABLE void setValue(const QString &query, const QString &value);
         QString evaluate(const QString &script);
-        Q_INVOKABLE QString toString(int value, const QVariantMap &options = QVariantMap()) const;
-        static QString getComponentString(ClockTimeValue value);
+        Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
+        static QString getComponentString(ClockComponent component);
 
     protected:
-        void applyRule(const Placeholder &rule);
+        void applyRule(const Rule &rule);
         void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
 
     protected slots:
         void exposeClock();
-        void updateClock(const QList<ClockTimeValue> &changes);
+        void updateClock(const QList<ClockComponent> &changes);
         void updateTheme();
 
     private:
         DataSource *m_source;
         QWebFrame *m_document;
         QScriptEngine m_engine;
-        QHash<ClockTimeValue, QList<Placeholder> > m_rules;
+        QHash<ClockComponent, QList<Rule> > m_rules;
         ClockMode m_mode;
 };
 

@@ -35,12 +35,12 @@ DataSource::DataSource(Applet *parent) : QObject(parent),
 
 void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
 {
-    QList<ClockTimeValue> changes;
+    QList<ClockComponent> changes;
 
     if (source == m_eventsQuery) {
         m_events.clear();
 
-        changes.append(EventsValue);
+        changes.append(EventsComponent);
 
         if (data.isEmpty()) {
             emit dataChanged(changes);
@@ -48,11 +48,11 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             return;
         }
 
-        QHash<QString, QVariant>::const_iterator i;
+        QHash<QString, QVariant>::const_iterator iterator;
         QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
 
-        for (i = data.constBegin(); i != data.constEnd(); ++i) {
-            QVariantHash eventData = i.value().toHash();
+        for (iterator = data.constBegin(); iterator != data.constEnd(); ++iterator) {
+            QVariantHash eventData = iterator.value().toHash();
 
             if (eventData["Type"] == "Event" || eventData["Type"] == "Todo") {
                 KDateTime startTime = eventData["StartDate"].value<KDateTime>();
@@ -87,10 +87,10 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
-    changes.append(SecondValue);
-    changes.append(TimestampValue);
-    changes.append(TimeValue);
-    changes.append(DateTimeValue);
+    changes.append(SecondComponent);
+    changes.append(TimestampComponent);
+    changes.append(TimeComponent);
+    changes.append(DateTimeComponent);
 
     if (m_dateTime.time().second() == 0) {
         if (m_dateTime.time().minute() == 0) {
@@ -99,10 +99,10 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             if (hour == 0) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
-                        changes.append(YearValue);
+                        changes.append(YearComponent);
                     }
 
-                    changes.append(MonthValue);
+                    changes.append(MonthComponent);
                 }
 
                 m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
@@ -132,21 +132,21 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
                 m_applet->updateSize();
 
-                changes.append(DayOfWeekValue);
-                changes.append(DayOfMonthValue);
-                changes.append(DayOfYearValue);
-                changes.append(DateValue);
-                changes.append(SunriseValue);
-                changes.append(SunsetValue);
-                changes.append(HolidaysValue);
+                changes.append(DayOfWeekComponent);
+                changes.append(DayOfMonthComponent);
+                changes.append(DayOfYearComponent);
+                changes.append(DateComponent);
+                changes.append(SunriseComponent);
+                changes.append(SunsetComponent);
+                changes.append(HolidaysComponent);
             } else if (hour == 0 || hour == 12) {
-                changes.append(TimeOfDayValue);
+                changes.append(TimeOfDayComponent);
             }
 
-            changes.append(HourValue);
+            changes.append(HourComponent);
         }
 
-        changes.append(MinuteValue);
+        changes.append(MinuteComponent);
     }
 
     emit dataChanged(changes);
@@ -179,7 +179,7 @@ void DataSource::setTimezone(const QString &timezone)
     m_timeZoneArea = i18n(timezoneData.name().toUtf8().data()).replace(QChar('_'), QChar(' ')).split(QChar('/'));
 
     m_timeZones = m_applet->config().readEntry("timeZones", QStringList());
-    m_timeZones.prepend("");
+    m_timeZones.prepend(QString());
 
     int seconds = timezoneData.currentOffset(Qt::UTC);
     int minutes = abs(seconds / 60);
@@ -209,34 +209,34 @@ QDateTime DataSource::getCurrentDateTime() const
     return m_dateTime;
 }
 
-QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, QDateTime dateTime) const
+QString DataSource::toString(ClockComponent component, const QVariantMap &options, QDateTime dateTime) const
 {
     if (!dateTime.isValid()) {
         dateTime = m_dateTime;
     }
 
-    switch (value) {
-    case SecondValue:
+    switch (component) {
+    case SecondComponent:
         return formatNumber(dateTime.time().second(), (options.contains("short") ? 0 : 2));
-    case MinuteValue:
+    case MinuteComponent:
         return formatNumber(dateTime.time().minute(), (options.contains("short") ? 0 : 2));
-    case HourValue:
+    case HourComponent:
         return formatNumber(((options.contains("alternative") ? options["alternative"].toBool() : KGlobal::locale()->use12Clock()) ? (((dateTime.time().hour() + 11) % 12) + 1) : dateTime.time().hour()), (options.contains("short") ? 0 : 2));
-    case TimeOfDayValue:
+    case TimeOfDayComponent:
         return ((dateTime.time().hour() >= 12) ? i18n("pm") : i18n("am"));
-    case DayOfMonthValue:
+    case DayOfMonthComponent:
         return formatNumber(m_applet->calendar()->day(dateTime.date()), (options.contains("short") ? 0 : 2));
-    case DayOfWeekValue:
+    case DayOfWeekComponent:
         if (options.contains("text")) {
             return m_applet->calendar()->weekDayName(m_applet->calendar()->dayOfWeek(dateTime.date()), (options.contains("short") ? KCalendarSystem::ShortDayName : KCalendarSystem::LongDayName));
         }
 
         return formatNumber(m_applet->calendar()->dayOfWeek(dateTime.date()), (options.contains("short") ? 0 : QString::number(m_applet->calendar()->daysInWeek(dateTime.date())).length()));
-    case DayOfYearValue:
+    case DayOfYearComponent:
         return formatNumber(m_applet->calendar()->dayOfYear(dateTime.date()), (options.contains("short") ? 0 : QString::number(m_applet->calendar()->daysInYear(dateTime.date())).length()));
-    case WeekValue:
+    case WeekComponent:
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Week, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
-    case MonthValue:
+    case MonthComponent:
         if (options.contains("text")) {
             const bool possessiveForm = (options.contains("possessive") ? options["possessive"].toBool() : KGlobal::locale()->dateMonthNamePossessive());
 
@@ -244,23 +244,23 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
         }
 
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Month, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
-    case YearValue:
+    case YearComponent:
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
-    case TimestampValue:
+    case TimestampComponent:
         return QString::number(dateTime.toTime_t());
-    case TimeValue:
+    case TimeComponent:
         return KGlobal::locale()->formatTime(dateTime.time(), !options.contains("short"));
-    case DateValue:
+    case DateComponent:
         return KGlobal::locale()->formatDate(dateTime.date(), (options.contains("short") ? KLocale::ShortDate : KLocale::LongDate));
-    case DateTimeValue:
+    case DateTimeComponent:
         return KGlobal::locale()->formatDateTime(dateTime, (options.contains("short") ? KLocale::ShortDate : KLocale::LongDate));
-    case TimeZoneNameValue:
+    case TimeZoneNameComponent:
         return (options.contains("short") ? (m_timeZoneArea.isEmpty() ? QString() : m_timeZoneArea.last()) : m_timeZoneArea.join(QString(QChar('/'))));
-    case TimeZoneAbbreviationValue:
+    case TimeZoneAbbreviationComponent:
         return m_timeZoneAbbreviation;
-    case TimeZoneOffsetValue:
+    case TimeZoneOffsetComponent:
         return m_timeZoneOffset;
-    case TimeZonesValue:
+    case TimeZonesComponent:
         if (m_timeZones.length() == 1) {
             return QString();
         } else {
@@ -280,7 +280,7 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
 
             return QString("<table>\n<tr>%1</tr>\n</table>").arg(timeZones.join("</tr>\n<tr>"));
         }
-    case EventsValue:
+    case EventsComponent:
         if (m_events.isEmpty()) {
             return QString();
         } else {
@@ -296,11 +296,11 @@ QString DataSource::toString(ClockTimeValue value, const QVariantMap &options, Q
 
             return QString("<table>\n<tr>\n%1</tr>\n</table>").arg(events.join("</tr>\n<tr>\n"));
         }
-    case HolidaysValue:
+    case HolidaysComponent:
         return (options.contains("short") ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
-    case SunriseValue:
+    case SunriseComponent:
         return KGlobal::locale()->formatTime(m_sunrise, false);
-    case SunsetValue:
+    case SunsetComponent:
         return KGlobal::locale()->formatTime(m_sunset, false);
     default:
         return QString();

@@ -40,7 +40,7 @@ class ComponentDialog : public KDialog
         ComponentDialog(Clock *clock, QWidget *parent);
 
     protected:
-        ClockTimeValue getComponent() const;
+        ClockComponent getComponent() const;
         QVariantMap getOptions() const;
 
     protected slots:
@@ -56,7 +56,7 @@ class ComponentDialog : public KDialog
         Ui::component m_componentUi;
 
     signals:
-        void insertComponent(QString script, ClockTimeValue value);
+        void insertComponent(QString script, ClockComponent component);
 };
 
 }
