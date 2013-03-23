@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
-#include "Clock.h"
 #include "PlaceholderDialog.h"
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
@@ -269,24 +268,30 @@ void Configuration::disableUpdates()
 
 void Configuration::insertPlaceholder()
 {
-    connect(new PlaceholderDialog(m_applet->getClock(), m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+    connect(new PlaceholderDialog(m_applet->getClock(), m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString,ClockTimeValue)), this, SLOT(insertPlaceholder(QString,ClockTimeValue)));
 }
 
-void Configuration::insertPlaceholder(const QString &placeholder)
+void Configuration::insertPlaceholder(const QString &script, ClockTimeValue value)
 {
-    int id = 0;
+    const QString type = Clock::getComponentString(value).toLower();
+    QString identifier = type;
+    int number = 0;
 
-    while (m_appearanceUi.webView->page()->mainFrame()->findAllElements(QString("#placeholder_%1").arg(id)).count() > 0) {
-        ++id;
+    while (m_appearanceUi.webView->page()->mainFrame()->findAllElements(QString("#%1").arg(identifier)).count() > 0) {
+        ++number;
+
+        identifier = QString("%1_%2").arg(type).arg(number);
     }
 
-    const QString html = QString("<span id=\"placeholder_%1\">%2</span>").arg(id).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(placeholder)));
+    const QString html = QString("<span id=\"%1\">%2</span>").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
 
     m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
-    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#placeholder_%1\", %2);\n").arg(id).arg(placeholder));
+    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#%1\", %2);\n").arg(identifier).arg(script));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(html);
+
+        sourceChanged();
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, '%1')").arg(html));
     }

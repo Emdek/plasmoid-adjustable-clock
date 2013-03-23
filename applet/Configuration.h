@@ -22,6 +22,7 @@
 #define ADJUSTABLECLOCKCONFIGURATION_HEADER
 
 #include "Applet.h"
+#include "Clock.h"
 
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QStandardItemModel>
@@ -67,7 +68,7 @@ class Configuration : public QObject
         void enableUpdates();
         void disableUpdates();
         void insertPlaceholder();
-        void insertPlaceholder(const QString &placeholder);
+        void insertPlaceholder(const QString &script, ClockTimeValue value);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
         void deleteTheme();

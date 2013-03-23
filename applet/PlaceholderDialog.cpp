@@ -82,9 +82,9 @@ void PlaceholderDialog::sendSignal()
     }
 
     if (scriptOptions.isEmpty()) {
-        emit insertPlaceholder(QString("Clock.").append(scriptValue));
+        emit insertPlaceholder(QString("Clock.").append(scriptValue), getPlaceholder());
     } else {
-        emit insertPlaceholder(QString("Clock.%1, {%2}").arg(scriptValue).arg(scriptOptions.join(QString(", "))));
+        emit insertPlaceholder(QString("Clock.%1, {%2}").arg(scriptValue).arg(scriptOptions.join(QString(", "))), getPlaceholder());
     }
 }
 

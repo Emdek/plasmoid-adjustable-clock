@@ -36,7 +36,7 @@ ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
 void ExpressionLineEdit::insertPlaceholder()
 {
     if (m_clock) {
-        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString)), this, SLOT(insertPlaceholder(QString)));
+        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString,ClockTimeValue)), this, SLOT(insertPlaceholder(QString)));
     }
 }
 
