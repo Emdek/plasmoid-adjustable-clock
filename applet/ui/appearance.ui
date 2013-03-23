@@ -269,7 +269,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="placeholdersButton">
+          <widget class="QToolButton" name="componentButton">
            <property name="toolTip">
             <string>Insert Clock Component...</string>
            </property>

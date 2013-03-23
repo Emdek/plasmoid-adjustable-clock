@@ -67,8 +67,8 @@ class Configuration : public QObject
         void modify();
         void enableUpdates();
         void disableUpdates();
-        void insertPlaceholder();
-        void insertPlaceholder(const QString &script, ClockTimeValue value);
+        void insertComponent();
+        void insertComponent(const QString &script, ClockTimeValue value);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
         void deleteTheme();

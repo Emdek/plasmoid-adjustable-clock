@@ -20,7 +20,7 @@
 
 #include "ExpressionLineEdit.h"
 #include "Clock.h"
-#include "PlaceholderDialog.h"
+#include "ComponentDialog.h"
 
 #include <KLocale>
 
@@ -33,16 +33,16 @@ ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*)), this, SLOT(extendContextMenu(QMenu*)));
 }
 
-void ExpressionLineEdit::insertPlaceholder()
+void ExpressionLineEdit::insertComponent()
 {
     if (m_clock) {
-        connect(new PlaceholderDialog(m_clock, this), SIGNAL(insertPlaceholder(QString,ClockTimeValue)), this, SLOT(insertPlaceholder(QString)));
+        connect(new ComponentDialog(m_clock, this), SIGNAL(insertComponent(QString,ClockTimeValue)), this, SLOT(insertComponent(QString)));
     }
 }
 
-void ExpressionLineEdit::insertPlaceholder(const QString &placeholder)
+void ExpressionLineEdit::insertComponent(const QString &script)
 {
-    insert(QString("Clock.toString(%1)").arg(placeholder));
+    insert(QString("Clock.toString(%1)").arg(script));
 }
 
 void ExpressionLineEdit::updateToolTip(const QString &expression)
@@ -56,7 +56,7 @@ void ExpressionLineEdit::extendContextMenu(QMenu *menu)
 {
     if (m_clock) {
         menu->addSeparator();
-        menu->addAction(KIcon("chronometer"), i18n("Insert Clock Component..."), this, SLOT(insertPlaceholder()));
+        menu->addAction(KIcon("chronometer"), i18n("Insert Clock Component..."), this, SLOT(insertComponent()));
     }
 }
 

@@ -18,45 +18,45 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
-#define ADJUSTABLECLOCKPLACEHOLDERDIALOG_HEADER
+#ifndef ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
+#define ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
 
 #include "DataSource.h"
 
 #include <KDialog>
 
-#include "ui_placeholder.h"
+#include "ui_component.h"
 
 namespace AdjustableClock
 {
 
 class Clock;
 
-class PlaceholderDialog : public KDialog
+class ComponentDialog : public KDialog
 {
     Q_OBJECT
 
     public:
-        PlaceholderDialog(Clock *clock, QWidget *parent);
+        ComponentDialog(Clock *clock, QWidget *parent);
 
     protected:
-        ClockTimeValue getPlaceholder() const;
+        ClockTimeValue getComponent() const;
         QVariantMap getOptions() const;
 
     protected slots:
         void sendSignal();
         void updatePreview();
-        void selectPlaceholder(int index);
+        void selectComponent(int index);
         void setShortForm(bool shortForm);
         void setTextualForm(bool textualForm);
         void setAlternativeForm(bool alternativeForm);
 
     private:
         Clock *m_clock;
-        Ui::placeholder m_placeholderUi;
+        Ui::component m_componentUi;
 
     signals:
-        void insertPlaceholder(QString script, ClockTimeValue value);
+        void insertComponent(QString script, ClockTimeValue value);
 };
 
 }

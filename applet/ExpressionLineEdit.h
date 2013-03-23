@@ -40,8 +40,8 @@ class ExpressionLineEdit : public KLineEdit
         void setClock(Clock *clock);
 
     protected slots:
-        void insertPlaceholder();
-        void insertPlaceholder(const QString &placeholder);
+        void insertComponent();
+        void insertComponent(const QString &script);
         void updateToolTip(const QString &expression);
         void extendContextMenu(QMenu *menu);
 

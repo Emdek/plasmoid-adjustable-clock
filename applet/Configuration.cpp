@@ -19,7 +19,7 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
-#include "PlaceholderDialog.h"
+#include "ComponentDialog.h"
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
 
@@ -112,7 +112,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.justifyCenterButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignCenter));
     m_appearanceUi.justifyRightButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignRight));
     m_appearanceUi.backgroundButton->setIcon(KIcon("games-config-background"));
-    m_appearanceUi.placeholdersButton->setIcon(KIcon("chronometer"));
+    m_appearanceUi.componentButton->setIcon(KIcon("chronometer"));
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
@@ -165,7 +165,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
-    connect(m_appearanceUi.placeholdersButton, SIGNAL(clicked()), this, SLOT(insertPlaceholder()));
+    connect(m_appearanceUi.componentButton, SIGNAL(clicked()), this, SLOT(insertComponent()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertItem()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteItem()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editItem()));
@@ -266,12 +266,12 @@ void Configuration::disableUpdates()
     disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
-void Configuration::insertPlaceholder()
+void Configuration::insertComponent()
 {
-    connect(new PlaceholderDialog(m_applet->getClock(), m_appearanceUi.placeholdersButton), SIGNAL(insertPlaceholder(QString,ClockTimeValue)), this, SLOT(insertPlaceholder(QString,ClockTimeValue)));
+    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockTimeValue)), this, SLOT(insertComponent(QString,ClockTimeValue)));
 }
 
-void Configuration::insertPlaceholder(const QString &script, ClockTimeValue value)
+void Configuration::insertComponent(const QString &script, ClockTimeValue value)
 {
     const QString type = Clock::getComponentString(value).toLower();
     QString identifier = type;
