@@ -807,7 +807,7 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
 }]]></css>
-		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonthValue, {'short': true});
+		<script><![CDATA[Clock.setRule('#weekday', Clock.DayOfWeekValue, {'text': true});
 Clock.setRule('#month', Clock.MonthValue, {'text': true, 'possesive': false});
 Clock.setRule('#year', Clock.YearValue);
 Clock.setRule('#holiday', Clock.HolidaysValue, {'short': true});]]></script>
