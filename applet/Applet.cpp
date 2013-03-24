@@ -26,7 +26,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QTimer>
 #include <QtCore/QXmlStreamReader>
-#include <QtCore/QFileSystemWatcher>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
@@ -72,15 +71,10 @@ void Applet::init()
 
     m_clock->setDocument(m_page.mainFrame());
 
-    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-    watcher->addPath(KStandardDirs::locate("data", "adjustableclock/themes.xml"));
-    watcher->addPath(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
-
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
-    connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
