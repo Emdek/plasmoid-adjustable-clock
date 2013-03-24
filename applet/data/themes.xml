@@ -821,66 +821,60 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 {
 	width: 295px;
 	min-height: 295px;
-	margin: auto;
-	text-shadow: 0 0 5px #AAA;
-}
-
-.clock *
-{
-	color: #fff !important;
-}
-
-.calendar
-{
-	margin: 30px 0 0 0;
-	padding: 30px 20px 20px 20px;
-	position: relative;
-	font-weight: bold;
-	font-size: 30px;
-	text-align: center;
-	background: -webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03));
-	border-radius: 20px;
-	box-shadow: 5px 5px 15px #888;
-	opacity: 0.7;
+	margin: -80px auto 0 auto;
+	color: #fff;
+	text-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
 }
 
 .decor
 {
-	position: absolute;
-	top: -30px;
-	left: -10px;
-	width: 310px;
-	height: 60px;
-	padding: 10px 20px;
+	display: table;
+	width: 100%;
+	padding: 0 5px;
+	border-spacing: 26px;
+	position: relative;
+	top: 50px;
+	z-index: 10;
 }
 
 .decor div
 {
-	width: 13px;
+	display: table-cell;
 	height: 40px;
-	margin: 0 16px;
-	float: left;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575));
 	border: 1px solid #999;
-	box-shadow: 0 0 5px #AAA;
+	border-radius: 3px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575));
+	box-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
+}
+
+.calendar
+{
+	padding: 40px 20px 20px 20px;
+	font-size: 30px;
+	font-weight: bold;
+	text-align: center;
+	background: -webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03));
+	border-radius: 20px;
+	box-shadow: 5px 5px 15px rgba(100, 100, 100, 0.8);
+	opacity: 0.7;
 }
 </style>
 </head>
 <body>
 <div class="clock">
+	<div class="decor">
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
 	<div class="calendar">
 		<span id="dayofweek">Saturday</span><br>
-		<span style="font-size: 130px; line-height: 140px;" id="day">1</span><br>
-			<span style="font-size: 35px;"><span id="month">January</span> <span id="year">2000</span></span><br>
-		<span id="holiday"></span>
-		<div class="decor">
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
+		<span style="font-size: 130px; line-height: 160px;" id="day">1</span><br>
+		<span style="white-space: nowrap;"><span id="month">January</span> <span id="year">2000</span></span><br>
+		<span id="holiday">New Year</span>
 	</div>
 </div>
 </body>
