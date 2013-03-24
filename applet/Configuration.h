@@ -42,10 +42,9 @@ enum ModelRole
     DescriptionRole = (Qt::UserRole + 3),
     AuthorRole = (Qt::UserRole + 4),
     HtmlRole = (Qt::UserRole + 5),
-    CssRole = (Qt::UserRole + 6),
-    ScriptRole = (Qt::UserRole + 7),
-    BackgroundRole = (Qt::UserRole + 8),
-    BundledRole = (Qt::UserRole + 9)
+    ScriptRole = (Qt::UserRole + 6),
+    BackgroundRole = (Qt::UserRole + 7),
+    BundledRole = (Qt::UserRole + 8)
 };
 
 class Clock;

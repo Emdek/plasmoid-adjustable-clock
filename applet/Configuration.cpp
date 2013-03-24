@@ -59,7 +59,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(themes.at(i).description, DescriptionRole);
         item->setData(themes.at(i).author, AuthorRole);
         item->setData(themes.at(i).html, HtmlRole);
-        item->setData(themes.at(i).css, CssRole);
         item->setData(themes.at(i).script, ScriptRole);
         item->setData(themes.at(i).background, BackgroundRole);
         item->setData(themes.at(i).bundled, BundledRole);
@@ -224,9 +223,6 @@ void Configuration::save()
         stream.writeStartElement("html");
         stream.writeCDATA(index.data(HtmlRole).toString());
         stream.writeEndElement();
-        stream.writeStartElement("css");
-        stream.writeCDATA(index.data(CssRole).toString());
-        stream.writeEndElement();
         stream.writeStartElement("script");
         stream.writeCDATA(index.data(ScriptRole).toString());
         stream.writeEndElement();
@@ -252,7 +248,6 @@ void Configuration::enableUpdates()
 {
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
@@ -260,7 +255,6 @@ void Configuration::disableUpdates()
 {
     disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.cssTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
@@ -306,7 +300,6 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
-    m_appearanceUi.cssTextEdit->setPlainText(index.data(CssRole).toString());
     m_appearanceUi.scriptTextEdit->setPlainText(index.data(ScriptRole).toString());
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
@@ -364,7 +357,6 @@ void Configuration::newTheme(bool automatically)
     m_themesModel->setData(index, title, TitleRole);
     m_themesModel->setData(index, (QString("<b>%1</b>").arg(title)), Qt::ToolTipRole);
     m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
-    m_themesModel->setData(index, m_appearanceUi.cssTextEdit->toPlainText(), CssRole);
     m_themesModel->setData(index, m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
     m_themesModel->setData(index, false, BundledRole);
@@ -414,7 +406,6 @@ void Configuration::updateTheme(const Theme &theme)
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     m_themesModel->setData(index, theme.html, HtmlRole);
-    m_themesModel->setData(index, theme.css, CssRole);
     m_themesModel->setData(index, theme.script, ScriptRole);
     m_themesModel->setData(index, theme.background, BackgroundRole);
 
@@ -622,7 +613,7 @@ void Configuration::backgroundChanged()
 {
     Theme theme;
     theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
     themeChanged();
@@ -640,12 +631,8 @@ void Configuration::richTextChanged()
     QRegExp placeholder = QRegExp("<placeholder.+\">.*</fix>(.*)<fix>.*</placeholder>");
     placeholder.setMinimal(true);
 
-    QRegExp page = QRegExp(".+<body>(.+)<script type=\"text/javascript\" id=\"script\">.+");
-    page.setMinimal(false);
-
     Theme theme;
-    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(page, "\\1").replace(placeholder, "\\1").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
-    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
+    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(placeholder, "\\1").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
     theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
@@ -661,7 +648,6 @@ void Configuration::sourceChanged()
 {
     Theme theme;
     theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    theme.css = m_appearanceUi.cssTextEdit->toPlainText();
     theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 
@@ -672,7 +658,8 @@ void Configuration::sourceChanged()
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(Applet::getPageLayout(theme.html, theme.css, theme.script));
+    m_appearanceUi.webView->page()->mainFrame()->setHtml(theme.html);
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(theme.script);
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
 
     enableUpdates();

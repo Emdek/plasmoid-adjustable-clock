@@ -6,10 +6,15 @@
 		<description>Default clock theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="text-align: center;">
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<body>
+<div style="text-align: center;">
 	<big><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></big><br>
 	<small><span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></small>
-</div>]]></html>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
 Clock.setRule('#minute', Clock.Minute);
 Clock.setRule('#second', Clock.Second);
@@ -23,7 +28,12 @@ Clock.setRule('#year', Clock.Year);]]></script>
 		<description>Simple clock, similar to default digital clock</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="text-align: center; font-size: 25px;"><span id="hour">12</span>:<span id="minute">30</span></div>]]></html>
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<body>
+<div style="text-align: center; font-size: 25px;"><span id="hour">12</span>:<span id="minute">30</span></div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
 Clock.setRule('#minute', Clock.Minute);]]></script>
 	</theme>
@@ -33,14 +43,19 @@ Clock.setRule('#minute', Clock.Minute);]]></script>
 		<description>More verbose clock with date</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div style="text-align: center; opacity: 0.85;">
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<body>
+<div style="text-align: center; opacity: 0.85;">
 	<span style="font-size: 30px;"><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></span><br>
-	<span style="font-size: 12px;"><span id="weekday">Saturday</span>, <span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></span>
-</div>]]></html>
+	<span style="font-size: 12px;"><span id="dayofweek">Saturday</span>, <span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></span>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
 Clock.setRule('#minute', Clock.Minute);
 Clock.setRule('#second', Clock.Second);
-Clock.setRule('#weekday', Clock.DayOfWeek, {'text': true});
+Clock.setRule('#dayofweek', Clock.DayOfWeek, {'text': true});
 Clock.setRule('#day', Clock.DayOfMonth);
 Clock.setRule('#month', Clock.Month);
 Clock.setRule('#year', Clock.Year);]]></script>
@@ -51,33 +66,11 @@ Clock.setRule('#year', Clock.Year);]]></script>
 		<description>Train clock like theme</description>
 		<author>Nuno Pinheiro &amp; Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<div class="time">
-		<div class="hidden">
-			<div><div class="card"><span id="c_0_3">4</span></div></div>
-			<div><div class="card"><span id="c_1_3">4</span></div></div>
-			<div class="dots"></div>
-			<div><div class="card"><span id="c_2_3">4</span></div></div>
-			<div><div class="card"><span id="c_3_3">4</span></div></div>
-		</div>
-		<div class="top">
-			<div><div id="c_0_1">1</div></div>
-			<div><div id="c_1_1">2</div></div>
-			<div id="dot_top" class="dots">•</div>
-			<div><div id="c_2_1">3</div></div>
-			<div><div id="c_3_1">0</div></div>
-		</div>
-		<div class="bottom">
-			<div><div id="c_0_2">1</div></div>
-			<div><div id="c_1_2">2</div></div>
-			<div id="dot_bottom" class="dots">•</div>
-			<div><div id="c_2_2">3</div></div>
-			<div><div id="c_3_2">0</div></div>
-		</div>
-	</div>
-	<div class="date"><span id="day">1</span> <span id="month">of January</span></div>
-</div>]]></html>
-		<css><![CDATA[.clock
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock
 {
 	padding: 8px;
 	width: 190px;
@@ -178,7 +171,38 @@ Clock.setRule('#year', Clock.Year);]]></script>
 .reversed
 {
 	-webkit-transform: scale(1, -1);
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<div class="time">
+		<div class="hidden">
+			<div><div class="card"><span id="c_0_3">4</span></div></div>
+			<div><div class="card"><span id="c_1_3">4</span></div></div>
+			<div class="dots"></div>
+			<div><div class="card"><span id="c_2_3">4</span></div></div>
+			<div><div class="card"><span id="c_3_3">4</span></div></div>
+		</div>
+		<div class="top">
+			<div><div id="c_0_1">1</div></div>
+			<div><div id="c_1_1">2</div></div>
+			<div id="dot_top" class="dots">•</div>
+			<div><div id="c_2_1">3</div></div>
+			<div><div id="c_3_1">0</div></div>
+		</div>
+		<div class="bottom">
+			<div><div id="c_0_2">1</div></div>
+			<div><div id="c_1_2">2</div></div>
+			<div id="dot_bottom" class="dots">•</div>
+			<div><div id="c_2_2">3</div></div>
+			<div><div id="c_3_2">0</div></div>
+		</div>
+	</div>
+	<div class="date"><span id="day">1</span> <span id="month">of January</span></div>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[function updateClock()
 {
 	var blink = (Clock.toString(Clock.Second, {'short': true}) % 2);
@@ -249,60 +273,11 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 		<description>Digital clock theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<div class="digit" id="digit_0">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
-	</div>
-	<div class="digit" id="digit_1">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
-	</div>
-	<div id="dots">:</div>
-	<div class="digit" id="digit_2">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
-	</div>
-	<div class="digit" id="digit_3">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
-	</div>
-</div>
-<script type="text/javascript">
-</script>]]></html>
-		<css><![CDATA[.clock
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock
 {
 	margin:1px 3px;
 	white-space: nowrap;
@@ -413,7 +388,65 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	padding: 0 0 30px 0;
 	font-size: 45px;
 	text-align: center;
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<div class="digit" id="digit_0">
+		<div class="segment_1"></div>
+		<div class="segment_2"></div>
+		<div class="segment_3"></div>
+		<div class="segment_4"></div>
+		<div class="segment_5"></div>
+		<div class="segment_6"></div>
+		<div class="segment_7">
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+	<div class="digit" id="digit_1">
+		<div class="segment_1"></div>
+		<div class="segment_2"></div>
+		<div class="segment_3"></div>
+		<div class="segment_4"></div>
+		<div class="segment_5"></div>
+		<div class="segment_6"></div>
+		<div class="segment_7">
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+	<div id="dots">:</div>
+	<div class="digit" id="digit_2">
+		<div class="segment_1"></div>
+		<div class="segment_2"></div>
+		<div class="segment_3"></div>
+		<div class="segment_4"></div>
+		<div class="segment_5"></div>
+		<div class="segment_6"></div>
+		<div class="segment_7">
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+	<div class="digit" id="digit_3">
+		<div class="segment_1"></div>
+		<div class="segment_2"></div>
+		<div class="segment_3"></div>
+		<div class="segment_4"></div>
+		<div class="segment_5"></div>
+		<div class="segment_6"></div>
+		<div class="segment_7">
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+</script>
+</body>
+</html>]]></html>
 		<script><![CDATA[function updateClock()
 {
 	var hour = Clock.toString(Clock.Hour);
@@ -462,10 +495,11 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 		<description>dbClock like theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<div><span id="hour">12</span>:<span id="minute">30</span><span id="second">15</span></div>
-</div>]]></html>
-		<css><![CDATA[.clock
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock
 {
 	height: 50px;
 }
@@ -487,7 +521,15 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 	z-index: -1;
 	font-size: 30px;
 	opacity: 0.5;
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<div><span id="hour">12</span>:<span id="minute">30</span><span id="second">15</span></div>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
 Clock.setRule('#minute', Clock.Minute);
 Clock.setRule('#second', Clock.Second);]]></script>
@@ -498,15 +540,11 @@ Clock.setRule('#second', Clock.Second);]]></script>
 		<description>beClock like theme</description>
 		<author>Thomas Luebking &amp; Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<canvas id="canvas" width="200" height="200"></canvas>
-	<div id="timeofday" class="back"></div>
-	<div class="front">
-		<span id="hour">12</span>:<span id="minute">30</span>
-		<div><span id="year">2000</span>-<span id="month">01</span>-<span id="day">01</span></div>
-	</div>
-</div>]]></html>
-		<css><![CDATA[.clock
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock
 {
 	width: 200px;
 	height: 200px;
@@ -543,7 +581,20 @@ Clock.setRule('#second', Clock.Second);]]></script>
 {
 	font-size: 20px;
 	line-height: 25px;
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<canvas id="canvas" width="200" height="200"></canvas>
+	<div id="timeofday" class="back"></div>
+	<div class="front">
+		<span id="hour">12</span>:<span id="minute">30</span>
+		<div><span id="year">2000</span>-<span id="month">01</span>-<span id="day">01</span></div>
+	</div>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[function updateClock()
 {
 	var context = document.getElementById('canvas').getContext('2d');
@@ -584,14 +635,11 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 		<description>Clock with original second visualization</description>
 		<author>Peter Fajdiga &amp; Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<div>
-		<span id="minute">30</span><br>
-		<progress id="second" value="15" max="59">
-	</div>
-	<p id="hour">12</p>
-</div>]]></html>
-		<css><![CDATA[*
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+*
 {
 	font-family: 'Segoe WP';
 	font-weight: bold;
@@ -647,7 +695,19 @@ progress::-webkit-progress-value
 	text-align: right;
 	font-size: 50px;
 	opacity: 0.9;
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<div>
+		<span id="minute">30</span><br>
+		<progress id="second" value="15" max="59">
+	</div>
+	<p id="hour">12</p>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour, {'short': true});
 Clock.setRule('#minute', Clock.Minute);
 Clock.setRule('#second', 'value', Clock.Second, {'short': true});
@@ -659,7 +719,35 @@ Clock.setRule('#second', 'value', Clock.Second, {'short': true});
 		<description>Classic binary clock</description>
 		<author>Michał Dutkiewicz</author>
 		<background>true</background>
-		<html><![CDATA[<span id="test"></span><table class="clock">
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock, .clock td
+{
+	margin: auto;
+	border: 1px solid #ddd;
+}
+
+.clock
+{
+	width: 67px;
+	height: 45px;
+	border-width: 1px 1px 0 0;
+	border-spacing: 0;
+	empty-cells: show;
+}
+
+.clock td
+{
+	width: 10px;
+	height: 10px;
+	border-width: 0 0 1px 1px;
+}
+</style>
+</head>
+<body>
+<span id="test"></span><table class="clock">
 	<tbody>
 		<tr>
 			<td id="v_0_8"></td>
@@ -694,28 +782,9 @@ Clock.setRule('#second', 'value', Clock.Second, {'short': true});
 			<td id="v_5_1"></td>
 		</tr>
 	</tbody>
-</table>]]></html>
-		<css><![CDATA[.clock, .clock td
-{
-	margin: auto;
-	border: 1px solid #ddd;
-}
-
-.clock
-{
-	width: 67px;
-	height: 45px;
-	border-width: 1px 1px 0 0;
-	border-spacing: 0;
-	empty-cells: show;
-}
-
-.clock td
-{
-	width: 10px;
-	height: 10px;
-	border-width: 0 0 1px 1px;
-}]]></css>
+</table>
+</body>
+</html>]]></html>
 		<script><![CDATA[function updateClock()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
@@ -744,23 +813,11 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 		<description>Calendar like theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
-		<html><![CDATA[<div class="clock">
-	<div class="calendar">
-		<span id="weekday">Saturday</span><br>
-		<span style="font-size: 130px; line-height: 140px;" id="day">1</span><br>
-			<span style="font-size: 35px;"><span id="month">January</span> <span id="year">2000</span></span><br>
-		<span id="holiday"></span>
-		<div class="decor">
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-	</div>
-</div>]]></html>
-		<css><![CDATA[.clock
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.clock
 {
 	width: 295px;
 	min-height: 295px;
@@ -806,9 +863,30 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575));
 	border: 1px solid #999;
 	box-shadow: 0 0 5px #AAA;
-}]]></css>
+}
+</style>
+</head>
+<body>
+<div class="clock">
+	<div class="calendar">
+		<span id="dayofweek">Saturday</span><br>
+		<span style="font-size: 130px; line-height: 140px;" id="day">1</span><br>
+			<span style="font-size: 35px;"><span id="month">January</span> <span id="year">2000</span></span><br>
+		<span id="holiday"></span>
+		<div class="decor">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
-Clock.setRule('#weekday', Clock.DayOfWeek, {'text': true});
+Clock.setRule('#dayofweek', Clock.DayOfWeek, {'text': true});
 Clock.setRule('#month', Clock.Month, {'text': true, 'possessive': false});
 Clock.setRule('#year', Clock.Year);
 Clock.setRule('#holiday', Clock.Holidays, {'short': true});]]></script>
@@ -819,17 +897,26 @@ Clock.setRule('#holiday', Clock.Holidays, {'short': true});]]></script>
 		<description>Clock theme for a vertical panel</description>
 		<author>Olaf Lenz</author>
 		<background>true</background>
-		<html><![CDATA[<div style="margin: 5px; text-align: center;">
+		<html><![CDATA[<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+</style>
+</head>
+<body>
+<div style="margin: 5px; text-align: center;">
 	<big><b><span id="hour">12</span>:<span id="minute">30</span></b></big><br>
 	<span id="second">15</span><br>
-	<small id="weekday">Sat</small><br>
+	<small id="dayofweek">Sat</small><br>
 	<small><span id="day">1</span>.<span id="month"></span>.</small><br>
 	<small id="year">2000</small>
-</div>]]></html>
+</div>
+</body>
+</html>]]></html>
 		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
 Clock.setRule('#minute', Clock.Minute);
 Clock.setRule('#second', Clock.Second);
-Clock.setRule('#weekday', Clock.DayOfWeek, {'short': true, 'text': true});
+Clock.setRule('#dayofweek', Clock.DayOfWeek, {'short': true, 'text': true});
 Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
 Clock.setRule('#month', Clock.Month, {'short': true});
 Clock.setRule('#year', Clock.Year);]]></script>

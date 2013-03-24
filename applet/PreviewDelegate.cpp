@@ -92,7 +92,8 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         Clock clock(m_source, StaticClock);
         clock.setDocument(page.mainFrame());
 
-        page.mainFrame()->setHtml(Applet::getPageLayout(index.data(HtmlRole).toString(), index.data(CssRole).toString(), index.data(ScriptRole).toString()));
+        page.mainFrame()->setHtml(index.data(HtmlRole).toString());
+        page.mainFrame()->evaluateJavaScript(index.data(ScriptRole).toString());
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 

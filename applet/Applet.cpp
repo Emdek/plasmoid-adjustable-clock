@@ -184,7 +184,8 @@ void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &new
 
     const Theme theme = getTheme();
 
-    m_page.mainFrame()->setHtml(getPageLayout(theme.html, theme.css, theme.script));
+    m_page.mainFrame()->setHtml(theme.html);
+    m_page.mainFrame()->evaluateJavaScript(theme.script);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -297,11 +298,6 @@ DataSource* Applet::getDataSource() const
     return m_source;
 }
 
-QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script)
-{
-    return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style></head><body>%2<script type=\"text/javascript\" id=\"script\">%3</script></body></html>").arg(css).arg(html).arg(script);
-}
-
 Theme Applet::getTheme() const
 {
     if (m_theme >= 0 && m_theme < m_themes.count()) {
@@ -368,7 +364,6 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
             theme.description = QString();
             theme.author = QString();
             theme.html = QString();
-            theme.css = QString();
             theme.script = QString();
             theme.background = true;
         }
@@ -399,10 +394,6 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
 
         if (reader.name().toString() == "html") {
             theme.html = reader.readElementText();
-        }
-
-        if (reader.name().toString() == "css") {
-            theme.css = reader.readElementText();
         }
 
         if (reader.name().toString() == "script") {

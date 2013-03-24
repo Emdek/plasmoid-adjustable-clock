@@ -378,14 +378,6 @@
                <bool>false</bool>
               </property>
              </widget>
-             <widget class="KTextEdit" name="cssTextEdit">
-              <property name="toolTip">
-               <string>CSS</string>
-              </property>
-              <property name="acceptRichText">
-               <bool>false</bool>
-              </property>
-             </widget>
              <widget class="KTextEdit" name="scriptTextEdit">
               <property name="toolTip">
                <string>JavaScript</string>

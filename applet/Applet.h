@@ -39,7 +39,6 @@ struct Theme
     QString description;
     QString author;
     QString html;
-    QString css;
     QString script;
     bool background;
     bool bundled;
@@ -58,7 +57,6 @@ class Applet : public ClockApplet
         void init();
         Clock* getClock() const;
         DataSource* getDataSource() const;
-        static QString getPageLayout(const QString &html, const QString &css, const QString &script);
         Theme getTheme() const;
         QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;
