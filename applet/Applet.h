@@ -59,7 +59,6 @@ class Applet : public ClockApplet
         Clock* getClock() const;
         DataSource* getDataSource() const;
         static QString getPageLayout(const QString &html, const QString &css, const QString &script);
-        static QString getPageStyleSheet();
         Theme getTheme() const;
         QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;
@@ -87,7 +86,6 @@ class Applet : public ClockApplet
         void toolTipHidden();
         void repaint();
         void updateClipboardMenu();
-        void updateTheme();
 
     private:
         DataSource *m_source;

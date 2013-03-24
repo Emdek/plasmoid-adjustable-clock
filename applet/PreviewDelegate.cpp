@@ -86,8 +86,6 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         }
 
         QWebPage page;
-        page.settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString(Applet::getPageStyleSheet().toAscii().toBase64()))));
-        page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 

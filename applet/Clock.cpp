@@ -22,6 +22,7 @@
 #include "DataSource.h"
 
 #include <QtCore/QFile>
+#include <QtWebKit/QWebPage>
 
 #include <KDateTime>
 #include <KCalendarSystem>
@@ -79,6 +80,9 @@ void Clock::updateClock(const QList<ClockComponent> &changes)
 void Clock::updateTheme()
 {
     if (m_document) {
+        m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} placeholder {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} placeholder:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;} placeholder fix {font-size: 0;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
+        m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
+        m_document->setHtml(m_document->toHtml());
         m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
     }
 }
@@ -97,6 +101,7 @@ void Clock::setDocument(QWebFrame *document)
     m_document = document;
 
     exposeClock();
+    updateTheme();
 
     connect(m_document, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(exposeClock()));
 }

@@ -37,7 +37,6 @@
 #include <KConfigDialog>
 #include <KStandardDirs>
 
-#include <Plasma/Theme>
 #include <Plasma/Containment>
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
@@ -82,7 +81,6 @@ void Applet::init()
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
     connect(watcher, SIGNAL(fileChanged(QString)), this, SLOT(clockConfigChanged()));
-    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
@@ -289,13 +287,6 @@ void Applet::updateSize()
     m_page.setViewportSize(boundingRect().size().toSize());
 }
 
-void Applet::updateTheme()
-{
-    m_page.settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString(getPageStyleSheet().toAscii().toBase64()))));
-    m_page.settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-    m_page.mainFrame()->setHtml(m_page.mainFrame()->toHtml());
-}
-
 Clock* Applet::getClock() const
 {
     return m_clock;
@@ -309,11 +300,6 @@ DataSource* Applet::getDataSource() const
 QString Applet::getPageLayout(const QString &html, const QString &css, const QString &script)
 {
     return QString("<!DOCTYPE html><html><head><style type=\"text/css\">%1</style></head><body>%2<script type=\"text/javascript\" id=\"script\">%3</script></body></html>").arg(css).arg(html).arg(script);
-}
-
-QString Applet::getPageStyleSheet()
-{
-    return QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name());
 }
 
 Theme Applet::getTheme() const
