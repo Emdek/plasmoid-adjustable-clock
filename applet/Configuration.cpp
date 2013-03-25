@@ -268,7 +268,7 @@ void Configuration::insertComponent(const QString &script, ClockComponent compon
 {
     const QString type = Clock::getComponentString(component).toLower();
     QString identifier = type;
-    int number = 0;
+    int number = 1;
 
     while (m_appearanceUi.webView->page()->mainFrame()->findAllElements(QString("#%1").arg(identifier)).count() > 0) {
         ++number;
