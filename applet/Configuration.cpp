@@ -219,7 +219,7 @@ void Configuration::save()
         stream.writeCharacters(index.data(TitleRole).toString());
         stream.writeEndElement();
         stream.writeStartElement("background");
-        stream.writeCharacters(index.data(BackgroundRole).toBool()?"true":"false");
+        stream.writeCharacters(index.data(BackgroundRole).toBool() ? "true" : "false");
         stream.writeEndElement();
         stream.writeStartElement("html");
         stream.writeCDATA(index.data(HtmlRole).toString());
@@ -629,7 +629,7 @@ void Configuration::richTextChanged()
     QRegExp fontFamily = QRegExp("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>");
     fontFamily.setMinimal(true);
 
-    QRegExp placeholder = QRegExp("<placeholder.+\">.*</fix>(.*)<fix>.*</placeholder>");
+    QRegExp placeholder = QRegExp("<placeholder.+\">(.*)</placeholder>");
     placeholder.setMinimal(true);
 
     Theme theme;
