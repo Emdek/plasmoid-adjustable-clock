@@ -624,7 +624,6 @@ void Configuration::backgroundChanged()
 void Configuration::richTextChanged()
 {
     QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\""));
-
     QRegExp font = QRegExp("<font(?: color=\"(#?[\\w\\s]+)\")?(?: face=\"'?([\\w\\s]+)'?\")?>(.+)</font>");
     font.setMinimal(true);
 
