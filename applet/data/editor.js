@@ -1,6 +1,7 @@
 document.ondragstart = preventDrag;
 document.onmouseup = fixFinalSelection;
 document.onkeyup = fixFinalSelection;
+document.onclick = selectPlaceholder;
 
 var previousRange = null;
 var forward = true;
@@ -24,7 +25,7 @@ function fixFinalSelection(event)
 
 	do
 	{
-		if (startElement.nodeName == 'PLACEHOLDER')
+		if (startElement.className.indexOf('component') >= 0)
 		{
 			if (forward)
 			{
@@ -45,7 +46,7 @@ function fixFinalSelection(event)
 
 	do
 	{
-		if (endElement.nodeName == 'PLACEHOLDER')
+		if (endElement.className.indexOf('component') >= 0)
 		{
 			if (forward)
 			{
@@ -82,4 +83,22 @@ function fixSelection(event)
 	}
 
 	previousRange = window.getSelection().getRangeAt(0);
+}
+
+function selectPlaceholder(event)
+{
+	if (event.target.className.indexOf('component') == -1)
+	{
+		return;
+	}
+
+	window.setTimeout(function()
+	{
+		var range = document.createRange();
+		range.selectNodeContents(event.target);
+
+		var selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}, 1);
 }

@@ -276,7 +276,7 @@ void Configuration::insertComponent(const QString &script, ClockComponent compon
         identifier = QString("%1_%2").arg(type).arg(number);
     }
 
-    const QString html = QString("<span id=\"%1\">%2</span>").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
+    const QString html = QString(" <span id=\"%1\">%2</span> ").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
 
     m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
     m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#%1\", %2);\n").arg(identifier).arg(script));
@@ -623,17 +623,58 @@ void Configuration::backgroundChanged()
 
 void Configuration::richTextChanged()
 {
-    QRegExp fontColor = QRegExp("<font color=\"(#?[\\w\\s]+)\">(.+)</font>");
-    fontColor.setMinimal(true);
+    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\""));
 
-    QRegExp fontFamily = QRegExp("<font face=\"'?([\\w\\s]+)'?\">(.+)</font>");
-    fontFamily.setMinimal(true);
+    QRegExp font = QRegExp("<font(?: color=\"(#?[\\w\\s]+)\")?(?: face=\"'?([\\w\\s]+)'?\")?>(.+)</font>");
+    font.setMinimal(true);
 
-    QRegExp placeholder = QRegExp("<placeholder.+\">(.*)</placeholder>");
-    placeholder.setMinimal(true);
+    int position = 0;
+
+    while ((position = font.indexIn(html, position)) != -1) {
+        QString replacement;
+
+        if (!font.cap(1).isEmpty()) {
+            replacement.append(QString("color:%1;").arg(font.cap(1)));
+        }
+
+        if (!font.cap(2).isEmpty()) {
+            replacement.append(QString("font-family:'%1';").arg(font.cap(2)));
+        }
+
+        replacement = QString("<span style=\"%1\">%2</span>").arg(replacement).arg(font.cap(3));
+
+        html.replace(font.cap(0), replacement);
+    }
+
+    QWebPage page;
+    page.mainFrame()->setHtml(html);
+
+    const QWebElementCollection elements = page.mainFrame()->findAllElements(".component");
+
+    for (int i = 0; i < elements.count(); ++i) {
+        if (!elements.at(i).firstChild().isNull()) {
+            QWebElement element = elements.at(i).firstChild();
+            QStringList styles;
+
+            do {
+                if (element.hasAttribute("style")) {
+                    styles.append(element.attribute("style"));
+                }
+
+                element = element.firstChild();
+            } while (!element.isNull());
+
+            elements.at(i).setAttribute("style", styles.join(QString()));
+        }
+
+        elements.at(i).setInnerXml(elements.at(i).attribute("value"));
+        elements.at(i).removeAttribute("title");
+        elements.at(i).removeAttribute("value");
+        elements.at(i).removeClass("component");
+    }
 
     Theme theme;
-    theme.html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")).replace(placeholder, "\\1").replace(fontColor, "<span style=\"color:\\1;\">\\2</span>").replace(fontFamily, "<span style=\"font-family:'\\1';\">\\2</span>");
+    theme.html = page.mainFrame()->toHtml().remove(QRegExp("<head></head>"));
     theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
     theme.background = m_appearanceUi.backgroundButton->isChecked();
 

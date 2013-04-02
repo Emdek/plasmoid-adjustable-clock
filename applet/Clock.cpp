@@ -80,7 +80,7 @@ void Clock::updateClock(const QList<ClockComponent> &changes)
 void Clock::updateTheme()
 {
     if (m_document) {
-        m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} placeholder {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} placeholder:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
+        m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} .component {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} .component:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
         m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
         m_document->setHtml(m_document->toHtml());
         m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
@@ -211,7 +211,11 @@ void Clock::setRule(const QString &query, const QString &attribute, int componen
         const QWebElementCollection elements = m_document->findAllElements(query);
 
         for (int i = 0; i < elements.count(); ++i) {
-            elements.at(i).setInnerXml(QString("<placeholder title=\"%1\">%2</placeholder>").arg(title).arg(m_source->toString(nativeComponent, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)))));
+            const QString value = m_source->toString(nativeComponent, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
+            elements.at(i).setInnerXml(value);
+            elements.at(i).setAttribute("value", value);
+            elements.at(i).setAttribute("title", title);
+            elements.at(i).addClass("component");
         }
 
         return;
