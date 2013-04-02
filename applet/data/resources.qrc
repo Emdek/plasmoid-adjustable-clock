@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>clock.js</file>
         <file>editor.js</file>
     </qresource>
 </RCC>

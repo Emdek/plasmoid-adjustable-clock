@@ -21,7 +21,6 @@
 #include "Clock.h"
 #include "DataSource.h"
 
-#include <QtCore/QFile>
 #include <QtWebKit/QWebPage>
 
 #include <KDateTime>
@@ -44,21 +43,21 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
         connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateClock(QList<ClockComponent>)));
     }
 
-    QFile file(":/clock.js");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
-    m_engine.evaluate(QString(file.readAll()));
+
+    for (int i = 0; i < LastComponent; ++i) {
+        m_engine.evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+    }
 }
 
 void Clock::exposeClock()
 {
     if (m_document) {
-        QFile file(":/clock.js");
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
-
         m_document->addToJavaScriptWindowObject("Clock", this);
-        m_document->evaluateJavaScript(QString(file.readAll()));
+
+        for (int i = 0; i < LastComponent; ++i) {
+            m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+        }
     }
 }
 
@@ -111,110 +110,13 @@ void Clock::setRule(const QString &query, const QString &attribute, int componen
     const ClockComponent nativeComponent  = static_cast<ClockComponent>(component);
 
     if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
-        QString title;
-
-        switch (nativeComponent) {
-        case SecondComponent:
-            title = i18n("Second");
-
-            break;
-        case MinuteComponent:
-            title = i18n("Minute");
-
-            break;
-        case HourComponent:
-            title = i18n("Hour");
-
-            break;
-        case TimeOfDayComponent:
-            title = i18n("The pm or am string");
-
-            break;
-        case DayOfWeekComponent:
-            title = i18n("Weekday");
-
-            break;
-        case DayOfMonthComponent:
-            title = i18n("Day of the month");
-
-            break;
-        case DayOfYearComponent:
-            title = i18n("Day of the year");
-
-            break;
-        case WeekComponent:
-            title = i18n("Week");
-
-            break;
-        case MonthComponent:
-            title = i18n("Month");
-
-            break;
-        case YearComponent:
-            title = i18n("Year");
-
-            break;
-        case TimestampComponent:
-            title = i18n("UNIX timestamp");
-
-            break;
-        case TimeComponent:
-            title = i18n("Time");
-
-            break;
-        case DateComponent:
-            title = i18n("Date");
-
-            break;
-        case DateTimeComponent:
-            title = i18n("Date and time");
-
-            break;
-        case TimeZoneNameComponent:
-            title = i18n("Timezone name");
-
-            break;
-        case TimeZoneAbbreviationComponent:
-            title = i18n("Timezone abbreviation");
-
-            break;
-        case TimeZoneOffsetComponent:
-            title = i18n("Timezone offset");
-
-            break;
-        case TimeZonesComponent:
-            title = i18n("Timezones list");
-
-            break;
-        case HolidaysComponent:
-            title = i18n("Holidays list");
-
-            break;
-        case EventsComponent:
-            title = i18n("Events list");
-
-            break;
-        case SunriseComponent:
-            title = i18n("Sunrise time");
-
-            break;
-        case SunsetComponent:
-            title = i18n("Sunset time");
-
-            break;
-        default:
-            title = QString();
-
-            break;
-        }
-
         const QWebElementCollection elements = m_document->findAllElements(query);
 
         for (int i = 0; i < elements.count(); ++i) {
             const QString value = m_source->toString(nativeComponent, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
             elements.at(i).setInnerXml(value);
             elements.at(i).setAttribute("value", value);
-            elements.at(i).setAttribute("title", title);
+            elements.at(i).setAttribute("title", getComponentName(nativeComponent));
             elements.at(i).addClass("component");
         }
 
@@ -333,6 +235,60 @@ QString Clock::getComponentString(ClockComponent component)
         return "Sunrise";
     case SunsetComponent:
         return "Sunset";
+    default:
+        return QString();
+    }
+
+    return QString();
+}
+
+QString Clock::getComponentName(ClockComponent component)
+{
+    switch (component) {
+    case SecondComponent:
+        return i18n("Second");
+    case MinuteComponent:
+        return i18n("Minute");
+    case HourComponent:
+        return i18n("Hour");
+    case TimeOfDayComponent:
+        return i18n("The pm or am string");
+    case DayOfMonthComponent:
+        return i18n("Day of the month");
+    case DayOfWeekComponent:
+        return i18n("Weekday");
+    case DayOfYearComponent:
+        return i18n("Day of the year");
+    case WeekComponent:
+        return i18n("Week");
+    case MonthComponent:
+        return i18n("Month");
+    case YearComponent:
+        return i18n("Year");
+    case TimestampComponent:
+        return i18n("UNIX timestamp");
+    case TimeComponent:
+        return i18n("Time");
+    case DateComponent:
+        return i18n("Date");
+    case DateTimeComponent:
+        return i18n("Date and time");
+    case TimeZoneNameComponent:
+        return i18n("Timezone name");
+    case TimeZoneAbbreviationComponent:
+        return i18n("Timezone abbreviation");
+    case TimeZoneOffsetComponent:
+        return i18n("Timezone offset");
+    case TimeZonesComponent:
+        return i18n("Timezones list");
+    case EventsComponent:
+        return i18n("Events list");
+    case HolidaysComponent:
+        return i18n("Holidays list");
+    case SunriseComponent:
+        return i18n("Sunrise time");
+    case SunsetComponent:
+        return i18n("Sunset time");
     default:
         return QString();
     }

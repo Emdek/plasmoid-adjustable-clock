@@ -31,28 +31,9 @@ ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent
     setButtons(KDialog::Cancel | KDialog::Ok);
     setModal(true);
 
-    m_componentUi.componentComboBox->addItem(i18n("Second"), QVariant(SecondComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Minute"), QVariant(MinuteComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Hour"), QVariant(HourComponent));
-    m_componentUi.componentComboBox->addItem(i18n("The pm or am string"), QVariant(TimeOfDayComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Weekday"), QVariant(DayOfWeekComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Day of the month"), QVariant(DayOfMonthComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Day of the year"), QVariant(DayOfYearComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Week"), QVariant(WeekComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Month"), QVariant(MonthComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Year"), QVariant(YearComponent));
-    m_componentUi.componentComboBox->addItem(i18n("UNIX timestamp"), QVariant(TimestampComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Time"), QVariant(TimeComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Date"), QVariant(DateComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Date and time"), QVariant(DateTimeComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone name"), QVariant(TimeZoneNameComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone abbreviation"), QVariant(TimeZoneAbbreviationComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Timezone offset"), QVariant(TimeZoneOffsetComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Timezones list"), QVariant(TimeZonesComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Holidays list"), QVariant(HolidaysComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Events list"), QVariant(EventsComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Sunrise time"), QVariant(SunriseComponent));
-    m_componentUi.componentComboBox->addItem(i18n("Sunset time"), QVariant(SunsetComponent));
+    for (int i = 0; i < LastComponent; ++i) {
+        m_componentUi.componentComboBox->addItem(Clock::getComponentName(static_cast<ClockComponent>(i)), i);
+    }
 
     selectComponent(0);
     adjustSize();

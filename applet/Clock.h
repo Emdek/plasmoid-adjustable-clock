@@ -54,7 +54,8 @@ enum ClockComponent
     EventsComponent = 18,
     HolidaysComponent = 19,
     SunriseComponent = 20,
-    SunsetComponent = 21
+    SunsetComponent = 21,
+    LastComponent = 22
 };
 
 enum ClockMode
@@ -88,6 +89,7 @@ class Clock : public QObject
         Q_INVOKABLE void setValue(const QString &query, const QString &value);
         QString evaluate(const QString &script);
         Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
+        static QString getComponentName(ClockComponent component);
         static QString getComponentString(ClockComponent component);
 
     protected:
