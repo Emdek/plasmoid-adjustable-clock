@@ -139,7 +139,9 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 changes.append(SunriseComponent);
                 changes.append(SunsetComponent);
                 changes.append(HolidaysComponent);
-            } else if (hour == 0 || hour == 12) {
+            }
+
+            if (hour == 0 || hour == 12) {
                 changes.append(TimeOfDayComponent);
             }
 
