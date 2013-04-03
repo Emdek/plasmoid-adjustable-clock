@@ -73,8 +73,7 @@ class Configuration : public QObject
         void deleteTheme();
         void renameTheme();
         void updateTheme(const Theme &theme);
-        void updateView(int tab);
-        void updateEditor(int tab);
+        void updateEditor(int tab = -1);
         void triggerAction();
         void selectionChanged();
         void setColor();

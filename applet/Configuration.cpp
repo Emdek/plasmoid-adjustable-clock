@@ -144,7 +144,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(finished()), this, SLOT(disableUpdates()));
-    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateView(int)));
+    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor()));
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
@@ -413,25 +413,22 @@ void Configuration::updateTheme(const Theme &theme)
     emit clearCache();
 }
 
-void Configuration::updateView(int tab)
-{
-    if (tab == 1 && m_appearanceUi.editorTabWidget->currentIndex() == 0) {
-        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
-
-        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
-
-        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
-    }
-
-    updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
-}
-
 void Configuration::updateEditor(int tab)
 {
+    if (tab < 0) {
+        tab = m_appearanceUi.editorTabWidget->currentIndex();
+    }
+
     if (tab == 1) {
         richTextChanged();
     } else {
         sourceChanged();
+
+        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
+
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
+
+        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
     }
 }
 
