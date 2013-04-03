@@ -98,3 +98,34 @@ function fixSelection()
 
 	previousRange = window.getSelection().getRangeAt(0);
 }
+
+function setStyle(attribute, value)
+{
+	var selection = window.getSelection();
+	var startElement = selection.anchorNode.parentNode;
+	var endElement = selection.focusNode.parentNode;
+
+	if (startElement == endElement)
+	{
+		startElement.style.setProperty(attribute, value);
+	}
+	else
+	{
+		var range = selection.getRangeAt(0);
+		var newElement = document.createElement('span');
+		newElement.style.setProperty(attribute, value);
+		newElement.appendChild(range.extractContents());
+
+		if (startElement.className && startElement.className.indexOf('component') >= 0)
+		{
+			startElement.parentNode.removeChild(startElement);
+		}
+
+		if (endElement.className && endElement.className.indexOf('component') >= 0)
+		{
+			endElement.parentNode.removeChild(endElement);
+		}
+
+		range.insertNode(newElement)
+	}
+}

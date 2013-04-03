@@ -103,7 +103,6 @@ class Configuration : public QObject
         Clock *m_clock;
         QStandardItemModel *m_themesModel;
         QListWidgetItem *m_editedItem;
-        int m_fontSize;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

@@ -512,7 +512,7 @@ void Configuration::selectColor()
 
             m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
         } else {
-            m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('forecolor', false, '%1')").arg(colorDialog.color().name()));
+            m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('color', '%1')").arg(colorDialog.color().name()));
         }
     }
 }
@@ -525,10 +525,8 @@ void Configuration::selectFontSize(const QString &size)
 
         m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('fontsizedelta', false, %1)").arg(QString::number(size.toInt() - m_fontSize)));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('font-size', '%1px')").arg(size));
     }
-
-    m_fontSize = size.toInt();
 }
 
 void Configuration::selectFontFamily(const QFont &font)
@@ -539,7 +537,7 @@ void Configuration::selectFontFamily(const QFont &font)
 
         m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('fontname', false, '%1')").arg(font.family()));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('font-family', '\\\'%1\\\'')").arg(font.family()));
     }
 }
 
@@ -565,8 +563,6 @@ void Configuration::setFontSize(const QString &size)
     if (!m_appearanceUi.fontSizeComboBox->hasFocus()) {
         m_appearanceUi.fontSizeComboBox->setEditText(size);
     }
-
-    m_fontSize = size.toInt();
 }
 
 void Configuration::setFontFamily(const QString &font)
@@ -623,30 +619,8 @@ void Configuration::backgroundChanged()
 
 void Configuration::richTextChanged()
 {
-    QString html = m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\""));
-    QRegExp font = QRegExp("<font(?: color=\"(#?[\\w\\s]+)\")?(?: face=\"'?([\\w\\s]+)'?\")?>(.+)</font>");
-    font.setMinimal(true);
-
-    int position = 0;
-
-    while ((position = font.indexIn(html, position)) != -1) {
-        QString replacement;
-
-        if (!font.cap(1).isEmpty()) {
-            replacement.append(QString("color:%1;").arg(font.cap(1)));
-        }
-
-        if (!font.cap(2).isEmpty()) {
-            replacement.append(QString("font-family:'%1';").arg(font.cap(2)));
-        }
-
-        replacement = QString("<span style=\"%1\">%2</span>").arg(replacement).arg(font.cap(3));
-
-        html.replace(font.cap(0), replacement);
-    }
-
     QWebPage page;
-    page.mainFrame()->setHtml(html);
+    page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")));
 
     const QWebElementCollection elements = page.mainFrame()->findAllElements(".component");
 
