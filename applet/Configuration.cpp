@@ -610,7 +610,7 @@ void Configuration::backgroundChanged()
 void Configuration::richTextChanged()
 {
     QWebPage page;
-    page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml().remove(QRegExp(" class=\"Apple-style-span\"")));
+    page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
     const QWebElementCollection elements = page.mainFrame()->findAllElements(".component");
 
@@ -622,6 +622,14 @@ void Configuration::richTextChanged()
             do {
                 if (element.hasAttribute("style")) {
                     styles.append(element.attribute("style"));
+                }
+
+                if (element.tagName() == QString('B')) {
+                    styles.append("font-weight: bold;");
+                } else if (element.tagName() == QString('I')) {
+                    styles.append("font-style: italic;");
+                } else if (element.tagName() == QString('U')) {
+                    styles.append("text-decoration: underline;");
                 }
 
                 element = element.firstChild();
