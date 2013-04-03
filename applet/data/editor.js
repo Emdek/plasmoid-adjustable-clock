@@ -121,10 +121,10 @@ function setStyle(property, value)
 	}
 	else
 	{
+		var parentElement = null;
 		var range = selection.getRangeAt(0);
-		var newElement = document.createElement('span');
-		newElement.style.setProperty(property, value);
-		newElement.appendChild(range.extractContents());
+		var contents = range.extractContents();
+		var container = ((startElement.parentNode == endElement.parentNode) ? startElement.parentNode : null);
 
 		if (startElement.className && startElement.className.indexOf('component') >= 0)
 		{
@@ -136,6 +136,17 @@ function setStyle(property, value)
 			endElement.parentNode.removeChild(endElement);
 		}
 
-		range.insertNode(newElement)
+		if (container && !container.hasChildNodes())
+		{
+			parentElement = container;
+		}
+		else
+		{
+			parentElement = document.createElement('span');
+		}
+
+		parentElement.appendChild(contents);
+		parentElement.style.setProperty(property, value);
+		range.insertNode(parentElement)
 	}
 }
