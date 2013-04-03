@@ -1,3 +1,2 @@
 - expose weather data;
 - add support for QML themes;
-- allow to DnD placeholders (workaround QtWebKit bug by custom implementation?);

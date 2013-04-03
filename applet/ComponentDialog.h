@@ -49,7 +49,6 @@ class ComponentDialog : public KDialog
         void selectComponent(int index);
         void setShortForm(bool shortForm);
         void setTextualForm(bool textualForm);
-        void setAlternativeForm(bool alternativeForm);
 
     private:
         Clock *m_clock;

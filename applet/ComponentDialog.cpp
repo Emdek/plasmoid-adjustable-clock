@@ -28,13 +28,12 @@ ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent
 {
     m_componentUi.setupUi(mainWidget());
 
-    setButtons(KDialog::Cancel | KDialog::Ok);
-    setModal(true);
-
     for (int i = 0; i < LastComponent; ++i) {
         m_componentUi.componentComboBox->addItem(Clock::getComponentName(static_cast<ClockComponent>(i)), i);
     }
 
+    setButtons(KDialog::Cancel | KDialog::Ok);
+    setModal(true);
     selectComponent(0);
     adjustSize();
     show();
@@ -42,8 +41,8 @@ ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent
     connect(m_componentUi.componentComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectComponent(int)));
     connect(m_componentUi.shortFormCheckBox, SIGNAL(toggled(bool)), this, SLOT(setShortForm(bool)));
     connect(m_componentUi.leadingZerosCheckBox, SIGNAL(toggled(bool)), this, SLOT(setShortForm(bool)));
-    connect(m_componentUi.hoursModeCheckBox, SIGNAL(toggled(bool)), this, SLOT(setAlternativeForm(bool)));
-    connect(m_componentUi.possessiveFormCheckBox, SIGNAL(toggled(bool)), this, SLOT(setAlternativeForm(bool)));
+    connect(m_componentUi.hoursModeCheckBox, SIGNAL(toggled(bool)), this, SLOT(updatePreview()));
+    connect(m_componentUi.possessiveFormCheckBox, SIGNAL(toggled(bool)), this, SLOT(updatePreview()));
     connect(m_componentUi.textualFormCheckBox, SIGNAL(toggled(bool)), this, SLOT(setTextualForm(bool)));
     connect(this, SIGNAL(okClicked()), this, SLOT(sendSignal()));
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -126,13 +125,6 @@ void ComponentDialog::setTextualForm(bool textualForm)
 {
     m_componentUi.leadingZerosCheckBox->setEnabled(!textualForm);
     m_componentUi.leadingZerosLabel->setEnabled(!textualForm);
-
-    updatePreview();
-}
-
-void ComponentDialog::setAlternativeForm(bool alternativeForm)
-{
-    Q_UNUSED(alternativeForm)
 
     updatePreview();
 }
