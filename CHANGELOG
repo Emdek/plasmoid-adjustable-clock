@@ -3,7 +3,7 @@
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);
 - added animations to Train Clock;
 - added Digital Clock theme;
-- in editor placeholders are now highlighted only on mouse over;
+- improvements in rich text editor;
 - many code cleanups and fixes.
 
 3.2 (10.03.2013):

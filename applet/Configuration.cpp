@@ -151,7 +151,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
-    connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(fixSelection()));
+    connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -159,10 +159,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(selectColor()));
+    connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
-    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(selectFontSize(QString)));
-    connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(selectFontFamily(QFont)));
+    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
+    connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
     connect(m_appearanceUi.componentButton, SIGNAL(clicked()), this, SLOT(insertComponent()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertItem()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteItem()));
@@ -488,12 +488,31 @@ void Configuration::triggerAction()
     m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
 }
 
-void Configuration::fixSelection()
+void Configuration::selectionChanged()
 {
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("fixSelection()");
+
+    QRegExp expression = QRegExp("rgb\\((\\d+), (\\d+), (\\d+)\\)");
+    expression.indexIn(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('color')").toString());
+
+    const QStringList rgb = expression.capturedTexts();
+
+    QPalette palette = m_appearanceUi.colorButton->palette();
+    palette.setBrush(QPalette::Button, QColor(rgb.at(1).toInt(), rgb.at(2).toInt(), rgb.at(3).toInt()));
+
+    m_appearanceUi.colorButton->setPalette(palette);
+
+    disconnect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
+    disconnect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
+
+    m_appearanceUi.fontSizeComboBox->setEditText(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-size')").toString().remove("px"));
+    m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-family')").toString()));
+
+    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
+    connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
 }
 
-void Configuration::selectColor()
+void Configuration::setColor()
 {
     KColorDialog colorDialog;
     colorDialog.setAlphaChannelEnabled(true);
@@ -517,7 +536,7 @@ void Configuration::selectColor()
     }
 }
 
-void Configuration::selectFontSize(const QString &size)
+void Configuration::setFontSize(const QString &size)
 {
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
@@ -529,7 +548,7 @@ void Configuration::selectFontSize(const QString &size)
     }
 }
 
-void Configuration::selectFontFamily(const QFont &font)
+void Configuration::setFontFamily(const QFont &font)
 {
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
@@ -539,35 +558,6 @@ void Configuration::selectFontFamily(const QFont &font)
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('font-family', '\\\'%1\\\'')").arg(font.family()));
     }
-}
-
-void Configuration::setColor(const QString &color)
-{
-    if (color == "false") {
-        return;
-    }
-
-    QRegExp expression = QRegExp("rgb\\((\\d+), (\\d+), (\\d+)\\)");
-    expression.indexIn(color);
-
-    const QStringList rgb = expression.capturedTexts();
-
-    QPalette palette = m_appearanceUi.colorButton->palette();
-    palette.setBrush(QPalette::Button, QColor(rgb.at(1).toInt(), rgb.at(2).toInt(), rgb.at(3).toInt()));
-
-    m_appearanceUi.colorButton->setPalette(palette);
-}
-
-void Configuration::setFontSize(const QString &size)
-{
-    if (!m_appearanceUi.fontSizeComboBox->hasFocus()) {
-        m_appearanceUi.fontSizeComboBox->setEditText(size);
-    }
-}
-
-void Configuration::setFontFamily(const QString &font)
-{
-    m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(font));
 }
 
 void Configuration::setZoom(int zoom)

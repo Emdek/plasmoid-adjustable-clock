@@ -99,7 +99,17 @@ function fixSelection()
 	previousRange = window.getSelection().getRangeAt(0);
 }
 
-function setStyle(attribute, value)
+function getStyle(property)
+{
+	var selection = window.getSelection();
+
+	if (selection.anchorNode)
+	{
+		return window.getComputedStyle(selection.anchorNode.parentNode).getPropertyValue(property);
+	}
+}
+
+function setStyle(property, value)
 {
 	var selection = window.getSelection();
 	var startElement = selection.anchorNode.parentNode;
@@ -107,13 +117,13 @@ function setStyle(attribute, value)
 
 	if (startElement == endElement)
 	{
-		startElement.style.setProperty(attribute, value);
+		startElement.style.setProperty(property, value);
 	}
 	else
 	{
 		var range = selection.getRangeAt(0);
 		var newElement = document.createElement('span');
-		newElement.style.setProperty(attribute, value);
+		newElement.style.setProperty(property, value);
 		newElement.appendChild(range.extractContents());
 
 		if (startElement.className && startElement.className.indexOf('component') >= 0)
