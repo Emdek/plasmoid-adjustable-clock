@@ -57,7 +57,7 @@ class DataSource : public QObject
         static QString formatNumber(int number, int length);
 
     protected slots:
-        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data);
+        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool reload = false);
 
     private:
         Applet *m_applet;

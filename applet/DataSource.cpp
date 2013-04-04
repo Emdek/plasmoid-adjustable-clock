@@ -36,7 +36,7 @@ DataSource::DataSource(Applet *parent) : QObject(parent),
     m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 }
 
-void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
+void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)
 {
     QList<ClockComponent> changes;
 
@@ -95,11 +95,11 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     changes.append(TimeComponent);
     changes.append(DateTimeComponent);
 
-    if (m_dateTime.time().second() == 0) {
-        if (m_dateTime.time().minute() == 0) {
+    if (m_dateTime.time().second() == 0 || reload) {
+        if (m_dateTime.time().minute() == 0 || reload) {
             const int hour = m_dateTime.time().hour();
 
-            if (hour == 0) {
+            if (hour == 0 || reload) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
                         changes.append(YearComponent);
@@ -114,14 +114,14 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
                 m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
-                Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
+                const Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query(QString("%1|Solar").arg(m_applet->currentTimezone()));
 
                 m_sunrise = sunData["Sunrise"].toDateTime().time();
                 m_sunset = sunData["Sunset"].toDateTime().time();
 
                 const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
                 const QString key = QString("holidays:%1:%2").arg(region).arg(getCurrentDateTime().date().toString(Qt::ISODate));
-                Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
+                const Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
 
                 m_holidays.clear();
 
@@ -204,7 +204,7 @@ void DataSource::updateTimeZone()
         }
     }
 
-    dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()));
+    dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
 }
 
 QString DataSource::formatNumber(int number, int length)
