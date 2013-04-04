@@ -52,7 +52,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         }
 
         QHash<QString, QVariant>::const_iterator iterator;
-        QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
+        const QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
 
         for (iterator = data.constBegin(); iterator != data.constEnd(); ++iterator) {
             QVariantHash eventData = iterator.value().toHash();
@@ -126,7 +126,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 m_holidays.clear();
 
                 if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
-                    QVariantList holidays = holidaysData[key].toList();
+                    const QVariantList holidays = holidaysData[key].toList();
 
                     for (int i = 0; i < holidays.length(); ++i) {
                         m_holidays.append(holidays[i].toHash()["Name"].toString());

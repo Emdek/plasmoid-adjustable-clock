@@ -276,7 +276,7 @@ void Configuration::insertComponent(const QString &script, ClockComponent compon
         identifier = QString("%1_%2").arg(type).arg(number);
     }
 
-    const QString html = QString(" <span id=\"%1\">%2</span> ").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
+    const QString html = QString("<span id=\"%1\">%2</span>").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
 
     m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
     m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#%1\", %2);\n").arg(identifier).arg(script));
@@ -286,7 +286,7 @@ void Configuration::insertComponent(const QString &script, ClockComponent compon
 
         sourceChanged();
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, '%1')").arg(html));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, ' %1 ')").arg(html));
     }
 }
 
