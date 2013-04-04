@@ -71,7 +71,7 @@ class Applet : public ClockApplet
         void mousePressEvent(QGraphicsSceneMouseEvent *event);
         void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
         void createClockConfigurationInterface(KConfigDialog *parent);
-        void changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone);
+        void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
         QList<Theme> loadThemes(const QString &path, bool bundled) const;
         QList<QAction*> contextualActions();
 

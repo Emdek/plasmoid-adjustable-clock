@@ -49,7 +49,7 @@ class DataSource : public QObject
     public:
         DataSource(Applet *parent);
 
-        void setTimezone(const QString &timezone);
+        void updateTimeZone();
         QDateTime getCurrentDateTime() const;
         QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
 
@@ -68,10 +68,10 @@ class DataSource : public QObject
         QString m_timeZoneOffset;
         QString m_timeQuery;
         QString m_eventsQuery;
-        QStringList m_timeZones;
-        QStringList m_timeZoneArea;
+        QString m_timeZoneArea;
         QStringList m_holidays;
         QList<Event> m_events;
+        QMap<QString, QString> m_timeZones;
 
     signals:
         void dataChanged(QList<ClockComponent> changes);

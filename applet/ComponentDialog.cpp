@@ -76,7 +76,7 @@ void ComponentDialog::selectComponent(int index)
         m_componentUi.textualFormCheckBox->setChecked(false);
     }
 
-    m_componentUi.shortFormCheckBox->setEnabled(component == SecondComponent || component == MinuteComponent || component == HourComponent || component == DayOfWeekComponent || component == DayOfMonthComponent || component == DayOfYearComponent || component == WeekComponent || component == MonthComponent || component == YearComponent || component == TimeComponent || component == DateComponent || component == TimeZoneNameComponent || component == TimeZonesComponent || component == HolidaysComponent || component == EventsComponent);
+    m_componentUi.shortFormCheckBox->setEnabled(component == SecondComponent || component == MinuteComponent || component == HourComponent || component == DayOfWeekComponent || component == DayOfMonthComponent || component == DayOfYearComponent || component == WeekComponent || component == MonthComponent || component == YearComponent || component == TimeComponent || component == DateComponent || component == HolidaysComponent || component == EventsComponent);
     m_componentUi.hoursModeCheckBox->setEnabled(component == HourComponent);
     m_componentUi.textualFormCheckBox->setEnabled(component == DayOfWeekComponent || component == MonthComponent);
     m_componentUi.possessiveFormCheckBox->setEnabled(component == MonthComponent);

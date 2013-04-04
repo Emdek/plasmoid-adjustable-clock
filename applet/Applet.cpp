@@ -170,11 +170,12 @@ void Applet::clockConfigAccepted()
     emit configNeedsSaving();
 }
 
-void Applet::changeEngineTimezone(const QString &oldTimezone, const QString &newTimezone)
+void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone)
 {
-    Q_UNUSED(oldTimezone)
+    Q_UNUSED(oldTimeZone)
+    Q_UNUSED(newTimeZone)
 
-    m_source->setTimezone(newTimezone);
+    m_source->updateTimeZone();
 
     const Theme theme = getTheme();
 
