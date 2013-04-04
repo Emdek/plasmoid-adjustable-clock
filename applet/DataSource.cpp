@@ -31,6 +31,9 @@ namespace AdjustableClock
 DataSource::DataSource(Applet *parent) : QObject(parent),
     m_applet(parent)
 {
+    m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+
+    m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 }
 
 void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data)
@@ -165,12 +168,6 @@ void DataSource::updateTimeZone()
     m_timeQuery = currentTimeZone;
 
     m_applet->dataEngine("time")->connectSource(m_timeQuery, this, 1000, Plasma::NoAlignment);
-
-    if (m_eventsQuery.isEmpty()) {
-        m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
-
-        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
-    }
 
     QStringList timeZones = m_applet->config().readEntry("timeZones", QStringList());
 
