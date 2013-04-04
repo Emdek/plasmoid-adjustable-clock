@@ -61,8 +61,8 @@ enum ClockComponent
 enum ClockMode
 {
     StandardClock = 0,
-    StaticClock = 2,
-    EditorClock = 3
+    StaticClock = 1,
+    EditorClock = 2
 };
 
 struct Rule

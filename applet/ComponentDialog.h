@@ -45,10 +45,8 @@ class ComponentDialog : public KDialog
 
     protected slots:
         void sendSignal();
-        void updatePreview();
         void selectComponent(int index);
-        void setShortForm(bool shortForm);
-        void setTextualForm(bool textualForm);
+        void updatePreview();
 
     private:
         Clock *m_clock;
