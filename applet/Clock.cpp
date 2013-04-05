@@ -39,7 +39,6 @@ Clock::Clock(DataSource *source, QWebFrame *document, bool live) : QObject(sourc
     m_live(live)
 {
     if (m_live) {
-        connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateClock(QList<ClockComponent>)));
     }
 
@@ -48,6 +47,10 @@ Clock::Clock(DataSource *source, QWebFrame *document, bool live) : QObject(sourc
     for (int i = 0; i < LastComponent; ++i) {
         m_engine.evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
+
+    updateTheme();
+
+    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
 void Clock::updateClock(const QList<ClockComponent> &changes)
@@ -78,7 +81,6 @@ void Clock::updateTheme()
 {
     m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} [component] {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
     m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-    m_document->setHtml(m_document->toHtml());
     m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
 }
 
@@ -97,7 +99,6 @@ void Clock::setTheme(const QString &html, const QString &script)
     }
 
     updateClock(changes);
-    updateTheme();
 }
 
 QString Clock::evaluate(const QString &script)

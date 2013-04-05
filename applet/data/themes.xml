@@ -291,7 +291,7 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 {
 	width: 0;
 	height: 19px;
-	border-color:transparent #000  transparent transparent;
+	border-color:transparent #000 transparent transparent;
 	left: 21px;
 }
 
@@ -455,7 +455,7 @@ function updateTheme()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
 	var rules = document.styleSheets[0].cssRules;
-	
+
 	for (var index in rules)
 	{
 		if (rules[index].style && rules[index].style.getPropertyValue('border-color'))
@@ -464,9 +464,6 @@ function updateTheme()
 		}
 	}
 }
-
-updateClock();
-updateTheme();
 
 document.addEventListener('ClockSecondChanged', updateClock);
 document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
@@ -594,8 +591,6 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 	context.globalAlpha = 0.8;
 	context.stroke();
 }
-
-updateClock();
 
 document.addEventListener('ClockMinuteChanged', updateClock);
 document.addEventListener('ClockThemeChanged', updateClock);]]></script>
@@ -768,8 +763,6 @@ progress::-webkit-progress-value
 		}
 	}
 }
-
-updateClock();
 
 document.addEventListener('ClockSecondChanged', updateClock);
 document.addEventListener('ClockThemeChanged', updateClock);]]></script>
