@@ -89,11 +89,9 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-        Clock clock(m_source, StaticClock);
-        clock.setDocument(page.mainFrame());
+        Clock clock(m_source, page.mainFrame());
+        clock.setTheme(index.data(HtmlRole).toString(), index.data(ScriptRole).toString());
 
-        page.mainFrame()->setHtml(index.data(HtmlRole).toString());
-        page.mainFrame()->evaluateJavaScript(index.data(ScriptRole).toString());
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 

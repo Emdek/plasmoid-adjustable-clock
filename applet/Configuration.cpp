@@ -40,7 +40,7 @@ namespace AdjustableClock
 
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
-    m_clock(new Clock(applet->getDataSource(), EditorClock)),
+    m_clock(NULL),
     m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL)
 {
@@ -49,6 +49,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
+
+    m_clock = new Clock(applet->getDataSource(), m_appearanceUi.webView->page()->mainFrame());
 
     const QList<Theme> themes = m_applet->getThemes();
 
@@ -264,22 +266,11 @@ void Configuration::insertComponent()
     connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
 }
 
-void Configuration::insertComponent(const QString &script, ClockComponent component)
+void Configuration::insertComponent(const QString &component, const QString &options)
 {
-    const QString type = Clock::getComponentString(component).toLower();
-    QString identifier = type;
-    int number = 1;
-
-    while (m_appearanceUi.webView->page()->mainFrame()->findAllElements(QString("#%1").arg(identifier)).count() > 0) {
-        ++number;
-
-        identifier = QString("%1_%2").arg(type).arg(number);
-    }
-
-    const QString html = QString("<span id=\"%1\">%2</span>").arg(identifier).arg(m_clock->evaluate(QString("Clock.toString(%1)").arg(script)));
-
-    m_appearanceUi.scriptTextEdit->moveCursor(QTextCursor::Start);
-    m_appearanceUi.scriptTextEdit->insertPlainText(QString("Clock.setRule(\"#%1\", %2);\n").arg(identifier).arg(script));
+    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
+    const QString value = m_clock->evaluate(options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, %2)").arg(component).arg(options));
+    const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         m_appearanceUi.htmlTextEdit->insertPlainText(html);
@@ -609,9 +600,11 @@ void Configuration::richTextChanged()
     QWebPage page;
     page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml());
 
-    const QWebElementCollection elements = page.mainFrame()->findAllElements(".component");
+    const QWebElementCollection elements = page.mainFrame()->findAllElements("[component]");
 
     for (int i = 0; i < elements.count(); ++i) {
+        elements.at(i).removeAttribute("title");
+
         if (!elements.at(i).firstChild().isNull()) {
             QWebElement element = elements.at(i).firstChild();
             QStringList styles;
@@ -634,11 +627,6 @@ void Configuration::richTextChanged()
 
             elements.at(i).setAttribute("style", styles.join(QString()));
         }
-
-        elements.at(i).setInnerXml(elements.at(i).attribute("value"));
-        elements.at(i).removeAttribute("title");
-        elements.at(i).removeAttribute("value");
-        elements.at(i).removeClass("component");
     }
 
     Theme theme;
@@ -663,14 +651,16 @@ void Configuration::sourceChanged()
 
     disableUpdates();
 
-    m_clock->setDocument(m_appearanceUi.webView->page()->mainFrame());
-
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    m_appearanceUi.webView->page()->mainFrame()->setHtml(theme.html);
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(theme.script);
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
+    m_clock->setTheme(theme.html, QString("%1\n%2").arg(theme.script).arg(QString(file.readAll())));
+
+    const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
+
+    for (int i = 0; i < elements.count(); ++i) {
+        elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
+    }
 
     enableUpdates();
     updateTheme(theme);

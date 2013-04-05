@@ -45,7 +45,7 @@ namespace AdjustableClock
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_source(new DataSource(this)),
-    m_clock(new Clock(m_source)),
+    m_clock(NULL),
     m_clipboardAction(NULL),
     m_theme(-1)
 {
@@ -60,6 +60,10 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 
 void Applet::init()
 {
+    if (!m_clock) {
+        m_clock = new Clock(m_source, m_page.mainFrame(), true);
+    }
+
     ClockApplet::init();
 
     QPalette palette = m_page.palette();
@@ -68,8 +72,6 @@ void Applet::init()
     m_page.setPalette(palette);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-
-    m_clock->setDocument(m_page.mainFrame());
 
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
@@ -179,8 +181,7 @@ void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &new
 
     const Theme theme = getTheme();
 
-    m_page.mainFrame()->setHtml(theme.html);
-    m_page.mainFrame()->evaluateJavaScript(theme.script);
+    m_clock->setTheme(theme.html, theme.script);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();

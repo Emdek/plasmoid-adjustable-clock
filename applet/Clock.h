@@ -58,21 +58,6 @@ enum ClockComponent
     LastComponent = 22
 };
 
-enum ClockMode
-{
-    StandardClock = 0,
-    StaticClock = 1,
-    EditorClock = 2
-};
-
-struct Rule
-{
-    QString query;
-    QString attribute;
-    ClockComponent component;
-    QVariantMap options;
-};
-
 class DataSource;
 
 class Clock : public QObject
@@ -80,24 +65,15 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(DataSource *parent, ClockMode mode = StandardClock);
+        Clock(DataSource *source, QWebFrame *document, bool live = false);
 
-        void setDocument(QWebFrame *document);
-        Q_INVOKABLE void setRule(const QString &query, const QString &attribute, int component, const QVariantMap &options = QVariantMap());
-        Q_INVOKABLE void setRule(const QString &query, int component, const QVariantMap &options = QVariantMap());
-        Q_INVOKABLE void setValue(const QString &query, const QString &attribute, const QString &value);
-        Q_INVOKABLE void setValue(const QString &query, const QString &value);
+        void setTheme(const QString &html, const QString &script);
         QString evaluate(const QString &script);
         Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
         static QString getComponentName(ClockComponent component);
         static QString getComponentString(ClockComponent component);
 
-    protected:
-        void applyRule(const Rule &rule);
-        void setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value);
-
     protected slots:
-        void exposeClock();
         void updateClock(const QList<ClockComponent> &changes);
         void updateTheme();
 
@@ -105,8 +81,7 @@ class Clock : public QObject
         DataSource *m_source;
         QWebFrame *m_document;
         QScriptEngine m_engine;
-        QHash<ClockComponent, QList<Rule> > m_rules;
-        ClockMode m_mode;
+        bool m_live;
 };
 
 }

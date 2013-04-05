@@ -49,21 +49,15 @@ ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent
 
 void ComponentDialog::sendSignal()
 {
-    const QString scriptComponent = Clock::getComponentString(getComponent());
-    QStringList scriptOptions;
     const QVariantMap options = getOptions();
-
+    QStringList scriptOptions;
     QVariantMap::const_iterator iterator;
 
     for (iterator = options.constBegin(); iterator != options.constEnd(); ++iterator) {
         scriptOptions.append(QString("'%1': %2").arg(iterator.key()).arg(iterator.value().toString()));
     }
 
-    if (scriptOptions.isEmpty()) {
-        emit insertComponent(QString("Clock.").append(scriptComponent), getComponent());
-    } else {
-        emit insertComponent(QString("Clock.%1, {%2}").arg(scriptComponent).arg(scriptOptions.join(QString(", "))), getComponent());
-    }
+    emit insertComponent(Clock::getComponentString(getComponent()), (scriptOptions.isEmpty() ? QString() : scriptOptions.join(QString(", "))));
 }
 
 void ComponentDialog::selectComponent(int index)

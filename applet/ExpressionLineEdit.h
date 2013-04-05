@@ -41,7 +41,7 @@ class ExpressionLineEdit : public KLineEdit
 
     protected slots:
         void insertComponent();
-        void insertComponent(const QString &script);
+        void insertComponent(const QString &component, const QString &options);
         void updateToolTip(const QString &expression);
         void extendContextMenu(QMenu *menu);
 

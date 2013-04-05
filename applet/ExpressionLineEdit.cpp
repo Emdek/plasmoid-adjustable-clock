@@ -40,9 +40,9 @@ void ExpressionLineEdit::insertComponent()
     }
 }
 
-void ExpressionLineEdit::insertComponent(const QString &script)
+void ExpressionLineEdit::insertComponent(const QString &component, const QString &options)
 {
-    insert(QString("Clock.toString(%1)").arg(script));
+    insert(options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options));
 }
 
 void ExpressionLineEdit::updateToolTip(const QString &expression)

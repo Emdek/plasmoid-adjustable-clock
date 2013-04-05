@@ -115,7 +115,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
                 const KTimeZone timeZone = KSystemTimeZones::zone(m_applet->isLocalTimezone() ? KSystemTimeZones::local().name() : m_applet->currentTimezone());
-                const Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query((timeZone.longitude() == KTimeZone::UNKNOWN) ? QString("%1|Solar").arg(m_applet->currentTimezone()) : QString("%1|Solar|Latitude=%2|Longitude=%3").arg(m_applet->currentTimezone()).arg(timeZone.latitude()).arg(timeZone.longitude()));
+                const Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query((timeZone.latitude() == KTimeZone::UNKNOWN) ? QString("%1|Solar").arg(m_applet->currentTimezone()) : QString("%1|Solar|Latitude=%2|Longitude=%3").arg(m_applet->currentTimezone()).arg(timeZone.latitude()).arg(timeZone.longitude()));
 
                 m_sunrise = sunData["Sunrise"].toDateTime().time();
                 m_sunset = sunData["Sunset"].toDateTime().time();

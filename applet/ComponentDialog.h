@@ -53,7 +53,7 @@ class ComponentDialog : public KDialog
         Ui::component m_componentUi;
 
     signals:
-        void insertComponent(QString script, ClockComponent component);
+        void insertComponent(QString component, QString options);
 };
 
 }

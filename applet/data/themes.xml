@@ -10,17 +10,11 @@
 <html>
 <body>
 <div style="text-align: center;">
-	<big><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></big><br>
-	<small><span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></small>
+	<big><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></big><br>
+	<small><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></small>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', Clock.Second);
-Clock.setRule('#day', Clock.DayOfMonth);
-Clock.setRule('#month', Clock.Month);
-Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 	<theme>
 		<id>simple</id>
@@ -31,11 +25,9 @@ Clock.setRule('#year', Clock.Year);]]></script>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <body>
-<div style="text-align: center; font-size: 25px;"><span id="hour">12</span>:<span id="minute">30</span></div>
+<div style="text-align: center;"><span component="Hour">12</span>:<span component="Minute">30</span></div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
-Clock.setRule('#minute', Clock.Minute);]]></script>
 	</theme>
 	<theme>
 		<id>verbose</id>
@@ -47,18 +39,11 @@ Clock.setRule('#minute', Clock.Minute);]]></script>
 <html>
 <body>
 <div style="text-align: center; opacity: 0.85;">
-	<span style="font-size: 30px;"><span id="hour">12</span>:<span id="minute">30</span>:<span id="second">15</span></span><br>
-	<span style="font-size: 12px;"><span id="dayofweek">Saturday</span>, <span id="day">01</span>.<span id="month">01</span>.<span id="year">2000</span></span>
+	<span style="font-size: 30px;"><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></span><br>
+	<span style="font-size: 12px;"><span component="DayOfWeek" options="'text': true">Saturday</span>, <span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></span>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', Clock.Second);
-Clock.setRule('#dayofweek', Clock.DayOfWeek, {'text': true});
-Clock.setRule('#day', Clock.DayOfMonth);
-Clock.setRule('#month', Clock.Month);
-Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 	<theme>
 		<id>trainclock</id>
@@ -199,7 +184,7 @@ Clock.setRule('#year', Clock.Year);]]></script>
 			<div><div id="c_3_2">0</div></div>
 		</div>
 	</div>
-	<div class="date"><span id="day">1</span> <span id="month">of January</span></div>
+	<div class="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': false">of January</span></div>
 </div>
 </body>
 </html>]]></html>
@@ -261,9 +246,6 @@ for (var i = 0; i < values.length; ++i)
 	document.getElementById('c_' + i + '_1').innerHTML = values[i];
 	document.getElementById('c_' + i + '_2').innerHTML = values[i];
 }
-
-Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
-Clock.setRule('#month', Clock.Month, {'text': true, 'possessive': false});
 
 document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</theme>
@@ -526,13 +508,10 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 </head>
 <body>
 <div class="clock">
-	<div><span id="hour">12</span>:<span id="minute">30</span><span id="second">15</span></div>
+	<div><span component="Hour">12</span>:<span component="Minute">30</span><span id="second" component="Second">15</span></div>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', Clock.Second);]]></script>
 	</theme>
 	<theme>
 		<id>beclock</id>
@@ -587,10 +566,10 @@ Clock.setRule('#second', Clock.Second);]]></script>
 <body>
 <div class="clock">
 	<canvas id="canvas" width="200" height="200"></canvas>
-	<div id="timeofday" class="back"></div>
+	<div class="back" component="TimeOfDay"></div>
 	<div class="front">
-		<span id="hour">12</span>:<span id="minute">30</span>
-		<div><span id="year">2000</span>-<span id="month">01</span>-<span id="day">01</span></div>
+		<span component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
+		<div><span component="Year">2000</span>-<span component="Month">01</span>-<span component="DayOfMonth">01</span></div>
 	</div>
 </div>
 </body>
@@ -617,14 +596,6 @@ Clock.setRule('#second', Clock.Second);]]></script>
 }
 
 updateClock();
-
-Clock.setRule('#hour', Clock.Hour, {'alternative': true});
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', Clock.Second);
-Clock.setRule('#day', Clock.DayOfMonth);
-Clock.setRule('#month', Clock.Month);
-Clock.setRule('#year', Clock.Year);
-Clock.setRule("#timeofday", Clock.TimeOfDay);
 
 document.addEventListener('ClockMinuteChanged', updateClock);
 document.addEventListener('ClockThemeChanged', updateClock);]]></script>
@@ -701,17 +672,13 @@ progress::-webkit-progress-value
 <body>
 <div class="clock">
 	<div>
-		<span id="minute">30</span><br>
-		<progress id="second" value="15" max="59">
+		<span id="minute" component="Minute">30</span><br>
+		<progress value="15" max="59" component="Second" attribute="value" options="'short': true">
 	</div>
-	<p id="hour">12</p>
+	<p component="hour" options="'short': true">12</p>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour, {'short': true});
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', 'value', Clock.Second, {'short': true});
-]]></script>
 	</theme>
 	<theme>
 		<id>binary</id>
@@ -871,19 +838,14 @@ document.addEventListener('ClockThemeChanged', updateClock);]]></script>
 		<div></div>
 	</div>
 	<div class="calendar">
-		<span id="dayofweek">Saturday</span><br>
-		<span style="font-size: 130px; line-height: 160px;" id="day">1</span><br>
-		<span style="white-space: nowrap;"><span id="month">January</span> <span id="year">2000</span></span><br>
-		<span id="holiday">New Year</span>
+		<span component="DayOfWeek" options="'text': true">Saturday</span><br>
+		<span style="font-size: 130px; line-height: 160px;" component="DayOfMonth" options="'short': true">1</span><br>
+		<span style="white-space: nowrap;"><span component="Month" options="'text': true, 'possessive': false">January</span> <span component="Year">2000</span></span><br>
+		<span component="Holidays" options="'short': true">New Year</span>
 	</div>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
-Clock.setRule('#dayofweek', Clock.DayOfWeek, {'text': true});
-Clock.setRule('#month', Clock.Month, {'text': true, 'possessive': false});
-Clock.setRule('#year', Clock.Year);
-Clock.setRule('#holiday', Clock.Holidays, {'short': true});]]></script>
 	</theme>
 	<theme>
 		<id>vertical</id>
@@ -893,26 +855,15 @@ Clock.setRule('#holiday', Clock.Holidays, {'short': true});]]></script>
 		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<head>
-<style type="text/css">
-</style>
-</head>
 <body>
 <div style="margin: 5px; text-align: center;">
-	<big><b><span id="hour">12</span>:<span id="minute">30</span></b></big><br>
-	<span id="second">15</span><br>
-	<small id="dayofweek">Sat</small><br>
-	<small><span id="day">1</span>.<span id="month"></span>.</small><br>
-	<small id="year">2000</small>
+	<big><b><span component="Hour">12</span>:<span component="Minute">30</span></b></big><br>
+	<span component="Second">15</span><br>
+	<small component="DayOfWeek" options="'short': true, 'text': true">Sat</small><br>
+	<small><span component="DayOfMonth" options="'short': true">1</span>.<span component="Month" options="'short': true"></span>.</small><br>
+	<small component="Year">2000</small>
 </div>
 </body>
 </html>]]></html>
-		<script><![CDATA[Clock.setRule('#hour', Clock.Hour);
-Clock.setRule('#minute', Clock.Minute);
-Clock.setRule('#second', Clock.Second);
-Clock.setRule('#dayofweek', Clock.DayOfWeek, {'short': true, 'text': true});
-Clock.setRule('#day', Clock.DayOfMonth, {'short': true});
-Clock.setRule('#month', Clock.Month, {'short': true});
-Clock.setRule('#year', Clock.Year);]]></script>
 	</theme>
 </themes>

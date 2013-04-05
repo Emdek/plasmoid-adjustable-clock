@@ -33,12 +33,12 @@
 namespace AdjustableClock
 {
 
-Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
-    m_source(parent),
-    m_document(NULL),
-    m_mode(mode)
+Clock::Clock(DataSource *source, QWebFrame *document, bool live) : QObject(source),
+    m_source(source),
+    m_document(document),
+    m_live(live)
 {
-    if (m_mode == StandardClock) {
+    if (m_live) {
         connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
         connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateClock(QList<ClockComponent>)));
     }
@@ -50,27 +50,25 @@ Clock::Clock(DataSource *parent, ClockMode mode) : QObject(parent),
     }
 }
 
-void Clock::exposeClock()
-{
-    if (m_document) {
-        m_document->addToJavaScriptWindowObject("Clock", this);
-
-        for (int i = 0; i < LastComponent; ++i) {
-            m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-        }
-    }
-}
-
 void Clock::updateClock(const QList<ClockComponent> &changes)
 {
-    for (int i = 0; i < changes.count(); ++i) {
-        if (m_document) {
-            m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(getComponentString(changes.at(i))));
-        }
+    const QDateTime dateTime = (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
 
-        if (m_rules.contains(changes.at(i))) {
-            for (int j = 0; j < m_rules[changes.at(i)].count(); ++j) {
-                applyRule(m_rules[changes.at(i)].at(j));
+    for (int i = 0; i < changes.count(); ++i) {
+        const QString component = getComponentString(changes.at(i));
+
+        m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(component));
+
+        const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(component));
+
+        for (int j = 0; j < elements.count(); ++j) {
+            const QVariantMap options = (elements.at(j).hasAttribute("options") ? m_engine.evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
+            const QString value = m_source->toString(changes.at(i), options, dateTime);
+
+            if (elements.at(j).hasAttribute("attribute")) {
+                elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
+            } else {
+                elements.at(j).setInnerXml(value);
             }
         }
     }
@@ -78,104 +76,28 @@ void Clock::updateClock(const QList<ClockComponent> &changes)
 
 void Clock::updateTheme()
 {
-    if (m_document) {
-        m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} .component {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} .component:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
-        m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-        m_document->setHtml(m_document->toHtml());
-        m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
-    }
+    m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} [component] {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
+    m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
+    m_document->setHtml(m_document->toHtml());
+    m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
 }
 
-void Clock::applyRule(const Rule &rule)
+void Clock::setTheme(const QString &html, const QString &script)
 {
-    if (m_document) {
-        setValue(m_document->findAllElements(rule.query), rule.attribute, toString(rule.component, rule.options));
+    m_document->setHtml(html);
+    m_document->addToJavaScriptWindowObject("Clock", this);
+    m_document->evaluateJavaScript(script);
+
+    QList<ClockComponent> changes;
+
+    for (int i = 0; i < LastComponent; ++i) {
+        m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+
+        changes.append(static_cast<ClockComponent>(i));
     }
-}
 
-void Clock::setDocument(QWebFrame *document)
-{
-    m_rules.clear();
-
-    m_document = document;
-
-    exposeClock();
+    updateClock(changes);
     updateTheme();
-
-    connect(m_document, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(exposeClock()));
-}
-
-void Clock::setRule(const QString &query, const QString &attribute, int component, const QVariantMap &options)
-{
-    const ClockComponent nativeComponent  = static_cast<ClockComponent>(component);
-
-    if (m_mode == EditorClock && attribute.isEmpty() && m_document) {
-        const QWebElementCollection elements = m_document->findAllElements(query);
-
-        for (int i = 0; i < elements.count(); ++i) {
-            const QString value = m_source->toString(nativeComponent, options, QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
-            elements.at(i).setInnerXml(value);
-            elements.at(i).setAttribute("value", value);
-            elements.at(i).setAttribute("title", getComponentName(nativeComponent));
-            elements.at(i).addClass("component");
-        }
-
-        return;
-    }
-
-    Rule rule;
-    rule.query = query;
-    rule.attribute = attribute;
-    rule.component = nativeComponent;
-    rule.options = options;
-
-    if (m_mode == StandardClock) {
-        if (!m_rules.contains(nativeComponent)) {
-            m_rules[nativeComponent] = QList<Rule>();
-        }
-
-        m_rules[nativeComponent].append(rule);
-    }
-
-    applyRule(rule);
-}
-
-void Clock::setRule(const QString &query, int component, const QVariantMap &options)
-{
-    setRule(query, QString(), component, options);
-}
-
-void Clock::setValue(const QString &query, const QString &attribute, const QString &value)
-{
-    if (!m_document) {
-        return;
-    }
-
-    const QWebElementCollection elements = m_document->findAllElements(query);
-
-    for (int i = 0; i < elements.count(); ++i) {
-        if (attribute.isEmpty()) {
-            elements.at(i).setInnerXml(value);
-        } else {
-            elements.at(i).setAttribute(attribute, value);
-        }
-    }
-}
-
-void Clock::setValue(const QString &query, const QString &value)
-{
-    setValue(query, QString(), value);
-}
-
-void Clock::setValue(const QWebElementCollection &elements, const QString &attribute, const QString &value)
-{
-    for (int i = 0; i < elements.count(); ++i) {
-        if (attribute.isEmpty()) {
-            elements.at(i).setInnerXml(value);
-        } else {
-            elements.at(i).setAttribute(attribute, value);
-        }
-    }
 }
 
 QString Clock::evaluate(const QString &script)
@@ -185,7 +107,7 @@ QString Clock::evaluate(const QString &script)
 
 QString Clock::toString(int component, const QVariantMap &options) const
 {
-    return m_source->toString(static_cast<ClockComponent>(component), options, ((m_mode == StandardClock) ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->toString(static_cast<ClockComponent>(component), options, (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
 }
 
 QString Clock::getComponentString(ClockComponent component)

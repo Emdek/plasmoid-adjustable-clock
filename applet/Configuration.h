@@ -67,7 +67,7 @@ class Configuration : public QObject
         void enableUpdates();
         void disableUpdates();
         void insertComponent();
-        void insertComponent(const QString &script, ClockComponent component);
+        void insertComponent(const QString &component, const QString &options);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
         void deleteTheme();
