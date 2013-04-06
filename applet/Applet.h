@@ -56,7 +56,6 @@ class Applet : public ClockApplet
 
         void init();
         Clock* getClock() const;
-        DataSource* getDataSource() const;
         Theme getTheme() const;
         QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;

@@ -289,11 +289,6 @@ Clock* Applet::getClock() const
     return m_clock;
 }
 
-DataSource* Applet::getDataSource() const
-{
-    return m_source;
-}
-
 Theme Applet::getTheme() const
 {
     if (m_theme >= 0 && m_theme < m_themes.count()) {

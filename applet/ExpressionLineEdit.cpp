@@ -36,7 +36,7 @@ ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
 void ExpressionLineEdit::insertComponent()
 {
     if (m_clock) {
-        connect(new ComponentDialog(m_clock, this), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString)));
+        connect(new ComponentDialog(m_clock->getDataSource(), this), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString)));
     }
 }
 
@@ -48,7 +48,7 @@ void ExpressionLineEdit::insertComponent(const QString &component, const QString
 void ExpressionLineEdit::updateToolTip(const QString &expression)
 {
     if (!expression.isEmpty()) {
-        setToolTip(m_clock->evaluate(expression));
+        setToolTip(m_clock->evaluate(expression, true));
     }
 }
 

@@ -33,24 +33,41 @@
 namespace AdjustableClock
 {
 
+ClockObject::ClockObject(DataSource *source, bool constant) : QObject(source),
+    m_source(source),
+    m_constant(constant)
+{
+}
+
+QString ClockObject::toString(int component, const QVariantMap &options) const
+{
+    return m_source->toString(static_cast<ClockComponent>(component), options, m_constant);
+}
+
 Clock::Clock(DataSource *source, QWebFrame *document, bool constant) : QObject(source),
     m_source(source),
     m_document(document),
+    m_clock(new ClockObject(source, false)),
+    m_constantClock(new ClockObject(source, true)),
     m_constant(constant)
 {
     if (!m_constant) {
         connect(m_source, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     }
 
-    m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
-
-    for (int i = 0; i < LastComponent; ++i) {
-        m_engine.evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-    }
-
+    setupEngine(&m_engine, m_clock);
     updateTheme();
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
+}
+
+void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
+{
+    engine->globalObject().setProperty("Clock", engine->newQObject(clock), QScriptValue::Undeletable);
+
+    for (int i = 0; i < LastComponent; ++i) {
+        engine->evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+    }
 }
 
 void Clock::updateComponent(ClockComponent component)
@@ -82,7 +99,7 @@ void Clock::updateTheme()
 void Clock::setTheme(const QString &html, const QString &script)
 {
     m_document->setHtml(html);
-    m_document->addToJavaScriptWindowObject("Clock", this);
+    m_document->addToJavaScriptWindowObject("Clock", (m_constant ? m_constantClock : m_clock));
 
     for (int i = 0; i < LastComponent; ++i) {
         m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
@@ -95,14 +112,22 @@ void Clock::setTheme(const QString &html, const QString &script)
     }
 }
 
-QString Clock::evaluate(const QString &script)
+DataSource* Clock::getDataSource() const
 {
-    return m_engine.evaluate(script).toString();
+    return m_source;
 }
 
-QString Clock::toString(int component, const QVariantMap &options) const
+QString Clock::evaluate(const QString &script, bool constant)
 {
-    return m_source->toString(static_cast<ClockComponent>(component), options, m_constant);
+    if (constant) {
+        QScriptEngine engine;
+
+        setupEngine(&engine, m_constantClock);
+
+        return engine.evaluate(script).toString();
+    }
+
+    return m_engine.evaluate(script).toString();
 }
 
 QString Clock::getComponentName(ClockComponent component)

@@ -50,7 +50,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
 
-    m_clock = new Clock(applet->getDataSource(), m_appearanceUi.webView->page()->mainFrame());
+    m_clock = new Clock(applet->getClock()->getDataSource(), m_appearanceUi.webView->page()->mainFrame());
 
     const QList<Theme> themes = m_applet->getThemes();
 
@@ -69,7 +69,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getDataSource(), m_appearanceUi.themesView);
+    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock()->getDataSource(), m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
@@ -126,7 +126,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         QListWidgetItem *item = new QListWidgetItem(clipboardExpressions.at(i));
 
         if (!clipboardExpressions.at(i).isEmpty()) {
-            item->setToolTip(m_clock->evaluate(clipboardExpressions.at(i)));
+            item->setToolTip(m_clock->evaluate(clipboardExpressions.at(i), true));
         }
 
         m_clipboardUi.clipboardActionsList->addItem(item);
@@ -263,13 +263,13 @@ void Configuration::disableUpdates()
 
 void Configuration::insertComponent()
 {
-    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
+    connect(new ComponentDialog(m_applet->getClock()->getDataSource(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
 }
 
 void Configuration::insertComponent(const QString &component, const QString &options)
 {
     const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
-    const QString value = m_clock->evaluate(options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, %2)").arg(component).arg(options));
+    const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, %2)").arg(component).arg(options)), true);
     const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
@@ -754,7 +754,7 @@ void Configuration::moveItemDown()
 void Configuration::updateItem(QListWidgetItem *item)
 {
     if (item) {
-        item->setToolTip(m_clock->evaluate(item->text()));
+        item->setToolTip(m_clock->evaluate(item->text(), true));
     }
 }
 

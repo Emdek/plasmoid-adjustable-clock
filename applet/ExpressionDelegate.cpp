@@ -19,8 +19,8 @@
 ***********************************************************************************/
 
 #include "ExpressionDelegate.h"
-#include "Clock.h"
 #include "ExpressionLineEdit.h"
+#include "Clock.h"
 
 namespace AdjustableClock
 {
@@ -64,7 +64,7 @@ QString ExpressionDelegate::displayText(const QVariant &value, const QLocale &lo
 {
     Q_UNUSED(locale)
 
-    return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString()));
+    return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString(), true));
 }
 
 QSize ExpressionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

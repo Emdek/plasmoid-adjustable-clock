@@ -21,6 +21,8 @@
 #ifndef ADJUSTABLECLOCKCLOCK_HEADER
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
+#include "DataSource.h"
+
 #include <QtCore/QObject>
 #include <QtScript/QScriptEngine>
 #include <QtWebKit/QWebElementCollection>
@@ -31,34 +33,19 @@
 namespace AdjustableClock
 {
 
-enum ClockComponent
+class ClockObject : public QObject
 {
-    SecondComponent = 0,
-    MinuteComponent = 1,
-    HourComponent = 2,
-    TimeOfDayComponent = 3,
-    DayOfWeekComponent = 4,
-    DayOfMonthComponent = 5,
-    DayOfYearComponent = 6,
-    WeekComponent = 7,
-    MonthComponent = 8,
-    YearComponent = 9,
-    TimestampComponent = 10,
-    TimeComponent = 11,
-    DateComponent = 12,
-    DateTimeComponent = 13,
-    TimeZoneNameComponent = 14,
-    TimeZoneAbbreviationComponent = 15,
-    TimeZoneOffsetComponent = 16,
-    TimeZonesComponent = 17,
-    EventsComponent = 18,
-    HolidaysComponent = 19,
-    SunriseComponent = 20,
-    SunsetComponent = 21,
-    LastComponent = 22
-};
+    Q_OBJECT
 
-class DataSource;
+    public:
+        ClockObject(DataSource *source, bool constant);
+
+        Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
+
+    private:
+        DataSource *m_source;
+        bool m_constant;
+};
 
 class Clock : public QObject
 {
@@ -68,10 +55,13 @@ class Clock : public QObject
         Clock(DataSource *source, QWebFrame *document, bool constant = true);
 
         void setTheme(const QString &html, const QString &script);
-        QString evaluate(const QString &script);
-        Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
+        DataSource* getDataSource() const;
+        QString evaluate(const QString &script, bool constant = false);
         static QString getComponentName(ClockComponent component);
         static QLatin1String getComponentString(ClockComponent component);
+
+    protected:
+        void setupEngine(QScriptEngine *engine, ClockObject *clock);
 
     protected slots:
         void updateComponent(ClockComponent component);
@@ -80,6 +70,8 @@ class Clock : public QObject
     private:
         DataSource *m_source;
         QWebFrame *m_document;
+        ClockObject *m_clock;
+        ClockObject *m_constantClock;
         QScriptEngine m_engine;
         bool m_constant;
 };
