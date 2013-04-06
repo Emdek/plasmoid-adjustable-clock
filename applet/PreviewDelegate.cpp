@@ -63,7 +63,6 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         pixmap.fill(Qt::transparent);
 
         QSizeF size(180, 90);
-
         QPainter pixmapPainter(&pixmap);
         pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
 
@@ -88,12 +87,11 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         QWebPage page;
         page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
         page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+        page.setViewportSize(QSize(0, 0));
+        page.mainFrame()->setZoomFactor(1);
 
         Clock clock(m_source, page.mainFrame());
         clock.setTheme(index.data(HtmlRole).toString(), index.data(ScriptRole).toString());
-
-        page.setViewportSize(QSize(0, 0));
-        page.mainFrame()->setZoomFactor(1);
 
         const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
         const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());
