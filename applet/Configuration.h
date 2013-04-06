@@ -56,7 +56,7 @@ class Configuration : public QObject
         bool eventFilter(QObject *object, QEvent *event);
 
     protected:
-        int findRow(const QString &text, int role = TitleRole);
+        int findRow(const QString &text, int role = TitleRole) const;
 
     protected slots:
         void save();

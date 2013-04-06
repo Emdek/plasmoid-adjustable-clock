@@ -328,12 +328,6 @@ void Configuration::newTheme(bool automatically)
         return;
     }
 
-    if (title.startsWith(QChar('%')) && title.endsWith(QChar('%'))) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid theme name."));
-
-        return;
-    }
-
     if (title.isEmpty()) {
         return;
     }
@@ -757,7 +751,7 @@ void Configuration::updateItem(QListWidgetItem *item)
     }
 }
 
-int Configuration::findRow(const QString &text, int role)
+int Configuration::findRow(const QString &text, int role) const
 {
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
         if (m_themesModel->index(i, 0).data(role).toString() == text) {
@@ -771,7 +765,7 @@ int Configuration::findRow(const QString &text, int role)
 bool Configuration::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_appearanceUi.themesView && event->type() == QEvent::Paint && !m_appearanceUi.themesView->currentIndex().isValid()) {
-        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "%default%"), IdRole), 0), 0));
+        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "default"), IdRole), 0), 0));
     } else if (event->type() == QEvent::MouseButtonDblClick && object == m_appearanceUi.themesView->viewport()) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 

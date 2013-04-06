@@ -135,7 +135,7 @@ void Applet::clockConfigChanged()
 
     if (m_themes.isEmpty()) {
         Theme theme;
-        theme.id = "%default%";
+        theme.id = "default";
         theme.title = i18n("Error");
         theme.html = i18n("Missing or invalid data file: %1.").arg(path);
         theme.background = true;
@@ -145,7 +145,7 @@ void Applet::clockConfigChanged()
 
         m_themes.append(theme);
     } else {
-        const QString id = config().readEntry("theme", "%default%");
+        const QString id = config().readEntry("theme", "default");
 
         m_theme = -1;
 
@@ -292,7 +292,7 @@ Theme Applet::getTheme() const
     }
 
     Theme theme;
-    theme.id = "%default%";
+    theme.id = "default";
     theme.title = i18n("Error");
     theme.html = i18n("Invalid theme identifier.");
     theme.background = true;
@@ -356,11 +356,7 @@ QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
         }
 
         if (reader.name().toString() == "id") {
-            if (bundled) {
-                theme.id = QString("%%1%").arg(reader.readElementText());
-            } else {
-                theme.id = reader.readElementText();
-           }
+            theme.id = reader.readElementText();
         }
 
         if (reader.name().toString() == "title") {
