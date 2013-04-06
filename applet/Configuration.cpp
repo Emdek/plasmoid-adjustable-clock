@@ -103,12 +103,12 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->page()->action(QWebPage::AlignCenter)->setIcon(KIcon("format-justify-center"));
     m_appearanceUi.webView->page()->action(QWebPage::AlignRight)->setText(i18n("Justify Right"));
     m_appearanceUi.webView->page()->action(QWebPage::AlignRight)->setIcon(KIcon("format-justify-right"));
-    m_appearanceUi.boldButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleBold));
-    m_appearanceUi.italicButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic));
-    m_appearanceUi.underlineButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline));
-    m_appearanceUi.justifyLeftButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignLeft));
-    m_appearanceUi.justifyCenterButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignCenter));
-    m_appearanceUi.justifyRightButton->setDefaultAction(m_appearanceUi.webView->page()->action(QWebPage::AlignRight));
+    m_appearanceUi.boldButton->setIcon(KIcon("format-text-bold"));
+    m_appearanceUi.italicButton->setIcon(KIcon("format-text-italic"));
+    m_appearanceUi.underlineButton->setIcon(KIcon("format-text-underline"));
+    m_appearanceUi.justifyLeftButton->setIcon(KIcon("format-justify-left"));
+    m_appearanceUi.justifyCenterButton->setIcon(KIcon("format-justify-center"));
+    m_appearanceUi.justifyRightButton->setIcon(KIcon("format-justify-right"));
     m_appearanceUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_appearanceUi.componentButton->setIcon(KIcon("chronometer"));
 
@@ -144,7 +144,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
-    connect(parent, SIGNAL(finished()), this, SLOT(disableUpdates()));
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor()));
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
@@ -387,11 +386,7 @@ void Configuration::updateEditor(int tab)
 
 void Configuration::triggerAction()
 {
-    if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
-        return;
-    }
-
-    QString actionName = sender()->objectName().remove("Button").toLower();
+    const QString actionName = sender()->objectName().remove("Button");
     QHash<QString, QWebPage::WebAction> actions;
     actions["bold"] = QWebPage::ToggleBold;
     actions["italic"] = QWebPage::ToggleItalic;
@@ -403,6 +398,14 @@ void Configuration::triggerAction()
     if (!actions.contains(actionName)) {
         return;
     }
+
+    if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
+        m_appearanceUi.webView->page()->triggerAction(actions[actionName]);
+
+        return;
+    }
+
+    qobject_cast<QAbstractButton*>(sender())->setChecked(false);
 
     QString html;
 
@@ -460,6 +463,10 @@ void Configuration::selectionChanged()
 
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
+
+    m_appearanceUi.boldButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleBold)->isChecked());
+    m_appearanceUi.italicButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic)->isChecked());
+    m_appearanceUi.underlineButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
 void Configuration::setStyle(const QString &property, const QString &value)
