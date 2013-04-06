@@ -26,6 +26,7 @@
 
 #include <QtCore/QXmlStreamWriter>
 #include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebElementCollection>
 
 #include <KMenu>
 #include <KLocale>

@@ -21,9 +21,7 @@
 #ifndef ADJUSTABLECLOCKCLOCK_HEADER
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
-#include <QtCore/QObject>
 #include <QtScript/QScriptEngine>
-#include <QtWebKit/QWebElementCollection>
 #include <QtWebKit/QWebFrame>
 
 #include <Plasma/DataEngine>

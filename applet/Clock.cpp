@@ -22,6 +22,7 @@
 #include "Applet.h"
 
 #include <QtWebKit/QWebPage>
+#include <QtWebKit/QWebElementCollection>
 
 #include <KDateTime>
 #include <KCalendarSystem>
