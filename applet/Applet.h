@@ -59,9 +59,6 @@ class Applet : public ClockApplet
         QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;
 
-    public slots:
-        void updateSize();
-
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
         void resizeEvent(QGraphicsSceneResizeEvent *event);
@@ -82,6 +79,7 @@ class Applet : public ClockApplet
         void toolTipHidden();
         void updateToolTipContent();
         void updateClipboardMenu();
+        void updateSize();
 
     private:
         Clock *m_clock;

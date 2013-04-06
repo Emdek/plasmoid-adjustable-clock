@@ -162,7 +162,12 @@ void Applet::clockConfigChanged()
         }
     }
 
-    changeEngineTimezone(currentTimezone(), currentTimezone());
+    const Theme theme = getTheme();
+
+    m_clock->setTheme(theme.html, theme.script);
+
+    constraintsEvent(Plasma::SizeConstraint);
+    updateSize();
 }
 
 void Applet::clockConfigAccepted()
@@ -176,13 +181,6 @@ void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &new
     Q_UNUSED(newTimeZone)
 
     m_clock->updateTimeZone();
-
-    const Theme theme = getTheme();
-
-    m_clock->setTheme(theme.html, theme.script);
-
-    constraintsEvent(Plasma::SizeConstraint);
-    updateSize();
 }
 
 void Applet::copyToClipboard()

@@ -58,6 +58,7 @@ Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
     m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
     setupEngine(&m_engine, m_clock);
+    updateTimeZone();
     updateTheme();
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
@@ -192,8 +193,6 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
                         m_holidays.append(holidays[i].toHash()["Name"].toString());
                     }
                 }
-
-                m_applet->updateSize();
 
                 updateComponent(DayOfWeekComponent);
                 updateComponent(DayOfMonthComponent);
