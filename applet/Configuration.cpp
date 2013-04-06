@@ -153,6 +153,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -161,7 +164,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(backgroundChanged()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
     connect(m_appearanceUi.componentButton, SIGNAL(clicked()), this, SLOT(insertComponent()));
@@ -246,20 +249,6 @@ void Configuration::modify()
     static_cast<KConfigDialog*>(parent())->enableButtonApply(true);
 }
 
-void Configuration::enableUpdates()
-{
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-}
-
-void Configuration::disableUpdates()
-{
-    disconnect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-}
-
 void Configuration::insertComponent()
 {
     connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
@@ -286,7 +275,8 @@ void Configuration::selectTheme(const QModelIndex &index)
         modify();
     }
 
-    disableUpdates();
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
@@ -297,7 +287,9 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
 
     sourceChanged();
-    enableUpdates();
+
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
 void Configuration::newTheme(bool automatically)
@@ -370,17 +362,6 @@ void Configuration::renameTheme()
     m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), title, TitleRole);
 
     modify();
-
-    emit clearCache();
-}
-
-void Configuration::updateTheme(const Theme &theme)
-{
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-
-    m_themesModel->setData(index, theme.html, HtmlRole);
-    m_themesModel->setData(index, theme.script, ScriptRole);
-    m_themesModel->setData(index, theme.background, BackgroundRole);
 
     emit clearCache();
 }
@@ -558,22 +539,19 @@ void Configuration::showEditorContextMenu(const QPoint &position)
 
 void Configuration::themeChanged()
 {
-    modify();
-
     if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
         newTheme(true);
     }
-}
 
-void Configuration::backgroundChanged()
-{
-    Theme theme;
-    theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
-    theme.background = m_appearanceUi.backgroundButton->isChecked();
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    themeChanged();
-    updateTheme(theme);
+    m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
+    m_themesModel->setData(index, m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
+    m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
+
+    modify();
+
+    emit clearCache();
 }
 
 void Configuration::richTextChanged()
@@ -610,41 +588,21 @@ void Configuration::richTextChanged()
         }
     }
 
-    Theme theme;
-    theme.html = page.mainFrame()->toHtml().remove(QRegExp("<head></head>"));
-    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
-    theme.background = m_appearanceUi.backgroundButton->isChecked();
-
-    disableUpdates();
-
-    m_appearanceUi.htmlTextEdit->setPlainText(theme.html);
-
-    enableUpdates();
-    updateTheme(theme);
+    m_appearanceUi.htmlTextEdit->setPlainText(page.mainFrame()->toHtml().remove(QRegExp("<head></head>")));
 }
 
 void Configuration::sourceChanged()
 {
-    Theme theme;
-    theme.html = m_appearanceUi.htmlTextEdit->toPlainText();
-    theme.script = m_appearanceUi.scriptTextEdit->toPlainText();
-    theme.background = m_appearanceUi.backgroundButton->isChecked();
-
-    disableUpdates();
-
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), theme.html, QString("%1\n%2").arg(theme.script).arg(QString(file.readAll())));
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), m_appearanceUi.htmlTextEdit->toPlainText(), QString("%1\n%2").arg(m_appearanceUi.scriptTextEdit->toPlainText()).arg(QString(file.readAll())));
 
     const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
 
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
     }
-
-    enableUpdates();
-    updateTheme(theme);
 }
 
 void Configuration::itemSelectionChanged()

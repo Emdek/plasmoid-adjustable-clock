@@ -61,15 +61,12 @@ class Configuration : public QObject
     protected slots:
         void save();
         void modify();
-        void enableUpdates();
-        void disableUpdates();
         void insertComponent();
         void insertComponent(const QString &component, const QString &options);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
         void deleteTheme();
         void renameTheme();
-        void updateTheme(const Theme &theme);
         void updateEditor(int tab = -1);
         void triggerAction();
         void selectionChanged();
@@ -79,7 +76,6 @@ class Configuration : public QObject
         void setZoom(int zoom);
         void showEditorContextMenu(const QPoint &position);
         void themeChanged();
-        void backgroundChanged();
         void richTextChanged();
         void sourceChanged();
         void itemSelectionChanged();
