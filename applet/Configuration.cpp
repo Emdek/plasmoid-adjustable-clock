@@ -302,55 +302,48 @@ void Configuration::selectTheme(const QModelIndex &index)
 
 void Configuration::newTheme(bool automatically)
 {
-    QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString();
+    QString identifier = QString("custom_%1");
+    QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString().append(" (%1)");
+    int i = 1;
 
-    if (automatically) {
-        int i = 2;
+    while (findRow(identifier.arg(i), IdRole) >= 0) {
+       ++i;
+    }
 
-        while (findRow(QString("%1 %2").arg(title).arg(i)) >= 0) {
-            ++i;
-        }
+    identifier = identifier.arg(i);
 
-        title = QString("%1 %2").arg(title).arg(i);
-    } else {
+    i = 2;
+
+    while (findRow(title.arg(i)) >= 0) {
+       ++i;
+    }
+
+    title = title.arg(i);
+
+    if (!automatically) {
         bool ok;
 
         title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
 
-        if (!ok) {
+        if (!ok || title.isEmpty()) {
             return;
         }
     }
 
-    if (findRow(title) >= 0) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("A theme with this name already exists."));
+    QStandardItem *item = new QStandardItem();
+    item->setData(identifier, IdRole);
+    item->setData(title, TitleRole);
+    item->setData(m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
+    item->setData(m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
+    item->setData(m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
+    item->setData(false, BundledRole);
+    item->setToolTip(QString("<b>%1</b>").arg(title));
 
-        return;
-    }
+    m_themesModel->appendRow(item);
 
-    if (title.isEmpty()) {
-        return;
-    }
-
-    disconnect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
-
-    m_themesModel->insertRow(m_themesModel->rowCount());
-
-    const QModelIndex index = m_themesModel->index((m_themesModel->rowCount() - 1), 0);
-
-    m_themesModel->setData(index, title, IdRole);
-    m_themesModel->setData(index, title, TitleRole);
-    m_themesModel->setData(index, (QString("<b>%1</b>").arg(title)), Qt::ToolTipRole);
-    m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
-    m_themesModel->setData(index, m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
-    m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
-    m_themesModel->setData(index, false, BundledRole);
-
-    m_appearanceUi.themesView->setCurrentIndex(index);
+    m_appearanceUi.themesView->setCurrentIndex(item->index());
 
     modify();
-
-    connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
 }
 
 void Configuration::deleteTheme()
@@ -370,12 +363,6 @@ void Configuration::renameTheme()
     const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), m_appearanceUi.themesView->currentIndex().data(TitleRole).toString(), &ok);
 
     if (!ok) {
-        return;
-    }
-
-    if (findRow(title) >= 0) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("A theme with this name already exists."));
-
         return;
     }
 
