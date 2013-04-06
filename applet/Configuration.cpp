@@ -404,38 +404,38 @@ void Configuration::triggerAction()
         return;
     }
 
-    QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
+    QString html;
 
     switch (actions[actionName]) {
     case QWebPage::ToggleBold:
-        cursor.insertText(QString("<b>%1</b>").arg(cursor.selectedText()));
+        html = "<b>%1</b>";
 
         break;
     case QWebPage::ToggleItalic:
-        cursor.insertText(QString("<i>%1</i>").arg(cursor.selectedText()));
+        html = "<i>%1</i>";
 
         break;
     case QWebPage::ToggleUnderline:
-        cursor.insertText(QString("<u>%1</u>").arg(cursor.selectedText()));
+        html = "<u>%1</u>";
 
         break;
     case QWebPage::AlignLeft:
-        cursor.insertText(QString("<div style=\"text-align:left;\">%1</div>").arg(cursor.selectedText()));
+        html = "<div style=\"text-align:left;\">%1</div>";
 
         break;
     case QWebPage::AlignCenter:
-        cursor.insertText(QString("<div style=\"text-align:center;\">%1</div>").arg(cursor.selectedText()));
+        html = "<div style=\"text-align:center;\">%1</div>";
 
         break;
     case QWebPage::AlignRight:
-        cursor.insertText(QString("<div style=\"text-align:right;\">%1</div>").arg(cursor.selectedText()));
+        html = "<div style=\"text-align:right;\">%1</div>";
 
         break;
     default:
         return;
     }
 
-    m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
+    m_appearanceUi.htmlTextEdit->insertPlainText(html.arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
 }
 
 void Configuration::selectionChanged()
@@ -462,6 +462,15 @@ void Configuration::selectionChanged()
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
 }
 
+void Configuration::setStyle(const QString &property, const QString &value)
+{
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
+        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<span style=\"%1:%2;\">%3</span>").arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
+    } else {
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
+    }
+}
+
 void Configuration::setColor()
 {
     KColorDialog colorDialog;
@@ -475,39 +484,18 @@ void Configuration::setColor()
 
         m_appearanceUi.colorButton->setPalette(palette);
 
-        if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-            QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
-            cursor.insertText(QString("<span style=\"color:%1;\">%2</span>").arg(colorDialog.color().name()).arg(cursor.selectedText()));
-
-            m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
-        } else {
-            m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('color', '%1')").arg(colorDialog.color().name()));
-        }
+        setStyle("color", colorDialog.color().name());
     }
 }
 
 void Configuration::setFontSize(const QString &size)
 {
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
-        cursor.insertText(QString("<span style=\"font-size:%1px;\">%2</span>").arg(QString::number(size.toInt())).arg(cursor.selectedText()));
-
-        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('font-size', '%1px')").arg(size));
-    }
+    setStyle("font-size", QString("%1px").arg(size));
 }
 
 void Configuration::setFontFamily(const QFont &font)
 {
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        QTextCursor cursor = m_appearanceUi.htmlTextEdit->textCursor();
-        cursor.insertText(QString("<span style=\"font-family:'%1';\">%2</span>").arg(font.family()).arg(cursor.selectedText()));
-
-        m_appearanceUi.htmlTextEdit->setTextCursor(cursor);
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('font-family', '\\\'%1\\\'')").arg(font.family()));
-    }
+    setStyle("font-family", QString("'\\\'%1\\\'").arg(font.family()));
 }
 
 void Configuration::setZoom(int zoom)
