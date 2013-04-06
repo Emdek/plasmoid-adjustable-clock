@@ -20,7 +20,6 @@
 
 #include "PreviewDelegate.h"
 #include "Applet.h"
-#include "DataSource.h"
 #include "Clock.h"
 #include "Configuration.h"
 
@@ -40,8 +39,8 @@ namespace AdjustableClock
 
 KPixmapCache *m_cache = NULL;
 
-PreviewDelegate::PreviewDelegate(DataSource *source, QObject *parent) : QStyledItemDelegate(parent),
-    m_source(source)
+PreviewDelegate::PreviewDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+    m_clock(clock)
 {
     m_cache = new KPixmapCache("AdjustableClockPreviews");
     m_cache->discard();
@@ -90,8 +89,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
-        Clock clock(m_source, page.mainFrame());
-        clock.setTheme(index.data(HtmlRole).toString(), index.data(ScriptRole).toString());
+        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString(), index.data(ScriptRole).toString());
 
         const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
         const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());

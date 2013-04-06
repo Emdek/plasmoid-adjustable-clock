@@ -44,20 +44,17 @@ QString ClockObject::toString(int component, const QVariantMap &options) const
     return m_source->toString(static_cast<ClockComponent>(component), options, m_constant);
 }
 
-Clock::Clock(DataSource *source, QWebFrame *document, bool constant) : QObject(source),
+Clock::Clock(DataSource *source, QWebFrame *document) : QObject(source),
     m_source(source),
     m_document(document),
     m_clock(new ClockObject(source, false)),
-    m_constantClock(new ClockObject(source, true)),
-    m_constant(constant)
+    m_constantClock(new ClockObject(source, true))
 {
-    if (!m_constant) {
-        connect(m_source, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
-    }
 
     setupEngine(&m_engine, m_clock);
     updateTheme();
 
+    connect(m_source, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
@@ -70,14 +67,39 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
     }
 }
 
-void Clock::updateComponent(ClockComponent component)
+void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &script)
+{
+    setupTheme(document);
+
+    document->setHtml(html);
+    document->addToJavaScriptWindowObject("Clock", clock);
+
+    for (int i = 0; i < LastComponent; ++i) {
+        document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+    }
+
+    document->evaluateJavaScript(script);
+
+    for (int i = 0; i < LastComponent; ++i) {
+        updateComponent(document, clock, static_cast<ClockComponent>(i));
+    }
+}
+
+void Clock::setupTheme(QWebFrame *document)
+{
+    document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} [component] {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
+    document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
+    document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
+}
+
+void Clock::updateComponent(QWebFrame *document, ClockObject *clock, ClockComponent component)
 {
     const QLatin1String componentString = getComponentString(component);
-    const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(componentString));
+    const QWebElementCollection elements = document->findAllElements(QString("[component=%1]").arg(componentString));
 
     for (int j = 0; j < elements.count(); ++j) {
-        const QVariantMap options = (elements.at(j).hasAttribute("options") ? m_engine.evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
-        const QString value = m_source->toString(component, options, m_constant);
+        const QVariantMap options = (elements.at(j).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
+        const QString value = clock->toString(component, options);
 
         if (elements.at(j).hasAttribute("attribute")) {
             elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
@@ -86,30 +108,27 @@ void Clock::updateComponent(ClockComponent component)
         }
     }
 
-    m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(componentString));
+    document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(componentString));
+}
+
+void Clock::updateComponent(ClockComponent component)
+{
+    updateComponent(m_document, m_clock, component);
 }
 
 void Clock::updateTheme()
 {
-    m_document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; color: %1;} [component] {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
-    m_document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-    m_document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
+    setupTheme(m_document);
 }
 
 void Clock::setTheme(const QString &html, const QString &script)
 {
-    m_document->setHtml(html);
-    m_document->addToJavaScriptWindowObject("Clock", (m_constant ? m_constantClock : m_clock));
+    setupClock(m_document, m_clock, html, script);
+}
 
-    for (int i = 0; i < LastComponent; ++i) {
-        m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-    }
-
-    m_document->evaluateJavaScript(script);
-
-    for (int i = 0; i < LastComponent; ++i) {
-        updateComponent(static_cast<ClockComponent>(i));
-    }
+ClockObject* Clock::getClock(bool constant) const
+{
+    return (constant ? m_constantClock : m_clock);
 }
 
 DataSource* Clock::getDataSource() const

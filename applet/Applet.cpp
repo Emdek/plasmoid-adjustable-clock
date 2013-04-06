@@ -61,7 +61,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 void Applet::init()
 {
     if (!m_clock) {
-        m_clock = new Clock(m_source, m_page.mainFrame(), false);
+        m_clock = new Clock(m_source, m_page.mainFrame());
     }
 
     ClockApplet::init();

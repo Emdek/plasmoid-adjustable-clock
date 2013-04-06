@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
+#include "Clock.h"
 #include "ComponentDialog.h"
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
@@ -40,7 +41,6 @@ namespace AdjustableClock
 
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
-    m_clock(NULL),
     m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL)
 {
@@ -49,8 +49,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
-
-    m_clock = new Clock(applet->getClock()->getDataSource(), m_appearanceUi.webView->page()->mainFrame());
 
     const QList<Theme> themes = m_applet->getThemes();
 
@@ -69,7 +67,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock()->getDataSource(), m_appearanceUi.themesView);
+    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock(), m_appearanceUi.themesView);
     QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
     webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
@@ -115,10 +113,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
-    m_clipboardUi.clipboardActionsList->setItemDelegate(new ExpressionDelegate(m_clock, this));
+    m_clipboardUi.clipboardActionsList->setItemDelegate(new ExpressionDelegate(m_applet->getClock(), this));
     m_clipboardUi.clipboardActionsList->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)"));
-    m_clipboardUi.fastCopyExpressionEdit->setClock(m_clock);
+    m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
 
     const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
 
@@ -126,7 +124,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         QListWidgetItem *item = new QListWidgetItem(clipboardExpressions.at(i));
 
         if (!clipboardExpressions.at(i).isEmpty()) {
-            item->setToolTip(m_clock->evaluate(clipboardExpressions.at(i), true));
+            item->setToolTip(m_applet->getClock()->evaluate(clipboardExpressions.at(i), true));
         }
 
         m_clipboardUi.clipboardActionsList->addItem(item);
@@ -268,8 +266,8 @@ void Configuration::insertComponent()
 
 void Configuration::insertComponent(const QString &component, const QString &options)
 {
-    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
-    const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, %2)").arg(component).arg(options)), true);
+    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
+    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, %2)").arg(component).arg(options)), true);
     const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
@@ -654,12 +652,12 @@ void Configuration::sourceChanged()
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    m_clock->setTheme(theme.html, QString("%1\n%2").arg(theme.script).arg(QString(file.readAll())));
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), theme.html, QString("%1\n%2").arg(theme.script).arg(QString(file.readAll())));
 
     const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
 
     for (int i = 0; i < elements.count(); ++i) {
-        elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
+        elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
     }
 
     enableUpdates();
@@ -754,7 +752,7 @@ void Configuration::moveItemDown()
 void Configuration::updateItem(QListWidgetItem *item)
 {
     if (item) {
-        item->setToolTip(m_clock->evaluate(item->text(), true));
+        item->setToolTip(m_applet->getClock()->evaluate(item->text(), true));
     }
 }
 

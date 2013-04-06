@@ -22,7 +22,6 @@
 #define ADJUSTABLECLOCKCONFIGURATION_HEADER
 
 #include "Applet.h"
-#include "Clock.h"
 
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QStandardItemModel>
@@ -46,8 +45,6 @@ enum ModelRole
     BackgroundRole = (Qt::UserRole + 7),
     BundledRole = (Qt::UserRole + 8)
 };
-
-class Clock;
 
 class Configuration : public QObject
 {
@@ -96,7 +93,6 @@ class Configuration : public QObject
 
     private:
         Applet *m_applet;
-        Clock *m_clock;
         QStandardItemModel *m_themesModel;
         QListWidgetItem *m_editedItem;
         Ui::appearance m_appearanceUi;
