@@ -325,7 +325,7 @@ void Configuration::newTheme(bool automatically)
 
         title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
 
-        if (!ok || title.isEmpty()) {
+        if (!ok) {
             return;
         }
     }
@@ -354,6 +354,7 @@ void Configuration::deleteTheme()
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
+        modify();
     }
 }
 
