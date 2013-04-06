@@ -121,7 +121,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
                 m_sunset = sunData["Sunset"].toDateTime().time();
 
                 const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
-                const QString key = QString("holidays:%1:%2").arg(region).arg(getCurrentDateTime().date().toString(Qt::ISODate));
+                const QString key = QString("holidays:%1:%2").arg(region).arg(m_dateTime.date().toString(Qt::ISODate));
                 const Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
 
                 m_holidays.clear();
@@ -211,11 +211,6 @@ void DataSource::updateTimeZone()
 QString DataSource::formatNumber(int number, int length)
 {
     return QString("%1").arg(number, length, 10, QChar('0'));
-}
-
-QDateTime DataSource::getCurrentDateTime() const
-{
-    return m_dateTime;
 }
 
 QString DataSource::toString(ClockComponent component, const QVariantMap &options, QDateTime dateTime) const

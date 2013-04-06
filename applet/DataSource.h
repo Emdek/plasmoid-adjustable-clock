@@ -50,7 +50,6 @@ class DataSource : public QObject
         DataSource(Applet *parent);
 
         void updateTimeZone();
-        QDateTime getCurrentDateTime() const;
         QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
 
     protected:
