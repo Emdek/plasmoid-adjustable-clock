@@ -60,7 +60,6 @@ class Applet : public ClockApplet
         QList<Theme> getThemes() const;
 
     public slots:
-        void updateToolTipContent();
         void updateSize();
 
     protected:
@@ -78,9 +77,10 @@ class Applet : public ClockApplet
         void clockConfigAccepted();
         void copyToClipboard();
         void copyToClipboard(QAction *action);
+        void repaint();
         void toolTipAboutToShow();
         void toolTipHidden();
-        void repaint();
+        void updateToolTipContent();
         void updateClipboardMenu();
 
     private:

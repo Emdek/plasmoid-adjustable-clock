@@ -148,6 +148,7 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
     emit tick();
+
     updateComponent(SecondComponent);
     updateComponent(TimestampComponent);
     updateComponent(TimeComponent);
