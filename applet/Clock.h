@@ -21,8 +21,6 @@
 #ifndef ADJUSTABLECLOCKCLOCK_HEADER
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
-#include "DataSource.h"
-
 #include <QtCore/QObject>
 #include <QtScript/QScriptEngine>
 #include <QtWebKit/QWebElementCollection>
@@ -33,17 +31,54 @@
 namespace AdjustableClock
 {
 
+enum ClockComponent
+{
+    SecondComponent = 0,
+    MinuteComponent = 1,
+    HourComponent = 2,
+    TimeOfDayComponent = 3,
+    DayOfWeekComponent = 4,
+    DayOfMonthComponent = 5,
+    DayOfYearComponent = 6,
+    WeekComponent = 7,
+    MonthComponent = 8,
+    YearComponent = 9,
+    TimestampComponent = 10,
+    TimeComponent = 11,
+    DateComponent = 12,
+    DateTimeComponent = 13,
+    TimeZoneNameComponent = 14,
+    TimeZoneAbbreviationComponent = 15,
+    TimeZoneOffsetComponent = 16,
+    TimeZonesComponent = 17,
+    EventsComponent = 18,
+    HolidaysComponent = 19,
+    SunriseComponent = 20,
+    SunsetComponent = 21,
+    LastComponent = 22
+};
+
+struct Event
+{
+    QString type;
+    QString time;
+    QString summary;
+};
+
+class Applet;
+class Clock;
+
 class ClockObject : public QObject
 {
     Q_OBJECT
 
     public:
-        ClockObject(DataSource *source, bool constant);
+        ClockObject(Clock *clock, bool constant);
 
         Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
 
     private:
-        DataSource *m_source;
+        Clock *m_clock;
         bool m_constant;
 };
 
@@ -52,31 +87,49 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(DataSource *source, QWebFrame *document);
+        Clock(Applet *applet, QWebFrame *document);
 
+        void updateTimeZone();
         void setTheme(const QString &html, const QString &script);
         static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &script);
-        static void setupTheme(QWebFrame *document);
         ClockObject* getClock(bool constant) const;
-        DataSource* getDataSource() const;
         QString evaluate(const QString &script, bool constant = false);
+        QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
         static QString getComponentName(ClockComponent component);
         static QLatin1String getComponentString(ClockComponent component);
 
     protected:
         static void setupEngine(QScriptEngine *engine, ClockObject *clock);
+        static void setupTheme(QWebFrame *document);
         static void updateComponent(QWebFrame *document, ClockObject *clock, ClockComponent component);
+        void updateComponent(ClockComponent component);
+        static QString formatNumber(int number, int length);
 
     protected slots:
-        void updateComponent(ClockComponent component);
+        void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool reload = false);
         void updateTheme();
 
     private:
-        DataSource *m_source;
+        Applet *m_applet;
         QWebFrame *m_document;
         ClockObject *m_clock;
         ClockObject *m_constantClock;
         QScriptEngine m_engine;
+        QDateTime m_dateTime;
+        QDateTime m_constantDateTime;
+        QTime m_sunrise;
+        QTime m_sunset;
+        QString m_timeZoneAbbreviation;
+        QString m_timeZoneOffset;
+        QString m_timeQuery;
+        QString m_eventsQuery;
+        QString m_timeZoneArea;
+        QStringList m_holidays;
+        QList<Event> m_events;
+        QMap<QString, QString> m_timeZones;
+
+    signals:
+        void tick();
 };
 
 }

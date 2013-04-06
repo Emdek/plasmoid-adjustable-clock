@@ -19,13 +19,12 @@
 ***********************************************************************************/
 
 #include "ComponentDialog.h"
-#include "Clock.h"
 
 namespace AdjustableClock
 {
 
-ComponentDialog::ComponentDialog(DataSource *source, QWidget *parent) : KDialog(parent),
-    m_source(source)
+ComponentDialog::ComponentDialog(Clock *clock, QWidget *parent) : KDialog(parent),
+    m_clock(clock)
 {
     m_componentUi.setupUi(mainWidget());
 
@@ -97,7 +96,7 @@ void ComponentDialog::selectComponent(int index)
 
 void ComponentDialog::updatePreview()
 {
-    m_componentUi.previewLabel->setText(m_source->toString(getComponent(), getOptions(), true));
+    m_componentUi.previewLabel->setText(m_clock->toString(getComponent(), getOptions()));
 }
 
 ClockComponent ComponentDialog::getComponent() const

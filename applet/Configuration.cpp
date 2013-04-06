@@ -261,7 +261,7 @@ void Configuration::disableUpdates()
 
 void Configuration::insertComponent()
 {
-    connect(new ComponentDialog(m_applet->getClock()->getDataSource(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
+    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
 }
 
 void Configuration::insertComponent(const QString &component, const QString &options)

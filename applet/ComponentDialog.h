@@ -21,7 +21,7 @@
 #ifndef ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
 #define ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
 
-#include "DataSource.h"
+#include "Clock.h"
 
 #include <KDialog>
 
@@ -35,7 +35,7 @@ class ComponentDialog : public KDialog
     Q_OBJECT
 
     public:
-        ComponentDialog(DataSource *source, QWidget *parent);
+        ComponentDialog(Clock *clock, QWidget *parent);
 
     protected:
         ClockComponent getComponent() const;
@@ -47,7 +47,7 @@ class ComponentDialog : public KDialog
         void updatePreview();
 
     private:
-        DataSource *m_source;
+        Clock *m_clock;
         Ui::component m_componentUi;
 
     signals:

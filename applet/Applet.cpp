@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "Applet.h"
-#include "DataSource.h"
 #include "Clock.h"
 #include "Configuration.h"
 
@@ -44,7 +43,6 @@ namespace AdjustableClock
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_source(new DataSource(this)),
     m_clock(NULL),
     m_clipboardAction(NULL),
     m_theme(-1)
@@ -61,7 +59,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 void Applet::init()
 {
     if (!m_clock) {
-        m_clock = new Clock(m_source, m_page.mainFrame());
+        m_clock = new Clock(this, m_page.mainFrame());
     }
 
     ClockApplet::init();
@@ -177,7 +175,7 @@ void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &new
     Q_UNUSED(oldTimeZone)
     Q_UNUSED(newTimeZone)
 
-    m_source->updateTimeZone();
+    m_clock->updateTimeZone();
 
     const Theme theme = getTheme();
 
@@ -199,14 +197,14 @@ void Applet::copyToClipboard(QAction *action)
 
 void Applet::toolTipAboutToShow()
 {
-    connect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
+    connect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
     updateToolTipContent();
 }
 
 void Applet::toolTipHidden()
 {
-    disconnect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
+    disconnect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
     Plasma::ToolTipManager::self()->clearContent(this);
 }
