@@ -48,7 +48,7 @@ Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
     m_applet(applet),
     m_document(document),
     m_clock(new ClockObject(this, false)),
-    m_constantClock(new ClockObject(this, true))
+    m_constantClock(NULL)
 {
     m_constantDateTime = QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15));
 
@@ -297,9 +297,17 @@ void Clock::setTheme(const QString &html, const QString &script)
     setupClock(m_document, m_clock, html, script);
 }
 
-ClockObject* Clock::getClock(bool constant) const
+ClockObject* Clock::getClock(bool constant)
 {
-    return (constant ? m_constantClock : m_clock);
+    if (constant) {
+        if (!m_constantClock) {
+            m_constantClock = new ClockObject(this, true);
+        }
+
+        return m_constantClock;
+    }
+
+    return m_clock;
 }
 
 
@@ -408,7 +416,7 @@ QString Clock::evaluate(const QString &script, bool constant)
     if (constant) {
         QScriptEngine engine;
 
-        setupEngine(&engine, m_constantClock);
+        setupEngine(&engine, getClock(true));
 
         return engine.evaluate(script).toString();
     }
