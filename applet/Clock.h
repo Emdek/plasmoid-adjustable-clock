@@ -71,7 +71,7 @@ class Clock : public QObject
         QString evaluate(const QString &script);
         Q_INVOKABLE QString toString(int component, const QVariantMap &options = QVariantMap()) const;
         static QString getComponentName(ClockComponent component);
-        static QString getComponentString(ClockComponent component);
+        static QLatin1String getComponentString(ClockComponent component);
 
     protected slots:
         void updateClock(const QList<ClockComponent> &changes);

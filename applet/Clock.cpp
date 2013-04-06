@@ -58,7 +58,7 @@ void Clock::updateClock(const QList<ClockComponent> &changes)
     const QDateTime dateTime = (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
 
     for (int i = 0; i < changes.count(); ++i) {
-        const QString component = getComponentString(changes.at(i));
+        const QLatin1String component = getComponentString(changes.at(i));
 
         m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(component));
 
@@ -109,60 +109,6 @@ QString Clock::evaluate(const QString &script)
 QString Clock::toString(int component, const QVariantMap &options) const
 {
     return m_source->toString(static_cast<ClockComponent>(component), options, (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
-}
-
-QString Clock::getComponentString(ClockComponent component)
-{
-    switch (component) {
-    case SecondComponent:
-        return "Second";
-    case MinuteComponent:
-        return "Minute";
-    case HourComponent:
-        return "Hour";
-    case TimeOfDayComponent:
-        return "TimeOfDay";
-    case DayOfMonthComponent:
-        return "DayOfMonth";
-    case DayOfWeekComponent:
-        return "DayOfWeek";
-    case DayOfYearComponent:
-        return "DayOfYear";
-    case WeekComponent:
-        return "Week";
-    case MonthComponent:
-        return "Month";
-    case YearComponent:
-        return "Year";
-    case TimestampComponent:
-        return "Timestamp";
-    case TimeComponent:
-        return "Time";
-    case DateComponent:
-        return "Date";
-    case DateTimeComponent:
-        return "DateTime";
-    case TimeZoneNameComponent:
-        return "TimeZoneName";
-    case TimeZoneAbbreviationComponent:
-        return "TimeZoneAbbreviation";
-    case TimeZoneOffsetComponent:
-        return "TimeZoneOffset";
-    case TimeZonesComponent:
-        return "TimeZones";
-    case EventsComponent:
-        return "Events";
-    case HolidaysComponent:
-        return "Holidays";
-    case SunriseComponent:
-        return "Sunrise";
-    case SunsetComponent:
-        return "Sunset";
-    default:
-        return QString();
-    }
-
-    return QString();
 }
 
 QString Clock::getComponentName(ClockComponent component)
@@ -217,6 +163,60 @@ QString Clock::getComponentName(ClockComponent component)
     }
 
     return QString();
+}
+
+QLatin1String Clock::getComponentString(ClockComponent component)
+{
+    switch (component) {
+    case SecondComponent:
+        return QLatin1String("Second");
+    case MinuteComponent:
+        return QLatin1String("Minute");
+    case HourComponent:
+        return QLatin1String("Hour");
+    case TimeOfDayComponent:
+        return QLatin1String("TimeOfDay");
+    case DayOfMonthComponent:
+        return QLatin1String("DayOfMonth");
+    case DayOfWeekComponent:
+        return QLatin1String("DayOfWeek");
+    case DayOfYearComponent:
+        return QLatin1String("DayOfYear");
+    case WeekComponent:
+        return QLatin1String("Week");
+    case MonthComponent:
+        return QLatin1String("Month");
+    case YearComponent:
+        return QLatin1String("Year");
+    case TimestampComponent:
+        return QLatin1String("Timestamp");
+    case TimeComponent:
+        return QLatin1String("Time");
+    case DateComponent:
+        return QLatin1String("Date");
+    case DateTimeComponent:
+        return QLatin1String("DateTime");
+    case TimeZoneNameComponent:
+        return QLatin1String("TimeZoneName");
+    case TimeZoneAbbreviationComponent:
+        return QLatin1String("TimeZoneAbbreviation");
+    case TimeZoneOffsetComponent:
+        return QLatin1String("TimeZoneOffset");
+    case TimeZonesComponent:
+        return QLatin1String("TimeZones");
+    case EventsComponent:
+        return QLatin1String("Events");
+    case HolidaysComponent:
+        return QLatin1String("Holidays");
+    case SunriseComponent:
+        return QLatin1String("Sunrise");
+    case SunsetComponent:
+        return QLatin1String("Sunset");
+    default:
+        return QLatin1String("");
+    }
+
+    return QLatin1String("");
 }
 
 }
