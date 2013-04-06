@@ -113,11 +113,11 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
         const QPair<QDateTime, QDateTime> limits = qMakePair(QDateTime::currentDateTime().addSecs(-43200), QDateTime::currentDateTime().addSecs(43200));
 
         for (iterator = data.constBegin(); iterator != data.constEnd(); ++iterator) {
-            QVariantHash eventData = iterator.value().toHash();
+            const QVariantHash eventData = iterator.value().toHash();
 
             if (eventData["Type"] == "Event" || eventData["Type"] == "Todo") {
-                KDateTime startTime = eventData["StartDate"].value<KDateTime>();
-                KDateTime endTime = eventData["EndDate"].value<KDateTime>();
+                const KDateTime startTime = eventData["StartDate"].value<KDateTime>();
+                const KDateTime endTime = eventData["EndDate"].value<KDateTime>();
 
                 if ((endTime.isValid() && endTime.dateTime() < limits.first && endTime != startTime) || startTime.dateTime() > limits.second) {
                     continue;

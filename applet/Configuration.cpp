@@ -181,7 +181,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    updateEditor(m_appearanceUi.editorTabWidget->currentIndex() ? 0 : 1);
+    updateEditor();
 
     if (m_editedItem) {
         m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
@@ -206,7 +206,7 @@ void Configuration::save()
     stream.writeStartElement("themes");
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        QModelIndex index = m_themesModel->index(i, 0);
+        const QModelIndex index = m_themesModel->index(i, 0);
 
         if (index.data(BundledRole).toBool()) {
             continue;
@@ -726,8 +726,8 @@ void Configuration::deleteItem()
 
 void Configuration::moveItem(bool up)
 {
-    int sourceRow = m_clipboardUi.clipboardActionsList->currentRow();
-    int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
+    const int sourceRow = m_clipboardUi.clipboardActionsList->currentRow();
+    const int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
 
     QListWidgetItem *sourceItem = m_clipboardUi.clipboardActionsList->takeItem(sourceRow);
     QListWidgetItem *destinationItem = m_clipboardUi.clipboardActionsList->takeItem(destinationRow);
