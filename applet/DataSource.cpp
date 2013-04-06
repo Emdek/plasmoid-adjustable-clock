@@ -31,6 +31,8 @@ namespace AdjustableClock
 DataSource::DataSource(Applet *parent) : QObject(parent),
     m_applet(parent)
 {
+    m_constantDateTime = QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15));
+
     m_eventsQuery = QString("events:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
 
     m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
@@ -38,15 +40,11 @@ DataSource::DataSource(Applet *parent) : QObject(parent),
 
 void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)
 {
-    QList<ClockComponent> changes;
-
     if (source == m_eventsQuery) {
         m_events.clear();
 
-        changes.append(EventsComponent);
-
         if (data.isEmpty()) {
-            emit dataChanged(changes);
+            emit componentChanged(EventsComponent);
 
             return;
         }
@@ -83,17 +81,18 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             }
         }
 
-        emit dataChanged(changes);
+        emit componentChanged(EventsComponent);
 
         return;
     }
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
-    changes.append(SecondComponent);
-    changes.append(TimestampComponent);
-    changes.append(TimeComponent);
-    changes.append(DateTimeComponent);
+    emit tick();
+    emit componentChanged(SecondComponent);
+    emit componentChanged(TimestampComponent);
+    emit componentChanged(TimeComponent);
+    emit componentChanged(DateTimeComponent);
 
     if (m_dateTime.time().second() == 0 || reload) {
         if (m_dateTime.time().minute() == 0 || reload) {
@@ -102,10 +101,10 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
             if (hour == 0 || reload) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
-                        changes.append(YearComponent);
+                        emit componentChanged(YearComponent);
                     }
 
-                    changes.append(MonthComponent);
+                    emit componentChanged(MonthComponent);
                 }
 
                 m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
@@ -136,26 +135,24 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
 
                 m_applet->updateSize();
 
-                changes.append(DayOfWeekComponent);
-                changes.append(DayOfMonthComponent);
-                changes.append(DayOfYearComponent);
-                changes.append(DateComponent);
-                changes.append(SunriseComponent);
-                changes.append(SunsetComponent);
-                changes.append(HolidaysComponent);
+                emit componentChanged(DayOfWeekComponent);
+                emit componentChanged(DayOfMonthComponent);
+                emit componentChanged(DayOfYearComponent);
+                emit componentChanged(DateComponent);
+                emit componentChanged(SunriseComponent);
+                emit componentChanged(SunsetComponent);
+                emit componentChanged(HolidaysComponent);
             }
 
             if (hour == 0 || hour == 12) {
-                changes.append(TimeOfDayComponent);
+                emit componentChanged(TimeOfDayComponent);
             }
 
-            changes.append(HourComponent);
+            emit componentChanged(HourComponent);
         }
 
-        changes.append(MinuteComponent);
+        emit componentChanged(MinuteComponent);
     }
-
-    emit dataChanged(changes);
 }
 
 void DataSource::updateTimeZone()
@@ -213,11 +210,9 @@ QString DataSource::formatNumber(int number, int length)
     return QString("%1").arg(number, length, 10, QChar('0'));
 }
 
-QString DataSource::toString(ClockComponent component, const QVariantMap &options, QDateTime dateTime) const
+QString DataSource::toString(ClockComponent component, const QVariantMap &options, bool constant) const
 {
-    if (!dateTime.isValid()) {
-        dateTime = m_dateTime;
-    }
+    const QDateTime dateTime = (constant ? m_constantDateTime : m_dateTime);
 
     switch (component) {
     case SecondComponent:

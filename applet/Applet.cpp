@@ -61,7 +61,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 void Applet::init()
 {
     if (!m_clock) {
-        m_clock = new Clock(m_source, m_page.mainFrame(), true);
+        m_clock = new Clock(m_source, m_page.mainFrame(), false);
     }
 
     ClockApplet::init();
@@ -199,14 +199,14 @@ void Applet::copyToClipboard(QAction *action)
 
 void Applet::toolTipAboutToShow()
 {
-    connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateToolTipContent()));
+    connect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
     updateToolTipContent();
 }
 
 void Applet::toolTipHidden()
 {
-    disconnect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateToolTipContent()));
+    disconnect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
     Plasma::ToolTipManager::self()->clearContent(this);
 }

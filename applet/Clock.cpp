@@ -33,13 +33,13 @@
 namespace AdjustableClock
 {
 
-Clock::Clock(DataSource *source, QWebFrame *document, bool live) : QObject(source),
+Clock::Clock(DataSource *source, QWebFrame *document, bool constant) : QObject(source),
     m_source(source),
     m_document(document),
-    m_live(live)
+    m_constant(constant)
 {
-    if (m_live) {
-        connect(m_source, SIGNAL(dataChanged(QList<ClockComponent>)), this, SLOT(updateClock(QList<ClockComponent>)));
+    if (!m_constant) {
+        connect(m_source, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     }
 
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
@@ -53,28 +53,23 @@ Clock::Clock(DataSource *source, QWebFrame *document, bool live) : QObject(sourc
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
-void Clock::updateClock(const QList<ClockComponent> &changes)
+void Clock::updateComponent(ClockComponent component)
 {
-    const QDateTime dateTime = (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15)));
+    const QLatin1String componentString = getComponentString(component);
+    const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(componentString));
 
-    for (int i = 0; i < changes.count(); ++i) {
-        const QLatin1String component = getComponentString(changes.at(i));
+    for (int j = 0; j < elements.count(); ++j) {
+        const QVariantMap options = (elements.at(j).hasAttribute("options") ? m_engine.evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
+        const QString value = m_source->toString(component, options, m_constant);
 
-        m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(component));
-
-        const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(component));
-
-        for (int j = 0; j < elements.count(); ++j) {
-            const QVariantMap options = (elements.at(j).hasAttribute("options") ? m_engine.evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
-            const QString value = m_source->toString(changes.at(i), options, dateTime);
-
-            if (elements.at(j).hasAttribute("attribute")) {
-                elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
-            } else {
-                elements.at(j).setInnerXml(value);
-            }
+        if (elements.at(j).hasAttribute("attribute")) {
+            elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
+        } else {
+            elements.at(j).setInnerXml(value);
         }
     }
+
+    m_document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(componentString));
 }
 
 void Clock::updateTheme()
@@ -88,17 +83,16 @@ void Clock::setTheme(const QString &html, const QString &script)
 {
     m_document->setHtml(html);
     m_document->addToJavaScriptWindowObject("Clock", this);
-    m_document->evaluateJavaScript(script);
-
-    QList<ClockComponent> changes;
 
     for (int i = 0; i < LastComponent; ++i) {
         m_document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-
-        changes.append(static_cast<ClockComponent>(i));
     }
 
-    updateClock(changes);
+    m_document->evaluateJavaScript(script);
+
+    for (int i = 0; i < LastComponent; ++i) {
+        updateComponent(static_cast<ClockComponent>(i));
+    }
 }
 
 QString Clock::evaluate(const QString &script)
@@ -108,7 +102,7 @@ QString Clock::evaluate(const QString &script)
 
 QString Clock::toString(int component, const QVariantMap &options) const
 {
-    return m_source->toString(static_cast<ClockComponent>(component), options, (m_live ? QDateTime() : QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15))));
+    return m_source->toString(static_cast<ClockComponent>(component), options, m_constant);
 }
 
 QString Clock::getComponentName(ClockComponent component)

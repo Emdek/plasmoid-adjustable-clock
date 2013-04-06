@@ -65,7 +65,7 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(DataSource *source, QWebFrame *document, bool live = false);
+        Clock(DataSource *source, QWebFrame *document, bool constant = true);
 
         void setTheme(const QString &html, const QString &script);
         QString evaluate(const QString &script);
@@ -74,14 +74,14 @@ class Clock : public QObject
         static QLatin1String getComponentString(ClockComponent component);
 
     protected slots:
-        void updateClock(const QList<ClockComponent> &changes);
+        void updateComponent(ClockComponent component);
         void updateTheme();
 
     private:
         DataSource *m_source;
         QWebFrame *m_document;
         QScriptEngine m_engine;
-        bool m_live;
+        bool m_constant;
 };
 
 }

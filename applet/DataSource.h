@@ -50,7 +50,7 @@ class DataSource : public QObject
         DataSource(Applet *parent);
 
         void updateTimeZone();
-        QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), QDateTime dateTime = QDateTime()) const;
+        QString toString(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
 
     protected:
         static QString formatNumber(int number, int length);
@@ -61,6 +61,7 @@ class DataSource : public QObject
     private:
         Applet *m_applet;
         QDateTime m_dateTime;
+        QDateTime m_constantDateTime;
         QTime m_sunrise;
         QTime m_sunset;
         QString m_timeZoneAbbreviation;
@@ -73,7 +74,8 @@ class DataSource : public QObject
         QMap<QString, QString> m_timeZones;
 
     signals:
-        void dataChanged(QList<ClockComponent> changes);
+        void tick();
+        void componentChanged(ClockComponent component);
 };
 
 }
