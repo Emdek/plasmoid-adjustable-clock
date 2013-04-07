@@ -533,21 +533,6 @@ void Configuration::richTextChanged()
 
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).removeAttribute("title");
-
-        if (!elements.at(i).firstChild().isNull()) {
-            QWebElement element = elements.at(i).firstChild();
-            QStringList styles;
-
-            do {
-                if (element.hasAttribute("style")) {
-                    styles.append(element.attribute("style"));
-                }
-
-                element = element.firstChild();
-            } while (!element.isNull());
-
-            elements.at(i).setAttribute("style", styles.join(QString()));
-        }
     }
 
     m_appearanceUi.htmlTextEdit->setPlainText(page.mainFrame()->toHtml().remove(QRegExp("<head></head>")));
