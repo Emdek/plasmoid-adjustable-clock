@@ -56,7 +56,7 @@ class Configuration : public QObject
         bool eventFilter(QObject *object, QEvent *event);
 
     protected:
-        void setStyle(const QString &property, const QString &value);
+        void setStyle(const QString &property, const QString &value, const QString &tag = "span");
         int findRow(const QString &text, int role = TitleRole) const;
 
     protected slots:
@@ -68,7 +68,6 @@ class Configuration : public QObject
         void newTheme(bool automatically = false);
         void deleteTheme();
         void renameTheme();
-        void updateEditor(int tab = -1);
         void triggerAction();
         void selectionChanged();
         void setColor();
@@ -76,6 +75,7 @@ class Configuration : public QObject
         void setFontFamily(const QFont &font);
         void setZoom(int zoom);
         void showEditorContextMenu(const QPoint &position);
+        void modeChanged(int mode = -1);
         void themeChanged();
         void richTextChanged();
         void sourceChanged();

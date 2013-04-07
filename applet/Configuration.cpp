@@ -92,11 +92,17 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
     m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
     m_appearanceUi.boldButton->setDefaultAction(new QAction(KIcon("format-text-bold"), i18n("Bold"), this));
+    m_appearanceUi.boldButton->defaultAction()->setData(QWebPage::ToggleBold);
     m_appearanceUi.italicButton->setDefaultAction(new QAction(KIcon("format-text-italic"), i18n("Italic"), this));
+    m_appearanceUi.italicButton->defaultAction()->setData(QWebPage::ToggleItalic);
     m_appearanceUi.underlineButton->setDefaultAction(new QAction(KIcon("format-text-underline"), i18n("Underline"), this));
+    m_appearanceUi.underlineButton->defaultAction()->setData(QWebPage::ToggleUnderline);
     m_appearanceUi.justifyLeftButton->setDefaultAction(new QAction(KIcon("format-justify-left"), i18n("Justify Left"), this));
+    m_appearanceUi.justifyLeftButton->defaultAction()->setData(QWebPage::AlignLeft);
     m_appearanceUi.justifyCenterButton->setDefaultAction(new QAction(KIcon("format-justify-center"), i18n("Justify Center"), this));
+    m_appearanceUi.justifyCenterButton->defaultAction()->setData(QWebPage::AlignCenter);
     m_appearanceUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
+    m_appearanceUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_appearanceUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_appearanceUi.componentButton->setIcon(KIcon("chronometer"));
 
@@ -132,8 +138,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
-    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor()));
-    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateEditor(int)));
+    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged()));
+    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
@@ -171,7 +177,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    updateEditor();
+    modeChanged();
 
     if (m_editedItem) {
         m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
@@ -353,80 +359,29 @@ void Configuration::renameTheme()
     emit clearCache();
 }
 
-void Configuration::updateEditor(int tab)
-{
-    if (tab < 0) {
-        tab = m_appearanceUi.editorTabWidget->currentIndex();
-    }
-
-    if (tab == 1) {
-        richTextChanged();
-    } else {
-        sourceChanged();
-
-        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
-
-        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
-
-        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
-    }
-}
-
 void Configuration::triggerAction()
 {
-    const QString actionName = sender()->objectName().remove("Button");
-    QHash<QString, QWebPage::WebAction> actions;
-    actions["bold"] = QWebPage::ToggleBold;
-    actions["italic"] = QWebPage::ToggleItalic;
-    actions["underline"] = QWebPage::ToggleUnderline;
-    actions["justifyLeft"] = QWebPage::AlignLeft;
-    actions["justifyCenter"] = QWebPage::AlignCenter;
-    actions["justifyRight"] = QWebPage::AlignRight;
+    QToolButton *button = qobject_cast<QToolButton*>(sender());
 
-    if (!actions.contains(actionName)) {
+    if (!button) {
         return;
     }
 
-    if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
-        m_appearanceUi.webView->page()->triggerAction(actions[actionName]);
+    const QWebPage::WebAction action = static_cast<QWebPage::WebAction>(button->defaultAction()->data().toInt());
 
-        return;
+    if (action == QWebPage::ToggleBold) {
+        setStyle("font-weight", (button->isChecked() ? "normal" : "bold"));
+    } else if (action == QWebPage::ToggleItalic) {
+        setStyle("font-style", (button->isChecked() ? "normal" : "italic"));
+    } else if (action == QWebPage::ToggleItalic) {
+        setStyle("text-decoration", (button->isChecked() ? "none" : "underline"));
+    } else {
+        if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
+            m_appearanceUi.webView->page()->triggerAction(action);
+        } else {
+            setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
+        }
     }
-
-    qobject_cast<QAbstractButton*>(sender())->setChecked(false);
-
-    QString html;
-
-    switch (actions[actionName]) {
-    case QWebPage::ToggleBold:
-        html = "<b>%1</b>";
-
-        break;
-    case QWebPage::ToggleItalic:
-        html = "<i>%1</i>";
-
-        break;
-    case QWebPage::ToggleUnderline:
-        html = "<u>%1</u>";
-
-        break;
-    case QWebPage::AlignLeft:
-        html = "<div style=\"text-align:left;\">%1</div>";
-
-        break;
-    case QWebPage::AlignCenter:
-        html = "<div style=\"text-align:center;\">%1</div>";
-
-        break;
-    case QWebPage::AlignRight:
-        html = "<div style=\"text-align:right;\">%1</div>";
-
-        break;
-    default:
-        return;
-    }
-
-    m_appearanceUi.htmlTextEdit->insertPlainText(html.arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
 }
 
 void Configuration::selectionChanged()
@@ -457,10 +412,10 @@ void Configuration::selectionChanged()
     m_appearanceUi.underlineButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
-void Configuration::setStyle(const QString &property, const QString &value)
+void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
 {
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<span style=\"%1:%2;\">%3</span>").arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
+        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
     }
@@ -520,6 +475,29 @@ void Configuration::showEditorContextMenu(const QPoint &position)
     menu.exec(m_appearanceUi.webView->mapToGlobal(position));
 }
 
+void Configuration::modeChanged(int mode)
+{
+    if (mode < 0) {
+        mode = m_appearanceUi.editorTabWidget->currentIndex();
+    }
+
+    m_appearanceUi.boldButton->setCheckable(mode == 0);
+    m_appearanceUi.italicButton->setCheckable(mode == 0);
+    m_appearanceUi.underlineButton->setCheckable(mode == 0);
+
+    if (mode == 1) {
+        richTextChanged();
+    } else {
+        sourceChanged();
+
+        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
+
+        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
+
+        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
+    }
+}
+
 void Configuration::themeChanged()
 {
     if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
@@ -554,14 +532,6 @@ void Configuration::richTextChanged()
             do {
                 if (element.hasAttribute("style")) {
                     styles.append(element.attribute("style"));
-                }
-
-                if (element.tagName() == QString('B')) {
-                    styles.append("font-weight: bold;");
-                } else if (element.tagName() == QString('I')) {
-                    styles.append("font-style: italic;");
-                } else if (element.tagName() == QString('U')) {
-                    styles.append("text-decoration: underline;");
                 }
 
                 element = element.firstChild();
