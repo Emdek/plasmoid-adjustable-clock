@@ -135,7 +135,7 @@
          <item>
           <widget class="QToolButton" name="backgroundButton">
            <property name="toolTip">
-            <string>Use Standard Background</string>
+            <string>Draw Widget Background</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
