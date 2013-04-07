@@ -130,18 +130,12 @@
            <property name="toolTip">
             <string>Font Color</string>
            </property>
-           <property name="text">
-            <string/>
-           </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="backgroundButton">
            <property name="toolTip">
             <string>Use Standard Background</string>
-           </property>
-           <property name="text">
-            <string/>
            </property>
            <property name="checkable">
             <bool>true</bool>
