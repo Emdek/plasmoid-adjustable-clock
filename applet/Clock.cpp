@@ -68,7 +68,7 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
 {
     engine->globalObject().setProperty("Clock", engine->newQObject(clock), QScriptValue::Undeletable);
 
-    for (int i = 0; i < LastComponent; ++i) {
+    for (int i = 1; i < LastComponent; ++i) {
         engine->evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 }
@@ -80,13 +80,13 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     document->setHtml(html);
     document->addToJavaScriptWindowObject("Clock", clock);
 
-    for (int i = 0; i < LastComponent; ++i) {
+    for (int i = 1; i < LastComponent; ++i) {
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 
     document->evaluateJavaScript(script);
 
-    for (int i = 0; i < LastComponent; ++i) {
+    for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, clock, static_cast<ClockComponent>(i));
     }
 }

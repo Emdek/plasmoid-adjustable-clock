@@ -46,6 +46,8 @@ enum ModelRole
     BundledRole = (Qt::UserRole + 8)
 };
 
+class ComponentWidget;
+
 class Configuration : public QObject
 {
     Q_OBJECT
@@ -62,7 +64,7 @@ class Configuration : public QObject
     protected slots:
         void save();
         void modify();
-        void insertComponent();
+        void insertComponent(bool show);
         void insertComponent(const QString &component, const QString &options);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
@@ -92,6 +94,7 @@ class Configuration : public QObject
         Applet *m_applet;
         QStandardItemModel *m_themesModel;
         QListWidgetItem *m_editedItem;
+        ComponentWidget *m_componentWidget;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

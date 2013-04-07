@@ -18,39 +18,47 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
-#define ADJUSTABLECLOCKCOMPONENTDIALOG_HEADER
+#ifndef ADJUSTABLECLOCKCOMPONENTWIDGET_HEADER
+#define ADJUSTABLECLOCKCOMPONENTWIDGET_HEADER
 
 #include "Clock.h"
 
-#include <KDialog>
+#include <QtGui/QWidget>
 
 #include "ui_component.h"
 
 namespace AdjustableClock
 {
 
-class ComponentDialog : public KDialog
+class ComponentWidget : public QWidget
 {
     Q_OBJECT
 
     public:
-        ComponentDialog(Clock *clock, QWidget *parent);
+        ComponentWidget(Clock *clock, QWidget *parent = NULL);
+
+    public slots:
+        void insertComponent();
 
     protected:
-        ClockComponent getComponent() const;
-        QVariantMap getOptions() const;
+        void addOption(QWidget *widget);
 
     protected slots:
-        void sendSignal();
-        void selectComponent(int index);
+        void selectComponent(QAction *action);
         void updatePreview();
+        void setShortForm(bool form);
+        void setAlternativeForm(int form);
+        void setTextualForm(bool form);
+        void setPossessiveForm(int form);
 
     private:
         Clock *m_clock;
+        QVariantMap m_options;
+        ClockComponent m_component;
         Ui::component m_componentUi;
 
     signals:
+        void componentChanged(bool valid);
         void insertComponent(QString component, QString options);
 };
 

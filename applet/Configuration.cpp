@@ -20,7 +20,7 @@
 
 #include "Configuration.h"
 #include "Clock.h"
-#include "ComponentDialog.h"
+#include "ComponentWidget.h"
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
 
@@ -43,7 +43,8 @@ namespace AdjustableClock
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
     m_themesModel(new QStandardItemModel(this)),
-    m_editedItem(NULL)
+    m_editedItem(NULL),
+    m_componentWidget(NULL)
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardConfiguration = new QWidget();
@@ -160,7 +161,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-    connect(m_appearanceUi.componentButton, SIGNAL(clicked()), this, SLOT(insertComponent()));
+    connect(m_appearanceUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(insertComponent(bool)));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertItem()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteItem()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editItem()));
@@ -242,9 +243,17 @@ void Configuration::modify()
     static_cast<KConfigDialog*>(parent())->enableButtonApply(true);
 }
 
-void Configuration::insertComponent()
+void Configuration::insertComponent(bool show)
 {
-    connect(new ComponentDialog(m_applet->getClock(), m_appearanceUi.componentButton), SIGNAL(insertComponent(QString,ClockComponent)), this, SLOT(insertComponent(QString,ClockComponent)));
+    if (!m_componentWidget) {
+        m_componentWidget = new ComponentWidget(m_applet->getClock(), m_appearanceUi.componentButton);
+
+        m_appearanceUi.headerLayout->addWidget(m_componentWidget);
+
+        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
+    }
+
+    m_componentWidget->setVisible(show);
 }
 
 void Configuration::insertComponent(const QString &component, const QString &options)

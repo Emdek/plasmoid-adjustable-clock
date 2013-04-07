@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
+    <width>630</width>
     <height>332</height>
    </rect>
   </property>
@@ -80,152 +80,162 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QHBoxLayout" name="controlslLayout">
+        <layout class="QVBoxLayout" name="headerLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
          <item>
-          <widget class="QToolButton" name="boldButton">
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="italicButton">
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="underlineButton">
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="justifyLeftButton"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="justifyCenterButton"/>
-         </item>
-         <item>
-          <widget class="QToolButton" name="justifyRightButton"/>
-         </item>
-         <item>
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="colorButton">
-           <property name="toolTip">
-            <string>Font Color</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="backgroundButton">
-           <property name="toolTip">
-            <string>Draw Widget Background</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="KComboBox" name="fontSizeComboBox">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Font Size</string>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
+          <layout class="QHBoxLayout" name="controlslLayout">
            <item>
-            <property name="text">
-             <string notr="true">10</string>
-            </property>
+            <widget class="QToolButton" name="boldButton">
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">13</string>
-            </property>
+            <widget class="QToolButton" name="italicButton">
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">16</string>
-            </property>
+            <widget class="QToolButton" name="underlineButton">
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">18</string>
-            </property>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">24</string>
-            </property>
+            <widget class="QToolButton" name="justifyLeftButton"/>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">32</string>
-            </property>
+            <widget class="QToolButton" name="justifyCenterButton"/>
            </item>
            <item>
-            <property name="text">
-             <string notr="true">48</string>
-            </property>
+            <widget class="QToolButton" name="justifyRightButton"/>
            </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFontComboBox" name="fontFamilyComboBox">
-           <property name="toolTip">
-            <string>Font Family</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="componentButton">
-           <property name="toolTip">
-            <string>Insert Clock Component...</string>
-           </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
-           </property>
-          </widget>
+           <item>
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="colorButton">
+             <property name="toolTip">
+              <string>Font Color</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="backgroundButton">
+             <property name="toolTip">
+              <string>Draw Widget Background</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KComboBox" name="fontSizeComboBox">
+             <property name="maximumSize">
+              <size>
+               <width>60</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Font Size</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string notr="true">10</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">13</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">16</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">18</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">24</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">32</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">48</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFontComboBox" name="fontFamilyComboBox">
+             <property name="toolTip">
+              <string>Font Family</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="componentButton">
+             <property name="toolTip">
+              <string>Insert Clock Component...</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="popupMode">
+              <enum>QToolButton::InstantPopup</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
