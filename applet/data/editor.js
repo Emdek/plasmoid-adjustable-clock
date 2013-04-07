@@ -13,7 +13,7 @@ function preventDrag(event)
 
 function selectComponent(event)
 {
-	if (event.target.className.indexOf('component') == -1)
+	if (!event.target.hasAttribute('component'))
 	{
 		return;
 	}
@@ -43,7 +43,7 @@ function fixFinalSelection(event)
 
 	while (startElement)
 	{
-		if (startElement.className && startElement.className.indexOf('component') >= 0)
+		if (startElement.hasAttribute && startElement.hasAttribute('component'))
 		{
 			if (forward)
 			{
@@ -62,7 +62,7 @@ function fixFinalSelection(event)
 
 	while (endElement)
 	{
-		if (endElement.className && endElement.className.indexOf('component') >= 0)
+		if (endElement.hasAttribute && endElement.hasAttribute('component'))
 		{
 			if (forward)
 			{
@@ -126,12 +126,12 @@ function setStyle(property, value)
 		var contents = range.extractContents();
 		var container = ((startElement.parentNode == endElement.parentNode) ? startElement.parentNode : null);
 
-		if (startElement.className && startElement.className.indexOf('component') >= 0)
+		if (startElement.hasAttribute('component'))
 		{
 			startElement.parentNode.removeChild(startElement);
 		}
 
-		if (endElement.className && endElement.className.indexOf('component') >= 0)
+		if (endElement.hasAttribute('component'))
 		{
 			endElement.parentNode.removeChild(endElement);
 		}
@@ -147,6 +147,7 @@ function setStyle(property, value)
 
 		parentElement.appendChild(contents);
 		parentElement.style.setProperty(property, value);
+
 		range.insertNode(parentElement)
 	}
 }
