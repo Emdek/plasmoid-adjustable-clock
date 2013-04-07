@@ -260,14 +260,13 @@ void Configuration::insertComponent(const QString &component, const QString &opt
 {
     const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
     const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options)), true);
-    QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(html);
+        m_appearanceUi.htmlTextEdit->insertPlainText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
         sourceChanged();
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("document.execCommand('inserthtml', false, ' %1 ')").arg(html.replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
     }
 }
 

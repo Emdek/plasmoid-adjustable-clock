@@ -99,6 +99,23 @@ function fixSelection()
 	previousRange = window.getSelection().getRangeAt(0);
 }
 
+function insertComponent(component, options, title, value)
+{
+	var element = document.createElement('span');
+	element.setAttribute('component', component);
+	element.setAttribute('title', title);
+	element.textContent = value;
+
+	if (options != '')
+	{
+		element.setAttribute('options', options);
+	}
+
+	var range = window.getSelection().getRangeAt(0);
+	range.deleteContents();
+	range.insertNode(element);
+}
+
 function getStyle(property)
 {
 	var selection = window.getSelection();
