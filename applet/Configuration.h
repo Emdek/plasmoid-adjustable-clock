@@ -63,15 +63,16 @@ class Configuration : public QObject
     protected slots:
         void save();
         void modify();
-        void insertComponent(bool show);
-        void insertComponent(const QString &component, const QString &options);
         void selectTheme(const QModelIndex &index);
         void newTheme(bool automatically = false);
         void deleteTheme();
         void renameTheme();
         void triggerAction();
+        void insertComponent(bool show);
+        void insertComponent(const QString &component, const QString &options);
         void selectionChanged();
-        void modeChanged(int mode = -1);
+        void appearanceModeChanged(int mode);
+        void editorModeChanged(int mode);
         void themeChanged();
         void richTextChanged();
         void sourceChanged();
@@ -94,6 +95,7 @@ class Configuration : public QObject
         QStandardItemModel *m_themesModel;
         QListWidgetItem *m_editedItem;
         ComponentWidget *m_componentWidget;
+        bool m_editorInitialized;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

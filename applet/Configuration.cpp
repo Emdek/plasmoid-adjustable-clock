@@ -44,7 +44,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_applet(applet),
     m_themesModel(new QStandardItemModel(this)),
     m_editedItem(NULL),
-    m_componentWidget(NULL)
+    m_componentWidget(NULL),
+    m_editorInitialized(false)
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardConfiguration = new QWidget();
@@ -138,8 +139,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
-    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged()));
-    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
+    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(appearanceModeChanged(int)));
+    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(editorModeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
@@ -176,7 +177,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    modeChanged();
+    if (m_editorInitialized) {
+        editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
+    }
 
     if (m_editedItem) {
         m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
@@ -238,51 +241,16 @@ void Configuration::modify()
     static_cast<KConfigDialog*>(parent())->enableButtonApply(true);
 }
 
-void Configuration::insertComponent(bool show)
-{
-    if (!m_componentWidget) {
-        m_componentWidget = new ComponentWidget(m_applet->getClock(), m_appearanceUi.componentButton);
-
-        m_appearanceUi.headerLayout->addWidget(m_componentWidget);
-
-        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
-    }
-
-    m_componentWidget->setVisible(show);
-}
-
-void Configuration::insertComponent(const QString &component, const QString &options)
-{
-    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
-    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options)), true);
-
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
-
-        sourceChanged();
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
-    }
-}
-
 void Configuration::selectTheme(const QModelIndex &index)
 {
     if (m_appearanceUi.themesView->selectionModel()->hasSelection()) {
         modify();
     }
 
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
-    m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
-    m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
-
-    sourceChanged();
-
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
 void Configuration::newTheme(bool automatically)
@@ -383,6 +351,33 @@ void Configuration::triggerAction()
     }
 }
 
+void Configuration::insertComponent(bool show)
+{
+    if (!m_componentWidget) {
+        m_componentWidget = new ComponentWidget(m_applet->getClock(), m_appearanceUi.componentButton);
+
+        m_appearanceUi.headerLayout->addWidget(m_componentWidget);
+
+        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
+    }
+
+    m_componentWidget->setVisible(show);
+}
+
+void Configuration::insertComponent(const QString &component, const QString &options)
+{
+    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
+    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options)), true);
+
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
+        m_appearanceUi.htmlTextEdit->insertPlainText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
+
+        sourceChanged();
+    } else {
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
+    }
+}
+
 void Configuration::selectionChanged()
 {
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("fixSelection()");
@@ -411,12 +406,32 @@ void Configuration::selectionChanged()
     m_appearanceUi.underlineButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
-void Configuration::modeChanged(int mode)
+void Configuration::appearanceModeChanged(int mode)
 {
-    if (mode < 0) {
-        mode = m_appearanceUi.editorTabWidget->currentIndex();
+    if (mode == 0) {
+        return;
     }
 
+    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+
+    m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
+    m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
+
+    sourceChanged();
+
+    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+
+    if (!m_editorInitialized) {
+        m_editorInitialized = true;
+    }
+
+    editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
+}
+
+void Configuration::editorModeChanged(int mode)
+{
     m_appearanceUi.boldButton->setCheckable(mode == 0);
     m_appearanceUi.italicButton->setCheckable(mode == 0);
     m_appearanceUi.underlineButton->setCheckable(mode == 0);
