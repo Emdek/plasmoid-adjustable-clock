@@ -20,6 +20,7 @@ target_link_libraries(plasma_applet_adjustableclock
 	${QT_QTSCRIPT_LIBRARY}
 	${QT_QTWEBKIT_LIBRARY}
 	${KDE4_PLASMA_LIBS}
+	${KDE4_KTEXTEDITOR_LIBS}
 	${KDE4_KDEUI_LIBS}
 	)
 

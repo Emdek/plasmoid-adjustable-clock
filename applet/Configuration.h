@@ -27,6 +27,8 @@
 
 #include <KConfigDialog>
 
+#include <KTextEditor/Document>
+
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
 
@@ -75,6 +77,7 @@ class Configuration : public QObject
         void themeChanged();
         void richTextChanged();
         void sourceChanged();
+        void showEditorContextMenu(const QPoint &position);
         void selectAction(const QModelIndex &index);
         void editAction(QModelIndex index = QModelIndex());
         void insertAction();
@@ -82,7 +85,6 @@ class Configuration : public QObject
         void moveAction(bool up);
         void moveUpAction();
         void moveDownAction();
-        void showEditorContextMenu(const QPoint &position);
         void setColor();
         void setFontSize(const QString &size);
         void setFontFamily(const QFont &font);
@@ -93,8 +95,8 @@ class Configuration : public QObject
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
         ComponentWidget *m_componentWidget;
+        KTextEditor::Document *m_document;
         QModelIndex m_editedAction;
-        bool m_editorInitialized;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

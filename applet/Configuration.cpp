@@ -35,6 +35,11 @@
 #include <KInputDialog>
 #include <KStandardDirs>
 
+#include <KTextEditor/View>
+#include <KTextEditor/Editor>
+#include <KTextEditor/EditorChooser>
+#include <KTextEditor/ConfigInterface>
+
 #include <Plasma/Theme>
 
 namespace AdjustableClock
@@ -45,7 +50,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_themesModel(new QStandardItemModel(this)),
     m_actionsModel(new QStandardItemModel(this)),
     m_componentWidget(NULL),
-    m_editorInitialized(false)
+    m_document(NULL)
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardConfiguration = new QWidget();
@@ -142,7 +147,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -170,7 +175,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    if (m_editorInitialized) {
+    if (m_appearanceUi.mainTabWidget->currentIndex() == 1) {
         editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
     }
 
@@ -279,7 +284,7 @@ void Configuration::newTheme(bool automatically)
     QStandardItem *item = new QStandardItem();
     item->setData(identifier, IdRole);
     item->setData(title, TitleRole);
-    item->setData(m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
+    item->setData((m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
     item->setData(m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
     item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
@@ -363,7 +368,13 @@ void Configuration::insertComponent(const QString &component, const QString &opt
     const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options)), true);
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
+        const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
+
+        if (m_document) {
+            m_document->activeView()->insertText(html);
+        } else {
+            m_appearanceUi.editorTextEdit->insertPlainText(html);
+        }
 
         sourceChanged();
     } else {
@@ -405,24 +416,50 @@ void Configuration::appearanceModeChanged(int mode)
         return;
     }
 
-    disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+    KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
+
+    if (editor) {
+        if (m_document) {
+            m_document->activeView()->deleteLater();
+            m_document->deleteLater();
+        }
+
+        m_document = editor->createDocument(this);
+        m_document->setHighlightingMode("html");
+
+        KTextEditor::View *view = m_document->createView(m_appearanceUi.sourceTab);
+        view->setContextMenu(view->defaultContextMenu());
+
+        KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
+
+        if (configuration) {
+            configuration->setConfigValue("line-numbers", true);
+            configuration->setConfigValue("folding-bar", false);
+            configuration->setConfigValue("dynamic-word-wrap", false);
+        }
+
+        m_appearanceUi.editorTextEdit->hide();
+        m_appearanceUi.sourceLayout->addWidget(view);
+    }
 
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
+    if (m_document) {
+        m_document->setText(index.data(HtmlRole).toString());
+    } else {
+        disconnect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
+
+        m_appearanceUi.editorTextEdit->setPlainText(index.data(HtmlRole).toString());
+    }
+
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
 
     sourceChanged();
 
-    connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-
-    if (!m_editorInitialized) {
-        QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
-        webViewPalette.setBrush(QPalette::Base, Qt::transparent);
-
-        m_appearanceUi.webView->page()->setPalette(webViewPalette);
-
-        m_editorInitialized = true;
+    if (m_document) {
+        connect(m_document, SIGNAL(textChanged(KTextEditor::Document*)), this, SLOT(themeChanged()));
+    } else {
+        connect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     }
 
     editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
@@ -455,7 +492,7 @@ void Configuration::themeChanged()
 
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
+    m_themesModel->setData(index, (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
 
     modify();
@@ -474,7 +511,13 @@ void Configuration::richTextChanged()
         elements.at(i).removeAttribute("title");
     }
 
-    m_appearanceUi.htmlTextEdit->setPlainText(page.mainFrame()->toHtml().remove(QRegExp("<head></head>")));
+    const QString html = page.mainFrame()->toHtml().remove(QRegExp("<head></head>"));
+
+    if (m_document) {
+        m_document->setText(html);
+    } else {
+        m_appearanceUi.editorTextEdit->setPlainText(html);
+    }
 }
 
 void Configuration::sourceChanged()
@@ -482,7 +525,7 @@ void Configuration::sourceChanged()
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), m_appearanceUi.htmlTextEdit->toPlainText());
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()));
 
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
 
@@ -491,6 +534,27 @@ void Configuration::sourceChanged()
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
     }
+}
+
+void Configuration::showEditorContextMenu(const QPoint &position)
+{
+    KMenu menu(m_appearanceUi.webView);
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.boldButton->defaultAction());
+    menu.addAction(m_appearanceUi.italicButton->defaultAction());
+    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
+    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
 }
 
 void Configuration::selectAction(const QModelIndex &index)
@@ -569,31 +633,16 @@ void Configuration::moveDownAction()
     moveAction(false);
 }
 
-void Configuration::showEditorContextMenu(const QPoint &position)
-{
-    KMenu menu(m_appearanceUi.webView);
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.boldButton->defaultAction());
-    menu.addAction(m_appearanceUi.italicButton->defaultAction());
-    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
-    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
-}
-
 void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
 {
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
+        const QString html = QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document ? m_document->activeView()->selectionText() : m_appearanceUi.editorTextEdit->textCursor().selectedText());
+
+        if (m_document) {
+            m_document->activeView()->insertText(html);
+        } else {
+            m_appearanceUi.editorTextEdit->insertPlainText(html);
+        }
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
     }

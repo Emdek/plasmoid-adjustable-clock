@@ -323,9 +323,9 @@
           <attribute name="title">
            <string>Source</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <layout class="QVBoxLayout" name="sourceLayout">
            <item>
-            <widget class="KTextEdit" name="htmlTextEdit">
+            <widget class="KTextEdit" name="editorTextEdit">
              <property name="acceptRichText">
               <bool>false</bool>
              </property>

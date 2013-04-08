@@ -5,6 +5,7 @@
 - added Digital Clock theme;
 - improvements in rich text editor;
 - more user friendly way to insert clock components;
+- use KTextEditor for source editing if available;
 - added ability to set custom theme using Plasma scripting;
 - many code cleanups and fixes.
 
