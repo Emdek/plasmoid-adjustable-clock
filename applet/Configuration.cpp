@@ -132,6 +132,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
+    connect(m_actionsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(modify()));
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(appearanceModeChanged(int)));
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(editorModeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
@@ -519,8 +520,6 @@ void Configuration::editAction(QModelIndex index)
     }
 
     m_editedAction = index;
-
-    modify();
 
     m_clipboardUi.actionsView->openPersistentEditor(m_editedAction);
 }
