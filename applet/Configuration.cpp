@@ -43,7 +43,7 @@ namespace AdjustableClock
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
     m_themesModel(new QStandardItemModel(this)),
-    m_editedItem(NULL),
+    m_actionsModel(new QStandardItemModel(this)),
     m_componentWidget(NULL),
     m_editorInitialized(false)
 {
@@ -69,16 +69,27 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         m_themesModel->appendRow(item);
     }
 
+    const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
+
+    for (int i = 0; i < clipboardExpressions.count(); ++i) {
+        QStandardItem *item = new QStandardItem(clipboardExpressions.at(i));
+
+        if (!clipboardExpressions.at(i).isEmpty()) {
+            item->setToolTip(m_applet->getClock()->evaluate(clipboardExpressions.at(i), true));
+        }
+
+        m_actionsModel->appendRow(item);
+    }
+
+    selectAction(m_actionsModel->index(0, 0));
+
     PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock(), m_appearanceUi.themesView);
-    QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
-    webViewPalette.setBrush(QPalette::Base, Qt::transparent);
 
     m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(delegate);
     m_appearanceUi.themesView->installEventFilter(this);
     m_appearanceUi.themesView->viewport()->installEventFilter(this);
     m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
-    m_appearanceUi.webView->page()->setPalette(webViewPalette);
     m_appearanceUi.webView->page()->setContentEditable(true);
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
@@ -109,29 +120,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
-    m_clipboardUi.clipboardActionsList->setItemDelegate(new ExpressionDelegate(m_applet->getClock(), this));
-    m_clipboardUi.clipboardActionsList->viewport()->installEventFilter(this);
+    m_clipboardUi.actionsView->setModel(m_actionsModel);
+    m_clipboardUi.actionsView->setItemDelegate(new ExpressionDelegate(m_applet->getClock(), this));
+    m_clipboardUi.actionsView->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)"));
     m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
-
-    const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
-
-    for (int i = 0; i < clipboardExpressions.count(); ++i) {
-        QListWidgetItem *item = new QListWidgetItem(clipboardExpressions.at(i));
-
-        if (!clipboardExpressions.at(i).isEmpty()) {
-            item->setToolTip(m_applet->getClock()->evaluate(clipboardExpressions.at(i), true));
-        }
-
-        m_clipboardUi.clipboardActionsList->addItem(item);
-    }
-
-    itemSelectionChanged();
-
-    QPalette buttonPalette = m_appearanceUi.colorButton->palette();
-    buttonPalette.setBrush(QPalette::Button, Qt::black);
-
-    m_appearanceUi.colorButton->setPalette(buttonPalette);
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
     parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
@@ -161,14 +154,13 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
     connect(m_appearanceUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(insertComponent(bool)));
-    connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertItem()));
-    connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteItem()));
-    connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editItem()));
-    connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveItemUp()));
-    connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveItemDown()));
-    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
-    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateItem(QListWidgetItem*)));
-    connect(m_clipboardUi.clipboardActionsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(editItem(QListWidgetItem*)));
+    connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
+    connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
+    connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editAction()));
+    connect(m_clipboardUi.moveUpButton, SIGNAL(clicked()), this, SLOT(moveUpAction()));
+    connect(m_clipboardUi.moveDownButton, SIGNAL(clicked()), this, SLOT(moveDownAction()));
+    connect(m_clipboardUi.actionsView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectAction(QModelIndex)));
+    connect(m_clipboardUi.actionsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(editAction(QModelIndex)));
     connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
@@ -181,14 +173,14 @@ void Configuration::save()
         editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
     }
 
-    if (m_editedItem) {
-        m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
+    if (m_editedAction.isValid()) {
+        m_clipboardUi.actionsView->closePersistentEditor(m_editedAction);
     }
 
     QStringList clipboardExpressions;
 
-    for (int i = 0; i < m_clipboardUi.clipboardActionsList->count(); ++i) {
-        clipboardExpressions.append(m_clipboardUi.clipboardActionsList->item(i)->text());
+    for (int i = 0; i < m_actionsModel->rowCount(); ++i) {
+        clipboardExpressions.append(m_actionsModel->index(i, 0).data(Qt::EditRole).toString());
     }
 
     m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
@@ -424,6 +416,11 @@ void Configuration::appearanceModeChanged(int mode)
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 
     if (!m_editorInitialized) {
+        QPalette webViewPalette = m_appearanceUi.webView->page()->palette();
+        webViewPalette.setBrush(QPalette::Base, Qt::transparent);
+
+        m_appearanceUi.webView->page()->setPalette(webViewPalette);
+
         m_editorInitialized = true;
     }
 
@@ -495,96 +492,82 @@ void Configuration::sourceChanged()
     }
 }
 
-void Configuration::itemSelectionChanged()
+void Configuration::selectAction(const QModelIndex &index)
 {
-    const QList<QListWidgetItem*> selectedItems = m_clipboardUi.clipboardActionsList->selectedItems();
+    if (index != m_clipboardUi.actionsView->currentIndex()) {
+        m_clipboardUi.actionsView->setCurrentIndex(index);
+    }
 
-    m_clipboardUi.moveUpButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsList->row(selectedItems.first()) != 0);
-    m_clipboardUi.moveDownButton->setEnabled(!selectedItems.isEmpty() && m_clipboardUi.clipboardActionsList->row(selectedItems.last()) != (m_clipboardUi.clipboardActionsList->count() - 1));
-    m_clipboardUi.editButton->setEnabled(!selectedItems.isEmpty());
-    m_clipboardUi.deleteButton->setEnabled(!selectedItems.isEmpty());
+    m_clipboardUi.moveUpButton->setEnabled(index.isValid() && index.row() != 0);
+    m_clipboardUi.moveDownButton->setEnabled(index.isValid() && index.row() != (m_actionsModel->rowCount() - 1));
+    m_clipboardUi.editButton->setEnabled(index.isValid());
+    m_clipboardUi.deleteButton->setEnabled(index.isValid());
 }
 
-void Configuration::editItem(QListWidgetItem *item)
+void Configuration::editAction(QModelIndex index)
 {
-    if (m_editedItem) {
-        m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
+    if (m_editedAction.isValid()) {
+        m_clipboardUi.actionsView->closePersistentEditor(m_editedAction);
     }
 
-    if (!item) {
-        item = m_clipboardUi.clipboardActionsList->currentItem();
+    if (!index.isValid()) {
+        index = m_clipboardUi.actionsView->currentIndex();
     }
 
-    if (!item) {
+    if (!index.isValid()) {
         return;
     }
 
-    m_editedItem = item;
+    m_editedAction = index;
 
     modify();
 
-    m_clipboardUi.clipboardActionsList->openPersistentEditor(m_editedItem);
+    m_clipboardUi.actionsView->openPersistentEditor(m_editedAction);
 }
 
-void Configuration::insertItem()
+void Configuration::insertAction()
 {
-    QListWidgetItem *item = new QListWidgetItem(QString());
+    const int row = (m_clipboardUi.actionsView->currentIndex().row() + 1);
 
-    m_clipboardUi.clipboardActionsList->insertItem((m_clipboardUi.clipboardActionsList->currentRow() + 1), item);
-
-    editItem(item);
-
-    itemSelectionChanged();
-    modify();
-}
-
-void Configuration::deleteItem()
-{
-    QListWidgetItem *item = m_clipboardUi.clipboardActionsList->takeItem(m_clipboardUi.clipboardActionsList->currentRow());
-
-    if (item == m_editedItem) {
-        m_editedItem = NULL;
+    if (!m_actionsModel->insertRow(row)) {
+        return;
     }
 
-    if (item) {
-        delete item;
-    }
+    const QModelIndex index = m_actionsModel->index(row, 0);
 
-    itemSelectionChanged();
+    selectAction(index);
+    editAction(index);
     modify();
 }
 
-void Configuration::moveItem(bool up)
+void Configuration::deleteAction()
 {
-    const int sourceRow = m_clipboardUi.clipboardActionsList->currentRow();
+    m_actionsModel->removeRow(m_clipboardUi.actionsView->currentIndex().row());
+
+    modify();
+}
+
+void Configuration::moveAction(bool up)
+{
+    const int sourceRow = m_clipboardUi.actionsView->currentIndex().row();
     const int destinationRow = (up ? (sourceRow - 1) : (sourceRow + 1));
+    QStandardItem *item = m_actionsModel->takeItem(sourceRow);
 
-    QListWidgetItem *sourceItem = m_clipboardUi.clipboardActionsList->takeItem(sourceRow);
-    QListWidgetItem *destinationItem = m_clipboardUi.clipboardActionsList->takeItem(destinationRow);
+    m_actionsModel->setItem(sourceRow, m_actionsModel->takeItem(destinationRow));
+    m_actionsModel->setItem(destinationRow, item);
 
-    m_clipboardUi.clipboardActionsList->insertItem(sourceRow, destinationItem);
-    m_clipboardUi.clipboardActionsList->insertItem(destinationRow, sourceItem);
-    m_clipboardUi.clipboardActionsList->setCurrentRow(destinationRow);
-
-    itemSelectionChanged();
+    selectAction(m_actionsModel->index(destinationRow, 0));
     modify();
 }
 
-void Configuration::moveItemUp()
+void Configuration::moveUpAction()
 {
-    moveItem(true);
+    moveAction(true);
 }
 
-void Configuration::moveItemDown()
+void Configuration::moveDownAction()
 {
-    moveItem(false);
-}
-
-void Configuration::updateItem(QListWidgetItem *item)
-{
-    if (item) {
-        item->setToolTip(m_applet->getClock()->evaluate(item->text(), true));
-    }
+    moveAction(false);
 }
 
 void Configuration::showEditorContextMenu(const QPoint &position)
@@ -671,18 +654,18 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
         if (!m_appearanceUi.themesView->indexAt(mouseEvent->pos()).isValid()) {
             newTheme();
         }
-    } else if ((event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) && object == m_clipboardUi.clipboardActionsList->viewport()) {
-        if (event->type() == QEvent::MouseButtonPress && m_editedItem) {
+    } else if ((event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) && object == m_clipboardUi.actionsView->viewport()) {
+        if (event->type() == QEvent::MouseButtonPress && m_editedAction.isValid()) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-            if (m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos()) != m_editedItem) {
-                m_clipboardUi.clipboardActionsList->closePersistentEditor(m_editedItem);
+            if (m_clipboardUi.actionsView->indexAt(mouseEvent->pos()) != m_editedAction) {
+                m_clipboardUi.actionsView->closePersistentEditor(m_editedAction);
             }
         } else if (event->type() == QEvent::MouseButtonDblClick) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-            if (!m_clipboardUi.clipboardActionsList->itemAt(mouseEvent->pos())) {
-                insertItem();
+            if (!m_clipboardUi.actionsView->indexAt(mouseEvent->pos()).isValid()) {
+                insertAction();
             }
         }
     }

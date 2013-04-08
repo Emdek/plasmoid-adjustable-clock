@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="tableLayout">
      <item>
-      <widget class="QListWidget" name="clipboardActionsList">
+      <widget class="QListView" name="actionsView">
        <property name="alternatingRowColors">
         <bool>true</bool>
        </property>

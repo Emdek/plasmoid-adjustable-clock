@@ -45,7 +45,10 @@ void ExpressionDelegate::setEditorData(QWidget *editor, const QModelIndex &index
 
 void ExpressionDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    model->setData(index, static_cast<ExpressionLineEdit*>(editor)->text(), Qt::EditRole);
+    const QString expression = static_cast<ExpressionLineEdit*>(editor)->text();
+
+    model->setData(index, expression, Qt::EditRole);
+    model->setData(index, (expression.isEmpty() ? QString() : m_clock->evaluate(expression, true)), Qt::ToolTipRole);
 }
 
 QWidget* ExpressionDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const

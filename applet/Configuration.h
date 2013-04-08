@@ -23,7 +23,6 @@
 
 #include "Applet.h"
 
-#include <QtGui/QListWidgetItem>
 #include <QtGui/QStandardItemModel>
 
 #include <KConfigDialog>
@@ -76,14 +75,13 @@ class Configuration : public QObject
         void themeChanged();
         void richTextChanged();
         void sourceChanged();
-        void itemSelectionChanged();
-        void editItem(QListWidgetItem *item = NULL);
-        void insertItem();
-        void deleteItem();
-        void moveItem(bool up);
-        void moveItemUp();
-        void moveItemDown();
-        void updateItem(QListWidgetItem *item);
+        void selectAction(const QModelIndex &index);
+        void editAction(QModelIndex index = QModelIndex());
+        void insertAction();
+        void deleteAction();
+        void moveAction(bool up);
+        void moveUpAction();
+        void moveDownAction();
         void showEditorContextMenu(const QPoint &position);
         void setColor();
         void setFontSize(const QString &size);
@@ -93,8 +91,9 @@ class Configuration : public QObject
     private:
         Applet *m_applet;
         QStandardItemModel *m_themesModel;
-        QListWidgetItem *m_editedItem;
+        QStandardItemModel *m_actionsModel;
         ComponentWidget *m_componentWidget;
+        QModelIndex m_editedAction;
         bool m_editorInitialized;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
