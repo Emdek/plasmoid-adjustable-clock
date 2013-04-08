@@ -45,7 +45,7 @@ namespace AdjustableClock
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clock(NULL),
     m_clipboardAction(NULL),
-    m_theme(-1)
+    m_newTheme(false)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
@@ -81,7 +81,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints(getTheme().background ? DefaultBackground : NoBackground);
+    setBackgroundHints(m_theme.background ? DefaultBackground : NoBackground);
 }
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -128,43 +128,36 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    const QString path = KStandardDirs::locate("data", "adjustableclock/themes.xml");
+    m_theme.id = config().readEntry("theme", "default");
+    m_theme.html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
+    m_theme.script = QString();
+    m_theme.background = true;
+    m_theme.bundled = false;
+    m_newTheme = false;
 
-    m_themes = loadThemes(path, true);
-    m_themes.append(loadThemes(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"), false));
+    if (config().readEntry("themeHtml", QString()).isEmpty()) {
+        const QList<Theme> themes = getThemes();
 
-    if (m_themes.isEmpty()) {
-        Theme theme;
-        theme.id = "default";
-        theme.title = i18n("Error");
-        theme.html = i18n("Missing or invalid data file: %1.").arg(path);
-        theme.background = true;
-        theme.bundled = false;
-
-        m_theme = 0;
-
-        m_themes.append(theme);
-    } else {
-        const QString id = config().readEntry("theme", "default");
-
-        m_theme = -1;
-
-        for (int i = 0; i < m_themes.count(); ++i) {
-            if (m_themes.at(i).id == id) {
-                m_theme = i;
+        for (int i = 0; i < themes.count(); ++i) {
+            if (m_theme.id == themes.at(i).id) {
+                m_theme = themes.at(i);
 
                 break;
             }
         }
 
-        if (m_theme < 0) {
-            m_theme = 0;
+        if (m_theme.html.isEmpty() && !themes.isEmpty()) {
+            m_theme = themes.first();
         }
+    } else {
+        m_theme.html = config().readEntry("themeHtml", QString());
+        m_theme.script = config().readEntry("themeScript", QString());
+        m_theme.background = config().readEntry("themeBackground", true);
+
+        m_newTheme = true;
     }
 
-    const Theme theme = getTheme();
-
-    m_clock->setTheme(theme.html, theme.script);
+    m_clock->setTheme(m_theme.html, m_theme.script);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -254,7 +247,7 @@ void Applet::updateSize()
     } else if (formFactor() == Plasma::Vertical) {
         size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
     } else {
-        if (getTheme().background) {
+        if (m_theme.background) {
             size = contentsRect().size();
         } else {
             size = boundingRect().size();
@@ -285,22 +278,6 @@ Clock* Applet::getClock() const
     return m_clock;
 }
 
-Theme Applet::getTheme() const
-{
-    if (m_theme >= 0 && m_theme < m_themes.count()) {
-        return m_themes[m_theme];
-    }
-
-    Theme theme;
-    theme.id = "default";
-    theme.title = i18n("Error");
-    theme.html = i18n("Invalid theme identifier.");
-    theme.background = true;
-    theme.bundled = false;
-
-    return theme;
-}
-
 QStringList Applet::getClipboardExpressions() const
 {
     QStringList clipboardExpressions;
@@ -321,70 +298,72 @@ QStringList Applet::getClipboardExpressions() const
 
 QList<Theme> Applet::getThemes() const
 {
-    return m_themes;
-}
-
-QList<Theme> Applet::loadThemes(const QString &path, bool bundled) const
-{
     QList<Theme> themes;
-    QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
 
-    QXmlStreamReader reader(&file);
-    Theme theme;
-    theme.bundled = bundled;
+    for (int i = 0; i < 2; ++i) {
+        QFile file(KStandardDirs::locate("data", QString("adjustableclock/%1themes.xml").arg((i == 0) ? QString() : "custom-")));
+        file.open(QFile::ReadOnly | QFile::Text);
 
-    while (!reader.atEnd()) {
-        reader.readNext();
+        QXmlStreamReader reader(&file);
+        Theme theme;
+        theme.bundled = (i == 0);
 
-        if (!reader.isStartElement()) {
-            if (reader.name().toString() == "theme") {
-                themes.append(theme);
+        while (!reader.atEnd()) {
+            reader.readNext();
+
+            if (!reader.isStartElement()) {
+                if (reader.name().toString() == "theme") {
+                    themes.append(theme);
+                }
+
+                continue;
             }
 
-            continue;
+            if (reader.name().toString() == "theme") {
+                theme.id = QString();
+                theme.title = QString();
+                theme.description = QString();
+                theme.author = QString();
+                theme.html = QString();
+                theme.script = QString();
+                theme.background = true;
+            }
+
+            if (reader.name().toString() == "id") {
+                theme.id = reader.readElementText();
+            }
+
+            if (reader.name().toString() == "title") {
+                theme.title = i18n(reader.readElementText().toUtf8().data());
+            }
+
+            if (reader.name().toString() == "description") {
+                theme.description = i18n(reader.readElementText().toUtf8().data());
+            }
+
+            if (reader.name().toString() == "author") {
+                theme.author = reader.readElementText();
+            }
+
+            if (reader.name().toString() == "background") {
+                theme.background = (reader.readElementText().toLower() == "true");
+            }
+
+            if (reader.name().toString() == "html") {
+                theme.html = reader.readElementText();
+            }
+
+            if (reader.name().toString() == "script") {
+                theme.script = reader.readElementText();
+            }
         }
 
-        if (reader.name().toString() == "theme") {
-            theme.id = QString();
-            theme.title = QString();
-            theme.description = QString();
-            theme.author = QString();
-            theme.html = QString();
-            theme.script = QString();
-            theme.background = true;
-        }
-
-        if (reader.name().toString() == "id") {
-            theme.id = reader.readElementText();
-        }
-
-        if (reader.name().toString() == "title") {
-            theme.title = i18n(reader.readElementText().toUtf8().data());
-        }
-
-        if (reader.name().toString() == "description") {
-            theme.description = i18n(reader.readElementText().toUtf8().data());
-        }
-
-        if (reader.name().toString() == "author") {
-            theme.author = reader.readElementText();
-        }
-
-        if (reader.name().toString() == "background") {
-            theme.background = (reader.readElementText().toLower() == "true");
-        }
-
-        if (reader.name().toString() == "html") {
-            theme.html = reader.readElementText();
-        }
-
-        if (reader.name().toString() == "script") {
-            theme.script = reader.readElementText();
-        }
+        file.close();
     }
 
-    file.close();
+    if (m_newTheme) {
+        themes.append(m_theme);
+    }
 
     return themes;
 }

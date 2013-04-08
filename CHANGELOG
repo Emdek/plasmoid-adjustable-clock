@@ -4,6 +4,8 @@
 - added animations to Train Clock;
 - added Digital Clock theme;
 - improvements in rich text editor;
+- more user friendly way to insert clock components;
+- added ability to set custom theme using Plasma scripting;
 - many code cleanups and fixes.
 
 3.2 (10.03.2013):

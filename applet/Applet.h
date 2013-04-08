@@ -55,7 +55,6 @@ class Applet : public ClockApplet
 
         void init();
         Clock* getClock() const;
-        Theme getTheme() const;
         QStringList getClipboardExpressions() const;
         QList<Theme> getThemes() const;
 
@@ -66,7 +65,6 @@ class Applet : public ClockApplet
         void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
-        QList<Theme> loadThemes(const QString &path, bool bundled) const;
         QList<QAction*> contextualActions();
 
     protected slots:
@@ -85,8 +83,8 @@ class Applet : public ClockApplet
         Clock *m_clock;
         QAction *m_clipboardAction;
         QWebPage m_page;
-        QList<Theme> m_themes;
-        int m_theme;
+        Theme m_theme;
+        bool m_newTheme;
 };
 
 }
