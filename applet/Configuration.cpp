@@ -411,69 +411,6 @@ void Configuration::selectionChanged()
     m_appearanceUi.underlineButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
-void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
-{
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
-    }
-}
-
-void Configuration::setColor()
-{
-    KColorDialog colorDialog;
-    colorDialog.setAlphaChannelEnabled(true);
-    colorDialog.setColor(m_appearanceUi.colorButton->palette().button().color());
-    colorDialog.setButtons(KDialog::Ok | KDialog::Cancel);
-
-    if (colorDialog.exec() == QDialog::Accepted) {
-        QPalette palette = m_appearanceUi.colorButton->palette();
-        palette.setBrush(QPalette::Button, colorDialog.color());
-
-        m_appearanceUi.colorButton->setPalette(palette);
-
-        setStyle("color", colorDialog.color().name());
-    }
-}
-
-void Configuration::setFontSize(const QString &size)
-{
-    setStyle("font-size", QString("%1px").arg(size));
-}
-
-void Configuration::setFontFamily(const QFont &font)
-{
-    setStyle("font-family", QString("'\\\'%1\\\'").arg(font.family()));
-}
-
-void Configuration::setZoom(int zoom)
-{
-    m_appearanceUi.webView->setZoomFactor((qreal) zoom / 100);
-    m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
-}
-
-void Configuration::showEditorContextMenu(const QPoint &position)
-{
-    KMenu menu(m_appearanceUi.webView);
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.boldButton->defaultAction());
-    menu.addAction(m_appearanceUi.italicButton->defaultAction());
-    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
-    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
-}
-
 void Configuration::modeChanged(int mode)
 {
     if (mode < 0) {
@@ -633,6 +570,69 @@ void Configuration::updateItem(QListWidgetItem *item)
     if (item) {
         item->setToolTip(m_applet->getClock()->evaluate(item->text(), true));
     }
+}
+
+void Configuration::showEditorContextMenu(const QPoint &position)
+{
+    KMenu menu(m_appearanceUi.webView);
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
+    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.boldButton->defaultAction());
+    menu.addAction(m_appearanceUi.italicButton->defaultAction());
+    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
+    menu.addSeparator();
+    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
+    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
+    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
+}
+
+void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
+{
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
+        m_appearanceUi.htmlTextEdit->insertPlainText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_appearanceUi.htmlTextEdit->textCursor().selectedText()));
+    } else {
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
+    }
+}
+
+void Configuration::setColor()
+{
+    KColorDialog colorDialog;
+    colorDialog.setAlphaChannelEnabled(true);
+    colorDialog.setColor(m_appearanceUi.colorButton->palette().button().color());
+    colorDialog.setButtons(KDialog::Ok | KDialog::Cancel);
+
+    if (colorDialog.exec() == QDialog::Accepted) {
+        QPalette palette = m_appearanceUi.colorButton->palette();
+        palette.setBrush(QPalette::Button, colorDialog.color());
+
+        m_appearanceUi.colorButton->setPalette(palette);
+
+        setStyle("color", colorDialog.color().name());
+    }
+}
+
+void Configuration::setFontSize(const QString &size)
+{
+    setStyle("font-size", QString("%1px").arg(size));
+}
+
+void Configuration::setFontFamily(const QFont &font)
+{
+    setStyle("font-family", QString("'\\\'%1\\\'").arg(font.family()));
+}
+
+void Configuration::setZoom(int zoom)
+{
+    m_appearanceUi.webView->setZoomFactor((qreal) zoom / 100);
+    m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
 int Configuration::findRow(const QString &text, int role) const

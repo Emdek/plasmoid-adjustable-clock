@@ -71,11 +71,6 @@ class Configuration : public QObject
         void renameTheme();
         void triggerAction();
         void selectionChanged();
-        void setColor();
-        void setFontSize(const QString &size);
-        void setFontFamily(const QFont &font);
-        void setZoom(int zoom);
-        void showEditorContextMenu(const QPoint &position);
         void modeChanged(int mode = -1);
         void themeChanged();
         void richTextChanged();
@@ -88,6 +83,11 @@ class Configuration : public QObject
         void moveItemUp();
         void moveItemDown();
         void updateItem(QListWidgetItem *item);
+        void showEditorContextMenu(const QPoint &position);
+        void setColor();
+        void setFontSize(const QString &size);
+        void setFontFamily(const QFont &font);
+        void setZoom(int zoom);
 
     private:
         Applet *m_applet;
