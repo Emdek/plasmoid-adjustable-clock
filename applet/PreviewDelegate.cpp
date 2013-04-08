@@ -89,7 +89,7 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
-        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString(), index.data(ScriptRole).toString());
+        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString());
 
         const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
         const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());

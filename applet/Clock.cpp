@@ -73,7 +73,7 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
     }
 }
 
-void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &script)
+void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html)
 {
     setupTheme(document);
 
@@ -83,8 +83,6 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     for (int i = 1; i < LastComponent; ++i) {
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
-
-    document->evaluateJavaScript(script);
 
     for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, clock, static_cast<ClockComponent>(i));
@@ -293,9 +291,9 @@ void Clock::updateTheme()
     setupTheme(m_document);
 }
 
-void Clock::setTheme(const QString &html, const QString &script)
+void Clock::setTheme(const QString &html)
 {
-    setupClock(m_document, m_clock, html, script);
+    setupClock(m_document, m_clock, html);
 }
 
 ClockObject* Clock::getClock(bool constant)

@@ -61,7 +61,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(themes.at(i).description, DescriptionRole);
         item->setData(themes.at(i).author, AuthorRole);
         item->setData(themes.at(i).html, HtmlRole);
-        item->setData(themes.at(i).script, ScriptRole);
         item->setData(themes.at(i).background, BackgroundRole);
         item->setData(themes.at(i).bundled, BundledRole);
         item->setToolTip(QString("<b>%1</b>%2").arg(themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)).arg(themes.at(i).description.isEmpty() ? QString() : QString("<br />") + themes.at(i).description));
@@ -149,7 +148,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -222,9 +220,6 @@ void Configuration::save()
         stream.writeStartElement("html");
         stream.writeCDATA(index.data(HtmlRole).toString());
         stream.writeEndElement();
-        stream.writeStartElement("script");
-        stream.writeCDATA(index.data(ScriptRole).toString());
-        stream.writeEndElement();
         stream.writeEndElement();
     }
 
@@ -277,12 +272,10 @@ void Configuration::selectTheme(const QModelIndex &index)
     }
 
     disconnect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    disconnect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
     m_appearanceUi.htmlTextEdit->setPlainText(index.data(HtmlRole).toString());
-    m_appearanceUi.scriptTextEdit->setPlainText(index.data(ScriptRole).toString());
     m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
@@ -290,7 +283,6 @@ void Configuration::selectTheme(const QModelIndex &index)
     sourceChanged();
 
     connect(m_appearanceUi.htmlTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-    connect(m_appearanceUi.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
 }
 
 void Configuration::newTheme(bool automatically)
@@ -327,7 +319,6 @@ void Configuration::newTheme(bool automatically)
     item->setData(identifier, IdRole);
     item->setData(title, TitleRole);
     item->setData(m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
-    item->setData(m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
     item->setData(m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
     item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
@@ -515,7 +506,6 @@ void Configuration::themeChanged()
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     m_themesModel->setData(index, m_appearanceUi.htmlTextEdit->toPlainText(), HtmlRole);
-    m_themesModel->setData(index, m_appearanceUi.scriptTextEdit->toPlainText(), ScriptRole);
     m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
 
     modify();
@@ -542,7 +532,9 @@ void Configuration::sourceChanged()
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), m_appearanceUi.htmlTextEdit->toPlainText(), QString("%1\n%2").arg(m_appearanceUi.scriptTextEdit->toPlainText()).arg(QString(file.readAll())));
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), m_appearanceUi.htmlTextEdit->toPlainText());
+
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
 
     const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
 

@@ -186,10 +186,26 @@
 	</div>
 	<div class="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': false">of January</span></div>
 </div>
-</body>
-</html>]]></html>
-		<script><![CDATA[function updateClock()
+<script type="text/javascript">
+var initialized = false;
+
+function updateClock()
 {
+	if (!initialized)
+	{
+		var hour = Clock.toString(Clock.Hour);
+		var minute = Clock.toString(Clock.Minute);
+		var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
+
+		for (var i = 0; i < values.length; ++i)
+		{
+			document.getElementById('c_' + i + '_1').innerHTML = values[i];
+			document.getElementById('c_' + i + '_2').innerHTML = values[i];
+		}
+
+		initialized = true;
+	}
+
 	var blink = (Clock.toString(Clock.Second, {'short': true}) % 2);
 
 	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink?'':' dark'));
@@ -237,17 +253,10 @@ function flipCard(number, value)
 	}, 250);
 }
 
-var hour = Clock.toString(Clock.Hour);
-var minute = Clock.toString(Clock.Minute);
-var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
-
-for (var i = 0; i < values.length; ++i)
-{
-	document.getElementById('c_' + i + '_1').innerHTML = values[i];
-	document.getElementById('c_' + i + '_2').innerHTML = values[i];
-}
-
-document.addEventListener('ClockSecondChanged', updateClock);]]></script>
+document.addEventListener('ClockSecondChanged', updateClock);
+</script>
+</body>
+</html>]]></html>
 	</theme>
 	<theme>
 		<id>digitalclock</id>
@@ -426,10 +435,7 @@ document.addEventListener('ClockSecondChanged', updateClock);]]></script>
 	</div>
 </div>
 <script type="text/javascript">
-</script>
-</body>
-</html>]]></html>
-		<script><![CDATA[function updateClock()
+function updateClock()
 {
 	var hour = Clock.toString(Clock.Hour);
 	var minute = Clock.toString(Clock.Minute);
@@ -466,7 +472,10 @@ function updateTheme()
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
+document.addEventListener('ClockThemeChanged', updateTheme);
+</script>
+</body>
+</html>]]></html>
 	</theme>
 	<theme>
 		<id>dbclock</id>
@@ -569,9 +578,8 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 		<div><span component="Year">2000</span>-<span component="Month">01</span>-<span component="DayOfMonth">01</span></div>
 	</div>
 </div>
-</body>
-</html>]]></html>
-		<script><![CDATA[function updateClock()
+<script type="text/javascript">
+function updateClock()
 {
 	var context = document.getElementById('canvas').getContext('2d');
 
@@ -593,7 +601,10 @@ document.addEventListener('ClockThemeChanged', updateTheme);]]></script>
 }
 
 document.addEventListener('ClockMinuteChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateClock);]]></script>
+document.addEventListener('ClockThemeChanged', updateClock);
+</script>
+</body>
+</html>]]></html>
 	</theme>
 	<theme>
 		<id>progress</id>
@@ -745,9 +756,8 @@ progress::-webkit-progress-value
 		</tr>
 	</tbody>
 </table>
-</body>
-</html>]]></html>
-		<script><![CDATA[function updateClock()
+<script type="text/javascript">
+function updateClock()
 {
 	var color = window.getComputedStyle(document.body).getPropertyValue('color');
 	var hour = Clock.toString(Clock.Hour);
@@ -765,7 +775,10 @@ progress::-webkit-progress-value
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateClock);]]></script>
+document.addEventListener('ClockThemeChanged', updateClock);
+</script>
+</body>
+</html>]]></html>
 	</theme>
 	<theme>
 		<id>calendar</id>

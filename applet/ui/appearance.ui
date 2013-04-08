@@ -323,28 +323,12 @@
           <attribute name="title">
            <string>Source</string>
           </attribute>
-          <layout class="QVBoxLayout" name="sourceLayout">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QSplitter" name="splitter">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+            <widget class="KTextEdit" name="htmlTextEdit">
+             <property name="acceptRichText">
+              <bool>false</bool>
              </property>
-             <widget class="KTextEdit" name="htmlTextEdit">
-              <property name="toolTip">
-               <string>HTML</string>
-              </property>
-              <property name="acceptRichText">
-               <bool>false</bool>
-              </property>
-             </widget>
-             <widget class="KTextEdit" name="scriptTextEdit">
-              <property name="toolTip">
-               <string>JavaScript</string>
-              </property>
-              <property name="acceptRichText">
-               <bool>false</bool>
-              </property>
-             </widget>
             </widget>
            </item>
           </layout>

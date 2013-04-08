@@ -130,7 +130,6 @@ void Applet::clockConfigChanged()
 {
     m_theme.id = config().readEntry("theme", "default");
     m_theme.html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
-    m_theme.script = QString();
     m_theme.background = true;
     m_theme.bundled = false;
     m_newTheme = false;
@@ -151,13 +150,12 @@ void Applet::clockConfigChanged()
         }
     } else {
         m_theme.html = config().readEntry("themeHtml", QString());
-        m_theme.script = config().readEntry("themeScript", QString());
         m_theme.background = config().readEntry("themeBackground", true);
 
         m_newTheme = true;
     }
 
-    m_clock->setTheme(m_theme.html, m_theme.script);
+    m_clock->setTheme(m_theme.html);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -325,7 +323,6 @@ QList<Theme> Applet::getThemes() const
                 theme.description = QString();
                 theme.author = QString();
                 theme.html = QString();
-                theme.script = QString();
                 theme.background = true;
             }
 
@@ -351,10 +348,6 @@ QList<Theme> Applet::getThemes() const
 
             if (reader.name().toString() == "html") {
                 theme.html = reader.readElementText();
-            }
-
-            if (reader.name().toString() == "script") {
-                theme.script = reader.readElementText();
             }
         }
 

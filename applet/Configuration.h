@@ -41,9 +41,8 @@ enum ModelRole
     DescriptionRole = (Qt::UserRole + 3),
     AuthorRole = (Qt::UserRole + 4),
     HtmlRole = (Qt::UserRole + 5),
-    ScriptRole = (Qt::UserRole + 6),
-    BackgroundRole = (Qt::UserRole + 7),
-    BundledRole = (Qt::UserRole + 8)
+    BackgroundRole = (Qt::UserRole + 6),
+    BundledRole = (Qt::UserRole + 7)
 };
 
 class ComponentWidget;

@@ -39,7 +39,6 @@ struct Theme
     QString description;
     QString author;
     QString html;
-    QString script;
     bool background;
     bool bundled;
 };
