@@ -129,6 +129,14 @@ function getStyle(property)
 function setStyle(property, value)
 {
 	var selection = window.getSelection();
+
+	if (selection.isCollapsed)
+	{
+		document.body.style.setProperty(property, value);
+
+		return;
+	}
+
 	var startElement = selection.anchorNode.parentNode;
 	var endElement = selection.focusNode.parentNode;
 
