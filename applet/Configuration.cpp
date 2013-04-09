@@ -663,7 +663,7 @@ void Configuration::setFontSize(const QString &size)
 
 void Configuration::setFontFamily(const QFont &font)
 {
-    setStyle("font-family", QString("'\\\'%1\\\'").arg(font.family()));
+    setStyle("font-family", QString("\\\'%1\\\'").arg(font.family()));
 }
 
 void Configuration::setZoom(int zoom)
