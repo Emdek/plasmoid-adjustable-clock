@@ -635,7 +635,7 @@ void Configuration::setStyle(const QString &property, const QString &value, cons
             m_appearanceUi.editorTextEdit->insertPlainText(html);
         }
     } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(value));
+        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
     }
 }
 
@@ -663,7 +663,7 @@ void Configuration::setFontSize(const QString &size)
 
 void Configuration::setFontFamily(const QFont &font)
 {
-    setStyle("font-family", QString("\\\'%1\\\'").arg(font.family()));
+    setStyle("font-family", font.family());
 }
 
 void Configuration::setZoom(int zoom)
