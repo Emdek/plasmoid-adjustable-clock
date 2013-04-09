@@ -62,7 +62,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     for (int i = 0; i < themes.count(); ++i) {
         QStandardItem *item = new QStandardItem();
-        item->setData(themes.at(i).id, IdRole);
+        item->setData((themes.at(i).id.isEmpty() ? createIdentifier() : themes.at(i).id), IdRole);
         item->setData(themes.at(i).title, TitleRole);
         item->setData(themes.at(i).description, DescriptionRole);
         item->setData(themes.at(i).author, AuthorRole);
@@ -141,7 +141,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(appearanceModeChanged(int)));
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(editorModeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
-    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(newTheme()));
+    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
@@ -251,19 +251,10 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
 }
 
-void Configuration::newTheme(bool automatically)
+void Configuration::createTheme(bool automatically)
 {
-    QString identifier = QString("custom_%1");
     QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString().append(" (%1)");
-    int i = 1;
-
-    while (findRow(identifier.arg(i), IdRole) >= 0) {
-       ++i;
-    }
-
-    identifier = identifier.arg(i);
-
-    i = 2;
+    int i = 2;
 
     while (findRow(title.arg(i)) >= 0) {
        ++i;
@@ -282,7 +273,7 @@ void Configuration::newTheme(bool automatically)
     }
 
     QStandardItem *item = new QStandardItem();
-    item->setData(identifier, IdRole);
+    item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
     item->setData((m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
     item->setData(m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
@@ -487,7 +478,7 @@ void Configuration::editorModeChanged(int mode)
 void Configuration::themeChanged()
 {
     if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
-        newTheme(true);
+        createTheme(true);
     }
 
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
@@ -681,6 +672,18 @@ void Configuration::setZoom(int zoom)
     m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
+QString Configuration::createIdentifier() const
+{
+    QString identifier = QString("custom_%1");
+    int i = 1;
+
+    while (findRow(identifier.arg(i), IdRole) >= 0) {
+       ++i;
+    }
+
+    return identifier.arg(i);
+}
+
 int Configuration::findRow(const QString &text, int role) const
 {
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
@@ -700,7 +703,7 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         if (!m_appearanceUi.themesView->indexAt(mouseEvent->pos()).isValid()) {
-            newTheme();
+            createTheme();
         }
     } else if ((event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) && object == m_clipboardUi.actionsView->viewport()) {
         if (event->type() == QEvent::MouseButtonPress && m_editedAction.isValid()) {

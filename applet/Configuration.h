@@ -59,13 +59,14 @@ class Configuration : public QObject
 
     protected:
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");
+        QString createIdentifier() const;
         int findRow(const QString &text, int role = TitleRole) const;
 
     protected slots:
         void save();
         void modify();
         void selectTheme(const QModelIndex &index);
-        void newTheme(bool automatically = false);
+        void createTheme(bool automatically = false);
         void deleteTheme();
         void renameTheme();
         void triggerAction();
