@@ -192,6 +192,10 @@ void Applet::repaint()
 void Applet::toolTipAboutToShow()
 {
     if (config().keyList().contains("toolTipExpressionMain") || config().keyList().contains("toolTipExpressionSub")) {
+        if (config().readEntry("toolTipExpressionMain", QString()).isEmpty() && config().readEntry("toolTipExpressionSub", QString()).isEmpty()) {
+            return;
+        }
+
         connect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
         updateToolTipContent();
@@ -210,15 +214,10 @@ void Applet::toolTipHidden()
 void Applet::updateToolTipContent()
 {
     Plasma::ToolTipContent toolTipData;
-    const QString toolTipExpressionMain = (config().keyList().contains("toolTipExpressionMain") ? config().readEntry("toolTipExpressionMain", QString()) : "'<div style=\"text-align:center;\">' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second) +'<br>' + Clock.toString(Clock.DayOfWeek, {'text': true}) + ', ' + Clock.toString(Clock.DayOfMonth) + '.' + Clock.toString(Clock.Month) + '.' + Clock.toString(Clock.Year) + '</div>'");
-    const QString toolTipExpressionSub = (config().keyList().contains("toolTipExpressionSub") ? config().readEntry("toolTipExpressionSub", QString()) : "Clock.toString(Clock.TimeZones, {'short': true}) + Clock.toString(Clock.Events)");
-
-    if (!toolTipExpressionMain.isEmpty() || !toolTipExpressionSub.isEmpty()) {
-        toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
-        toolTipData.setMainText(m_clock->evaluate(toolTipExpressionMain));
-        toolTipData.setSubText(m_clock->evaluate(toolTipExpressionSub));
-        toolTipData.setAutohide(false);
-    }
+    toolTipData.setImage(KIcon("chronometer").pixmap(IconSize(KIconLoader::Desktop)));
+    toolTipData.setMainText(m_clock->evaluate(config().readEntry("toolTipExpressionMain", QString())));
+    toolTipData.setSubText(m_clock->evaluate(config().readEntry("toolTipExpressionSub", QString())));
+    toolTipData.setAutohide(false);
 
     Plasma::ToolTipManager::self()->setContent(this, toolTipData);
 }
