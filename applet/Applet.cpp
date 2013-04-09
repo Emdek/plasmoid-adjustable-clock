@@ -191,9 +191,13 @@ void Applet::repaint()
 
 void Applet::toolTipAboutToShow()
 {
-    connect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
+    if (config().keyList().contains("toolTipExpressionMain") || config().keyList().contains("toolTipExpressionSub")) {
+        connect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
-    updateToolTipContent();
+        updateToolTipContent();
+    } else {
+        ClockApplet::toolTipAboutToShow();
+    }
 }
 
 void Applet::toolTipHidden()
