@@ -255,13 +255,14 @@ document.addEventListener('ClockSecondChanged', updateClock);
 		<title>Ring Clock</title>
 		<description>Rings based clock</description>
 		<author>Michał Dutkiewicz</author>
-		<background>false</background>
+		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
 <style type="text/css">
 body
 {
+	padding: 0 20px 0 10px;
 	white-space: nowrap;
 }
 
@@ -276,11 +277,6 @@ body > div
 body > div:nth-child(2n +1)
 {
 	margin-left: 10px;
-}
-
-body > div:last-child
-{
-	margin-right: 10px;
 }
 
 div > div
