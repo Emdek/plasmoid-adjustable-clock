@@ -8,11 +8,9 @@
 		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
-<div style="text-align: center;">
-	<big><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></big><br>
-	<small><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></small>
-</div>
+<body style="text-align: center;">
+<big><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></big><br>
+<small><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></small>
 </body>
 </html>]]></html>
 	</theme>
@@ -24,8 +22,8 @@
 		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
-<div style="text-align: center;"><span component="Hour">12</span>:<span component="Minute">30</span></div>
+<body style="text-align: center;">
+<span component="Hour">12</span>:<span component="Minute">30</span>
 </body>
 </html>]]></html>
 	</theme>
@@ -37,11 +35,9 @@
 		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
-<div style="text-align: center; opacity: 0.85;">
-	<span style="font-size: 30px;"><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></span><br>
-	<span style="font-size: 12px;"><span component="DayOfWeek" options="'text': true">Saturday</span>, <span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></span>
-</div>
+<body style="text-align: center; opacity: 0.85;">
+<span style="font-size: 30px;"><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></span><br>
+<span style="font-size: 12px;"><span component="DayOfWeek" options="'text': true">Saturday</span>, <span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></span>
 </body>
 </html>]]></html>
 	</theme>
@@ -55,7 +51,7 @@
 <html>
 <head>
 <style type="text/css">
-.clock
+body > div
 {
 	padding: 8px;
 	width: 190px;
@@ -160,7 +156,7 @@
 </style>
 </head>
 <body>
-<div class="clock">
+<div>
 	<div class="time">
 		<div class="hidden">
 			<div><div class="card"><span id="c_0_3">4</span></div></div>
@@ -403,136 +399,136 @@ div > div div:nth-child(3)
 </head>
 <body>
 <div id="digit_0" class="jump">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <div id="digit_1">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <div id="digit_2">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <div id="digit_3">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <div id="digit_4">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <div id="digit_5">
-<div class="card_3 next">
-<div>3</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_2 top">
-<div>2</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_1 middle">
-<div>1</div>
-<div></div>
-<div></div>
-</div>
-<div class="card_0 bottom">
-<div>0</div>
-<div></div>
-<div></div>
-</div>
+	<div class="card_3 next">
+		<div>3</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_2 top">
+		<div>2</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_1 middle">
+		<div>1</div>
+		<div></div>
+		<div></div>
+	</div>
+	<div class="card_0 bottom">
+		<div>0</div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 <script type="text/javascript">
 var initialized = false;
@@ -628,9 +624,9 @@ document.addEventListener('ClockSecondChanged', updateClock);
 <html>
 <head>
 <style type="text/css">
-.clock
+body
 {
-	margin:1px 3px;
+	margin: 1px 3px;
 	white-space: nowrap;
 }
 
@@ -743,55 +739,53 @@ document.addEventListener('ClockSecondChanged', updateClock);
 </style>
 </head>
 <body>
-<div class="clock">
-	<div class="digit" id="digit_0">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
+<div class="digit" id="digit_0">
+	<div class="segment_1"></div>
+	<div class="segment_2"></div>
+	<div class="segment_3"></div>
+	<div class="segment_4"></div>
+	<div class="segment_5"></div>
+	<div class="segment_6"></div>
+	<div class="segment_7">
+		<div></div>
+		<div></div>
 	</div>
-	<div class="digit" id="digit_1">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
+</div>
+<div class="digit" id="digit_1">
+	<div class="segment_1"></div>
+	<div class="segment_2"></div>
+	<div class="segment_3"></div>
+	<div class="segment_4"></div>
+	<div class="segment_5"></div>
+	<div class="segment_6"></div>
+	<div class="segment_7">
+		<div></div>
+		<div></div>
 	</div>
-	<div id="dots">:</div>
-	<div class="digit" id="digit_2">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
+</div>
+<div id="dots">:</div>
+<div class="digit" id="digit_2">
+	<div class="segment_1"></div>
+	<div class="segment_2"></div>
+	<div class="segment_3"></div>
+	<div class="segment_4"></div>
+	<div class="segment_5"></div>
+	<div class="segment_6"></div>
+	<div class="segment_7">
+		<div></div>
+		<div></div>
 	</div>
-	<div class="digit" id="digit_3">
-		<div class="segment_1"></div>
-		<div class="segment_2"></div>
-		<div class="segment_3"></div>
-		<div class="segment_4"></div>
-		<div class="segment_5"></div>
-		<div class="segment_6"></div>
-		<div class="segment_7">
-			<div></div>
-			<div></div>
-		</div>
+</div>
+<div class="digit" id="digit_3">
+	<div class="segment_1"></div>
+	<div class="segment_2"></div>
+	<div class="segment_3"></div>
+	<div class="segment_4"></div>
+	<div class="segment_5"></div>
+	<div class="segment_6"></div>
+	<div class="segment_7">
+		<div></div>
+		<div></div>
 	</div>
 </div>
 <script type="text/javascript">
@@ -847,21 +841,21 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 <html>
 <head>
 <style type="text/css">
-.clock
+body
 {
 	height: 50px;
 }
 
-.clock div
+div
 {
 	margin: -10px 0 5px 5px;
-	white-space: pre;
 	text-align: center;
 	font-size: 25px;
+	white-space: pre;
 	-webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));
 }
 
-.clock #second
+#second
 {
 	position: relative;
 	left: -8px;
@@ -873,9 +867,7 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 </style>
 </head>
 <body>
-<div class="clock">
-	<div><span component="Hour">12</span>:<span component="Minute">30</span><span id="second" component="Second">15</span></div>
-</div>
+<div><span component="Hour">12</span>:<span component="Minute">30</span><span id="second" component="Second">15</span></div>
 </body>
 </html>]]></html>
 	</theme>
@@ -889,7 +881,7 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 <html>
 <head>
 <style type="text/css">
-.clock
+body > div
 {
 	width: 200px;
 	height: 200px;
@@ -897,14 +889,14 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 	position: relative;
 }
 
-.clock > div
+body > div > div
 {
 	width: 200px;
 	position: absolute;
 	text-align: center;
 }
 
-.clock .back
+.back
 {
 	z-index: 1;
 	top: 50px;
@@ -914,7 +906,7 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 	opacity: 0.3;
 }
 
-.clock .front
+.front
 {
 	z-index: 2;
 	top: 60px;
@@ -922,7 +914,7 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 	line-height: 40px;
 }
 
-.clock .front div
+.front div
 {
 	font-size: 20px;
 	line-height: 25px;
@@ -930,7 +922,7 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 </style>
 </head>
 <body>
-<div class="clock">
+<div>
 	<canvas id="canvas" width="200" height="200"></canvas>
 	<div class="back" component="TimeOfDay"></div>
 	<div class="front">
@@ -1008,25 +1000,25 @@ progress::-webkit-progress-value
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-.clock
+body
 {
 	width: 120px;
 	padding: 3px;
 	text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-.clock div
+body div
 {
 	float: right;
 }
 
-.clock #minute
+#minute
 {
 	font-size: 30px;
 	opacity: 0.8;
 }
 
-.clock p
+p
 {
 	margin: 0 45px 0 0;
 	text-align: right;
@@ -1036,13 +1028,11 @@ progress::-webkit-progress-value
 </style>
 </head>
 <body>
-<div class="clock">
-	<div>
-		<span id="minute" component="Minute">30</span><br>
-		<progress value="15" max="59" component="Second" attribute="value" options="'short': true">
-	</div>
-	<p component="hour" options="'short': true">12</p>
+<div>
+	<span id="minute" component="Minute">30</span><br>
+	<progress value="15" max="59" component="Second" attribute="value" options="'short': true">
 </div>
+<p component="hour" options="'short': true">12</p>
 </body>
 </html>]]></html>
 	</theme>
@@ -1056,13 +1046,13 @@ progress::-webkit-progress-value
 <html>
 <head>
 <style type="text/css">
-.clock, .clock td
+table, td
 {
 	margin: auto;
 	border: 1px solid #ddd;
 }
 
-.clock
+table
 {
 	width: 67px;
 	height: 45px;
@@ -1071,7 +1061,7 @@ progress::-webkit-progress-value
 	empty-cells: show;
 }
 
-.clock td
+td
 {
 	width: 10px;
 	height: 10px;
@@ -1080,7 +1070,7 @@ progress::-webkit-progress-value
 </style>
 </head>
 <body>
-<span id="test"></span><table class="clock">
+<table>
 	<tbody>
 		<tr>
 			<td id="v_0_8"></td>
@@ -1150,7 +1140,7 @@ document.addEventListener('ClockThemeChanged', updateClock);
 <html>
 <head>
 <style type="text/css">
-.clock
+body > div
 {
 	width: 295px;
 	min-height: 295px;
@@ -1194,7 +1184,7 @@ document.addEventListener('ClockThemeChanged', updateClock);
 </style>
 </head>
 <body>
-<div class="clock">
+<div>
 	<div class="decor">
 		<div></div>
 		<div></div>
@@ -1221,14 +1211,12 @@ document.addEventListener('ClockThemeChanged', updateClock);
 		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
-<div style="margin: 5px; text-align: center;">
-	<big><b><span component="Hour">12</span>:<span component="Minute">30</span></b></big><br>
-	<span component="Second">15</span><br>
-	<small component="DayOfWeek" options="'short': true, 'text': true">Sat</small><br>
-	<small><span component="DayOfMonth" options="'short': true">1</span>.<span component="Month" options="'short': true"></span>.</small><br>
-	<small component="Year">2000</small>
-</div>
+<body style="margin: 5px; text-align: center;">
+<big><b><span component="Hour">12</span>:<span component="Minute">30</span></b></big><br>
+<span component="Second">15</span><br>
+<small component="DayOfWeek" options="'short': true, 'text': true">Sat</small><br>
+<small><span component="DayOfMonth" options="'short': true">1</span>.<span component="Month" options="'short': true"></span>.</small><br>
+<small component="Year">2000</small>
 </body>
 </html>]]></html>
 	</theme>
