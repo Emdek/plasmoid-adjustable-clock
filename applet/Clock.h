@@ -31,7 +31,7 @@ namespace AdjustableClock
 
 enum ClockComponent
 {
-    UnknownComponent = 0,
+    InvalidComponent = 0,
     SecondComponent = 1,
     MinuteComponent = 2,
     HourComponent = 3,

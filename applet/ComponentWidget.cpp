@@ -31,7 +31,7 @@ namespace AdjustableClock
 
 ComponentWidget::ComponentWidget(Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
-    m_component(UnknownComponent)
+    m_component(InvalidComponent)
 {
     m_componentUi.setupUi(this);
 
@@ -78,7 +78,7 @@ void ComponentWidget::addOption(QWidget *widget)
 
 void ComponentWidget::selectComponent(QAction *action)
 {
-    if (m_component == UnknownComponent) {
+    if (m_component == InvalidComponent) {
         m_componentUi.componentButton->setMinimumWidth(m_componentUi.componentButton->menu()->width());
         m_componentUi.insertButton->setEnabled(true);
 
