@@ -534,6 +534,7 @@ div > div div:nth-child(3)
 var initialized = false;
 var queues = [];
 var previousValues = [];
+var currentValues = [];
 
 function updateClock()
 {
@@ -559,7 +560,7 @@ function updateClock()
 			}
 		}
 
-		previousValues = values;
+		currentValues = previousValues = values;
 		initialized = true;
 
 		return;
@@ -590,14 +591,16 @@ function spin(digit, value, jump)
 	setClass(digit, queues[digit][2], 'middle');
 	setClass(digit, queues[digit][3], 'top');
 
+	currentValues[digit] = ((currentValues[digit] + 1) % 10);
+
 	queues[digit].push(queues[digit].shift());
 
 	setTimeout(function() {
 		setClass(digit, queues[digit][3], ' next');
 
-		document.querySelector('#digit_' + digit + ' .next div:first-child').innerHTML = ((parseInt(document.querySelector('#digit_' + digit + ' .top div:first-child').innerHTML) + 1) % 10);
+		document.querySelector('#digit_' + digit + ' .next div:first-child').innerHTML = ((parseInt(currentValues[digit]) + 2) % 10);
 
-		if (value != document.querySelector('#digit_' + digit + ' .middle div:first-child').innerHTML)
+		if (value != currentValues[digit])
 		{
 			spin(digit, value, jump);
 		}
