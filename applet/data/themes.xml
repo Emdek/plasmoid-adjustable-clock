@@ -259,9 +259,9 @@ document.addEventListener('ClockSecondChanged', updateClock);
 </html>]]></html>
 	</theme>
 	<theme>
-		<id>digitalclock</id>
-		<title>Digital Clock</title>
-		<description>Digital clock theme</description>
+		<id>lcdclock</id>
+		<title>LCD Clock</title>
+		<description>LCD clock theme</description>
 		<author>Michał Dutkiewicz</author>
 		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
@@ -441,19 +441,19 @@ function updateClock()
 	var minute = Clock.toString(Clock.Minute);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 
-	document.getElementById('dots').style.visibility = ((Clock.toString(Clock.Second, {'short': true}) % 2)?'visible':'hidden');
+	document.getElementById('dots').style.opacity = (Clock.toString(Clock.Second, {'short': true}) % 2);
 
 	for (var i = 0; i < values.length; ++i)
 	{
 		var digit = document.getElementById('digit_' + i);
 
-		digit.getElementsByClassName('segment_1')[0].style.visibility = ((values[i] != 1 && values[i] != 4)?'visible':'hidden');
-		digit.getElementsByClassName('segment_2')[0].style.visibility = ((values[i] != 5 && values[i] != 6)?'visible':'hidden');
-		digit.getElementsByClassName('segment_3')[0].style.visibility = ((values[i] != 2)?'visible':'hidden');
-		digit.getElementsByClassName('segment_4')[0].style.visibility = ((values[i] != 1 && values[i] != 4 && values[i] != 7)?'visible':'hidden');
-		digit.getElementsByClassName('segment_5')[0].style.visibility = ((values[i] != 1 && values[i] != 3 && values[i] != 4 && values[i] != 5 && values[i] != 7 && values[i] != 9)?'visible':'hidden');
-		digit.getElementsByClassName('segment_6')[0].style.visibility = ((values[i] != 1 && values[i] != 2 && values[i] != 3 && values[i] != 7)?'visible':'hidden');
-		digit.getElementsByClassName('segment_7')[0].style.visibility = ((values[i] != 0 && values[i] != 1 && values[i] != 7)?'visible':'hidden');
+		digit.getElementsByClassName('segment_1')[0].style.opacity = ((values[i] != 1 && values[i] != 4) ? 1 : 0);
+		digit.getElementsByClassName('segment_2')[0].style.opacity = ((values[i] != 5 && values[i] != 6) ? 1 : 0);
+		digit.getElementsByClassName('segment_3')[0].style.opacity = ((values[i] != 2) ? 1 : 0);
+		digit.getElementsByClassName('segment_4')[0].style.opacity = ((values[i] != 1 && values[i] != 4 && values[i] != 7) ? 1 : 0);
+		digit.getElementsByClassName('segment_5')[0].style.opacity = ((values[i] != 1 && values[i] != 3 && values[i] != 4 && values[i] != 5 && values[i] != 7 && values[i] != 9) ? 1 : 0);
+		digit.getElementsByClassName('segment_6')[0].style.opacity = ((values[i] != 1 && values[i] != 2 && values[i] != 3 && values[i] != 7) ? 1 : 0);
+		digit.getElementsByClassName('segment_7')[0].style.opacity = ((values[i] != 0 && values[i] != 1 && values[i] != 7) ? 1 : 0);
 	}
 }
 
