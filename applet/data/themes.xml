@@ -555,7 +555,7 @@ function updateClock()
 				{
 					var value = ((values[i] - 1 + j) % 10);
 
-					document.querySelector('#digit_' + i + ' .card_' + j + ' div:first-child').innerHTML = ((value < 0) ? (value + 10) : value);
+					document.getElementById('digit_' + i).getElementsByClassName('card_' + j)[0].getElementsByTagName('div')[0].innerHTML = ((value < 0) ? (value + 10) : value);
 				}
 			}
 		}
@@ -574,7 +574,6 @@ function updateClock()
 		}
 
 		var jump = (values[i] != ((previousValues[i] + 1) % 10));
-
 		var container = document.getElementById('digit_' + i);
 		container.className = (jump ? 'jump' : '');
 
@@ -592,13 +591,12 @@ function spin(digit, value, jump)
 	setClass(digit, queues[digit][3], 'top');
 
 	currentValues[digit] = ((currentValues[digit] + 1) % 10);
-
 	queues[digit].push(queues[digit].shift());
 
 	setTimeout(function() {
 		setClass(digit, queues[digit][3], ' next');
 
-		document.querySelector('#digit_' + digit + ' .next div:first-child').innerHTML = ((parseInt(currentValues[digit]) + 2) % 10);
+		document.getElementById('digit_' + digit).getElementsByClassName('next')[0].getElementsByTagName('div')[0].innerHTML = ((parseInt(currentValues[digit]) + 2) % 10);
 
 		if (value != currentValues[digit])
 		{
@@ -609,7 +607,7 @@ function spin(digit, value, jump)
 
 function setClass(digit, card, phase)
 {
-	document.querySelector('#digit_' + digit + ' .card_' + card).className = ('card_' + card + ' ' + phase);
+	document.getElementById('digit_' + digit).getElementsByClassName('card_' + card)[0].className = ('card_' + card + ' ' + phase);
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
