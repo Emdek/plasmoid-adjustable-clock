@@ -25,10 +25,13 @@
 
 #include <QtGui/QStyle>
 #include <QtGui/QPainter>
+#include <QtGui/QBoxLayout>
+#include <QtGui/QPushButton>
 #include <QtGui/QApplication>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
 
+#include <KLocale>
 #include <KPixmapCache>
 
 #include <Plasma/Theme>
@@ -120,6 +123,25 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
 void PreviewDelegate::clear()
 {
     m_cache->discard();
+}
+
+QWidget* PreviewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    Q_UNUSED(option)
+
+    if (!index.data(OptionsRole).toBool()) {
+        return NULL;
+    }
+
+    QWidget *widget = new QWidget(parent);
+    QPushButton *button = new QPushButton(i18n("Options"), widget);
+    QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, widget);
+    layout->addWidget(button);
+    layout->setAlignment(button, (Qt::AlignBottom | Qt::AlignRight));
+
+    connect(button, SIGNAL(clicked()), this, SIGNAL(showOptions()));
+
+    return widget;
 }
 
 QSize PreviewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

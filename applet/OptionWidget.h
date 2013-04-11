@@ -18,36 +18,43 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPREVIEWDELEGATE_HEADER
-#define ADJUSTABLECLOCKPREVIEWDELEGATE_HEADER
+#ifndef ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
+#define ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
 
-#include <QtGui/QStyledItemDelegate>
+#include "Applet.h"
+
+#include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QSpinBox>
+
+#include <KColorButton>
 
 namespace AdjustableClock
 {
 
-class Clock;
-
-class PreviewDelegate : public QStyledItemDelegate
+class OptionWidget : public QWidget
 {
     Q_OBJECT
 
-    public:
-        PreviewDelegate(Clock *clock, QObject *parent = NULL);
-        ~PreviewDelegate();
+public:
+    OptionWidget(const Option &option, QWidget *parent);
 
-        void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QWidget *getWidget();
+    QVariant getValue() const;
 
-    public slots:
-        void clear();
+protected slots:
+    void updateValue();
 
-    private:
-        Clock *m_clock;
-
-    signals:
-        void showOptions();
+private:
+    QWidget *m_widget;
+    KColorButton *m_colorButton;
+    QComboBox *m_comboBox;
+    QCheckBox *m_checkBox;
+    QSpinBox *m_spinBox;
+    QPlainTextEdit *m_textEdit;
+    QVariant m_currentValue;
+    Option m_option;
 };
 
 }

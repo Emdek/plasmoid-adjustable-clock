@@ -5,7 +5,7 @@
 - added LCD Clock theme;
 - added Ring Clock theme;
 - use standard PlasmaClock tool tip if custom one was not supplied;
-- improvements in rich text editor;
+- added ability to define theme options;
 - more user friendly way to insert clock components;
 - use KTextEditor for source editing if available;
 - added ability to set custom theme using Plasma scripting;

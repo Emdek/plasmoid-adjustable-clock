@@ -21,14 +21,17 @@
 #include "Configuration.h"
 #include "Clock.h"
 #include "ComponentWidget.h"
+#include "OptionWidget.h"
 #include "PreviewDelegate.h"
 #include "ExpressionDelegate.h"
 
 #include <QtCore/QXmlStreamWriter>
+#include <QtGui/QFormLayout>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElementCollection>
 
 #include <KMenu>
+#include <KDialog>
 #include <KLocale>
 #include <KMessageBox>
 #include <KColorDialog>
@@ -67,9 +70,14 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(themes.at(i).description, DescriptionRole);
         item->setData(themes.at(i).author, AuthorRole);
         item->setData(themes.at(i).html, HtmlRole);
+        item->setData(!themes.at(i).options.isEmpty(), OptionsRole);
         item->setData(themes.at(i).background, BackgroundRole);
         item->setData(themes.at(i).bundled, BundledRole);
         item->setToolTip(QString("<b>%1</b>%2").arg(themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)).arg(themes.at(i).description.isEmpty() ? QString() : QString("<br />") + themes.at(i).description));
+
+        if (!themes.at(i).options.isEmpty()) {
+            m_options[item->data(IdRole).toString()] = themes.at(i).options;
+        }
 
         m_themesModel->appendRow(item);
     }
@@ -168,6 +176,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.actionsView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectAction(QModelIndex)));
     connect(m_clipboardUi.actionsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(editAction(QModelIndex)));
     connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
+    connect(delegate, SIGNAL(showOptions()), this, SLOT(showOptions()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
@@ -529,6 +538,42 @@ void Configuration::sourceChanged()
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
     }
+}
+
+void Configuration::showOptions()
+{
+    const QString theme = m_appearanceUi.themesView->currentIndex().data(IdRole).toString();
+
+    if (!m_options.contains(theme) || m_options[theme].isEmpty()) {
+        return;
+    }
+
+    QWidget *mainWidget = new QWidget();
+    QFormLayout *layout = new QFormLayout(mainWidget);
+    QHash<QString, OptionWidget*> widgets;
+
+    for (int i = 0; i < m_options[theme].count(); ++i)
+    {
+        const Option option = m_options[theme].at(i);
+
+        widgets[option.id] = new OptionWidget(option, mainWidget);
+
+        layout->addRow(i18n(option.title.toUtf8().data()), widgets[option.id]);
+    }
+
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+    KDialog dialog;
+    dialog.setMainWidget(mainWidget);
+    dialog.setModal(true);
+    dialog.setButtons(KDialog::Ok | KDialog::Cancel);
+    dialog.setWindowTitle(i18n("Theme Options"));
+
+    if (dialog.exec() == QDialog::Rejected) {
+        return;
+    }
+
+
 }
 
 void Configuration::showEditorContextMenu(const QPoint &position)

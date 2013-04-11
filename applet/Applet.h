@@ -32,6 +32,17 @@
 namespace AdjustableClock
 {
 
+struct Option
+{
+    QString id;
+    QString title;
+    QVariant initial;
+    QVariant value;
+    int minimum;
+    int maximum;
+    QList<QPair<QString, QString> > values;
+};
+
 struct Theme
 {
     QString id;
@@ -39,6 +50,7 @@ struct Theme
     QString description;
     QString author;
     QString html;
+    QList<Option> options;
     bool background;
     bool bundled;
 };

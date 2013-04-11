@@ -42,8 +42,9 @@ enum ModelRole
     DescriptionRole = (Qt::UserRole + 3),
     AuthorRole = (Qt::UserRole + 4),
     HtmlRole = (Qt::UserRole + 5),
-    BackgroundRole = (Qt::UserRole + 6),
-    BundledRole = (Qt::UserRole + 7)
+    OptionsRole = (Qt::UserRole + 6),
+    BackgroundRole = (Qt::UserRole + 7),
+    BundledRole = (Qt::UserRole + 8)
 };
 
 class ComponentWidget;
@@ -78,6 +79,7 @@ class Configuration : public QObject
         void themeChanged();
         void richTextChanged();
         void sourceChanged();
+        void showOptions();
         void showEditorContextMenu(const QPoint &position);
         void selectAction(const QModelIndex &index);
         void editAction(QModelIndex index = QModelIndex());
@@ -98,6 +100,7 @@ class Configuration : public QObject
         ComponentWidget *m_componentWidget;
         KTextEditor::Document *m_document;
         QModelIndex m_editedAction;
+        QHash<QString, QList<Option> > m_options;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 
