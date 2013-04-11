@@ -393,169 +393,36 @@ div > div div:nth-child(3)
 </style>
 </head>
 <body>
-<div id="digit_0" class="jump">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
-<div id="digit_1">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
-<div id="digit_2">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
-<div id="digit_3">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
-<div id="digit_4">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
-<div id="digit_5">
-	<div class="card_3 next">
-		<div>3</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_2 top">
-		<div>2</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_1 middle">
-		<div>1</div>
-		<div></div>
-		<div></div>
-	</div>
-	<div class="card_0 bottom">
-		<div>0</div>
-		<div></div>
-		<div></div>
-	</div>
-</div>
+<div id="digit_0"></div>
+<div id="digit_1"></div>
+<div id="digit_2"></div>
+<div id="digit_3"></div>
+<div id="digit_4"></div>
+<div id="digit_5"></div>
 <script type="text/javascript">
 var initialized = false;
-var queues = [];
-var previousValues = [];
-var currentValues = [];
+var digits = [];
 
 function updateClock()
 {
 	var hour = Clock.toString(Clock.Hour);
-	var minute = Clock.toString(Clock.Minute);
+ 	var minute = Clock.toString(Clock.Minute);
 	var second = Clock.toString(Clock.Second);
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
 
 	if (!initialized)
 	{
+		var phases = ['bottom', 'middle', 'top', 'next'];
+
 		for (var i = 0; i < values.length; ++i)
 		{
-			queues[i] = [0, 1, 2, 3];
-
-			if (values[i] != 1)
+			for (var j = 0; j < 4; ++j)
 			{
-				for (var j = 0; j < 4; ++j)
-				{
-					var value = ((values[i] - 1 + j) % 10);
-
-					document.getElementById('digit_' + i).getElementsByClassName('card_' + j)[0].getElementsByTagName('div')[0].innerHTML = ((value < 0) ? (value + 10) : value);
-				}
+				createCard(i, phases[j], (values[i] - 1 + j));
 			}
 		}
 
-		currentValues = previousValues = values;
+		digits = values;
 		initialized = true;
 
 		return;
@@ -563,46 +430,62 @@ function updateClock()
 
 	for (var i = 0; i < values.length; ++i)
 	{
-		if (values[i] == previousValues[i])
+		if (values[i] == digits[i])
 		{
 			continue;
 		}
 
-		var jump = (values[i] != ((previousValues[i] + 1) % 10));
-		var container = document.getElementById('digit_' + i);
-		container.className = (jump ? 'jump' : '');
+		var jump = (values[i] != ((digits[i] + 1) % 10));
+
+		document.getElementById('digit_' + i).className = (jump ? 'jump' : '');
 
 		spin(i, values[i], jump);
 	}
-
-	previousValues = values;
 }
 
 function spin(digit, value, jump)
 {
-	setClass(digit, queues[digit][0], 'bottom previous');
-	setClass(digit, queues[digit][1], 'bottom');
-	setClass(digit, queues[digit][2], 'middle');
-	setClass(digit, queues[digit][3], 'top');
+	digits[digit] = ((digits[digit] + 1) % 10);
 
-	currentValues[digit] = ((currentValues[digit] + 1) % 10);
-	queues[digit].push(queues[digit].shift());
+	var phases = ['top', 'middle', 'bottom', 'bottom previous'];
+
+	for (var i = 0; i < 4; ++i)
+	{
+		document.getElementById('digit_' + digit).getElementsByTagName('div')[i * 4].className = phases[i];
+	}
 
 	setTimeout(function() {
-		setClass(digit, queues[digit][3], ' next');
+		var previous = document.getElementById('digit_' + digit).getElementsByClassName('previous')[0];
+		previous.parentNode.removeChild(previous);
 
-		document.getElementById('digit_' + digit).getElementsByClassName('next')[0].getElementsByTagName('div')[0].innerHTML = ((parseInt(currentValues[digit]) + 2) % 10);
+		createCard(digit, 'next', (digits[digit] + 2));
 
-		if (value != currentValues[digit])
+		if (value != digits[digit])
 		{
 			spin(digit, value, jump);
 		}
 	}, (jump ? 200 : 500));
 }
 
-function setClass(digit, card, phase)
+function createCard(digit, phase, value)
 {
-	document.getElementById('digit_' + digit).getElementsByClassName('card_' + card)[0].className = ('card_' + card + ' ' + phase);
+	var card = document.createElement('div');
+	card.className = phase;
+
+	for (var i = 0; i < 3; ++i)
+	{
+		var div = document.createElement('div');
+
+		if (i == 0)
+		{
+			div.innerHTML = (((value < 0) ? (value + 10) : value) % 10);
+		}
+
+		card.appendChild(div);
+	}
+
+	var container = document.getElementById('digit_' + digit);
+	container.insertBefore(card, container.firstChild);
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
