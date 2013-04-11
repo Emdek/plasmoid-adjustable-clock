@@ -377,8 +377,14 @@ div > div div:nth-child(3)
 
 .previous
 {
-	top: 190px;
+	top: 185px;
 	-webkit-transform: scaleY(0);
+	-webkit-transition: all 0.45s ease;
+}
+
+.jump .previous
+{
+	-webkit-transition: all 0.18s ease;
 }
 
 .previous div:nth-child(2)
