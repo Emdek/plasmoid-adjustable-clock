@@ -262,27 +262,27 @@ document.addEventListener('ClockSecondChanged', updateClock);
 <style type="text/css">
 body
 {
-	padding: 0 20px 0 10px;
+	padding: 0 10px 0 5px;
 	white-space: nowrap;
 }
 
 body > div
 {
 	display: inline-block;
-	width: 100px;
-	height: 250px;
+	width: 30px;
+	height: 75px;
 	position: relative;
 }
 
 body > div:nth-child(2n +1)
 {
-	margin-left: 10px;
+	margin-left: 5px;
 }
 
 div > div
 {
-	width: 100px;
-	height: 100px;
+	width: 30px;
+	height: 30px;
 	position: absolute;
 	-webkit-transition: all 0.5s ease;
 }
@@ -294,17 +294,17 @@ div > div
 
 div > div div
 {
-	width: 80px;
-	height: 100px;
-	border-radius: 10px;
+	width: 24px;
+	height: 30px;
+	border-radius: 3px;
 	position: absolute;
 }
 
 div > div div:nth-child(1)
 {
-	width: 100px;
-	font-size: 70px;
-	line-height: 100px;
+	width: 30px;
+	font-size: 21px;
+	line-height: 30px;
 	color: #FFF;
 	z-index: 10;
 }
@@ -316,12 +316,12 @@ div > div div:nth-child(2), div > div div:nth-child(3)
 
 div > div div:nth-child(3)
 {
-	left: 20px;
+	left: 6px;
 }
 
 .next
 {
-	top: -25px;
+	top: -7.5px;
 	-webkit-transform: scaleY(0);
 }
 
@@ -343,41 +343,41 @@ div > div div:nth-child(3)
 
 .top div:nth-child(2)
 {
-	left: 3px;
+	left: 1px;
 	-webkit-transform: skewX(-2deg);
 }
 
 .top div:nth-child(3)
 {
-	left: 17px;
+	left: 5px;
 	-webkit-transform: skewX(2deg);
 }
 
 .middle
 {
-	top: 80px;
+	top: 24px;
 }
 
 .bottom
 {
-	top: 160px;
+	top: 48px;
 }
 
 .bottom div:nth-child(2)
 {
-	left: 3px;
+	left: 1px;
 	-webkit-transform: skewX(2deg);
 }
 
 .bottom div:nth-child(3)
 {
-	left: 17px;
+	left: 5px;
 	-webkit-transform: skewX(-2deg);
 }
 
 .previous
 {
-	top: 185px;
+	top: 55.5px;
 	-webkit-transform: scaleY(0);
 	-webkit-transition: all 0.45s ease;
 }
@@ -389,12 +389,12 @@ div > div div:nth-child(3)
 
 .previous div:nth-child(2)
 {
-	left: 6px;
+	left: 2px;
 }
 
 .previous div:nth-child(3)
 {
-	left: 13px;
+	left: 3px;
 }
 </style>
 </head>
