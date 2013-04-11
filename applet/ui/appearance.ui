@@ -74,9 +74,9 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="detailsTab">
+     <widget class="QWidget" name="editorTab">
       <attribute name="title">
-       <string>Details</string>
+       <string>Editor</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
