@@ -68,8 +68,6 @@ void Applet::init()
     palette.setBrush(QPalette::Base, Qt::transparent);
 
     m_page.setPalette(palette);
-    m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     QTimer::singleShot(100, this, SLOT(configChanged()));
 
@@ -115,7 +113,7 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-    m_page.mainFrame()->render(painter);
+    m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
