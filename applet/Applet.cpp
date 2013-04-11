@@ -174,7 +174,7 @@ void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &new
 
 void Applet::copyToClipboard()
 {
-    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyExpression", "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)")));
+    QApplication::clipboard()->setText(m_clock->evaluate(config().readEntry("fastCopyExpression", "Clock.getValue(Clock.Year) + '-' + Clock.getValue(Clock.Month) + '-' + Clock.getValue(Clock.DayOfMonth) + ' ' + Clock.getValue(Clock.Hour) + ':' + Clock.getValue(Clock.Minute) + ':' + Clock.getValue(Clock.Second)")));
 }
 
 void Applet::copyToClipboard(QAction *action)
@@ -280,17 +280,17 @@ Clock* Applet::getClock() const
 QStringList Applet::getClipboardExpressions() const
 {
     QStringList clipboardExpressions;
-    clipboardExpressions << "Clock.toString(Clock.Time, {'short': true})"
-    << "Clock.toString(Clock.Time)"
+    clipboardExpressions << "Clock.getValue(Clock.Time, {'short': true})"
+    << "Clock.getValue(Clock.Time)"
     << QString()
-    << "Clock.toString(Clock.Date, {'short': true})"
-    << "Clock.toString(Clock.Date)"
+    << "Clock.getValue(Clock.Date, {'short': true})"
+    << "Clock.getValue(Clock.Date)"
     << QString()
-    << "Clock.toString(Clock.DateTime, {'short': true})"
-    << "Clock.toString(Clock.DateTime)"
-    << "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)"
+    << "Clock.getValue(Clock.DateTime, {'short': true})"
+    << "Clock.getValue(Clock.DateTime)"
+    << "Clock.getValue(Clock.Year) + '-' + Clock.getValue(Clock.Month) + '-' + Clock.getValue(Clock.DayOfMonth) + ' ' + Clock.getValue(Clock.Hour) + ':' + Clock.getValue(Clock.Minute) + ':' + Clock.getValue(Clock.Second)"
     << QString()
-    << "Clock.toString(Clock.Timestamp)";
+    << "Clock.getValue(Clock.Timestamp)";
 
     return config().readEntry("clipboardExpressions", clipboardExpressions);
 }

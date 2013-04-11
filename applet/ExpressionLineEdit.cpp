@@ -55,7 +55,7 @@ void ExpressionLineEdit::insertComponent()
 
 void ExpressionLineEdit::insertComponent(const QString &component, const QString &options)
 {
-    insert(options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options));
+    insert(options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options));
 }
 
 void ExpressionLineEdit::updateToolTip(const QString &expression)

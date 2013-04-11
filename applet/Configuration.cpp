@@ -136,7 +136,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_clipboardUi.actionsView->setModel(m_actionsModel);
     m_clipboardUi.actionsView->setItemDelegate(new ExpressionDelegate(m_applet->getClock(), this));
     m_clipboardUi.actionsView->viewport()->installEventFilter(this);
-    m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.toString(Clock.Year) + '-' + Clock.toString(Clock.Month) + '-' + Clock.toString(Clock.DayOfMonth) + ' ' + Clock.toString(Clock.Hour) + ':' + Clock.toString(Clock.Minute) + ':' + Clock.toString(Clock.Second)"));
+    m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.getValue(Clock.Year) + '-' + Clock.getValue(Clock.Month) + '-' + Clock.getValue(Clock.DayOfMonth) + ' ' + Clock.getValue(Clock.Hour) + ':' + Clock.getValue(Clock.Minute) + ':' + Clock.getValue(Clock.Second)"));
     m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
@@ -369,7 +369,7 @@ void Configuration::insertComponent(bool show)
 void Configuration::insertComponent(const QString &component, const QString &options)
 {
     const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
-    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.toString(Clock.%1)").arg(component) : QString("Clock.toString(Clock.%1, {%2})").arg(component).arg(options)), true);
+    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
 
     if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
         const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));

@@ -40,9 +40,9 @@ ClockObject::ClockObject(Clock *clock, bool constant) : QObject(clock),
 {
 }
 
-QString ClockObject::toString(int component, const QVariantMap &options) const
+QString ClockObject::getValue(int component, const QVariantMap &options) const
 {
-    return m_clock->toString(static_cast<ClockComponent>(component), options, m_constant);
+    return m_clock->getValue(static_cast<ClockComponent>(component), options, m_constant);
 }
 
 Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
@@ -269,7 +269,7 @@ void Clock::updateComponent(QWebFrame *document, ClockObject *clock, ClockCompon
 
     for (int j = 0; j < elements.count(); ++j) {
         const QVariantMap options = (elements.at(j).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
-        const QString value = clock->toString(component, options);
+        const QString value = clock->getValue(component, options);
 
         if (elements.at(j).hasAttribute("attribute")) {
             elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
@@ -315,7 +315,7 @@ QString Clock::formatNumber(int number, int length)
     return QString("%1").arg(number, length, 10, QChar('0'));
 }
 
-QString Clock::toString(ClockComponent component, const QVariantMap &options, bool constant) const
+QString Clock::getValue(ClockComponent component, const QVariantMap &options, bool constant) const
 {
     const QDateTime dateTime = (constant ? m_constantDateTime : m_dateTime);
 
