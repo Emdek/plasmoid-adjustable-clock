@@ -396,9 +396,14 @@ div > div div:nth-child(3)
 {
 	left: 3px;
 }
+
+.static *
+{
+	-webkit-transition: none !important;
+}
 </style>
 </head>
-<body>
+<body class="static">
 <div id="digit_0"></div>
 <div id="digit_1"></div>
 <div id="digit_2"></div>
@@ -433,6 +438,8 @@ function updateClock()
 
 		return;
 	}
+
+	document.body.removeAttribute('class');
 
 	for (var i = 0; i < values.length; ++i)
 	{

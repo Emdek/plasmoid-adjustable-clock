@@ -73,8 +73,6 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
             background.paintFrame(&pixmapPainter);
 
             size = background.contentsRect().size();
-
-            pixmapPainter.translate(QPointF(background.contentsRect().x(), background.contentsRect().y()));
         } else {
             pixmapPainter.setOpacity(0.1);
             pixmapPainter.setBrush(QBrush(Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor)));
@@ -84,8 +82,6 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         }
 
         QWebPage page;
-        page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-        page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
@@ -97,9 +93,9 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
         palette.setBrush(QPalette::Base, Qt::transparent);
 
         page.setPalette(palette);
-        page.setViewportSize(size.toSize());
+        page.setViewportSize(pixmap.size());
         page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-        page.mainFrame()->render(&pixmapPainter);
+        page.mainFrame()->render(&pixmapPainter, QWebFrame::ContentsLayer);
 
         m_cache->insert((index.data(IdRole).toString()), pixmap);
     }
