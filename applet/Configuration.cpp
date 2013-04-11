@@ -573,7 +573,10 @@ void Configuration::showOptions()
         return;
     }
 
-
+    for (int i = 0; i < m_options[theme].count(); ++i)
+    {
+        m_options[theme][i].value = widgets[m_options[theme][i].id]->getValue();
+    }
 }
 
 void Configuration::showEditorContextMenu(const QPoint &position)
