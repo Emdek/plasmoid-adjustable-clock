@@ -18,7 +18,7 @@
 *
 ***********************************************************************************/
 
-#include "PreviewDelegate.h"
+#include "ThemeDelegate.h"
 #include "Applet.h"
 #include "Clock.h"
 #include "Configuration.h"
@@ -42,19 +42,19 @@ namespace AdjustableClock
 
 KPixmapCache *m_cache = NULL;
 
-PreviewDelegate::PreviewDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+ThemeDelegate::ThemeDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
     m_clock(clock)
 {
     m_cache = new KPixmapCache("AdjustableClockPreviews");
     m_cache->discard();
 }
 
-PreviewDelegate::~PreviewDelegate()
+ThemeDelegate::~ThemeDelegate()
 {
     delete m_cache;
 }
 
-void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
 
@@ -120,12 +120,12 @@ void PreviewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
 }
 
-void PreviewDelegate::clear()
+void ThemeDelegate::clear()
 {
     m_cache->discard();
 }
 
-QWidget* PreviewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
 
@@ -144,7 +144,7 @@ QWidget* PreviewDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
     return widget;
 }
 
-QSize PreviewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize ThemeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
     Q_UNUSED(index)

@@ -18,8 +18,8 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKPREVIEWDELEGATE_HEADER
-#define ADJUSTABLECLOCKPREVIEWDELEGATE_HEADER
+#ifndef ADJUSTABLECLOCKTHEMEDELEGATE_HEADER
+#define ADJUSTABLECLOCKTHEMEDELEGATE_HEADER
 
 #include <QtGui/QStyledItemDelegate>
 
@@ -28,13 +28,13 @@ namespace AdjustableClock
 
 class Clock;
 
-class PreviewDelegate : public QStyledItemDelegate
+class ThemeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
     public:
-        PreviewDelegate(Clock *clock, QObject *parent = NULL);
-        ~PreviewDelegate();
+        ThemeDelegate(Clock *clock, QObject *parent = NULL);
+        ~ThemeDelegate();
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;

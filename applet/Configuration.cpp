@@ -22,7 +22,7 @@
 #include "Clock.h"
 #include "ComponentWidget.h"
 #include "OptionWidget.h"
-#include "PreviewDelegate.h"
+#include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
 #include <QtCore/QXmlStreamWriter>
@@ -96,7 +96,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     selectAction(m_actionsModel->index(0, 0));
 
-    PreviewDelegate *delegate = new PreviewDelegate(m_applet->getClock(), m_appearanceUi.themesView);
+    ThemeDelegate *delegate = new ThemeDelegate(m_applet->getClock(), m_appearanceUi.themesView);
 
     m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(delegate);
