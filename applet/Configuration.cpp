@@ -641,6 +641,8 @@ void Configuration::setStyle(const QString &property, const QString &value, cons
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
     }
+
+    modify();
 }
 
 void Configuration::setColor()
