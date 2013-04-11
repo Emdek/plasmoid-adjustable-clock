@@ -176,7 +176,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 void Configuration::save()
 {
     if (m_appearanceUi.mainTabWidget->currentIndex() == 1) {
-        editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
+        if (m_appearanceUi.editorTabWidget->currentIndex() == 1) {
+            sourceChanged();
+        }
+
+        editorModeChanged(m_appearanceUi.mainTabWidget->currentIndex());
     }
 
     if (m_editedAction.isValid()) {
