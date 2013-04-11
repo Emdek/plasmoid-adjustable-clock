@@ -427,6 +427,8 @@ function updateClock()
 
 		for (var i = 0; i < values.length; ++i)
 		{
+			document.getElementById('digit_' + i).innerHTML = '';
+
 			for (var j = 0; j < 4; ++j)
 			{
 				createCard(i, phases[j], (values[i] - 1 + j));
