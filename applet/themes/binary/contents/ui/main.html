@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+table, td
+{
+	margin: auto;
+	border: 1px solid #ddd;
+}
+
+table
+{
+	width: 67px;
+	height: 45px;
+	border-width: 1px 1px 0 0;
+	border-spacing: 0;
+	empty-cells: show;
+}
+
+td
+{
+	width: 10px;
+	height: 10px;
+	border-width: 0 0 1px 1px;
+}
+</style>
+</head>
+<body background="true">
+<table>
+	<tbody>
+		<tr>
+			<td id="v_0_8"></td>
+			<td id="v_1_8"></td>
+			<td id="v_2_8"></td>
+			<td id="v_3_8"></td>
+			<td id="v_4_8"></td>
+			<td id="v_5_8"></td>
+		</tr>
+		<tr>
+			<td id="v_0_4"></td>
+			<td id="v_1_4"></td>
+			<td id="v_2_4"></td>
+			<td id="v_3_4"></td>
+			<td id="v_4_4"></td>
+			<td id="v_5_4"></td>
+		</tr>
+		<tr>
+			<td id="v_0_2"></td>
+			<td id="v_1_2"></td>
+			<td id="v_2_2"></td>
+			<td id="v_3_2"></td>
+			<td id="v_4_2"></td>
+			<td id="v_5_2"></td>
+		</tr>
+		<tr>
+			<td id="v_0_1"></td>
+			<td id="v_1_1"></td>
+			<td id="v_2_1"></td>
+			<td id="v_3_1"></td>
+			<td id="v_4_1"></td>
+			<td id="v_5_1"></td>
+		</tr>
+	</tbody>
+</table>
+<script type="text/javascript">
+function updateClock()
+{
+	var color = window.getComputedStyle(document.body).getPropertyValue('color');
+	var hour = Clock.getValue(Clock.Hour);
+	var minute = Clock.getValue(Clock.Minute);
+	var second = Clock.getValue(Clock.Second);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
+
+	for (var i = 0; i < values.length; ++i)
+	{
+		for (var j = 1; j < 9; j *= 2)
+		{
+			document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
+		}
+	}
+}
+
+document.addEventListener('ClockSecondChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateClock);
+</script>
+</body>
+</html>

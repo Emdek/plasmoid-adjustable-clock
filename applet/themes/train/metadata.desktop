@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Train Clock
+Comment=Train clock like theme
+Type=Service
+ServiceTypes=Plasma/AdjustableClock
+
+X-Plasma-API=adjustableclock_html
+
+X-KDE-Library=adjustableclock_theme_train
+X-KDE-PluginInfo-Name=train
+X-KDE-PluginInfo-Author=Nuno Pinheiro & Michał Dutkiewicz
+X-KDE-PluginInfo-Email=emdeck@gmail.com
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Website=http://emdek.pl/

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=beClock
+Comment=beClock like theme
+Type=Service
+ServiceTypes=Plasma/AdjustableClock
+
+X-Plasma-API=adjustableclock_html
+
+X-KDE-Library=adjustableclock_theme_beclock
+X-KDE-PluginInfo-Name=beclock
+X-KDE-PluginInfo-Author=Thomas Luebking & Michał Dutkiewicz
+X-KDE-PluginInfo-Email=emdeck@gmail.com
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Website=http://emdek.pl/

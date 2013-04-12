@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+body > div
+{
+	width: 200px;
+	height: 200px;
+	margin: auto;
+	position: relative;
+}
+
+body > div > div
+{
+	width: 200px;
+	position: absolute;
+}
+
+.back
+{
+	z-index: 1;
+	top: 50px;
+	font-size: 75px;
+	font-weight: bold;
+	text-transform: uppercase;
+	opacity: 0.3;
+}
+
+.front
+{
+	z-index: 2;
+	top: 60px;
+	font-size: 40px;
+	line-height: 40px;
+}
+
+.front div
+{
+	font-size: 20px;
+	line-height: 25px;
+}
+</style>
+</head>
+<body>
+<div>
+	<canvas id="canvas" width="200" height="200"></canvas>
+	<div class="back" component="TimeOfDay"></div>
+	<div class="front">
+		<span component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
+		<div><span component="Year">2000</span>-<span component="Month">01</span>-<span component="DayOfMonth">01</span></div>
+	</div>
+</div>
+<script type="text/javascript">
+function updateClock()
+{
+	var context = document.getElementById('canvas').getContext('2d');
+
+	context.lineCap = 'round';
+	context.lineWidth = 8;
+	context.strokeStyle = window.getComputedStyle(document.body).getPropertyValue('color');
+
+	context.clearRect(0, 0, 200, 200);
+
+	context.beginPath();
+	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getValue(Clock.Minute, {'short': true})) - 15) * 6)), false);
+	context.globalAlpha = 0.5;
+	context.stroke();
+
+	context.beginPath();
+	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getValue(Clock.Hour, {'short': true})) - 15) * 30)), false);
+	context.globalAlpha = 0.8;
+	context.stroke();
+}
+
+document.addEventListener('ClockMinuteChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateClock);
+</script>
+</body>
+</html>

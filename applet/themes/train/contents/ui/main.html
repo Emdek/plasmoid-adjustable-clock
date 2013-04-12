@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+body > div
+{
+	padding: 8px;
+	width: 190px;
+	border-radius: 10px;
+	border-spacing: 2px;
+	font-family: 'Nimbus Sans L';
+	background: #202020;
+	color: #DCDCDC;
+}
+
+.time
+{
+	display: table;
+}
+
+.time > div
+{
+	display: table-row;
+}
+
+.time > div > div, .card
+{
+	display: table-cell;
+	height: 25px;
+	width: 40px;
+	overflow: hidden;
+	position: relative;
+	line-height: 0;
+	font-size: 55px;
+	font-weight: bold;
+	background: -webkit-linear-gradient(#353535, #222 30%, #000);
+}
+
+.time > div > div > div
+{
+	width: 40px;
+	position: absolute;
+}
+
+.time .dots
+{
+	width: 20px;
+	line-height: 25px;
+	font-size: 30px;
+}
+
+.time .hidden > div
+{
+	height: 0;
+	overflow: visible;
+}
+
+.time .top > div > div
+{
+	top: 25px;
+}
+
+.date
+{
+	margin: 3px 0 -3px 0;
+	padding: 0 5px 0 0;
+	text-align: right;
+	line-height: 15px;
+	font-size: 15px;
+}
+
+.dark
+{
+	color: #1A1A1A;
+}
+
+.card
+{
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	top: 2px;
+	z-index: 100;
+	box-shadow: 0 2px 2px #333;
+	-webkit-transform: scale(1, 1);
+	-webkit-transition: -webkit-transform 0.5s linear, margin 0.5s linear;
+}
+
+.card span
+{
+	display: block;
+	margin: 25px 0 0 0;
+}
+
+.final
+{
+	margin: 26px 0 0 0;
+	visibility: visible;
+	-webkit-transform: scale(1, -1);
+}
+
+.reversed
+{
+	-webkit-transform: scale(1, -1);
+}
+</style>
+</head>
+<body>
+<div>
+	<div class="time">
+		<div class="hidden">
+			<div><div class="card"><span id="c_0_3">4</span></div></div>
+			<div><div class="card"><span id="c_1_3">4</span></div></div>
+			<div class="dots"></div>
+			<div><div class="card"><span id="c_2_3">4</span></div></div>
+			<div><div class="card"><span id="c_3_3">4</span></div></div>
+		</div>
+		<div class="top">
+			<div><div id="c_0_1">1</div></div>
+			<div><div id="c_1_1">2</div></div>
+			<div id="dot_top" class="dots">•</div>
+			<div><div id="c_2_1">3</div></div>
+			<div><div id="c_3_1">0</div></div>
+		</div>
+		<div class="bottom">
+			<div><div id="c_0_2">1</div></div>
+			<div><div id="c_1_2">2</div></div>
+			<div id="dot_bottom" class="dots">•</div>
+			<div><div id="c_2_2">3</div></div>
+			<div><div id="c_3_2">0</div></div>
+		</div>
+	</div>
+	<div class="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': false">of January</span></div>
+</div>
+<script type="text/javascript">
+var initialized = false;
+
+function updateClock()
+{
+	var hour = Clock.getValue(Clock.Hour);
+	var minute = Clock.getValue(Clock.Minute);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
+	var blink = (Clock.getValue(Clock.Second, {'short': true}) % 2);
+
+	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink?'':' dark'));
+	document.getElementById('dot_bottom').setAttribute('class', 'dots' + (blink?'':' dark'));
+
+	if (!initialized)
+	{
+		for (var i = 0; i < values.length; ++i)
+		{
+			document.getElementById('c_' + i + '_1').innerHTML = values[i];
+			document.getElementById('c_' + i + '_2').innerHTML = values[i];
+		}
+
+		initialized = true;
+
+		return;
+	}
+
+	for (var i = 0; i < values.length; ++i)
+	{
+		if (document.getElementById('c_' + i + '_1').innerHTML != values[i])
+		{
+			flipCard(i, values[i]);
+		}
+	}
+}
+
+function flipCard(number, value)
+{
+	var old = document.getElementById('c_' + number + '_1').innerHTML;
+	var card = document.getElementById('c_' + number + '_3');
+
+	document.getElementById('c_' + number + '_1').innerHTML = value;
+
+	card.innerHTML = old;
+	card.setAttribute('class', '');
+	card.parentNode.style.display = 'block';
+	card.parentNode.setAttribute('class', 'card final');
+
+	setTimeout(function() {
+		card.innerHTML = value;
+		card.setAttribute('class', 'reversed');
+
+		setTimeout(function() {
+			document.getElementById('c_' + number + '_2').innerHTML = value;
+
+			card.parentNode.style.display = 'none';
+			card.parentNode.setAttribute('class', 'card');
+
+			setTimeout(function() {
+				card.parentNode.style.display = 'block';
+				}, 1);
+		}, 250);
+	}, 250);
+}
+
+document.addEventListener('ClockSecondChanged', updateClock);
+</script>
+</body>
+</html>
