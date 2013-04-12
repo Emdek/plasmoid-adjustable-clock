@@ -38,12 +38,13 @@ namespace AdjustableClock
 enum ModelRole
 {
     IdRole = (Qt::UserRole + 1),
-    PathRole = (Qt::UserRole + 2),
-    TitleRole = (Qt::UserRole + 3),
-    CommentRole = (Qt::UserRole + 4),
-    AuthorRole = (Qt::UserRole + 5),
-    HtmlRole = (Qt::UserRole + 6),
-    OptionsRole = (Qt::UserRole + 7)
+    PathRole,
+    TitleRole,
+    CommentRole,
+    AuthorRole,
+    HtmlRole,
+    OptionsRole,
+    ModificationRole
 };
 
 class ComponentWidget;

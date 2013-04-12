@@ -85,6 +85,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
             item->setData(stream.readAll(), HtmlRole);
             item->setData(false, OptionsRole);
+            item->setData(false, ModificationRole);
 
             QString toolTip;
 
@@ -234,12 +235,12 @@ void Configuration::save()
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-//         const QModelIndex index = m_themesModel->index(i, 0);
-//
-//         if (index.data(BundledRole).toBool()) {
-//             continue;
-//         }
-//
+        const QModelIndex index = m_themesModel->index(i, 0);
+
+        if (!index.data(ModificationRole).toBool()) {
+            continue;
+        }
+
 //         stream.writeStartElement("theme");
 //         stream.writeStartElement("id");
 //         stream.writeCharacters(index.data(IdRole).toString());
@@ -526,6 +527,7 @@ void Configuration::editorModeChanged(int mode)
 void Configuration::themeChanged()
 {
     m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
+    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), true, ModificationRole);
 
     modify();
 
