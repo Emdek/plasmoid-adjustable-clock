@@ -25,7 +25,6 @@
 #include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
-#include <QtCore/QXmlStreamWriter>
 #include <QtGui/QFormLayout>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElementCollection>
@@ -35,6 +34,7 @@
 #include <KLocale>
 #include <KMessageBox>
 #include <KColorDialog>
+#include <KDesktopFile>
 #include <KInputDialog>
 #include <KStandardDirs>
 
@@ -44,6 +44,7 @@
 #include <KTextEditor/ConfigInterface>
 
 #include <Plasma/Theme>
+#include <Plasma/Package>
 
 namespace AdjustableClock
 {
@@ -61,24 +62,48 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
 
-    const QList<Theme> themes = m_applet->getThemes();
+    const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
-    for (int i = 0; i < themes.count(); ++i) {
-        QStandardItem *item = new QStandardItem();
-        item->setData((themes.at(i).id.isEmpty() ? createIdentifier() : themes.at(i).id), IdRole);
-        item->setData(themes.at(i).title, TitleRole);
-        item->setData(themes.at(i).description, DescriptionRole);
-        item->setData(themes.at(i).author, AuthorRole);
-        item->setData(themes.at(i).html, HtmlRole);
-        item->setData(!themes.at(i).options.isEmpty(), OptionsRole);
-        item->setData(themes.at(i).bundled, BundledRole);
-        item->setToolTip(QString("<b>%1</b>%2").arg(themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)).arg(themes.at(i).description.isEmpty() ? QString() : QString("<br />") + themes.at(i).description));
+    for (int i = 0; i < locations.count(); ++i) {
+        QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
-        if (!themes.at(i).options.isEmpty()) {
-            m_options[item->data(IdRole).toString()] = themes.at(i).options;
+        for (int j = 0; j < themes.count(); ++j) {
+            KDesktopFile desktopFile("data", QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
+            QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+
+            QStandardItem *item = new QStandardItem();
+            item->setData(themes.at(j), IdRole);
+            item->setData(desktopFile.readName(), TitleRole);
+            item->setData(desktopFile.readComment(), DescriptionRole);
+            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
+            item->setData(stream.readAll(), HtmlRole);
+            item->setData(false, OptionsRole);
+            item->setData((i == 0), BundledRole);
+
+            QString toolTip;
+
+            if (item->data(AuthorRole).isNull()) {
+                toolTip = QString("<b>\"%1\"</b>").arg(item->data(TitleRole).toString());
+            } else {
+                toolTip = i18n("<b>\"%1\" by %2</b>").arg(item->data(TitleRole).toString()).arg(item->data(AuthorRole).toString());
+            }
+
+            if (!item->data(DescriptionRole).isNull()) {
+                toolTip.append("<br>\n").append(item->data(DescriptionRole).toString());
+            }
+
+            item->setToolTip(toolTip);
+
+//             if (!themes.at(i).options.isEmpty()) {
+//                 m_options[item->data(IdRole).toString()] = themes.at(i).options;
+//             }
+
+            m_themesModel->appendRow(item);
         }
-
-        m_themesModel->appendRow(item);
     }
 
     const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
@@ -206,38 +231,25 @@ void Configuration::save()
     m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
-    QFile file(KStandardDirs::locateLocal("data", "adjustableclock/custom-themes.xml"));
-    file.open(QFile::WriteOnly | QFile::Text);
-
-    QXmlStreamWriter stream(&file);
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-    stream.writeStartElement("themes");
-
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        const QModelIndex index = m_themesModel->index(i, 0);
-
-        if (index.data(BundledRole).toBool()) {
-            continue;
-        }
-
-        stream.writeStartElement("theme");
-        stream.writeStartElement("id");
-        stream.writeCharacters(index.data(IdRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement("title");
-        stream.writeCharacters(index.data(TitleRole).toString());
-        stream.writeEndElement();
-        stream.writeStartElement("html");
-        stream.writeCDATA(index.data(HtmlRole).toString());
-        stream.writeEndElement();
-        stream.writeEndElement();
+//         const QModelIndex index = m_themesModel->index(i, 0);
+//
+//         if (index.data(BundledRole).toBool()) {
+//             continue;
+//         }
+//
+//         stream.writeStartElement("theme");
+//         stream.writeStartElement("id");
+//         stream.writeCharacters(index.data(IdRole).toString());
+//         stream.writeEndElement();
+//         stream.writeStartElement("title");
+//         stream.writeCharacters(index.data(TitleRole).toString());
+//         stream.writeEndElement();
+//         stream.writeStartElement("html");
+//         stream.writeCDATA(index.data(HtmlRole).toString());
+//         stream.writeEndElement();
+//         stream.writeEndElement();
     }
-
-    stream.writeEndElement();
-    stream.writeEndDocument();
-
-    file.close();
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
 
@@ -536,9 +548,12 @@ void Configuration::sourceChanged()
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
     Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()));
 
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString(file.readAll()));
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 
     const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
 

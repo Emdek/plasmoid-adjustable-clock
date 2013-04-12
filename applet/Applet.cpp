@@ -22,9 +22,8 @@
 #include "Clock.h"
 #include "Configuration.h"
 
-#include <QtCore/QFile>
 #include <QtCore/QTimer>
-#include <QtCore/QXmlStreamReader>
+#include <QtCore/QTextStream>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
@@ -36,6 +35,7 @@
 #include <KConfigDialog>
 #include <KStandardDirs>
 
+#include <Plasma/Package>
 #include <Plasma/Containment>
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
@@ -45,8 +45,7 @@ namespace AdjustableClock
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clock(NULL),
-    m_clipboardAction(NULL),
-    m_newTheme(false)
+    m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
@@ -127,32 +126,42 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
-    m_theme.id = config().readEntry("theme", "default");
-    m_theme.html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
-    m_theme.bundled = false;
-    m_newTheme = false;
+    const QString id = config().readEntry("theme", "digital");
+    QString html;
 
     if (config().readEntry("themeHtml", QString()).isEmpty()) {
-        const QList<Theme> themes = getThemes();
+        const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
-        for (int i = 0; i < themes.count(); ++i) {
-            if (m_theme.id == themes.at(i).id) {
-                m_theme = themes.at(i);
-
+        for (int i = 0; i < locations.count(); ++i) {
+            if (!html.isEmpty()) {
                 break;
             }
-        }
 
-        if (m_theme.html.isEmpty() && !themes.isEmpty()) {
-            m_theme = themes.first();
+            const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
+
+            for (int j = 0; j < themes.count(); ++j) {
+                if (id == themes.at(j)) {
+                    QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+                    QTextStream stream(&file);
+                    stream.setCodec("UTF-8");
+
+                    html = stream.readAll();
+
+                    break;
+                }
+            }
         }
     } else {
-        m_theme.html = config().readEntry("themeHtml", QString());
-
-        m_newTheme = true;
+        html = config().readEntry("themeHtml", QString());
     }
 
-    m_clock->setTheme(m_theme.html);
+    if (html.isEmpty()) {
+        html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
+    }
+
+    m_clock->setTheme(html);
 
     constraintsEvent(Plasma::SizeConstraint);
     updateSize();
@@ -292,68 +301,6 @@ QStringList Applet::getClipboardExpressions() const
     << "Clock.getValue(Clock.Timestamp)";
 
     return config().readEntry("clipboardExpressions", clipboardExpressions);
-}
-
-QList<Theme> Applet::getThemes() const
-{
-    QList<Theme> themes;
-
-    for (int i = 0; i < 2; ++i) {
-        QFile file(KStandardDirs::locate("data", QString("adjustableclock/%1themes.xml").arg((i == 0) ? QString() : "custom-")));
-        file.open(QFile::ReadOnly | QFile::Text);
-
-        QXmlStreamReader reader(&file);
-        Theme theme;
-        theme.bundled = (i == 0);
-
-        while (!reader.atEnd()) {
-            reader.readNext();
-
-            if (!reader.isStartElement()) {
-                if (reader.name().toString() == "theme") {
-                    themes.append(theme);
-                }
-
-                continue;
-            }
-
-            if (reader.name().toString() == "theme") {
-                theme.id = QString();
-                theme.title = QString();
-                theme.description = QString();
-                theme.author = QString();
-                theme.html = QString();
-            }
-
-            if (reader.name().toString() == "id") {
-                theme.id = reader.readElementText();
-            }
-
-            if (reader.name().toString() == "title") {
-                theme.title = i18n(reader.readElementText().toUtf8().data());
-            }
-
-            if (reader.name().toString() == "description") {
-                theme.description = i18n(reader.readElementText().toUtf8().data());
-            }
-
-            if (reader.name().toString() == "author") {
-                theme.author = reader.readElementText();
-            }
-
-            if (reader.name().toString() == "html") {
-                theme.html = reader.readElementText();
-            }
-        }
-
-        file.close();
-    }
-
-    if (m_newTheme) {
-        themes.append(m_theme);
-    }
-
-    return themes;
 }
 
 QList<QAction*> Applet::contextualActions()

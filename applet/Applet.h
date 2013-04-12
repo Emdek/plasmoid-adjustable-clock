@@ -43,17 +43,6 @@ struct Option
     QList<QPair<QString, QString> > values;
 };
 
-struct Theme
-{
-    QString id;
-    QString title;
-    QString description;
-    QString author;
-    QString html;
-    QList<Option> options;
-    bool bundled;
-};
-
 class Clock;
 
 class Applet : public ClockApplet
@@ -66,7 +55,6 @@ class Applet : public ClockApplet
         void init();
         Clock* getClock() const;
         QStringList getClipboardExpressions() const;
-        QList<Theme> getThemes() const;
 
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
@@ -93,8 +81,6 @@ class Applet : public ClockApplet
         Clock *m_clock;
         QAction *m_clipboardAction;
         QWebPage m_page;
-        Theme m_theme;
-        bool m_newTheme;
 };
 
 }
