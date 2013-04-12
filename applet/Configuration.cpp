@@ -25,6 +25,7 @@
 #include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QFormLayout>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElementCollection>
@@ -77,12 +78,12 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
             QStandardItem *item = new QStandardItem();
             item->setData(themes.at(j), IdRole);
+            item->setData(locations.at(i), PathRole);
             item->setData(desktopFile.readName(), TitleRole);
             item->setData(desktopFile.readComment(), CommentRole);
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
             item->setData(stream.readAll(), HtmlRole);
             item->setData(false, OptionsRole);
-            item->setData((i == 0), BundledRole);
 
             QString toolTip;
 
@@ -267,11 +268,13 @@ void Configuration::selectTheme(const QModelIndex &index)
         modify();
     }
 
+    const bool writable = QFileInfo(index.data(PathRole).toString()).isWritable();
+
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
-    m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
-    m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
-    m_appearanceUi.mainTabWidget->setTabEnabled(1, !index.data(BundledRole).toBool());
+    m_appearanceUi.deleteButton->setEnabled(writable);
+    m_appearanceUi.renameButton->setEnabled(writable);
+    m_appearanceUi.mainTabWidget->setTabEnabled(1, writable);
 }
 
 void Configuration::createTheme()
@@ -286,7 +289,6 @@ void Configuration::createTheme()
     QStandardItem *item = new QStandardItem();
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
-    item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
@@ -318,7 +320,6 @@ void Configuration::copyTheme()
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
     item->setData(index.data(HtmlRole), HtmlRole);
-    item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
@@ -328,13 +329,20 @@ void Configuration::copyTheme()
 
 void Configuration::deleteTheme()
 {
-    if (!m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool() && KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(m_appearanceUi.themesView->currentIndex().data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
-        const int row = m_appearanceUi.themesView->currentIndex().row();
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+
+    if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
+        const int row = index.row();
+
+        if (!Plasma::Package::uninstallPackage(index.data(IdRole).toString(), index.data(PathRole).toString(), "plasma-adjustable-clock-addon-")) {
+            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to delete theme."));
+
+            return;
+        }
 
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
-        modify();
     }
 }
 
