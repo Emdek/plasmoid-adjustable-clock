@@ -7,7 +7,7 @@
 - use standard PlasmaClock tool tip if custom one was not supplied;
 - added ability to define theme options;
 - more user friendly way to insert clock components;
-- use KTextEditor for source editing if available;
+- use KTextEditor for source editing;
 - added ability to set custom theme using Plasma scripting;
 - use Plasma::Package as themes storage;
 - many code cleanups and fixes.

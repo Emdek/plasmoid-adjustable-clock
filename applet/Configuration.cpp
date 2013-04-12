@@ -187,7 +187,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    connect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -444,8 +443,6 @@ void Configuration::insertComponent(const QString &component, const QString &opt
 
         if (m_document) {
             m_document->activeView()->insertText(html);
-        } else {
-            m_appearanceUi.editorTextEdit->insertPlainText(html);
         }
 
         sourceChanged();
@@ -510,18 +507,15 @@ void Configuration::appearanceModeChanged(int mode)
             configuration->setConfigValue("dynamic-word-wrap", false);
         }
 
-        m_appearanceUi.editorTextEdit->hide();
         m_appearanceUi.sourceLayout->addWidget(view);
+    } else {
+        m_appearanceUi.editorTabWidget->setTabEnabled(1, false);
     }
 
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     if (m_document) {
         m_document->setText(index.data(HtmlRole).toString());
-    } else {
-        disconnect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
-
-        m_appearanceUi.editorTextEdit->setPlainText(index.data(HtmlRole).toString());
     }
 
     m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
@@ -530,8 +524,6 @@ void Configuration::appearanceModeChanged(int mode)
 
     if (m_document) {
         connect(m_document, SIGNAL(textChanged(KTextEditor::Document*)), this, SLOT(themeChanged()));
-    } else {
-        connect(m_appearanceUi.editorTextEdit, SIGNAL(textChanged()), this, SLOT(themeChanged()));
     }
 
     editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
@@ -558,7 +550,7 @@ void Configuration::editorModeChanged(int mode)
 
 void Configuration::themeChanged()
 {
-    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
+    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), (m_document ? m_document->text() : m_appearanceUi.webView->page()->mainFrame()->toHtml()), HtmlRole);
     m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), true, ModificationRole);
 
     modify();
@@ -581,8 +573,6 @@ void Configuration::richTextChanged()
 
     if (m_document) {
         m_document->setText(html);
-    } else {
-        m_appearanceUi.editorTextEdit->setPlainText(html);
     }
 }
 
@@ -594,7 +584,7 @@ void Configuration::sourceChanged()
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()));
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), (m_document ? m_document->text() : m_appearanceUi.themesView->currentIndex().data(HtmlRole).toString()));
 
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 
@@ -743,14 +733,8 @@ void Configuration::moveDownAction()
 
 void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
 {
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        const QString html = QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document ? m_document->activeView()->selectionText() : m_appearanceUi.editorTextEdit->textCursor().selectedText());
-
-        if (m_document) {
-            m_document->activeView()->insertText(html);
-        } else {
-            m_appearanceUi.editorTextEdit->insertPlainText(html);
-        }
+    if (m_appearanceUi.editorTabWidget->currentIndex() > 0 && m_document) {
+        m_document->activeView()->insertText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document->activeView()->selectionText()));
     } else {
         m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
     }

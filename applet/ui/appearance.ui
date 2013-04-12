@@ -330,15 +330,7 @@
           <attribute name="title">
            <string>Source</string>
           </attribute>
-          <layout class="QVBoxLayout" name="sourceLayout">
-           <item>
-            <widget class="KTextEdit" name="editorTextEdit">
-             <property name="acceptRichText">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QVBoxLayout" name="sourceLayout"/>
          </widget>
         </widget>
        </item>
@@ -358,11 +350,6 @@
    <class>KComboBox</class>
    <extends>QComboBox</extends>
    <header>kcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KTextEdit</class>
-   <extends>QTextEdit</extends>
-   <header>ktextedit.h</header>
   </customwidget>
   <customwidget>
    <class>KTabWidget</class>
