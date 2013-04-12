@@ -353,6 +353,7 @@ void Configuration::copyTheme()
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
     item->setData(index.data(HtmlRole), HtmlRole);
+    item->setData(true, ModificationRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
