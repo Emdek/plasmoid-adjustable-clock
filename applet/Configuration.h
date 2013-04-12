@@ -39,6 +39,7 @@ enum ModelRole
 {
     IdRole = (Qt::UserRole + 1),
     PathRole,
+    SortRole,
     TitleRole,
     CommentRole,
     AuthorRole,

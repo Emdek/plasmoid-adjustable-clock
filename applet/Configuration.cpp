@@ -67,8 +67,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
     for (int i = 0; i < locations.count(); ++i) {
-        QStringList themes = Plasma::Package::listInstalled(locations.at(i));
-        themes.sort();
+        const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
         for (int j = 0; j < themes.count(); ++j) {
             KDesktopFile desktopFile("data", QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
@@ -81,6 +80,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             QStandardItem *item = new QStandardItem();
             item->setData(themes.at(j), IdRole);
             item->setData(locations.at(i), PathRole);
+            item->setData(desktopFile.readName().toLower(), SortRole);
             item->setData(desktopFile.readName(), TitleRole);
             item->setData(desktopFile.readComment(), CommentRole);
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
@@ -102,13 +102,16 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
             item->setToolTip(toolTip);
 
-//             if (!themes.at(i).options.isEmpty()) {
+            if (item->data(OptionsRole).toBool()) {
 //                 m_options[item->data(IdRole).toString()] = themes.at(i).options;
-//             }
+            }
 
             m_themesModel->appendRow(item);
         }
     }
+
+    m_themesModel->setSortRole(SortRole);
+    m_themesModel->sort(0);
 
     const QStringList clipboardExpressions = m_applet->getClipboardExpressions();
 
@@ -121,8 +124,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
         m_actionsModel->appendRow(item);
     }
-
-    selectAction(m_actionsModel->index(0, 0));
 
     ThemeDelegate *delegate = new ThemeDelegate(m_applet->getClock(), m_appearanceUi.themesView);
 
@@ -170,6 +171,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
     parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
     parent->resize(500, 400);
+
+    selectAction(m_actionsModel->index(0, 0));
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
@@ -292,6 +295,10 @@ void Configuration::selectTheme(const QModelIndex &index)
 {
     if (m_appearanceUi.themesView->selectionModel()->hasSelection()) {
         modify();
+    }
+
+    if (index != m_appearanceUi.themesView->currentIndex()) {
+        m_appearanceUi.themesView->setCurrentIndex(index);
     }
 
     const bool writable = (index.data(ModificationRole).toBool() || QFileInfo(index.data(PathRole).toString()).isWritable());
@@ -815,7 +822,7 @@ int Configuration::findRow(const QString &text, int role) const
 bool Configuration::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_appearanceUi.themesView && event->type() == QEvent::Paint && !m_appearanceUi.themesView->currentIndex().isValid()) {
-        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "default"), IdRole), 0), 0));
+        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "digital"), IdRole), 0), 0));
     } else if (event->type() == QEvent::MouseButtonDblClick && object == m_appearanceUi.themesView->viewport()) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
