@@ -25,6 +25,7 @@
 #include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtGui/QFormLayout>
 #include <QtWebKit/QWebFrame>
@@ -234,6 +235,9 @@ void Configuration::save()
     m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
+    const QString dataPath = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+    QStringList failed;
+
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
         const QModelIndex index = m_themesModel->index(i, 0);
 
@@ -241,17 +245,37 @@ void Configuration::save()
             continue;
         }
 
-//         stream.writeStartElement("theme");
-//         stream.writeStartElement("id");
-//         stream.writeCharacters(index.data(IdRole).toString());
-//         stream.writeEndElement();
-//         stream.writeStartElement("title");
-//         stream.writeCharacters(index.data(TitleRole).toString());
-//         stream.writeEndElement();
-//         stream.writeStartElement("html");
-//         stream.writeCDATA(index.data(HtmlRole).toString());
-//         stream.writeEndElement();
-//         stream.writeEndElement();
+        const QString packagePath = QString("%1/%2/").arg(index.data(PathRole).isValid() ? index.data(PathRole).toString() : dataPath).arg(index.data(IdRole).toString());
+        const QString dataPath = QString(packagePath).append("contents/ui/");
+
+        if (!QFile::exists(dataPath)) {
+            QDir(dataPath).mkpath(dataPath);
+        }
+
+        QFile file(dataPath + "main.html");
+
+        if (!file.open(QIODevice::WriteOnly)) {
+            failed.append(index.data(TitleRole).toString());
+
+            continue;
+        }
+
+        QTextStream stream(&file);
+        stream.setCodec("UTF-8");
+        stream << index.data(HtmlRole).toString();
+
+        KDesktopFile desktopFile("data", (packagePath + "metadata.desktop"));
+        desktopFile.desktopGroup().writeEntry("Name", index.data(TitleRole).toString());
+        desktopFile.desktopGroup().writeEntry("Comment", QString());
+        desktopFile.desktopGroup().writeEntry("Type", "Service");
+        desktopFile.desktopGroup().writeEntry("ServiceTypes", "Plasma/AdjustableClock");
+        desktopFile.desktopGroup().writeEntry("X-Plasma-API", "adjustableclock_html");
+        desktopFile.desktopGroup().writeEntry("X-KDE-Library", ("adjustableclock_theme_" + index.data(IdRole).toString()));
+        desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Name", index.data(IdRole).toString());
+    }
+
+    if (!failed.isEmpty()) {
+        KMessageBox::errorList(m_appearanceUi.themesView, i18n("Failed saving the following themes:"), failed);
     }
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
@@ -270,7 +294,7 @@ void Configuration::selectTheme(const QModelIndex &index)
         modify();
     }
 
-    const bool writable = QFileInfo(index.data(PathRole).toString()).isWritable();
+    const bool writable = (index.data(ModificationRole).toBool() || QFileInfo(index.data(PathRole).toString()).isWritable());
 
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
@@ -291,6 +315,7 @@ void Configuration::createTheme()
     QStandardItem *item = new QStandardItem();
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
+    item->setData(true, ModificationRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
