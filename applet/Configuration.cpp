@@ -78,7 +78,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             QStandardItem *item = new QStandardItem();
             item->setData(themes.at(j), IdRole);
             item->setData(desktopFile.readName(), TitleRole);
-            item->setData(desktopFile.readComment(), DescriptionRole);
+            item->setData(desktopFile.readComment(), CommentRole);
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
             item->setData(stream.readAll(), HtmlRole);
             item->setData(false, OptionsRole);
@@ -92,8 +92,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
                 toolTip = i18n("<b>\"%1\" by %2</b>").arg(item->data(TitleRole).toString()).arg(item->data(AuthorRole).toString());
             }
 
-            if (!item->data(DescriptionRole).isNull()) {
-                toolTip.append("<br>\n").append(item->data(DescriptionRole).toString());
+            if (!item->data(CommentRole).isNull()) {
+                toolTip.append("<br>\n").append(item->data(CommentRole).toString());
             }
 
             item->setToolTip(toolTip);

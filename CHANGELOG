@@ -9,6 +9,7 @@
 - more user friendly way to insert clock components;
 - use KTextEditor for source editing if available;
 - added ability to set custom theme using Plasma scripting;
+- use Plasma::Package as themes storage;
 - many code cleanups and fixes.
 
 3.2 (10.03.2013):

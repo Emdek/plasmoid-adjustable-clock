@@ -118,7 +118,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     font.setBold(false);
 
     painter->setFont(font);
-    painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
+    painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(CommentRole).toString());
 }
 
 void ThemeDelegate::clear()

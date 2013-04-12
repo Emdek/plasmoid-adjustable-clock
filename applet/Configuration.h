@@ -39,7 +39,7 @@ enum ModelRole
 {
     IdRole = (Qt::UserRole + 1),
     TitleRole = (Qt::UserRole + 2),
-    DescriptionRole = (Qt::UserRole + 3),
+    CommentRole = (Qt::UserRole + 3),
     AuthorRole = (Qt::UserRole + 4),
     HtmlRole = (Qt::UserRole + 5),
     OptionsRole = (Qt::UserRole + 6),
