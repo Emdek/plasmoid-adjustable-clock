@@ -67,6 +67,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     for (int i = 0; i < locations.count(); ++i) {
         QStringList themes = Plasma::Package::listInstalled(locations.at(i));
+        themes.sort();
 
         for (int j = 0; j < themes.count(); ++j) {
             KDesktopFile desktopFile("data", QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
