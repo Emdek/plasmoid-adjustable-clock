@@ -43,8 +43,7 @@ enum ModelRole
     AuthorRole = (Qt::UserRole + 4),
     HtmlRole = (Qt::UserRole + 5),
     OptionsRole = (Qt::UserRole + 6),
-    BackgroundRole = (Qt::UserRole + 7),
-    BundledRole = (Qt::UserRole + 8)
+    BundledRole = (Qt::UserRole + 7)
 };
 
 class ComponentWidget;
@@ -89,6 +88,7 @@ class Configuration : public QObject
         void moveAction(bool up);
         void moveUpAction();
         void moveDownAction();
+        void setBackground(bool enabled);
         void setColor();
         void setFontSize(const QString &size);
         void setFontFamily(const QFont &font);

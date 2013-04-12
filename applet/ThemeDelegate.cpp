@@ -30,6 +30,7 @@
 #include <QtGui/QApplication>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebElement>
 
 #include <KLocale>
 #include <KPixmapCache>
@@ -68,7 +69,13 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         QPainter pixmapPainter(&pixmap);
         pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
 
-        if (index.data(BackgroundRole).toBool()) {
+        QWebPage page;
+        page.setViewportSize(QSize(0, 0));
+        page.mainFrame()->setZoomFactor(1);
+
+        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString());
+
+        if (page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
             Plasma::FrameSvg background;
             background.setImagePath(Plasma::Theme::defaultTheme()->imagePath("widgets/background"));
             background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
@@ -83,12 +90,6 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
             pixmapPainter.drawRoundedRect(QRect(QPoint(0, 0), size.toSize()), 10, 10);
             pixmapPainter.setOpacity(1);
         }
-
-        QWebPage page;
-        page.setViewportSize(QSize(0, 0));
-        page.mainFrame()->setZoomFactor(1);
-
-        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString());
 
         const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
         const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());

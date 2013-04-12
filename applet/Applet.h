@@ -51,7 +51,6 @@ struct Theme
     QString author;
     QString html;
     QList<Option> options;
-    bool background;
     bool bundled;
 };
 

@@ -29,6 +29,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtWebKit/QWebPage>
 #include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebElement>
 
 #include <KMenu>
 #include <KLocale>
@@ -79,7 +80,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    setBackgroundHints(m_theme.background ? DefaultBackground : NoBackground);
+    setBackgroundHints((m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") ? DefaultBackground : NoBackground);
 }
 
 void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -128,7 +129,6 @@ void Applet::clockConfigChanged()
 {
     m_theme.id = config().readEntry("theme", "default");
     m_theme.html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
-    m_theme.background = true;
     m_theme.bundled = false;
     m_newTheme = false;
 
@@ -148,7 +148,6 @@ void Applet::clockConfigChanged()
         }
     } else {
         m_theme.html = config().readEntry("themeHtml", QString());
-        m_theme.background = config().readEntry("themeBackground", true);
 
         m_newTheme = true;
     }
@@ -246,7 +245,7 @@ void Applet::updateSize()
     } else if (formFactor() == Plasma::Vertical) {
         size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
     } else {
-        if (m_theme.background) {
+        if (m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
             size = contentsRect().size();
         } else {
             size = boundingRect().size();
@@ -324,7 +323,6 @@ QList<Theme> Applet::getThemes() const
                 theme.description = QString();
                 theme.author = QString();
                 theme.html = QString();
-                theme.background = true;
             }
 
             if (reader.name().toString() == "id") {
@@ -341,10 +339,6 @@ QList<Theme> Applet::getThemes() const
 
             if (reader.name().toString() == "author") {
                 theme.author = reader.readElementText();
-            }
-
-            if (reader.name().toString() == "background") {
-                theme.background = (reader.readElementText().toLower() == "true");
             }
 
             if (reader.name().toString() == "html") {

@@ -5,10 +5,9 @@
 		<title>Default</title>
 		<description>Default clock theme</description>
 		<author>Michał Dutkiewicz</author>
-		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
+<body background="true">
 <big><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></big><br>
 <small><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></small>
 </body>
@@ -19,10 +18,9 @@
 		<title>Simple</title>
 		<description>Simple clock, similar to default digital clock</description>
 		<author>Michał Dutkiewicz</author>
-		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body>
+<body background="true">
 <span component="Hour">12</span>:<span component="Minute">30</span>
 </body>
 </html>]]></html>
@@ -32,7 +30,6 @@
 		<title>Verbose</title>
 		<description>More verbose clock with date</description>
 		<author>Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <body style="opacity: 0.85;">
@@ -46,7 +43,6 @@
 		<title>Train Clock</title>
 		<description>Train clock like theme</description>
 		<author>Nuno Pinheiro &amp; Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -255,7 +251,6 @@ document.addEventListener('ClockSecondChanged', updateClock);
 		<title>Ring Clock</title>
 		<description>Rings based clock</description>
 		<author>Michał Dutkiewicz</author>
-		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -403,7 +398,7 @@ div > div div:nth-child(3)
 }
 </style>
 </head>
-<body class="static">
+<body class="static" background="true">
 <div id="digit_0"></div>
 <div id="digit_1"></div>
 <div id="digit_2"></div>
@@ -513,7 +508,6 @@ document.addEventListener('ClockSecondChanged', updateClock);
 		<title>LCD Clock</title>
 		<description>LCD clock theme</description>
 		<author>Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -729,7 +723,6 @@ document.addEventListener('ClockThemeChanged', updateTheme);
 		<title>dbClock</title>
 		<description>dbClock like theme</description>
 		<author>Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -768,7 +761,6 @@ div
 		<title>beClock</title>
 		<description>beClock like theme</description>
 		<author>Thomas Luebking &amp; Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -854,7 +846,6 @@ document.addEventListener('ClockThemeChanged', updateClock);
 		<title>Progress</title>
 		<description>Clock with original second visualization</description>
 		<author>Peter Fajdiga &amp; Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -932,7 +923,6 @@ p
 		<title>Binary</title>
 		<description>Classic binary clock</description>
 		<author>Michał Dutkiewicz</author>
-		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -960,7 +950,7 @@ td
 }
 </style>
 </head>
-<body>
+<body background="true">
 <table>
 	<tbody>
 		<tr>
@@ -1026,7 +1016,6 @@ document.addEventListener('ClockThemeChanged', updateClock);
 		<title>Calendar</title>
 		<description>Calendar like theme</description>
 		<author>Michał Dutkiewicz</author>
-		<background>false</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -1098,10 +1087,9 @@ body > div
 		<title>Vertical</title>
 		<description>Clock theme for a vertical panel</description>
 		<author>Olaf Lenz</author>
-		<background>true</background>
 		<html><![CDATA[<!DOCTYPE html>
 <html>
-<body style="margin: 5px;">
+<body style="margin: 5px;" background="true">
 <big><b><span component="Hour">12</span>:<span component="Minute">30</span></b></big><br>
 <span component="Second">15</span><br>
 <small component="DayOfWeek" options="'short': true, 'text': true">Sat</small><br>

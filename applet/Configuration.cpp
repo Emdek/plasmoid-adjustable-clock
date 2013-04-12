@@ -71,7 +71,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         item->setData(themes.at(i).author, AuthorRole);
         item->setData(themes.at(i).html, HtmlRole);
         item->setData(!themes.at(i).options.isEmpty(), OptionsRole);
-        item->setData(themes.at(i).background, BackgroundRole);
         item->setData(themes.at(i).bundled, BundledRole);
         item->setToolTip(QString("<b>%1</b>%2").arg(themes.at(i).author.isEmpty() ? themes.at(i).title : i18n("\"%1\" by %2").arg(themes.at(i).title).arg(themes.at(i).author)).arg(themes.at(i).description.isEmpty() ? QString() : QString("<br />") + themes.at(i).description));
 
@@ -165,7 +164,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked()), this, SLOT(themeChanged()));
+    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked(bool)), this, SLOT(setBackground(bool)));
     connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
     connect(m_appearanceUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(insertComponent(bool)));
@@ -229,9 +228,6 @@ void Configuration::save()
         stream.writeStartElement("title");
         stream.writeCharacters(index.data(TitleRole).toString());
         stream.writeEndElement();
-        stream.writeStartElement("background");
-        stream.writeCharacters(index.data(BackgroundRole).toBool() ? "true" : "false");
-        stream.writeEndElement();
         stream.writeStartElement("html");
         stream.writeCDATA(index.data(HtmlRole).toString());
         stream.writeEndElement();
@@ -278,15 +274,12 @@ void Configuration::createTheme()
     QStandardItem *item = new QStandardItem();
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
-    item->setData(true, BackgroundRole);
     item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
 
-    m_appearanceUi.themesView->setCurrentIndex(item->index());
-
-    modify();
+    selectTheme(item->index());
 }
 
 void Configuration::copyTheme()
@@ -313,15 +306,12 @@ void Configuration::copyTheme()
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
     item->setData(index.data(HtmlRole), HtmlRole);
-    item->setData(index.data(BackgroundRole), BackgroundRole);
     item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
 
-    m_appearanceUi.themesView->setCurrentIndex(item->index());
-
-    modify();
+    selectTheme(item->index());
 }
 
 void Configuration::deleteTheme()
@@ -480,7 +470,7 @@ void Configuration::appearanceModeChanged(int mode)
         m_appearanceUi.editorTextEdit->setPlainText(index.data(HtmlRole).toString());
     }
 
-    m_appearanceUi.backgroundButton->setChecked(index.data(BackgroundRole).toBool());
+    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 
     sourceChanged();
 
@@ -514,10 +504,7 @@ void Configuration::editorModeChanged(int mode)
 
 void Configuration::themeChanged()
 {
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-
-    m_themesModel->setData(index, (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
-    m_themesModel->setData(index, m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
+    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
 
     modify();
 
@@ -711,6 +698,11 @@ void Configuration::setStyle(const QString &property, const QString &value, cons
     }
 
     modify();
+}
+
+void Configuration::setBackground(bool enabled)
+{
+    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(enabled ? "document.body.setAttribute('background', 'true')" : "document.body.removeAttribute('background')");
 }
 
 void Configuration::setColor()
