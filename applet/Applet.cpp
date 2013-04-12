@@ -127,6 +127,7 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 void Applet::clockConfigChanged()
 {
     const QString id = config().readEntry("theme", "digital");
+    QString fallback = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     QString html;
 
     if (config().readEntry("themeHtml", QString()).isEmpty()) {
@@ -140,14 +141,18 @@ void Applet::clockConfigChanged()
             const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
             for (int j = 0; j < themes.count(); ++j) {
-                if (id == themes.at(j)) {
+                if (id == themes.at(j) || id == "digital") {
                     QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
                     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
                     QTextStream stream(&file);
                     stream.setCodec("UTF-8");
 
-                    html = stream.readAll();
+                    if (id == themes.at(j)) {
+                        html = stream.readAll();
+                    } else {
+                        fallback = stream.readAll();
+                    }
 
                     break;
                 }
@@ -158,7 +163,7 @@ void Applet::clockConfigChanged()
     }
 
     if (html.isEmpty()) {
-        html = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
+        html = fallback;
     }
 
     m_clock->setTheme(html);
