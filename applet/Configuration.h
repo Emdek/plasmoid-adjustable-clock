@@ -67,7 +67,8 @@ class Configuration : public QObject
         void save();
         void modify();
         void selectTheme(const QModelIndex &index);
-        void createTheme(bool automatically = false);
+        void createTheme();
+        void copyTheme();
         void deleteTheme();
         void renameTheme();
         void triggerAction();

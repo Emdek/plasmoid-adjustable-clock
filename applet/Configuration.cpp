@@ -150,8 +150,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(editorModeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
-    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
+    connect(m_appearanceUi.copyButton, SIGNAL(clicked()), this, SLOT(copyTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
+    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
@@ -262,11 +263,36 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
     m_appearanceUi.deleteButton->setEnabled(!index.data(BundledRole).toBool());
     m_appearanceUi.renameButton->setEnabled(!index.data(BundledRole).toBool());
+    m_appearanceUi.mainTabWidget->setTabEnabled(1, !index.data(BundledRole).toBool());
 }
 
-void Configuration::createTheme(bool automatically)
+void Configuration::createTheme()
 {
-    QString title = m_appearanceUi.themesView->currentIndex().data(TitleRole).toString().append(" (%1)");
+    bool ok;
+    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
+
+    if (!ok) {
+        return;
+    }
+
+    QStandardItem *item = new QStandardItem();
+    item->setData(createIdentifier(), IdRole);
+    item->setData(title, TitleRole);
+    item->setData(true, BackgroundRole);
+    item->setData(false, BundledRole);
+    item->setToolTip(QString("<b>%1</b>").arg(title));
+
+    m_themesModel->appendRow(item);
+
+    m_appearanceUi.themesView->setCurrentIndex(item->index());
+
+    modify();
+}
+
+void Configuration::copyTheme()
+{
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+    QString title = index.data(TitleRole).toString().append(" (%1)");
     int i = 2;
 
     while (findRow(title.arg(i)) >= 0) {
@@ -275,21 +301,19 @@ void Configuration::createTheme(bool automatically)
 
     title = title.arg(i);
 
-    if (!automatically) {
-        bool ok;
+    bool ok;
 
-        title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
+    title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
 
-        if (!ok) {
-            return;
-        }
+    if (!ok) {
+        return;
     }
 
     QStandardItem *item = new QStandardItem();
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
-    item->setData((m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
-    item->setData(m_appearanceUi.backgroundButton->isChecked(), BackgroundRole);
+    item->setData(index.data(HtmlRole), HtmlRole);
+    item->setData(index.data(BackgroundRole), BackgroundRole);
     item->setData(false, BundledRole);
     item->setToolTip(QString("<b>%1</b>").arg(title));
 
@@ -490,10 +514,6 @@ void Configuration::editorModeChanged(int mode)
 
 void Configuration::themeChanged()
 {
-    if (m_appearanceUi.themesView->currentIndex().data(BundledRole).toBool()) {
-        createTheme(true);
-    }
-
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
     m_themesModel->setData(index, (m_document ? m_document->text() : m_appearanceUi.editorTextEdit->toPlainText()), HtmlRole);
