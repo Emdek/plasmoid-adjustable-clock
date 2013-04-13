@@ -608,19 +608,22 @@ void Configuration::showOptions()
     KConfigGroup configGroup = m_applet->config().group(configName);
     Plasma::ConfigLoader configLoader(&configGroup, &file);
 
+    QList<KConfigSkeletonItem*> items = configLoader.items();
+
+    if (items.isEmpty()) {
+        return;
+    }
+
+    QHash<QString, OptionWidget*> widgets;
     QWidget *mainWidget = new QWidget();
     QFormLayout *layout = new QFormLayout(mainWidget);
-    QList<KConfigSkeletonItem*> items = configLoader.items();
-    QHash<QString, OptionWidget*> widgets;
-
     KDialog configDialog;
     configDialog.setMainWidget(mainWidget);
     configDialog.setModal(true);
     configDialog.setButtons(KDialog::Ok | KDialog::Cancel);
     configDialog.setWindowTitle(i18n("Theme Options"));
 
-    for (int i = 0; i < items.count(); ++i)
-    {
+    for (int i = 0; i < items.count(); ++i) {
         items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), items.at(i)->property()));
 
         OptionWidget *widget = new OptionWidget(items.at(i), mainWidget);
@@ -635,8 +638,7 @@ void Configuration::showOptions()
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     if (configDialog.exec() == QDialog::Accepted) {
-        for (int i = 0; i < items.count(); ++i)
-        {
+        for (int i = 0; i < items.count(); ++i) {
             m_applet->config().group(configName).writeEntry(items.at(i)->key(), widgets[items.at(i)->key()]->getValue());
         }
 
