@@ -5,12 +5,13 @@
 <style type="text/css">
 .ticks div
 {
-	width: 100px;
+	width: 50px;
 	height: 1px;
 	border-right: 3px solid #000;
 	position: absolute;
 	top: 60px;
-	left: 10px;
+	left: 60px;
+	-webkit-transform-origin: left center;
 }
 
 .ticks div:nth-child(3n + 1)
@@ -24,8 +25,8 @@
 	width: 0;
 	height: 2px;
 	position: absolute;
-	top: 61px;
-	left: 62.5px;
+	top: 60px;
+	left: 60px;
 	-webkit-transform-origin: left center;
 	box-shadow: 0 0 3px #888;
 }
@@ -36,8 +37,8 @@
 	height: 6px;
 	border-radius: 3px;
 	position: absolute;
-	top: 58.5px;
-	left: 60px;
+	top: 58px;
+	left: 57px;
 	z-index: 10;
 	background: #000;
 }
