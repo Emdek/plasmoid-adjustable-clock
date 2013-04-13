@@ -362,7 +362,7 @@ void Configuration::deleteTheme()
     if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
         const int row = index.row();
 
-        if (!Plasma::Package::uninstallPackage(index.data(IdRole).toString(), index.data(PathRole).toString(), "plasma-adjustable-clock-addon-")) {
+        if (QFile::exists(QString("%1/%2").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString())) && !Plasma::Package::uninstallPackage(index.data(IdRole).toString(), index.data(PathRole).toString(), "plasma-adjustable-clock-addon-")) {
             KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to delete theme."));
 
             return;
