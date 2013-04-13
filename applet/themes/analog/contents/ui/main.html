@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+.ticks div
+{
+	width: 100px;
+	height: 1px;
+	border-right: 3px solid #000;
+	position: absolute;
+	top: 60px;
+	left: 10px;
+}
+
+.ticks div:nth-child(3n + 1)
+{
+	height: 2px;
+	border-right: 5px solid #000;
+}
+
+.hands div
+{
+	width: 0;
+	height: 2px;
+	position: absolute;
+	top: 61px;
+	left: 62.5px;
+	-webkit-transform-origin: left center;
+	box-shadow: 0 0 3px #888;
+}
+
+#center
+{
+	width: 6px;
+	height: 6px;
+	border-radius: 3px;
+	position: absolute;
+	top: 58.5px;
+	left: 60px;
+	z-index: 10;
+	background: #000;
+}
+
+#hour
+{
+	border-right: 25px solid #000;
+}
+
+#minute
+{
+	border-right: 40px solid #000;
+}
+
+#second
+{
+	border-right: 45px solid red;
+}
+</style>
+</head>
+<body>
+<div class="ticks">
+	<div style="-webkit-transform: rotate(0deg);"></div>
+	<div style="-webkit-transform: rotate(30deg);"></div>
+	<div style="-webkit-transform: rotate(60deg);"></div>
+	<div style="-webkit-transform: rotate(90deg);"></div>
+	<div style="-webkit-transform: rotate(120deg);"></div>
+	<div style="-webkit-transform: rotate(150deg);"></div>
+	<div style="-webkit-transform: rotate(180deg);"></div>
+	<div style="-webkit-transform: rotate(210deg);"></div>
+	<div style="-webkit-transform: rotate(240deg);"></div>
+	<div style="-webkit-transform: rotate(270deg);"></div>
+	<div style="-webkit-transform: rotate(300deg);"></div>
+	<div style="-webkit-transform: rotate(330deg);"></div>
+</div>
+<div class="hands">
+	<div id="hour" style="-webkit-transform: rotate(270deg);"></div>
+	<div id="minute"></div>
+	<div id="second" style="-webkit-transform: rotate(60deg);"></div>
+</div>
+<div id="center"></div>
+<script type="text/javascript">
+function updateClock()
+{
+	document.getElementById('second').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Second) * -6)) + 'deg)';
+	document.getElementById('minute').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Minute) * -6)) + 'deg)';
+	document.getElementById('hour').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Hour, {'alternative': true}) * -30)) + 'deg)';
+}
+
+document.addEventListener('ClockSecondChanged', updateClock);
+</script>
+</body>
+</html>
