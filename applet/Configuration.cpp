@@ -73,7 +73,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         for (int j = 0; j < themes.count(); ++j) {
             KDesktopFile desktopFile("data", QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
             QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                continue;
+            }
 
             QTextStream stream(&file);
             stream.setCodec("UTF-8");
