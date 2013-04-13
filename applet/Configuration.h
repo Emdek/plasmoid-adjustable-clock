@@ -41,6 +41,10 @@ enum ModelRole
     TitleRole,
     CommentRole,
     AuthorRole,
+    EmailRole,
+    WebsiteRole,
+    VersionRole,
+    LicenseRole,
     HtmlRole,
     OptionsRole,
     ModificationRole
@@ -80,7 +84,8 @@ class Configuration : public QObject
         void themeChanged();
         void richTextChanged();
         void sourceChanged();
-        void showOptions();
+        void showAbout(const QString &theme);
+        void showOptions(const QString &theme);
         void showEditorContextMenu(const QPoint &position);
         void selectAction(const QModelIndex &index);
         void editAction(QModelIndex index = QModelIndex());

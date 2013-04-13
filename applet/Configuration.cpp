@@ -39,6 +39,7 @@
 #include <KDesktopFile>
 #include <KInputDialog>
 #include <KStandardDirs>
+#include <KAboutApplicationDialog>
 
 #include <KTextEditor/View>
 #include <KTextEditor/Editor>
@@ -88,23 +89,13 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             item->setData(desktopFile.readName(), TitleRole);
             item->setData(desktopFile.readComment(), CommentRole);
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
+            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Email", QString()), EmailRole);
+            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Website", QString()), WebsiteRole);
+            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Version", QString()), VersionRole);
+            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-License", QString()), LicenseRole);
             item->setData(stream.readAll(), HtmlRole);
             item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(locations.at(i)).arg(themes.at(j))), OptionsRole);
             item->setData(false, ModificationRole);
-
-            QString toolTip;
-
-            if (item->data(AuthorRole).isNull()) {
-                toolTip = QString("<b>\"%1\"</b>").arg(item->data(TitleRole).toString());
-            } else {
-                toolTip = i18n("<b>\"%1\" by %2</b>").arg(item->data(TitleRole).toString()).arg(item->data(AuthorRole).toString());
-            }
-
-            if (!item->data(CommentRole).isNull()) {
-                toolTip.append("<br>\n").append(item->data(CommentRole).toString());
-            }
-
-            item->setToolTip(toolTip);
 
             m_themesModel->appendRow(item);
         }
@@ -207,7 +198,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.actionsView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectAction(QModelIndex)));
     connect(m_clipboardUi.actionsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(editAction(QModelIndex)));
     connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
-    connect(delegate, SIGNAL(showOptions()), this, SLOT(showOptions()));
+    connect(delegate, SIGNAL(showAbout(QString)), this, SLOT(showAbout(QString)));
+    connect(delegate, SIGNAL(showOptions(QString)), this, SLOT(showOptions(QString)));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
@@ -247,7 +239,7 @@ void Configuration::save()
             continue;
         }
 
-        const QString packagePath = QString("%1/%2/").arg(index.data(PathRole).isValid() ? index.data(PathRole).toString() : dataPath).arg(index.data(IdRole).toString());
+        const QString packagePath = QString("%1/%2/").arg(index.data(PathRole).toString().isEmpty() ? dataPath : index.data(PathRole).toString()).arg(index.data(IdRole).toString());
         const QString dataPath = QString(packagePath).append("contents/ui/");
 
         if (!QFile::exists(dataPath)) {
@@ -322,7 +314,6 @@ void Configuration::createTheme()
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
     item->setData(true, ModificationRole);
-    item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
 
@@ -354,7 +345,6 @@ void Configuration::copyTheme()
     item->setData(title, TitleRole);
     item->setData(index.data(HtmlRole), HtmlRole);
     item->setData(true, ModificationRole);
-    item->setToolTip(QString("<b>%1</b>").arg(title));
 
     m_themesModel->appendRow(item);
 
@@ -596,9 +586,32 @@ void Configuration::sourceChanged()
     }
 }
 
-void Configuration::showOptions()
+void Configuration::showAbout(const QString &theme)
 {
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+    const QModelIndex index = m_themesModel->index(findRow(theme, IdRole), 0);
+
+    if (index.data(AuthorRole).toString().isEmpty()) {
+        return;
+    }
+
+    const QStringList authors = index.data(AuthorRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList emails = index.data(EmailRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList websites = index.data(WebsiteRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    KAboutData aboutData(index.data(IdRole).toByteArray(), QByteArray(), ki18n(index.data(TitleRole).toString().toUtf8().data()), index.data(VersionRole).toByteArray());
+    aboutData.setProgramIconName("chronometer");
+    aboutData.setLicense(KAboutLicense::byKeyword(index.data(LicenseRole).toString()).key());
+    aboutData.setShortDescription(ki18n(index.data(CommentRole).toString().toUtf8().data()));
+
+    for (int i = 0; i < authors.count(); ++i) {
+        aboutData.addCredit(ki18n(authors.at(i).toUtf8().data()), KLocalizedString(), emails.value(i).toUtf8(), websites.value(i).toUtf8());
+    }
+
+    KAboutApplicationDialog(&aboutData, m_appearanceUi.themesView).exec();
+}
+
+void Configuration::showOptions(const QString &theme)
+{
+    const QModelIndex index = m_themesModel->index(findRow(theme, IdRole), 0);
 
     if (!index.data(OptionsRole).toBool()) {
         return;

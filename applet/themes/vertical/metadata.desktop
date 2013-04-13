@@ -6,9 +6,10 @@ ServiceTypes=Plasma/AdjustableClock
 
 X-Plasma-API=adjustableclock_html
 
-X-KDE-Library=adjustableclock_theme_digital
-X-KDE-PluginInfo-Name=digital
+X-KDE-Library=adjustableclock_theme_vertical
+X-KDE-PluginInfo-Name=vertical
 X-KDE-PluginInfo-Author=Olaf Lenz
 X-KDE-PluginInfo-Email=
 X-KDE-PluginInfo-Version=1.0
 X-KDE-PluginInfo-Website=
+X-KDE-PluginInfo-License=

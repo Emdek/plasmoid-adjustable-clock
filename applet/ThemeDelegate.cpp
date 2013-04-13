@@ -113,7 +113,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     font.setBold(true);
 
     painter->setFont(font);
-    painter->drawText(QRectF(210, (option.rect.y() + 10), (option.rect.width() - 215), 20), (Qt::AlignLeft | Qt::AlignVCenter), (index.data(AuthorRole).toString().isEmpty() ? index.data(TitleRole).toString() : i18n("\"%1\" by %2").arg(index.data(TitleRole).toString()).arg(index.data(AuthorRole).toString())));
+    painter->drawText(QRectF(210, (option.rect.y() + 10), (option.rect.width() - 215), 20), (Qt::AlignLeft | Qt::AlignVCenter), index.data(TitleRole).toString());
 
     font.setBold(false);
 
@@ -126,21 +126,50 @@ void ThemeDelegate::clear()
     m_cache->discard();
 }
 
+void ThemeDelegate::propagateSignal()
+{
+    const QString name = sender()->objectName();
+
+    if (name.startsWith("about-")) {
+        emit showAbout(name.mid(6));
+    } else if (name.startsWith("options-")) {
+        emit showOptions(name.mid(8));
+    }
+}
+
 QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
 
-    if (!index.data(OptionsRole).toBool()) {
+    if (!index.data(OptionsRole).toBool() && index.data(AuthorRole).toString().isEmpty()) {
         return NULL;
     }
 
     QWidget *widget = new QWidget(parent);
-    QPushButton *button = new QPushButton(i18n("Options"), widget);
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, widget);
-    layout->addWidget(button);
-    layout->setAlignment(button, (Qt::AlignBottom | Qt::AlignRight));
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    connect(button, SIGNAL(clicked()), this, SIGNAL(showOptions()));
+    if (index.data(OptionsRole).toBool()) {
+        QPushButton *optionsButton = new QPushButton(KIcon("configure"), QString(), widget);
+        optionsButton->setToolTip(i18n("Options"));
+        optionsButton->setObjectName("options-" + index.data(IdRole).toString());
+
+        layout->addWidget(optionsButton);
+        layout->setAlignment(optionsButton, Qt::AlignBottom);
+
+        connect(optionsButton, SIGNAL(clicked()), this, SLOT(propagateSignal()));
+    }
+
+    if (!index.data(AuthorRole).toString().isEmpty()) {
+        QPushButton *aboutButton = new QPushButton(KIcon("help-about"), QString(), widget);
+        aboutButton->setToolTip(i18n("About"));
+        aboutButton->setObjectName("about-" + index.data(IdRole).toString());
+
+        layout->addWidget(aboutButton);
+        layout->setAlignment(aboutButton, Qt::AlignBottom);
+
+        connect(aboutButton, SIGNAL(clicked()), this, SLOT(propagateSignal()));
+    }
 
     return widget;
 }

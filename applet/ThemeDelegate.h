@@ -43,11 +43,15 @@ class ThemeDelegate : public QStyledItemDelegate
     public slots:
         void clear();
 
+    protected slots:
+        void propagateSignal();
+
     private:
         Clock *m_clock;
 
     signals:
-        void showOptions();
+        void showAbout(QString theme);
+        void showOptions(QString theme);
 };
 
 }
