@@ -1,3 +1,6 @@
+find_package(KDE4 REQUIRED)
+include(KDE4Defaults)
+
 add_subdirectory(applet)
 
 set(MAJOR_VERSION "4")
