@@ -141,20 +141,14 @@ void Applet::clockConfigChanged()
             const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
             for (int j = 0; j < themes.count(); ++j) {
-                if (id == themes.at(j) || id == "digital") {
-                    QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
-                    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-                    QTextStream stream(&file);
-                    stream.setCodec("UTF-8");
-
-                    if (id == themes.at(j)) {
-                        html = stream.readAll();
-                    } else {
-                        fallback = stream.readAll();
-                    }
+                if (themes.at(j) == id) {
+                    html = readTheme(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
 
                     break;
+                }
+
+                if (themes.at(j) == "digital") {
+                    fallback = readTheme(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
                 }
             }
         }
@@ -288,6 +282,17 @@ void Applet::updateSize()
 Clock* Applet::getClock() const
 {
     return m_clock;
+}
+
+QString Applet::readTheme(const QString &path) const
+{
+    QFile file(path);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    return stream.readAll();
 }
 
 QStringList Applet::getClipboardExpressions() const
