@@ -21,10 +21,11 @@
 #ifndef ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
 #define ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
 
+#include <QtGui/QSlider>
+#include <QtGui/QSpinBox>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QPlainTextEdit>
-#include <QtGui/QSpinBox>
 
 #include <KColorButton>
 #include <KConfigSkeletonItem>
@@ -51,6 +52,7 @@ class OptionWidget : public QWidget
         KColorButton *m_colorButton;
         QComboBox *m_comboBox;
         QCheckBox *m_checkBox;
+        QSlider *m_slider;
         QSpinBox *m_spinBox;
         QPlainTextEdit *m_textEdit;
         KConfigSkeletonItem *m_option;

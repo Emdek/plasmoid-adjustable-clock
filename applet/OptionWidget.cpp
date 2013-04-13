@@ -30,6 +30,7 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
     m_colorButton(NULL),
     m_comboBox(NULL),
     m_checkBox(NULL),
+    m_slider(NULL),
     m_spinBox(NULL),
     m_textEdit(NULL),
     m_option(option),
@@ -61,17 +62,26 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
 
             break;
         case QVariant::Int:
-            m_widget = m_spinBox = new QSpinBox(this);
+            if (m_option->minValue().toInt() == 0 && m_option->minValue().toInt() != m_option->maxValue().toInt() && m_option->maxValue().toInt() < 6) {
+                m_widget = m_slider = new QSlider(Qt::Horizontal, this);
+                m_slider->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
+                m_slider->setTickPosition(QSlider::TicksBothSides);
+                m_slider->setTickInterval(1);
 
-            if (m_option->minValue().toInt() != m_option->maxValue().toInt()) {
-                m_spinBox->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
+                connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             } else {
-                m_spinBox->setRange(-9999, 9999);
+                m_widget = m_spinBox = new QSpinBox(this);
+
+                if (m_option->minValue().toInt() != m_option->maxValue().toInt()) {
+                    m_spinBox->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
+                } else {
+                    m_spinBox->setRange(-9999, 9999);
+                }
+
+                m_spinBox->setValue(m_option->property().toInt());
+
+                connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             }
-
-            m_spinBox->setValue(m_option->property().toInt());
-
-            connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
 
             break;
         case QVariant::Color:
@@ -102,27 +112,16 @@ void OptionWidget::updateValue()
 
     if (m_comboBox) {
         m_value = m_comboBox->currentIndex();
-
-        return;
-    }
-
-    switch (m_option->property().type()) {
-    case QVariant::Bool:
+    } else if (m_checkBox) {
         m_value = QVariant(m_checkBox->isChecked());
-
-        break;
-    case QVariant::Int:
+    } else if (m_slider) {
+        m_value = QVariant(m_slider->value());
+    } else if (m_spinBox) {
         m_value = QVariant(m_spinBox->value());
-
-        break;
-    case QVariant::Color:
+    } else if (m_colorButton) {
         m_value = QVariant(m_colorButton->color());
-
-        break;
-    default:
+    } else if (m_textEdit) {
         m_value = QVariant(m_textEdit->toPlainText());
-
-        break;
     }
 }
 
