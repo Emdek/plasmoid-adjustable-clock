@@ -32,17 +32,6 @@
 namespace AdjustableClock
 {
 
-struct Option
-{
-    QString id;
-    QString title;
-    QVariant initial;
-    QVariant value;
-    int minimum;
-    int maximum;
-    QList<QPair<QString, QString> > values;
-};
-
 class Clock;
 
 class Applet : public ClockApplet

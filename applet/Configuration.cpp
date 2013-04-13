@@ -19,9 +19,10 @@
 ***********************************************************************************/
 
 #include "Configuration.h"
+#include "Applet.h"
 #include "Clock.h"
-#include "ComponentWidget.h"
 #include "OptionWidget.h"
+#include "ComponentWidget.h"
 #include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
@@ -32,7 +33,6 @@
 #include <QtWebKit/QWebElementCollection>
 
 #include <KMenu>
-#include <KDialog>
 #include <KLocale>
 #include <KMessageBox>
 #include <KColorDialog>
@@ -47,6 +47,7 @@
 
 #include <Plasma/Theme>
 #include <Plasma/Package>
+#include <Plasma/ConfigLoader>
 
 namespace AdjustableClock
 {
@@ -85,7 +86,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             item->setData(desktopFile.readComment(), CommentRole);
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
             item->setData(stream.readAll(), HtmlRole);
-            item->setData(false, OptionsRole);
+            item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(locations.at(i)).arg(themes.at(j))), OptionsRole);
             item->setData(false, ModificationRole);
 
             QString toolTip;
@@ -101,10 +102,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             }
 
             item->setToolTip(toolTip);
-
-            if (item->data(OptionsRole).toBool()) {
-//                 m_options[item->data(IdRole).toString()] = themes.at(i).options;
-            }
 
             m_themesModel->appendRow(item);
         }
@@ -598,40 +595,50 @@ void Configuration::sourceChanged()
 
 void Configuration::showOptions()
 {
-    const QString theme = m_appearanceUi.themesView->currentIndex().data(IdRole).toString();
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    if (!m_options.contains(theme) || m_options[theme].isEmpty()) {
+    if (!index.data(OptionsRole).toBool()) {
         return;
     }
 
+    QFile file(QString("%1/%2/contents/config/main.xml").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString()));
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    const QString configName = ("theme-" + index.data(IdRole).toString());
+    KConfigGroup configGroup = m_applet->config().group(configName);
+    Plasma::ConfigLoader configLoader(&configGroup, &file);
+
     QWidget *mainWidget = new QWidget();
     QFormLayout *layout = new QFormLayout(mainWidget);
+    QList<KConfigSkeletonItem*> items = configLoader.items();
     QHash<QString, OptionWidget*> widgets;
 
-    for (int i = 0; i < m_options[theme].count(); ++i)
+    KDialog configDialog;
+    configDialog.setMainWidget(mainWidget);
+    configDialog.setModal(true);
+    configDialog.setButtons(KDialog::Ok | KDialog::Cancel);
+    configDialog.setWindowTitle(i18n("Theme Options"));
+
+    for (int i = 0; i < items.count(); ++i)
     {
-        const Option option = m_options[theme].at(i);
+        items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), items.at(i)->property()));
 
-        widgets[option.id] = new OptionWidget(option, mainWidget);
+        OptionWidget *widget = new OptionWidget(items.at(i), mainWidget);
+        QLabel *label = new QLabel(i18n(items.at(i)->label().toUtf8().data()), mainWidget);
+        label->setBuddy(widget->getWidget());
 
-        layout->addRow(i18n(option.title.toUtf8().data()), widgets[option.id]);
+        widgets[items.at(i)->key()] = widget;
+
+        layout->addRow(label, widget);
     }
 
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    KDialog dialog;
-    dialog.setMainWidget(mainWidget);
-    dialog.setModal(true);
-    dialog.setButtons(KDialog::Ok | KDialog::Cancel);
-    dialog.setWindowTitle(i18n("Theme Options"));
-
-    if (dialog.exec() == QDialog::Rejected) {
-        return;
-    }
-
-    for (int i = 0; i < m_options[theme].count(); ++i)
-    {
-        m_options[theme][i].value = widgets[m_options[theme][i].id]->getValue();
+    if (configDialog.exec() == QDialog::Accepted) {
+        for (int i = 0; i < items.count(); ++i)
+        {
+            m_applet->config().group(configName).writeEntry(items.at(i)->key(), widgets[items.at(i)->key()]->getValue());
+        }
     }
 }
 
@@ -783,7 +790,7 @@ void Configuration::setZoom(int zoom)
 
 QString Configuration::createIdentifier() const
 {
-    QString identifier = QString("custom_%1");
+    QString identifier = QString("custom-%1");
     int i = 1;
 
     while (findRow(identifier.arg(i), IdRole) >= 0) {

@@ -21,8 +21,6 @@
 #ifndef ADJUSTABLECLOCKCONFIGURATION_HEADER
 #define ADJUSTABLECLOCKCONFIGURATION_HEADER
 
-#include "Applet.h"
-
 #include <QtGui/QStandardItemModel>
 
 #include <KConfigDialog>
@@ -48,6 +46,7 @@ enum ModelRole
     ModificationRole
 };
 
+class Applet;
 class ComponentWidget;
 
 class Configuration : public QObject
@@ -103,7 +102,6 @@ class Configuration : public QObject
         ComponentWidget *m_componentWidget;
         KTextEditor::Document *m_document;
         QModelIndex m_editedAction;
-        QHash<QString, QList<Option> > m_options;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

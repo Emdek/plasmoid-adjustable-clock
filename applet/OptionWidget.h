@@ -21,14 +21,13 @@
 #ifndef ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
 #define ADJUSTABLECLOCK_OPTIONWIDGET_HEADER
 
-#include "Applet.h"
-
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QSpinBox>
 
 #include <KColorButton>
+#include <KConfigSkeletonItem>
 
 namespace AdjustableClock
 {
@@ -37,24 +36,25 @@ class OptionWidget : public QWidget
 {
     Q_OBJECT
 
-public:
-    OptionWidget(const Option &option, QWidget *parent);
+    public:
+        OptionWidget(KConfigSkeletonItem *option, QWidget *parent);
 
-    QWidget *getWidget();
-    QVariant getValue() const;
+        void setFocus(Qt::FocusReason reason);
+        QWidget *getWidget();
+        QVariant getValue() const;
 
-protected slots:
-    void updateValue();
+    protected slots:
+        void updateValue();
 
-private:
-    QWidget *m_widget;
-    KColorButton *m_colorButton;
-    QComboBox *m_comboBox;
-    QCheckBox *m_checkBox;
-    QSpinBox *m_spinBox;
-    QPlainTextEdit *m_textEdit;
-    QVariant m_currentValue;
-    Option m_option;
+    private:
+        QWidget *m_widget;
+        KColorButton *m_colorButton;
+        QComboBox *m_comboBox;
+        QCheckBox *m_checkBox;
+        QSpinBox *m_spinBox;
+        QPlainTextEdit *m_textEdit;
+        KConfigSkeletonItem *m_option;
+        QVariant m_value;
 };
 
 }
