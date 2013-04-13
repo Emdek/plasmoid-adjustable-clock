@@ -163,6 +163,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
     parent->resize(500, 400);
 
+    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
+        m_appearanceUi.themesView->openPersistentEditor(m_themesModel->index(i, 0));
+    }
+
     selectAction(m_actionsModel->index(0, 0));
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));

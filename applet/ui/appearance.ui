@@ -26,9 +26,6 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QListView" name="themesView">
-         <property name="editTriggers">
-          <set>QAbstractItemView::CurrentChanged</set>
-         </property>
          <property name="showDropIndicator" stdset="0">
           <bool>false</bool>
          </property>
