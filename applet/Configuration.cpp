@@ -639,6 +639,8 @@ void Configuration::showOptions()
         {
             m_applet->config().group(configName).writeEntry(items.at(i)->key(), widgets[items.at(i)->key()]->getValue());
         }
+
+        emit clearCache();
     }
 }
 
