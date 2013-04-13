@@ -40,6 +40,11 @@ ClockObject::ClockObject(Clock *clock, bool constant) : QObject(clock),
 {
 }
 
+QString ClockObject::getOption(const QString &key, const QString &defaultValue) const
+{
+    return m_clock->getOption(key, defaultValue);
+}
+
 QString ClockObject::getValue(int component, const QVariantMap &options) const
 {
     return m_clock->getValue(static_cast<ClockComponent>(component), options, m_constant);
@@ -313,6 +318,11 @@ ClockObject* Clock::getClock(bool constant)
 QString Clock::formatNumber(int number, int length)
 {
     return QString("%1").arg(number, length, 10, QChar('0'));
+}
+
+QString Clock::getOption(const QString &key, const QString &defaultValue) const
+{
+    return m_applet->config().group("theme-" + m_applet->config().readEntry("theme", "digital")).readEntry(key, defaultValue);
 }
 
 QString Clock::getValue(ClockComponent component, const QVariantMap &options, bool constant) const

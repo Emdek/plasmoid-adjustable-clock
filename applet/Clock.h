@@ -74,6 +74,7 @@ class ClockObject : public QObject
     public:
         ClockObject(Clock *clock, bool constant);
 
+        Q_INVOKABLE QString getOption(const QString &key, const QString &defaultValue = QString()) const;
         Q_INVOKABLE QString getValue(int component, const QVariantMap &options = QVariantMap()) const;
 
     private:
@@ -93,6 +94,7 @@ class Clock : public QObject
         static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html);
         ClockObject* getClock(bool constant);
         QString evaluate(const QString &script, bool constant = false);
+        QString getOption(const QString &key, const QString &defaultValue) const;
         QString getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
         static QString getComponentName(ClockComponent component);
         static QLatin1String getComponentString(ClockComponent component);
