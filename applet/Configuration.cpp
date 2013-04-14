@@ -326,7 +326,7 @@ void Configuration::createTheme()
 void Configuration::copyTheme()
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-    QString title = index.data(TitleRole).toString().append(" (%1)");
+    QString title = index.data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
     int i = 2;
 
     while (findRow(title.arg(i)) >= 0) {
