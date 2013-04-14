@@ -631,7 +631,7 @@ void Configuration::showOptions(const QString &theme)
     KDialog configDialog;
     configDialog.setMainWidget(mainWidget);
     configDialog.setModal(true);
-    configDialog.setButtons(KDialog::Ok | KDialog::Cancel);
+    configDialog.setButtons(KDialog::Ok | KDialog::Default | KDialog::Cancel);
     configDialog.setWindowTitle(i18n("\"%1\" Options").arg(item->data(TitleRole).toString()));
 
     const QColor defaultColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
@@ -653,6 +653,8 @@ void Configuration::showOptions(const QString &theme)
         widgets[items.at(i)->key()] = widget;
 
         layout->addRow(label, widget);
+
+        connect(&configDialog, SIGNAL(defaultClicked()), widget, SLOT(setDefaultValue()));
     }
 
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));

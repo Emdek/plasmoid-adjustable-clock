@@ -22,6 +22,8 @@
 
 #include <QtGui/QBoxLayout>
 
+#include <Plasma/Theme>
+
 namespace AdjustableClock
 {
 
@@ -37,8 +39,6 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
     m_option(option),
     m_value(option->property())
 {
-    setFocusPolicy(Qt::StrongFocus);
-
     KCoreConfigSkeleton::ItemEnum *enumOption = dynamic_cast<KCoreConfigSkeleton::ItemEnum*>(m_option);
 
     if (enumOption) {
@@ -46,10 +46,6 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
 
         for (int i = 0; i < enumOption->choices().count(); ++i) {
             m_comboBox->addItem((enumOption->choices().at(i).label.isEmpty() ? enumOption->choices().at(i).name : enumOption->choices().at(i).label), enumOption->choices().at(i).name);
-
-            if (i == m_option->property().toInt()) {
-                m_comboBox->setCurrentIndex(i);
-            }
         }
 
         connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateValue()));
@@ -57,7 +53,6 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
         switch (m_option->property().type()) {
         case QVariant::Bool:
             m_widget = m_checkBox = new QCheckBox(this);
-            m_checkBox->setChecked(m_option->property().toBool());
 
             connect(m_checkBox, SIGNAL(toggled(bool)), this, SLOT(updateValue()));
 
@@ -68,8 +63,6 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
                 m_slider->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
                 m_slider->setTickPosition(QSlider::TicksBothSides);
                 m_slider->setTickInterval(m_option->maxValue().toInt() / 10);
-                m_slider->setValue(m_option->property().toInt());
-                m_slider->setToolTip(QString::number(m_slider->value()));
 
                 connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             } else {
@@ -81,15 +74,12 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
                     m_spinBox->setRange(-9999, 9999);
                 }
 
-                m_spinBox->setValue(m_option->property().toInt());
-
                 connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             }
 
             break;
         case QVariant::Font:
             m_widget = m_fontComboBox = new KFontComboBox(this);
-            m_fontComboBox->setCurrentFont(m_option->property().value<QFont>());
 
             connect(m_fontComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateValue()));
 
@@ -102,7 +92,6 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
             break;
         default:
             m_widget = m_textEdit = new QPlainTextEdit(this);
-            m_textEdit->setPlainText(m_option->property().toString());
 
             connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(updateValue()));
 
@@ -110,16 +99,15 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
         }
     }
 
+    setValue(m_option->property());
+    setFocusPolicy(Qt::StrongFocus);
+
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     layout->addWidget(m_widget);
 }
 
 void OptionWidget::updateValue()
 {
-    if (!m_widget) {
-        return;
-    }
-
     if (m_comboBox) {
         m_value = m_comboBox->currentIndex();
     } else if (m_checkBox) {
@@ -136,6 +124,38 @@ void OptionWidget::updateValue()
         m_value = QVariant(m_fontComboBox->currentFont());
     } else if (m_textEdit) {
         m_value = QVariant(m_textEdit->toPlainText());
+    }
+}
+
+void OptionWidget::setDefaultValue()
+{
+    m_option->setDefault();
+
+    if (m_option->key() == "themeColor") {
+        m_option->setProperty(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor));
+    } else if (m_option->key() == "themeFont") {
+        m_option->setProperty(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont));
+    }
+
+    setValue(m_option->property());
+}
+
+void OptionWidget::setValue(const QVariant &value)
+{
+    if (m_comboBox) {
+        m_comboBox->setCurrentIndex(value.toInt());
+    } else if (m_checkBox) {
+        m_checkBox->setChecked(value.toBool());
+    } else if (m_slider) {
+        m_slider->setValue(value.toInt());
+    } else if (m_spinBox) {
+        m_spinBox->setValue(value.toInt());
+    } else if (m_colorButton) {
+        m_colorButton->setColor(value.value<QColor>());
+    } else if (m_fontComboBox) {
+        m_fontComboBox->setCurrentFont(value.value<QFont>());
+    } else if (m_textEdit) {
+        m_textEdit->setPlainText(value.toString());
     }
 }
 

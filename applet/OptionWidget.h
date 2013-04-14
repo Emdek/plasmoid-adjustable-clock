@@ -42,8 +42,12 @@ class OptionWidget : public QWidget
         explicit OptionWidget(KConfigSkeletonItem *option, QWidget *parent);
 
         void setFocus(Qt::FocusReason reason);
+        void setValue(const QVariant &value);
         QWidget *getWidget();
         QVariant getValue() const;
+
+    public slots:
+        void setDefaultValue();
 
     protected slots:
         void updateValue();
