@@ -666,11 +666,11 @@ void Configuration::showOptions(const QString &theme)
             }
 
             if (items.at(i)->key() == "themeColor") {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == defaultColor) ? QVariant() : widget->getValue()));
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == defaultColor) ? QVariant() : widget->getValue().value<QColor>().name()));
             } else if (items.at(i)->key() == "themeFont") {
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == defaultFont) ? QVariant() : widget->getValue()));
-            } else {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue());
+            } else if (widget->getValue().type() == QVariant::Color) {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QColor>().name());
             }
         }
 
