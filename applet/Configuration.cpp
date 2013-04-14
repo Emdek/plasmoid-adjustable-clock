@@ -643,8 +643,17 @@ void Configuration::showOptions(const QString &theme)
     configDialog.setButtons(KDialog::Ok | KDialog::Cancel);
     configDialog.setWindowTitle(i18n("Theme Options"));
 
+    const QColor defaultColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
+    const QFont defaultFont = Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont);
+
     for (int i = 0; i < items.count(); ++i) {
-        items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), items.at(i)->property()));
+        if (items.at(i)->key() == "themeColor") {
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(defaultColor)));
+        } else if (items.at(i)->key() == "themeFont") {
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(defaultFont)));
+        } else {
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), items.at(i)->property()));
+        }
 
         OptionWidget *widget = new OptionWidget(items.at(i), mainWidget);
         QLabel *label = new QLabel(i18n(items.at(i)->label().toUtf8().data()), mainWidget);
@@ -659,7 +668,19 @@ void Configuration::showOptions(const QString &theme)
 
     if (configDialog.exec() == QDialog::Accepted) {
         for (int i = 0; i < items.count(); ++i) {
-            m_applet->config().group(configName).writeEntry(items.at(i)->key(), widgets[items.at(i)->key()]->getValue());
+            OptionWidget *widget = widgets[items.at(i)->key()];
+
+            if (!widget) {
+                continue;
+            }
+
+            if (items.at(i)->key() == "themeColor") {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == defaultColor) ? QVariant() : widget->getValue()));
+            } else if (items.at(i)->key() == "themeFont") {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == defaultFont) ? QVariant() : widget->getValue()));
+            } else {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue());
+            }
         }
 
         emit clearCache();
