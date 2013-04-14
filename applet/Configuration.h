@@ -66,6 +66,7 @@ class Configuration : public QObject
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");
         QString createIdentifier(const QString &base = QString()) const;
         int findRow(const QString &text, int role = TitleRole) const;
+        bool saveTheme(QStandardItem *item, const QString &path);
 
     protected slots:
         void save();

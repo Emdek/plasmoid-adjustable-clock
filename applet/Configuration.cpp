@@ -237,40 +237,11 @@ void Configuration::save()
     QStringList failed;
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        const QModelIndex index = m_themesModel->index(i, 0);
+        QStandardItem *item = m_themesModel->item(i);
 
-        if (!index.data(ModificationRole).toBool()) {
-            continue;
+        if (item->data(ModificationRole).toBool() && !saveTheme(item, (item->data(PathRole).toString().isEmpty() ? dataPath : item->data(PathRole).toString()))) {
+            failed.append(item->data(TitleRole).toString());
         }
-
-        const QString packagePath = QString("%1/%2/").arg(index.data(PathRole).toString().isEmpty() ? dataPath : index.data(PathRole).toString()).arg(index.data(IdRole).toString());
-        const QString dataPath = QString(packagePath).append("contents/ui/");
-
-        if (!QFile::exists(dataPath)) {
-            QDir(dataPath).mkpath(dataPath);
-        }
-
-        QFile file(dataPath + "main.html");
-
-        if (!file.open(QIODevice::WriteOnly)) {
-            failed.append(index.data(TitleRole).toString());
-
-            continue;
-        }
-
-        QTextStream stream(&file);
-        stream.setCodec("UTF-8");
-        stream << index.data(HtmlRole).toString();
-
-        KDesktopFile desktopFile("data", (packagePath + "metadata.desktop"));
-        desktopFile.desktopGroup().writeEntry("Name", index.data(TitleRole).toString());
-        desktopFile.desktopGroup().writeEntry("Comment", QString());
-        desktopFile.desktopGroup().writeEntry("Type", "Service");
-        desktopFile.desktopGroup().writeEntry("ServiceTypes", "Plasma/AdjustableClock");
-        desktopFile.desktopGroup().writeEntry("X-KDE-Library", ("adjustableclock_theme_" + index.data(IdRole).toString()));
-        desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Name", index.data(IdRole).toString());
-
-        m_themesModel->setData(index, ModificationRole, false);
     }
 
     if (!failed.isEmpty()) {
@@ -327,12 +298,12 @@ void Configuration::createTheme()
 
 void Configuration::copyTheme()
 {
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-    QString title = index.data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
+    QStandardItem *item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row())->clone();
+    QString title = item->data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
     int i = 2;
 
     while (findRow(title.arg(i)) >= 0) {
-       ++i;
+        ++i;
     }
 
     title = title.arg(i);
@@ -345,11 +316,28 @@ void Configuration::copyTheme()
         return;
     }
 
-    QStandardItem *item = new QStandardItem();
-    item->setData(createIdentifier(index.data(IdRole).toString()), IdRole);
+    const QString identifier = item->data(IdRole).toString();
+
+    item->setData(createIdentifier(item->data(IdRole).toString()), IdRole);
     item->setData(title, TitleRole);
-    item->setData(index.data(HtmlRole), HtmlRole);
-    item->setData(true, ModificationRole);
+
+    const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+
+    if (!saveTheme(item, path)) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
+
+        delete item;
+
+        return;
+    }
+
+    const QString sourcePath = QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(identifier);
+    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdRole).toString());
+
+    if (QFile::exists(sourcePath)) {
+        QDir(destinationPath).mkpath(destinationPath);
+        QFile::copy(sourcePath, (destinationPath + "main.xml"));
+    }
 
     m_themesModel->appendRow(item);
 
@@ -841,8 +829,12 @@ QString Configuration::createIdentifier(const QString &base) const
     if (!base.isEmpty()) {
         if (identifier.startsWith("custom-")) {
             identifier = QString(base).replace(QRegExp("\\d+$"), "%1");
-        } else{
-            identifier = QString("custom-%1-%2").arg(base);
+
+            if (!identifier.endsWith("%1")) {
+                identifier.append("-%1");
+            }
+        } else {
+            identifier = QString("custom-%1-").arg(base).append("%1");
         }
     }
 
@@ -864,6 +856,43 @@ int Configuration::findRow(const QString &text, int role) const
     }
 
     return -1;
+}
+
+bool Configuration::saveTheme(QStandardItem *item, const QString &path)
+{
+    const QString packagePath = QString("%1/%2/").arg(path).arg(item->data(IdRole).toString());
+    const QString dataPath = QString(packagePath).append("contents/ui/");
+
+    if (!QFile::exists(dataPath)) {
+        QDir(dataPath).mkpath(dataPath);
+    }
+
+    QFile file(dataPath + "main.html");
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+    stream << item->data(HtmlRole).toString();
+
+    KDesktopFile desktopFile("data", (packagePath + "metadata.desktop"));
+    desktopFile.desktopGroup().writeEntry("Name", item->data(TitleRole).toString());
+    desktopFile.desktopGroup().writeEntry("Comment", item->data(CommentRole).toString());
+    desktopFile.desktopGroup().writeEntry("Type", "Service");
+    desktopFile.desktopGroup().writeEntry("ServiceTypes", "Plasma/AdjustableClock");
+    desktopFile.desktopGroup().writeEntry("X-KDE-Library", ("adjustableclock_theme_" + item->data(IdRole).toString()));
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Name", item->data(IdRole).toString());
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Author", item->data(AuthorRole).toString());
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Email", item->data(EmailRole).toString());
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Version", item->data(VersionRole).toString());
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Website", item->data(WebsiteRole).toString());
+    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-License", item->data(LicenseRole).toString());
+
+    item->setData(false, ModificationRole);
+
+    return true;
 }
 
 bool Configuration::eventFilter(QObject *object, QEvent *event)

@@ -5,6 +5,7 @@
 - added LCD Clock theme;
 - added Ring Clock theme;
 - added simple Analog Clock theme;
+- enabled antialiased rendering;
 - use standard PlasmaClock tool tip if custom one was not supplied;
 - added ability to define theme options;
 - use standard about dialogs to display themes information;
