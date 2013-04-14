@@ -80,8 +80,6 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
 
 void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html)
 {
-    setupTheme(document);
-
     document->setHtml(html);
     document->addToJavaScriptWindowObject("Clock", clock);
 
@@ -92,6 +90,8 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, clock, static_cast<ClockComponent>(i));
     }
+
+    setupTheme(document);
 }
 
 void Clock::setupTheme(QWebFrame *document)

@@ -8,11 +8,11 @@ body > div
 	width: 295px;
 	min-height: 295px;
 	margin: -80px auto 0 auto;
-	color: #fff;
+	color: #FFF;
 	text-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
 }
 
-.decor
+#decor
 {
 	display: table;
 	width: 100%;
@@ -23,7 +23,7 @@ body > div
 	z-index: 10;
 }
 
-.decor div
+#decor div
 {
 	display: table-cell;
 	height: 40px;
@@ -33,7 +33,7 @@ body > div
 	box-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
 }
 
-.calendar
+#calendar
 {
 	padding: 40px 20px 20px 20px;
 	font-size: 30px;
@@ -47,7 +47,7 @@ body > div
 </head>
 <body>
 <div>
-	<div class="decor">
+	<div id="decor">
 		<div></div>
 		<div></div>
 		<div></div>
@@ -55,12 +55,21 @@ body > div
 		<div></div>
 		<div></div>
 	</div>
-	<div class="calendar">
+	<div id="calendar">
 		<span component="DayOfWeek" options="'text': true">Saturday</span><br>
 		<span style="font-size: 130px; line-height: 160px;" component="DayOfMonth" options="'short': true">1</span><br>
 		<span style="white-space: nowrap;"><span component="Month" options="'text': true, 'possessive': false">January</span> <span component="Year">2000</span></span><br>
 		<span component="Holidays" options="'short': true">New Year</span>
 	</div>
 </div>
+<script type="text/javascript">
+function updateTheme()
+{
+	document.getElementById('calendar').style.background = ('-webkit-gradient(linear, left top, left bottom, from(' + Clock.getOption('backgroundColorStart', '#E5702B') + '), to(' + Clock.getOption('backgroundColorEnd', '#A33B03') + '))');
+	document.getElementById('calendar').style.color = Clock.getOption('textColor', '#FFF');
+}
+
+document.addEventListener('ClockThemeChanged', updateTheme);
+</script>
 </body>
 </html>
