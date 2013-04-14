@@ -18,7 +18,7 @@
 - added Train Clock, based on design by Nuno Pinheiro;
 - added beClock theme, inspired by clock by Thomas Luebking;
 - added Binary Clock;
-- show placeholder category in title in rich text editor;
+- show placeholder category as title in rich text editor;
 - enable Apply button when configuration values are changed;
 - added Edit button to trigger clipboard action editor;
 - moved custom themes to separate, shared data file;

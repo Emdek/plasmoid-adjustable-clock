@@ -29,6 +29,7 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
     m_widget(NULL),
     m_colorButton(NULL),
     m_comboBox(NULL),
+    m_fontComboBox(NULL),
     m_checkBox(NULL),
     m_slider(NULL),
     m_spinBox(NULL),
@@ -84,6 +85,13 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
             }
 
             break;
+        case QVariant::Font:
+            m_widget = m_fontComboBox = new KFontComboBox(this);
+            m_fontComboBox->setCurrentFont(m_option->property().value<QFont>());
+
+            connect(m_fontComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateValue()));
+
+            break;
         case QVariant::Color:
             m_widget = m_colorButton = new KColorButton(m_option->property().value<QColor>(), this);
 
@@ -120,6 +128,8 @@ void OptionWidget::updateValue()
         m_value = QVariant(m_spinBox->value());
     } else if (m_colorButton) {
         m_value = QVariant(m_colorButton->color());
+    } else if (m_fontComboBox) {
+        m_value = QVariant(m_fontComboBox->currentFont());
     } else if (m_textEdit) {
         m_value = QVariant(m_textEdit->toPlainText());
     }
