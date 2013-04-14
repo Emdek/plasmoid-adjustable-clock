@@ -292,6 +292,7 @@ void Configuration::createTheme()
     item->setData(true, ModificationRole);
 
     m_themesModel->appendRow(item);
+    m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     selectTheme(item->index());
 }
@@ -340,6 +341,7 @@ void Configuration::copyTheme()
     }
 
     m_themesModel->appendRow(item);
+    m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     selectTheme(item->index());
 }
