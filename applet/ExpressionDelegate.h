@@ -33,7 +33,7 @@ class ExpressionDelegate : public QStyledItemDelegate
     Q_OBJECT
 
     public:
-        ExpressionDelegate(Clock *clock, QObject *parent = NULL);
+        explicit ExpressionDelegate(Clock *clock, QObject *parent = NULL);
 
         void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         void setEditorData(QWidget *editor, const QModelIndex &index) const;

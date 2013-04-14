@@ -72,7 +72,7 @@ class ClockObject : public QObject
     Q_OBJECT
 
     public:
-        ClockObject(Clock *clock, bool constant);
+        explicit ClockObject(Clock *clock, bool constant);
 
         Q_INVOKABLE QString getOption(const QString &key, const QString &defaultValue = QString()) const;
         Q_INVOKABLE QString getValue(int component, const QVariantMap &options = QVariantMap()) const;
@@ -87,7 +87,7 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        Clock(Applet *applet, QWebFrame *document);
+        explicit Clock(Applet *applet, QWebFrame *document);
 
         void updateTimeZone();
         void setTheme(const QString &html);

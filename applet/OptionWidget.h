@@ -39,7 +39,7 @@ class OptionWidget : public QWidget
     Q_OBJECT
 
     public:
-        OptionWidget(KConfigSkeletonItem *option, QWidget *parent);
+        explicit OptionWidget(KConfigSkeletonItem *option, QWidget *parent);
 
         void setFocus(Qt::FocusReason reason);
         QWidget *getWidget();

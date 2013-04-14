@@ -33,7 +33,7 @@ class ThemeDelegate : public QStyledItemDelegate
     Q_OBJECT
 
     public:
-        ThemeDelegate(Clock *clock, QObject *parent = NULL);
+        explicit ThemeDelegate(Clock *clock, QObject *parent = NULL);
         ~ThemeDelegate();
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;

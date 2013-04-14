@@ -58,7 +58,7 @@ class Configuration : public QObject
     Q_OBJECT
 
     public:
-        Configuration(Applet *applet, KConfigDialog *parent);
+        explicit Configuration(Applet *applet, KConfigDialog *parent);
 
         bool eventFilter(QObject *object, QEvent *event);
 

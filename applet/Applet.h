@@ -39,7 +39,7 @@ class Applet : public ClockApplet
     Q_OBJECT
 
     public:
-        Applet(QObject *parent, const QVariantList &args);
+        explicit Applet(QObject *parent, const QVariantList &args);
 
         void init();
         Clock* getClock() const;

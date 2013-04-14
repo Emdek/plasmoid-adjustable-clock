@@ -35,7 +35,7 @@ class ExpressionLineEdit : public KLineEdit
     Q_OBJECT
 
     public:
-        ExpressionLineEdit(QWidget *parent = NULL);
+        explicit ExpressionLineEdit(QWidget *parent = NULL);
 
         void setClock(Clock *clock);
 
