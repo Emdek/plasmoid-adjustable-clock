@@ -583,19 +583,19 @@ void Configuration::sourceChanged()
 
 void Configuration::showAbout(const QString &theme)
 {
-    const QModelIndex index = m_themesModel->index(findRow(theme, IdRole), 0);
+    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
 
-    if (index.data(AuthorRole).toString().isEmpty()) {
+    if (item->data(AuthorRole).toString().isEmpty()) {
         return;
     }
 
-    const QStringList authors = index.data(AuthorRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    const QStringList emails = index.data(EmailRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    const QStringList websites = index.data(WebsiteRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    KAboutData aboutData(index.data(IdRole).toByteArray(), QByteArray(), ki18n(index.data(TitleRole).toString().toUtf8().data()), index.data(VersionRole).toByteArray());
+    const QStringList authors = item->data(AuthorRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList emails = item->data(EmailRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList websites = item->data(WebsiteRole).toString().split(QChar(','), QString::KeepEmptyParts);
+    KAboutData aboutData(item->data(IdRole).toByteArray(), QByteArray(), ki18n(item->data(TitleRole).toString().toUtf8().data()), item->data(VersionRole).toByteArray());
     aboutData.setProgramIconName("chronometer");
-    aboutData.setLicense(KAboutLicense::byKeyword(index.data(LicenseRole).toString()).key());
-    aboutData.setShortDescription(ki18n(index.data(CommentRole).toString().toUtf8().data()));
+    aboutData.setLicense(KAboutLicense::byKeyword(item->data(LicenseRole).toString()).key());
+    aboutData.setShortDescription(ki18n(item->data(CommentRole).toString().toUtf8().data()));
 
     for (int i = 0; i < authors.count(); ++i) {
         aboutData.addCredit(ki18n(authors.at(i).toUtf8().data()), KLocalizedString(), emails.value(i).toUtf8(), websites.value(i).toUtf8());
@@ -606,16 +606,16 @@ void Configuration::showAbout(const QString &theme)
 
 void Configuration::showOptions(const QString &theme)
 {
-    const QModelIndex index = m_themesModel->index(findRow(theme, IdRole), 0);
+    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
 
-    if (!index.data(OptionsRole).toBool()) {
+    if (!item->data(OptionsRole).toBool()) {
         return;
     }
 
-    QFile file(QString("%1/%2/contents/config/main.xml").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString()));
+    QFile file(QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(item->data(IdRole).toString()));
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    const QString configName = ("theme-" + index.data(IdRole).toString());
+    const QString configName = ("theme-" + item->data(IdRole).toString());
     KConfigGroup configGroup = m_applet->config().group(configName);
     Plasma::ConfigLoader configLoader(&configGroup, &file);
 
@@ -673,6 +673,10 @@ void Configuration::showOptions(const QString &theme)
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QColor>().name());
             }
         }
+
+        item->setData(ModificationRole, true);
+
+        modify();
 
         emit clearCache();
     }
