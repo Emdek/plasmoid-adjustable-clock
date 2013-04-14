@@ -111,7 +111,7 @@ void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option)
     Q_UNUSED(contentsRect)
 
-    painter->setRenderHint(QPainter::SmoothPixmapTransform);
+    painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
