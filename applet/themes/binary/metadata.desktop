@@ -4,8 +4,6 @@ Comment=Classic binary clock
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_binary
 X-KDE-PluginInfo-Name=binary
 X-KDE-PluginInfo-Author=Michał Dutkiewicz

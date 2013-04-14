@@ -4,8 +4,6 @@ Comment=Rings based clock
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_ring
 X-KDE-PluginInfo-Name=ring
 X-KDE-PluginInfo-Author=Michał Dutkiewicz

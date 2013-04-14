@@ -4,8 +4,6 @@ Comment=LCD like clock
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_lcd
 X-KDE-PluginInfo-Name=lcd
 X-KDE-PluginInfo-Author=Michał Dutkiewicz

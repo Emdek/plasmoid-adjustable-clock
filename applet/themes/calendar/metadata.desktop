@@ -4,8 +4,6 @@ Comment=Calendar like theme
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_calendar
 X-KDE-PluginInfo-Name=calendar
 X-KDE-PluginInfo-Author=Michał Dutkiewicz

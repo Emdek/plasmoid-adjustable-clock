@@ -4,8 +4,6 @@ Comment=Simple analog clock
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_analog
 X-KDE-PluginInfo-Name=analog
 X-KDE-PluginInfo-Author=Michał Dutkiewicz

@@ -4,8 +4,6 @@ Comment=Clock with original second visualization
 Type=Service
 ServiceTypes=Plasma/AdjustableClock
 
-X-Plasma-API=adjustableclock_html
-
 X-KDE-Library=adjustableclock_theme_progress
 X-KDE-PluginInfo-Name=progress
 X-KDE-PluginInfo-Author=Peter Fajdiga,Michał Dutkiewicz
