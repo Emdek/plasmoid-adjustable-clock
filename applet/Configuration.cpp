@@ -269,6 +269,8 @@ void Configuration::save()
         desktopFile.desktopGroup().writeEntry("ServiceTypes", "Plasma/AdjustableClock");
         desktopFile.desktopGroup().writeEntry("X-KDE-Library", ("adjustableclock_theme_" + index.data(IdRole).toString()));
         desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Name", index.data(IdRole).toString());
+
+        m_themesModel->setData(index, ModificationRole, false);
     }
 
     if (!failed.isEmpty()) {
