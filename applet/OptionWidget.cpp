@@ -63,11 +63,13 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
 
             break;
         case QVariant::Int:
-            if (m_option->minValue().toInt() == 0 && m_option->minValue().toInt() != m_option->maxValue().toInt() && m_option->maxValue().toInt() < 6) {
+            if (m_option->minValue().toInt() == 0 && m_option->minValue().toInt() != m_option->maxValue().toInt() && m_option->maxValue().toInt() < 101) {
                 m_widget = m_slider = new QSlider(Qt::Horizontal, this);
                 m_slider->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
                 m_slider->setTickPosition(QSlider::TicksBothSides);
-                m_slider->setTickInterval(1);
+                m_slider->setTickInterval(m_option->maxValue().toInt() / 10);
+                m_slider->setValue(m_option->property().toInt());
+                m_slider->setToolTip(QString::number(m_slider->value()));
 
                 connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             } else {
@@ -124,6 +126,8 @@ void OptionWidget::updateValue()
         m_value = QVariant(m_checkBox->isChecked());
     } else if (m_slider) {
         m_value = QVariant(m_slider->value());
+
+        m_slider->setToolTip(QString::number(m_value.toInt()));
     } else if (m_spinBox) {
         m_value = QVariant(m_spinBox->value());
     } else if (m_colorButton) {
