@@ -345,7 +345,7 @@ void Configuration::copyTheme()
     }
 
     QStandardItem *item = new QStandardItem();
-    item->setData(createIdentifier(), IdRole);
+    item->setData(createIdentifier(index.data(IdRole).toString()), IdRole);
     item->setData(title, TitleRole);
     item->setData(index.data(HtmlRole), HtmlRole);
     item->setData(true, ModificationRole);
@@ -833,9 +833,18 @@ void Configuration::setZoom(int zoom)
     m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
-QString Configuration::createIdentifier() const
+QString Configuration::createIdentifier(const QString &base) const
 {
     QString identifier = QString("custom-%1");
+
+    if (!base.isEmpty()) {
+        if (identifier.startsWith("custom-")) {
+            identifier = QString(base).replace(QRegExp("\\d+$"), "%1");
+        } else{
+            identifier = QString("custom-%1-%2").arg(base);
+        }
+    }
+
     int i = 1;
 
     while (findRow(identifier.arg(i), IdRole) >= 0) {

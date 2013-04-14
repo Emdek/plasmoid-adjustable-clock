@@ -64,7 +64,7 @@ class Configuration : public QObject
 
     protected:
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");
-        QString createIdentifier() const;
+        QString createIdentifier(const QString &base = QString()) const;
         int findRow(const QString &text, int role = TitleRole) const;
 
     protected slots:
