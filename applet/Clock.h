@@ -72,13 +72,15 @@ class ClockObject : public QObject
     Q_OBJECT
 
     public:
-        explicit ClockObject(Clock *clock, bool constant);
+        explicit ClockObject(Clock *clock, bool constant, const QString &theme = QString());
 
         Q_INVOKABLE QString getOption(const QString &key, const QString &defaultValue = QString()) const;
         Q_INVOKABLE QString getValue(int component, const QVariantMap &options = QVariantMap()) const;
+        bool isConstant() const;
 
     private:
         Clock *m_clock;
+        QString m_theme;
         bool m_constant;
 };
 
@@ -92,9 +94,9 @@ class Clock : public QObject
         void updateTimeZone();
         void setTheme(const QString &html);
         static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html);
-        ClockObject* getClock(bool constant);
+        ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
-        QString getOption(const QString &key, const QString &defaultValue) const;
+        QString getOption(const QString &key, const QString &defaultValue, const QString &theme = QString()) const;
         QString getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
         static QString getComponentName(ClockComponent component);
         static QLatin1String getComponentString(ClockComponent component);

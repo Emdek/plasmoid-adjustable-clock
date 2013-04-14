@@ -34,20 +34,26 @@
 namespace AdjustableClock
 {
 
-ClockObject::ClockObject(Clock *clock, bool constant) : QObject(clock),
+ClockObject::ClockObject(Clock *clock, bool constant, const QString &theme) : QObject(clock),
     m_clock(clock),
+    m_theme(theme),
     m_constant(constant)
 {
 }
 
 QString ClockObject::getOption(const QString &key, const QString &defaultValue) const
 {
-    return m_clock->getOption(key, defaultValue);
+    return m_clock->getOption(key, defaultValue, m_theme);
 }
 
 QString ClockObject::getValue(int component, const QVariantMap &options) const
 {
     return m_clock->getValue(static_cast<ClockComponent>(component), options, m_constant);
+}
+
+bool ClockObject::isConstant() const
+{
+    return m_constant;
 }
 
 Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
@@ -81,7 +87,7 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
 void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html)
 {
     document->setHtml(html);
-    document->addToJavaScriptWindowObject("Clock", clock);
+    document->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
 
     for (int i = 1; i < LastComponent; ++i) {
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
@@ -301,28 +307,19 @@ void Clock::setTheme(const QString &html)
     setupClock(m_document, m_clock, html);
 }
 
-ClockObject* Clock::getClock(bool constant)
+ClockObject* Clock::createClock(const QString &theme)
 {
-    if (constant) {
-        if (!m_constantClock) {
-            m_constantClock = new ClockObject(this, true);
-        }
-
-        return m_constantClock;
-    }
-
-    return m_clock;
+    return new ClockObject(this, true, theme);
 }
-
 
 QString Clock::formatNumber(int number, int length)
 {
     return QString("%1").arg(number, length, 10, QChar('0'));
 }
 
-QString Clock::getOption(const QString &key, const QString &defaultValue) const
+QString Clock::getOption(const QString &key, const QString &defaultValue, const QString &theme) const
 {
-    return m_applet->config().group("theme-" + m_applet->config().readEntry("theme", "digital")).readEntry(key, defaultValue);
+    return m_applet->config().group("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme)).readEntry(key, defaultValue);
 }
 
 QString Clock::getValue(ClockComponent component, const QVariantMap &options, bool constant) const
@@ -425,7 +422,11 @@ QString Clock::evaluate(const QString &script, bool constant)
     if (constant) {
         QScriptEngine engine;
 
-        setupEngine(&engine, getClock(true));
+        if (!m_constantClock) {
+            m_constantClock = new ClockObject(this, true);
+        }
+
+        setupEngine(&engine, m_constantClock);
 
         return engine.evaluate(script).toString();
     }

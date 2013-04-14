@@ -73,7 +73,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
-        Clock::setupClock(page.mainFrame(), m_clock->getClock(true), index.data(HtmlRole).toString());
+        Clock::setupClock(page.mainFrame(), m_clock->createClock(index.data(IdRole).toString()), index.data(HtmlRole).toString());
 
         if (page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
             Plasma::FrameSvg background;

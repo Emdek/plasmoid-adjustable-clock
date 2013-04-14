@@ -570,7 +570,7 @@ void Configuration::sourceChanged()
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->getClock(true), (m_document ? m_document->text() : m_appearanceUi.themesView->currentIndex().data(HtmlRole).toString()));
+    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->createClock(), (m_document ? m_document->text() : m_appearanceUi.themesView->currentIndex().data(HtmlRole).toString()));
 
     m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 
@@ -632,7 +632,7 @@ void Configuration::showOptions(const QString &theme)
     configDialog.setMainWidget(mainWidget);
     configDialog.setModal(true);
     configDialog.setButtons(KDialog::Ok | KDialog::Cancel);
-    configDialog.setWindowTitle(i18n("Theme Options"));
+    configDialog.setWindowTitle(i18n("\"%1\" Options").arg(item->data(TitleRole).toString()));
 
     const QColor defaultColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
     const QFont defaultFont = Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont);
