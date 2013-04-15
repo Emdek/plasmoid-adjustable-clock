@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+	<include>Plasma/Theme</include>
+	<entry name="themeFont" type="Font">
+		<label>Font family:</label>
+		<default>invalid</default>
+	</entry>
+	<entry name="fontBold" type="Bool">
+		<label>Bold font:</label>
+		<default>false</default>
+	</entry>
+	<entry name="fontItalic" type="Bool">
+		<label>italic font:</label>
+		<default>false</default>
+	</entry>
+	<entry name="themeTextColor" type="Color">
+		<label>Text color:</label>
+		<default>invalid</default>
+	</entry>
+	<entry name="themeOpacity" type="Int">
+		<label>Opacity:</label>
+		<default>85</default>
+		<min>25</min>
+		<max>100</max>
+	</entry>
+</kcfg>
