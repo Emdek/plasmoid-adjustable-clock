@@ -22,6 +22,7 @@
 #include "Clock.h"
 #include "Configuration.h"
 
+#include <QtCore/QFile>
 #include <QtCore/QTimer>
 #include <QtCore/QTextStream>
 #include <QtGui/QClipboard>
