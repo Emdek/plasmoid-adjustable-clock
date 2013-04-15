@@ -340,6 +340,8 @@ void Configuration::copyTheme()
         QFile::copy(sourcePath, (destinationPath + "main.xml"));
     }
 
+    item->setData(path, PathRole);
+
     m_themesModel->appendRow(item);
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 

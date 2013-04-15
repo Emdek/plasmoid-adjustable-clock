@@ -1,4 +1,4 @@
-4.0 (--.04.2013):
+4.0 (20.04.2013):
 - replaced parser by scripting API;
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);
 - added animations to Train Clock;
