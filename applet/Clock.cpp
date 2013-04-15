@@ -93,6 +93,8 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 
+    sendEvent(document, "Options");
+
     for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, clock, static_cast<ClockComponent>(i));
     }
@@ -104,7 +106,13 @@ void Clock::setupTheme(QWebFrame *document)
 {
     document->page()->settings()->setUserStyleSheetUrl(QUrl(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; text-align: center; color: %1;} [component] {border-radius: 0.3em; -webkit-transition: background 0.2s, border 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
     document->page()->settings()->setFontFamily(QWebSettings::StandardFont, Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family());
-    document->evaluateJavaScript("var event = document.createEvent('Event'); event.initEvent('ClockThemeChanged', false, false); document.dispatchEvent(event);");
+
+    sendEvent(document, "Theme");
+}
+
+void Clock::sendEvent(QWebFrame *document, const QString &event)
+{
+    document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(event));
 }
 
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)
@@ -289,7 +297,7 @@ void Clock::updateComponent(QWebFrame *document, ClockObject *clock, ClockCompon
         }
     }
 
-    document->evaluateJavaScript(QString("var event = document.createEvent('Event'); event.initEvent('Clock%1Changed', false, false); document.dispatchEvent(event);").arg(componentString));
+    sendEvent(document, componentString);
 }
 
 void Clock::updateComponent(ClockComponent component)
