@@ -2,9 +2,33 @@
 <html>
 <head>
 <meta charset="utf-8">
+<style type="text/css">
+body
+{
+	font-size: 15px;
+}
+
+#time
+{
+	font-size: 25px;
+}
+</style>
 </head>
 <body background="true">
-<big><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></big><br>
-<small><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></small>
+<div id="time"><span component="Hour">12</span>:<span component="Minute">30</span><span id="second">:<span component="Second">15</span></span></div>
+<div id="date"><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></div>
+<div id="timezone" component="TimeZoneName">Local</div>
+<script type="text/javascript">
+function setupClock()
+{
+	document.body.style.color = Clock.getOption('themeTextColor', window.getComputedStyle(document.body).getPropertyValue('color'));
+	document.getElementById('time').style.font = (((Clock.getOption('fontItalic', 'false') == 'true') ? 'italic ' : '') + ((Clock.getOption('fontBold', 'false') == 'true') ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', window.getComputedStyle(document.body).getPropertyValue('font-family')) + '\'');
+	document.getElementById('second').style.display = ((Clock.getOption('showSeconds', 'true') == 'true') ? 'inline' : 'none');
+	document.getElementById('date').style.display = ((Clock.getOption('showDate', 'true') == 'true')? 'block' : 'none');
+	document.getElementById('timezone').style.display = ((Clock.getOption('showTimeZone', 'false') == 'true') ? 'block' : 'none');
+}
+
+document.addEventListener('ClockOptionsChanged', setupClock);
+</script>
 </body>
 </html>

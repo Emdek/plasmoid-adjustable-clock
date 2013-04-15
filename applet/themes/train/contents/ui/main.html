@@ -143,8 +143,8 @@ function updateClock()
 	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
 	var blink = (Clock.getValue(Clock.Second, {'short': true}) % 2);
 
-	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink?'':' dark'));
-	document.getElementById('dot_bottom').setAttribute('class', 'dots' + (blink?'':' dark'));
+	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink ? '' : ' dark'));
+	document.getElementById('dot_bottom').setAttribute('class', 'dots' + (blink ? '' : ' dark'));
 
 	if (!initialized)
 	{
