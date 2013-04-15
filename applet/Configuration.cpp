@@ -636,14 +636,17 @@ void Configuration::showOptions(const QString &theme)
     configDialog.setButtons(KDialog::Ok | KDialog::Default | KDialog::Cancel);
     configDialog.setWindowTitle(i18n("\"%1\" Options").arg(item->data(TitleRole).toString()));
 
-    const QColor defaultColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
-    const QFont defaultFont = Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont);
+    const QColor themeTextColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
+    const QColor themeBackgroundColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor);
+    const QFont themeFont = Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont);
 
     for (int i = 0; i < items.count(); ++i) {
-        if (items.at(i)->key() == "themeColor") {
-            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(defaultColor)));
+        if (items.at(i)->key() == "themeTextColor") {
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(themeTextColor)));
+        } else if (items.at(i)->key() == "themeBackgroundColor") {
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(themeBackgroundColor)));
         } else if (items.at(i)->key() == "themeFont") {
-            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(defaultFont)));
+            items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), QVariant(themeFont)));
         } else {
             items.at(i)->setProperty(m_applet->config().group(configName).readEntry(items.at(i)->key(), items.at(i)->property()));
         }
@@ -669,10 +672,12 @@ void Configuration::showOptions(const QString &theme)
                 continue;
             }
 
-            if (items.at(i)->key() == "themeColor") {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == defaultColor) ? QVariant() : widget->getValue().value<QColor>().name()));
+            if (items.at(i)->key() == "themeTextColor") {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == themeTextColor) ? QVariant() : widget->getValue().value<QColor>().name()));
+            } else if (items.at(i)->key() == "themeBackgroundColor") {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == themeBackgroundColor) ? QVariant() : widget->getValue().value<QColor>().name()));
             } else if (items.at(i)->key() == "themeFont") {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == defaultFont) ? QVariant() : widget->getValue()));
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == themeFont) ? QVariant() : widget->getValue()));
             } else if (widget->getValue().type() == QVariant::Color) {
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QColor>().name());
             } else {
