@@ -21,11 +21,11 @@ body
 <script type="text/javascript">
 function setupClock()
 {
-	document.body.style.color = Clock.getOption('themeTextColor', window.getComputedStyle(document.body).getPropertyValue('color'));
-	document.getElementById('time').style.font = (((Clock.getOption('fontItalic', 'false') == 'true') ? 'italic ' : '') + ((Clock.getOption('fontBold', 'false') == 'true') ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', window.getComputedStyle(document.body).getPropertyValue('font-family')) + '\'');
-	document.getElementById('second').style.display = ((Clock.getOption('showSeconds', 'true') == 'true') ? 'inline' : 'none');
-	document.getElementById('date').style.display = ((Clock.getOption('showDate', 'true') == 'true')? 'block' : 'none');
-	document.getElementById('timezone').style.display = ((Clock.getOption('showTimeZone', 'false') == 'true') ? 'block' : 'none');
+	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.getElementById('time').style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.getElementById('second').style.display = (boolVal(Clock.getOption('showSeconds', 'true')) ? 'inline' : 'none');
+	document.getElementById('date').style.display = (boolVal(Clock.getOption('showDate', 'true')) ? 'block' : 'none');
+	document.getElementById('timezone').style.display = (boolVal(Clock.getOption('showTimeZone', 'false')) ? 'block' : 'none');
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);
