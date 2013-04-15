@@ -93,6 +93,14 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 
+    QFile file(":/helper.js");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    document->evaluateJavaScript(stream.readAll());
+
     sendEvent(document, "Options");
 
     for (int i = 1; i < LastComponent; ++i) {
