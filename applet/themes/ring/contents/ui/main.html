@@ -17,7 +17,7 @@ body > div
 	position: relative;
 }
 
-body > div:nth-child(2n +1)
+body > div:nth-child(2n + 1)
 {
 	margin-left: 5px;
 }
@@ -157,6 +157,12 @@ div > div div:nth-child(3)
 var initialized = false;
 var digits = [];
 
+function setupClock()
+{
+	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
+	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));
+}
+
 function updateClock()
 {
 	var hour = Clock.getValue(Clock.Hour);
@@ -246,6 +252,7 @@ function createCard(digit, phase, value)
 	container.insertBefore(card, container.firstChild);
 }
 
+document.addEventListener('ClockOptionsChanged', setupClock);
 document.addEventListener('ClockSecondChanged', updateClock);
 </script>
 </body>
