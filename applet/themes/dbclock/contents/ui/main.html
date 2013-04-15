@@ -13,7 +13,7 @@ div
 	margin: -10px 0 5px 5px;
 	font-size: 25px;
 	white-space: pre;
-	-webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));
+	-webkit-box-reflect: below -5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(#FFF));
 }
 
 #second
@@ -29,5 +29,14 @@ div
 </head>
 <body>
 <div><span component="Hour">12</span>:<span component="Minute">30</span><span id="second" component="Second">15</span></div>
+<script type="text/javascript">
+function setupClock()
+{
+	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.body.style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+}
+
+document.addEventListener('ClockOptionsChanged', setupClock);
+</script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 		<default>false</default>
 	</entry>
 	<entry name="fontItalic" type="Bool">
-		<label>italic font:</label>
+		<label>Italic font:</label>
 		<default>false</default>
 	</entry>
 	<entry name="themeTextColor" type="Color">
