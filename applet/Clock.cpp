@@ -335,7 +335,19 @@ QString Clock::formatNumber(int number, int length)
 
 QString Clock::getOption(const QString &key, const QString &defaultValue, const QString &theme) const
 {
-    return m_applet->config().group("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme)).readEntry(key, defaultValue);
+    const QString value = m_applet->config().group("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme)).readEntry(key, defaultValue);
+
+    if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value)) {
+        if (value.count(QChar(',')) == 3) {
+            const QStringList values = value.split(QChar(','));
+
+            return QString("rgba(%1,%2,%3,%4)").arg(values.at(0)).arg(values.at(1)).arg(values.at(2)).arg(values.at(3).toDouble() / 255);
+        }
+
+        return QString("rgb(%1)").arg(value);
+    }
+
+    return value;
 }
 
 QString Clock::getValue(ClockComponent component, const QVariantMap &options, bool constant) const

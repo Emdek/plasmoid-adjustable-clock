@@ -672,14 +672,12 @@ void Configuration::showOptions(const QString &theme)
                 continue;
             }
 
-            if (items.at(i)->key() == "themeTextColor") {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == themeTextColor) ? QVariant() : widget->getValue().value<QColor>().name()));
-            } else if (items.at(i)->key() == "themeBackgroundColor") {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QColor>() == themeBackgroundColor) ? QVariant() : widget->getValue().value<QColor>().name()));
+            if (items.at(i)->key() == "themeTextColor" && widget->getValue().value<QColor>() == themeTextColor) {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), QVariant());
+            } else if (items.at(i)->key() == "themeBackgroundColor" && widget->getValue().value<QColor>() == themeBackgroundColor) {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), QVariant());
             } else if (items.at(i)->key() == "themeFont") {
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == themeFont) ? QVariant() : widget->getValue().value<QFont>().family()));
-            } else if (widget->getValue().type() == QVariant::Color) {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QColor>().name());
             } else if (widget->getValue().type() == QVariant::Font) {
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QFont>().family());
             } else {

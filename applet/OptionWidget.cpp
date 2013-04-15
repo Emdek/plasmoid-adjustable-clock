@@ -86,6 +86,7 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
             break;
         case QVariant::Color:
             m_widget = m_colorButton = new KColorButton(m_option->property().value<QColor>(), this);
+            m_colorButton->setAlphaChannelEnabled(true);
 
             connect(m_colorButton, SIGNAL(changed(QColor)), this, SLOT(updateValue()));
 
