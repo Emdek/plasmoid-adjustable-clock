@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+	<entry name="fontFamily" type="Font">
+		<label>Font family:</label>
+		<default>Segoe WP</default>
+	</entry>
+	<entry name="fontBold" type="Bool">
+		<label>Bold font:</label>
+		<default>true</default>
+	</entry>
+	<entry name="fontItalic" type="Bool">
+		<label>Italic font:</label>
+		<default>false</default>
+	</entry>
+	<entry name="textColor" type="Color">
+		<label>Text color:</label>
+		<default>#FFF</default>
+	</entry>
+	<entry name="shadowColor" type="Color">
+		<label>Shadow color:</label>
+		<default>0,0,0,77</default>
+	</entry>
+	<entry name="progressColor" type="Color">
+		<label>Progress bar color:</label>
+		<default>#DDD</default>
+	</entry>
+</kcfg>

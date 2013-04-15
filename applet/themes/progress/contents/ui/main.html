@@ -3,11 +3,19 @@
 <head>
 <meta charset="utf-8">
 <style type="text/css">
-*
+body
 {
+	width: 120px;
+	padding: 3px;
 	font-family: 'Segoe WP';
 	font-weight: bold;
-	color: #fff;
+	color: #FFF;
+	text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+body div
+{
+	float: right;
 }
 
 progress
@@ -30,21 +38,9 @@ progress::-webkit-progress-bar
 
 progress::-webkit-progress-value
 {
-	background: #ddd;
+	background: #DDD;
 	border-radius: 3px;
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-}
-
-body
-{
-	width: 120px;
-	padding: 3px;
-	text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
-}
-
-body div
-{
-	float: right;
 }
 
 #minute
@@ -56,8 +52,8 @@ body div
 p
 {
 	margin: 0 45px 0 0;
-	text-align: right;
 	font-size: 50px;
+	text-align: right;
 	opacity: 0.9;
 }
 </style>
@@ -67,6 +63,21 @@ p
 	<span id="minute" component="Minute">30</span><br>
 	<progress value="15" max="59" component="Second" attribute="value" options="'short': true">
 </div>
-<p component="hour" options="'short': true">12</p>
+<p component="Hour" options="'short': true">12</p>
+<script type="text/javascript">
+function setupClock()
+{
+	var shadowColor = Clock.getOption('shadowColor', 'rgba(0, 0, 0, 0.3)');
+
+	document.body.style.color = Clock.getOption('textColor', '#FFF');
+	document.body.style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'true')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
+
+	Clock.setRuleStyle(0, 'text-shadow', ('2px 2px ' + shadowColor));
+	Clock.setRuleStyle(4, 'box-shadow', ('2px 2px 0 ' + shadowColor));
+	Clock.setRuleStyle(4, 'background', Clock.getOption('progressColor', '#DDD'));
+}
+
+document.addEventListener('ClockOptionsChanged', setupClock);
+</script>
 </body>
 </html>

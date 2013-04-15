@@ -7,7 +7,7 @@
 - added simple Analog Clock theme;
 - enabled antialiased rendering;
 - use standard PlasmaClock tool tip if custom one was not supplied;
-- added ability to define theme options;
+- added ability to define theme options and updated existing ones to make use of it;
 - use standard about dialogs to display themes information;
 - more user friendly way to insert clock components;
 - use KTextEditor for source editing;
