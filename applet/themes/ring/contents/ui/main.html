@@ -159,8 +159,18 @@ var digits = [];
 
 function setupClock()
 {
+	var showSeconds = boolVal(Clock.getOption('showSeconds', 'true'));
+
 	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
 	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));
+
+	if (!showSeconds)
+	{
+		document.getElementById('digit_4').style.display = 'none';
+		document.getElementById('digit_5').style.display = 'none';
+	}
+
+	document.addEventListener((showSeconds ? 'ClockMinuteChanged' : 'ClockSecondChanged'), updateClock);
 }
 
 function updateClock()
@@ -253,7 +263,6 @@ function createCard(digit, phase, value)
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);
-document.addEventListener('ClockSecondChanged', updateClock);
 </script>
 </body>
 </html>

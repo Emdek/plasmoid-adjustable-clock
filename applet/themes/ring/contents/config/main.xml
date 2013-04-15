@@ -8,4 +8,8 @@
 		<label>Background color:</label>
 		<default>#AAA</default>
 	</entry>
+	<entry name="showSeconds" type="Bool">
+		<label>Show seconds:</label>
+		<default>true</default>
+	</entry>
 </kcfg>
