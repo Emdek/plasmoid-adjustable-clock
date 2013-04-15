@@ -167,6 +167,8 @@ body
 	</div>
 </div>
 <script type="text/javascript">
+var blankSegmentsOpacity = 0;
+
 function updateClock()
 {
 	var hour = Clock.getValue(Clock.Hour);
@@ -179,20 +181,31 @@ function updateClock()
 	{
 		var digit = document.getElementById('digit_' + i);
 
-		digit.getElementsByClassName('segment_1')[0].style.opacity = ((values[i] != 1 && values[i] != 4) ? 1 : 0);
-		digit.getElementsByClassName('segment_2')[0].style.opacity = ((values[i] != 5 && values[i] != 6) ? 1 : 0);
-		digit.getElementsByClassName('segment_3')[0].style.opacity = ((values[i] != 2) ? 1 : 0);
-		digit.getElementsByClassName('segment_4')[0].style.opacity = ((values[i] != 1 && values[i] != 4 && values[i] != 7) ? 1 : 0);
-		digit.getElementsByClassName('segment_5')[0].style.opacity = ((values[i] != 1 && values[i] != 3 && values[i] != 4 && values[i] != 5 && values[i] != 7 && values[i] != 9) ? 1 : 0);
-		digit.getElementsByClassName('segment_6')[0].style.opacity = ((values[i] != 1 && values[i] != 2 && values[i] != 3 && values[i] != 7) ? 1 : 0);
-		digit.getElementsByClassName('segment_7')[0].style.opacity = ((values[i] != 0 && values[i] != 1 && values[i] != 7) ? 1 : 0);
+		digit.getElementsByClassName('segment_1')[0].style.opacity = ((values[i] != 1 && values[i] != 4) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_2')[0].style.opacity = ((values[i] != 5 && values[i] != 6) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_3')[0].style.opacity = ((values[i] != 2) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_4')[0].style.opacity = ((values[i] != 1 && values[i] != 4 && values[i] != 7) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_5')[0].style.opacity = ((values[i] != 1 && values[i] != 3 && values[i] != 4 && values[i] != 5 && values[i] != 7 && values[i] != 9) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_6')[0].style.opacity = ((values[i] != 1 && values[i] != 2 && values[i] != 3 && values[i] != 7) ? 1 : blankSegmentsOpacity);
+		digit.getElementsByClassName('segment_7')[0].style.opacity = ((values[i] != 0 && values[i] != 1 && values[i] != 7) ? 1 : blankSegmentsOpacity);
 	}
 }
 
 function updateTheme()
 {
-	var color = window.getComputedStyle(document.body).getPropertyValue('color');
+	var color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
 	var rules = document.styleSheets[0].cssRules;
+
+	Clock.setStyle(document.body, 'color', color);
+
+	blankSegmentsOpacity = Clock.getOption('blankSegmentsOpacity', '0');
+
+	if (blankSegmentsOpacity > 0 && blankSegmentsOpacity < 10)
+	{
+		blankSegmentsOpacity = ('0' + blankSegmentsOpacity);
+	}
+
+	blankSegmentsOpacity = ('0.' + blankSegmentsOpacity);
 
 	for (var index in rules)
 	{
@@ -201,6 +214,8 @@ function updateTheme()
 			rules[index].style.setProperty('border-color', rules[index].style.getPropertyValue('border-color').replace(/rgb\([0-9, ]+\)/, color));
 		}
 	}
+
+	updateClock();
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
