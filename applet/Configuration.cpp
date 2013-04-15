@@ -673,6 +673,8 @@ void Configuration::showOptions(const QString &theme)
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), ((widget->getValue().value<QFont>() == defaultFont) ? QVariant() : widget->getValue()));
             } else if (widget->getValue().type() == QVariant::Color) {
                 m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QColor>().name());
+            } else {
+                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue());
             }
         }
 

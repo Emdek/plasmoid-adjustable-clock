@@ -54,7 +54,7 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
         case QVariant::Bool:
             m_widget = m_checkBox = new QCheckBox(this);
 
-            connect(m_checkBox, SIGNAL(toggled(bool)), this, SLOT(updateValue()));
+            connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(updateValue()));
 
             break;
         case QVariant::Int:
