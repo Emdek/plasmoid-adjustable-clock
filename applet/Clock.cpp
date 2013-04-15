@@ -102,12 +102,11 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     document->evaluateJavaScript(stream.readAll());
 
     sendEvent(document, "Options");
+    setupTheme(document);
 
     for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, clock, static_cast<ClockComponent>(i));
     }
-
-    setupTheme(document);
 }
 
 void Clock::setupTheme(QWebFrame *document)

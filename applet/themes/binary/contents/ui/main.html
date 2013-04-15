@@ -6,7 +6,7 @@
 table, td
 {
 	margin: auto;
-	border: 1px solid #ddd;
+	border: 1px solid #DDD;
 }
 
 table
@@ -64,9 +64,17 @@ td
 	</tbody>
 </table>
 <script type="text/javascript">
+var color = '#000';
+
+function updateTheme()
+{
+	color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+
+	Clock.setRuleStyle(0, 'border-color', Clock.getOption('borderColor', '#DDD'));
+}
+
 function updateClock()
 {
-	var color = window.getComputedStyle(document.body).getPropertyValue('color');
 	var hour = Clock.getValue(Clock.Hour);
 	var minute = Clock.getValue(Clock.Minute);
 	var second = Clock.getValue(Clock.Second);
@@ -76,13 +84,13 @@ function updateClock()
 	{
 		for (var j = 1; j < 9; j *= 2)
 		{
-			document.getElementById('v_' + i + '_' + j).style.backgroundColor = ((values[i] & j) ? color : 'transparent');
+			document.getElementById('v_' + i + '_' + j).style.background = ((values[i] & j) ? color : 'transparent');
 		}
 	}
 }
 
 document.addEventListener('ClockSecondChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateTheme);
 </script>
 </body>
 </html>
