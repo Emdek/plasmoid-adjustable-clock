@@ -5,54 +5,65 @@
 <style type="text/css">
 body
 {
-	width: 120px;
-	padding: 3px;
 	font-family: 'Segoe WP';
 	font-weight: bold;
 	color: #FFF;
 	text-shadow: 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-body div
+body > div
 {
-	float: right;
+	display: inline-block;
+	min-width: 110px;
+	white-space: nowrap;
 }
 
-progress
+#fraction
 {
-	width: 100%;
+	padding-top: 2px;
+	width: 45px;
+	float: right;
+	position: relative;
+}
+
+#minute
+{
+	font-size: 30px;
+	line-height: 30px;
+	opacity: 0.8;
+}
+
+#second
+{
+	width: 45px;
 	height: 5px;
 	border: 0;
-	position: relative;
-	bottom: 15px;
+	position: absolute;
+	top: 30px;
+	left: 0;
 	background: transparent;
 	opacity: 0.6;
 }
 
-progress::-webkit-progress-bar
+#second::-webkit-progress-bar
 {
-	background: rgba(230, 230, 230, 0.2);
 	border-radius: 3px;
+	background: rgba(230, 230, 230, 0.2);
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
-progress::-webkit-progress-value
+#second::-webkit-progress-value
 {
 	background: #DDD;
 	border-radius: 3px;
 	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-#minute
+#hour
 {
-	font-size: 30px;
-	opacity: 0.8;
-}
-
-p
-{
-	margin: 0 45px 0 0;
+	margin: 0 48px 0 0;
 	font-size: 50px;
+	line-height: 50px;
 	text-align: right;
 	opacity: 0.9;
 }
@@ -60,10 +71,12 @@ p
 </head>
 <body>
 <div>
-	<span id="minute" component="Minute">30</span><br>
-	<progress value="15" max="59" component="Second" attribute="value" options="'short': true">
+	<div id="fraction">
+		<div id="minute" component="Minute">30</div>
+		<progress id="second" value="15" max="59" component="Second" attribute="value" options="'short': true">
+	</div>
+	<div id="hour" component="Hour" options="'short': true">12</div>
 </div>
-<p component="Hour" options="'short': true">12</p>
 <script type="text/javascript">
 function setupClock()
 {
@@ -71,10 +84,10 @@ function setupClock()
 
 	document.body.style.color = Clock.getOption('textColor', '#FFF');
 	document.body.style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'true')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
+	document.body.style.textShadow = ('2px 2px ' + shadowColor);
 
-	Clock.setRuleStyle(0, 'text-shadow', ('2px 2px ' + shadowColor));
-	Clock.setRuleStyle(4, 'box-shadow', ('2px 2px 0 ' + shadowColor));
-	Clock.setRuleStyle(4, 'background', Clock.getOption('progressColor', '#DDD'));
+	Clock.setRuleStyle(6, 'box-shadow', ('2px 2px 0 ' + shadowColor));
+	Clock.setRuleStyle(6, 'background', Clock.getOption('progressColor', '#DDD'));
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);
