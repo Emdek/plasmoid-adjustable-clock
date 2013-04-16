@@ -334,9 +334,12 @@ QString Clock::formatNumber(int number, int length)
 
 QString Clock::getOption(const QString &key, const QString &defaultValue, const QString &theme) const
 {
-    const QString value = m_applet->config().group("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme)).readEntry(key, defaultValue);
+    const QString themeGroup = ("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme));
+    const QString value = m_applet->config().group(themeGroup).readEntry(key, defaultValue);
 
-    if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value)) {
+    if (key == "themeFont" && m_applet->config().group(themeGroup).readEntry(key, QString()).isEmpty()) {
+        return Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family();
+    } else if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value)) {
         if (value.count(QChar(',')) == 3) {
             const QStringList values = value.split(QChar(','));
 
