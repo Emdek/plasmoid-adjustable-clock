@@ -6,7 +6,8 @@
 body > div
 {
 	padding: 8px;
-	width: 190px;
+	display: inline-block;
+	min-width: 190px;
 	border-radius: 10px;
 	border-spacing: 2px;
 	font-family: 'Nimbus Sans L';
@@ -115,20 +116,29 @@ body > div
 			<div class="dots"></div>
 			<div><div class="card"><span id="c_2_3">4</span></div></div>
 			<div><div class="card"><span id="c_3_3">4</span></div></div>
+			<div class="dots seconds"></div>
+			<div class="seconds"><div class="card"><span id="c_4_3">4</span></div></div>
+			<div class="seconds"><div class="card"><span id="c_5_3">4</span></div></div>
 		</div>
 		<div class="top">
 			<div><div id="c_0_1">1</div></div>
 			<div><div id="c_1_1">2</div></div>
-			<div id="dot_top" class="dots">•</div>
+			<div class="dots">•</div>
 			<div><div id="c_2_1">3</div></div>
 			<div><div id="c_3_1">0</div></div>
+			<div class="dots seconds">•</div>
+			<div class="seconds"><div id="c_4_1">1</div></div>
+			<div class="seconds"><div id="c_5_1">5</div></div>
 		</div>
 		<div class="bottom">
 			<div><div id="c_0_2">1</div></div>
 			<div><div id="c_1_2">2</div></div>
-			<div id="dot_bottom" class="dots">•</div>
+			<div class="dots">•</div>
 			<div><div id="c_2_2">3</div></div>
 			<div><div id="c_3_2">0</div></div>
+			<div class="dots seconds">•</div>
+			<div class="seconds"><div id="c_4_2">3</div></div>
+			<div class="seconds"><div id="c_5_2">0</div></div>
 		</div>
 	</div>
 	<div class="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': true">of January</span></div>
@@ -141,17 +151,33 @@ function setupClock()
 	Clock.setRuleStyle(0, 'background', Clock.getOption('backgroundColor', '#202020'));
 	Clock.setRuleStyle(0, 'color', Clock.getOption('textColor', '#DCDCDC'));
 	Clock.setRuleStyle(3, 'background-color', Clock.getOption('cardColor', '#000'));
+
+	var showSeconds = boolVal(Clock.getOption('showSeconds', 'false'));
+
+	if (!showSeconds)
+	{
+		var seconds = document.getElementsByClassName('seconds');
+
+		for (var i = 0; i < seconds.length; ++i)
+		{
+			seconds[i].style.display = 'none';
+		}
+	}
 }
 
 function updateClock()
 {
 	var hour = Clock.getValue(Clock.Hour);
 	var minute = Clock.getValue(Clock.Minute);
-	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1)];
+	var second = Clock.getValue(Clock.Second);
+	var values = [hour.substr(0, 1), hour.substr(1, 1), minute.substr(0, 1), minute.substr(1, 1), second.substr(0, 1), second.substr(1, 1)];
 	var blink = (Clock.getValue(Clock.Second, {'short': true}) % 2);
+	var dots = document.getElementsByClassName('dots');
 
-	document.getElementById('dot_top').setAttribute('class', 'dots' + (blink ? '' : ' dark'));
-	document.getElementById('dot_bottom').setAttribute('class', 'dots' + (blink ? '' : ' dark'));
+	for (var i = 0; i < dots.length; ++i)
+	{
+		dots[i].setAttribute('class', 'dots' + (blink ? '' : ' dark'));
+	}
 
 	if (!initialized)
 	{

@@ -12,4 +12,8 @@
 		<label>Card color:</label>
 		<default>#000</default>
 	</entry>
+	<entry name="showSeconds" type="Bool">
+		<label>Show seconds:</label>
+		<default>false</default>
+	</entry>
 </kcfg>
