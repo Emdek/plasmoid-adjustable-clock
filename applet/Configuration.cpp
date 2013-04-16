@@ -844,7 +844,7 @@ QString Configuration::createIdentifier(const QString &base) const
     QString identifier = QString("custom-%1");
 
     if (!base.isEmpty()) {
-        if (identifier.startsWith("custom-")) {
+        if (base.startsWith("custom-")) {
             identifier = QString(base).replace(QRegExp("\\d+$"), "%1");
 
             if (!identifier.endsWith("%1")) {
