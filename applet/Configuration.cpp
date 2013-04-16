@@ -364,6 +364,8 @@ void Configuration::deleteTheme()
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
+
+        emit clearCache();
     }
 }
 
@@ -379,8 +381,6 @@ void Configuration::renameTheme()
     m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), title, TitleRole);
 
     modify();
-
-    emit clearCache();
 }
 
 void Configuration::triggerAction()
