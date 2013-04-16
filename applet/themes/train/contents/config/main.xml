@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+	<entry name="textColor" type="Color">
+		<label>Text color:</label>
+		<default>#DCDCDC</default>
+	</entry>
+	<entry name="backgroundColor" type="Color">
+		<label>Background color:</label>
+		<default>#202020</default>
+	</entry>
+	<entry name="cardColor" type="Color">
+		<label>Card color:</label>
+		<default>#000</default>
+	</entry>
+</kcfg>

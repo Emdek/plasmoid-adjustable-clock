@@ -34,7 +34,7 @@ body > div
 	line-height: 0;
 	font-size: 55px;
 	font-weight: bold;
-	background: -webkit-linear-gradient(#353535, #222 30%, #000);
+	background: #000 -webkit-linear-gradient(rgba(120, 120, 120, 0.5), rgba(100, 100, 100, 0.4) 30%, rgba(100, 100, 100, 0.1));
 }
 
 .time > div > div > div
@@ -72,7 +72,7 @@ body > div
 
 .dark
 {
-	color: #1A1A1A;
+	color: rgba(240, 240, 240, 0.05);
 }
 
 .card
@@ -136,6 +136,13 @@ body > div
 <script type="text/javascript">
 var initialized = false;
 
+function setupClock()
+{
+	Clock.setRuleStyle(0, 'background', Clock.getOption('backgroundColor', '#202020'));
+	Clock.setRuleStyle(0, 'color', Clock.getOption('textColor', '#DCDCDC'));
+	Clock.setRuleStyle(3, 'background-color', Clock.getOption('cardColor', '#000'));
+}
+
 function updateClock()
 {
 	var hour = Clock.getValue(Clock.Hour);
@@ -197,6 +204,7 @@ function flipCard(number, value)
 	}, 250);
 }
 
+document.addEventListener('ClockOptionsChanged', setupClock);
 document.addEventListener('ClockSecondChanged', updateClock);
 </script>
 </body>
