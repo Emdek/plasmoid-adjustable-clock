@@ -170,7 +170,7 @@ function setupClock()
 		document.getElementById('digit_5').style.display = 'none';
 	}
 
-	document.addEventListener((showSeconds ? 'ClockMinuteChanged' : 'ClockSecondChanged'), updateClock);
+	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
 }
 
 function updateClock()
