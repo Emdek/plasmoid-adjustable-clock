@@ -130,7 +130,6 @@ void OptionWidget::updateValue()
 
 void OptionWidget::setDefaultValue()
 {
-    m_option->setDefault();
 
     if (m_option->key() == "themeTextColor") {
         m_option->setProperty(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor));
@@ -138,6 +137,8 @@ void OptionWidget::setDefaultValue()
         m_option->setProperty(Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor));
     } else if (m_option->key() == "themeFont") {
         m_option->setProperty(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont));
+    } else {
+        m_option->setDefault();
     }
 
     setValue(m_option->property());
