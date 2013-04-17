@@ -130,7 +130,6 @@ void OptionWidget::updateValue()
 
 void OptionWidget::setDefaultValue()
 {
-
     if (m_option->key() == "themeTextColor") {
         m_option->setProperty(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor));
     } else if (m_option->key() == "themeBackgroundColor") {
@@ -139,6 +138,10 @@ void OptionWidget::setDefaultValue()
         m_option->setProperty(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont));
     } else {
         m_option->setDefault();
+
+        if (m_option->property().type() == QVariant::Color && !m_option->property().value<QColor>().isValid()) {
+            m_option->setProperty(QColor(Qt::black));
+        }
     }
 
     setValue(m_option->property());
