@@ -5,6 +5,7 @@
 - added LCD Clock theme;
 - added Ring Clock theme;
 - added simple Analog Clock theme;
+- updated beClock theme to better scale up;
 - enabled antialiased rendering;
 - use standard PlasmaClock tool tip if custom one was not supplied;
 - added ability to define theme options and updated existing ones to make use of it;

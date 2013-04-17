@@ -44,7 +44,12 @@ body > div > div
 </head>
 <body>
 <div>
-	<canvas id="canvas" width="200" height="200"></canvas>
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg" width="200" height="200">
+		<g id="group" fill="transparent" stroke="#000" stroke-linecap="round" stroke-width="8">
+			<path id="minutes" d="M 100 15 A 85 85 0 0 1 100 185" style="opacity: 0.5;" />
+ 			<path id="hours" d="" style="opacity: 0.8;" />
+		</g>
+	</svg>
 	<div class="back" component="TimeOfDay"></div>
 	<div class="front">
 		<span component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
@@ -52,28 +57,27 @@ body > div > div
 	</div>
 </div>
 <script type="text/javascript">
+function updateTheme()
+{
+	document.getElementById('group').setAttribute('stroke', Clock.getStyle(document.body, 'color'));
+}
+
 function updateClock()
 {
-	var context = document.getElementById('canvas').getContext('2d');
-	context.lineCap = 'round';
-	context.lineWidth = 8;
-	context.strokeStyle = window.getComputedStyle(document.body).getPropertyValue('color');
+	setValue('minutes', 60, parseInt(Clock.getValue(Clock.Minute, {'short': true})), 95);
+	setValue('hours', 12, parseInt(Clock.getValue(Clock.Hour, {'short': true, 'alternative': true})), 85);
+}
 
-	context.clearRect(0, 0, 200, 200);
+function setValue(id, total, value, radius)
+{
+	var alpha = ((360 / total) * value);
+	var angle = ((90 - alpha) * (Math.PI / 180));
 
-	context.beginPath();
-	context.arc(100, 100, 95, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getValue(Clock.Minute, {'short': true})) - 15) * 6)), false);
-	context.globalAlpha = 0.5;
-	context.stroke();
-
-	context.beginPath();
-	context.arc(100, 100, 80, ((Math.PI / 180) * -90), (((Math.PI / 180) * (parseInt(Clock.getValue(Clock.Hour, {'short': true})) - 15) * 30)), false);
-	context.globalAlpha = 0.8;
-	context.stroke();
+	document.getElementById(id).setAttribute('d', ('M 100 ' + (100 - radius) + ' A ' + radius + ' ' + radius + ' 0 ' + ((alpha > 180) ? 1 : 0) + ' 1 ' + (100 + (radius * Math.cos(angle))) + ' ' + (100 - (radius * Math.sin(angle)))));
 }
 
 document.addEventListener('ClockMinuteChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateClock);
+document.addEventListener('ClockThemeChanged', updateTheme);
 </script>
 </body>
 </html>
