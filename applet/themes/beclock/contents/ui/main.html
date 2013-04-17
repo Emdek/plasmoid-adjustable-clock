@@ -45,39 +45,61 @@ body > div > div
 <body>
 <div>
 	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg" width="200" height="200">
-		<g id="group" fill="transparent" stroke="#000" stroke-linecap="round" stroke-width="8">
-			<path id="minutes" d="M 100 15 A 85 85 0 0 1 100 185" style="opacity: 0.5;" />
- 			<path id="hours" d="" style="opacity: 0.8;" />
+		<g id="group" fill="transparent" stroke-linecap="round" stroke-width="8">
+			<path id="circle_seconds" d="M 100 5 A 95 95 0 0 1 195 100" stroke="rgba(0, 0, 0, 0.4)" />
+			<path id="circle_minutes" d="M 100 15 A 85 85 0 0 1 100 185" stroke="rgba(0, 0, 0, 0.6)" />
+ 			<path id="circle_hours" d="" stroke="rgba(0, 0, 0, 0.8)" />
 		</g>
 	</svg>
 	<div class="back" component="TimeOfDay"></div>
 	<div class="front">
-		<span component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
+		<span id="hours" component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
 		<div><span component="Year">2000</span>-<span component="Month">01</span>-<span component="DayOfMonth">01</span></div>
 	</div>
 </div>
 <script type="text/javascript">
-function updateTheme()
+var radius = [95, 85, 75];
+var alternativeHoursMode = false;
+
+function setupClock()
 {
-	document.getElementById('group').setAttribute('stroke', Clock.getStyle(document.body, 'color'));
+	var showSeconds = boolVal(Clock.getOption('showSeconds', 'false'));
+	alternativeHoursMode = boolVal(Clock.getOption('alternativeHoursMode', 'false'));
+
+	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.getElementById('circle_seconds').setAttribute('stroke', Clock.getOption('secondsColor', 'rgba(0, 0, 0, 0.4)'));
+	document.getElementById('circle_minutes').setAttribute('stroke', Clock.getOption('minutesColor', 'rgba(0, 0, 0, 0.6)'));
+	document.getElementById('circle_hours').setAttribute('stroke', Clock.getOption('hoursColor', 'rgba(0, 0, 0, 0.8)'));
+	document.getElementById('hours').setAttribute('options', (alternativeHoursMode ? '' : '\'alternative\': true'));
+
+	if (!showSeconds)
+	{
+		radius = [95, 95, 85];
+
+		document.getElementById('circle_seconds').style.display = 'none';
+	}
+
+	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
+
+	updateClock();
 }
 
 function updateClock()
 {
-	setValue('minutes', 60, parseInt(Clock.getValue(Clock.Minute, {'short': true})), 95);
-	setValue('hours', 12, parseInt(Clock.getValue(Clock.Hour, {'short': true, 'alternative': true})), 85);
+	setValue('seconds', radius[0], 60, parseInt(Clock.getValue(Clock.Second, {'short': true})));
+	setValue('minutes', radius[1], 60, parseInt(Clock.getValue(Clock.Minute, {'short': true})));
+	setValue('hours', radius[2], (alternativeHoursMode ? 24 : 12), parseInt(Clock.getValue(Clock.Hour, {'short': true, 'alternative': !alternativeHoursMode})));
 }
 
-function setValue(id, total, value, radius)
+function setValue(id, radius, total, value)
 {
 	var alpha = ((360 / total) * value);
 	var angle = ((90 - alpha) * (Math.PI / 180));
 
-	document.getElementById(id).setAttribute('d', ('M 100 ' + (100 - radius) + ' A ' + radius + ' ' + radius + ' 0 ' + ((alpha > 180) ? 1 : 0) + ' 1 ' + (100 + (radius * Math.cos(angle))) + ' ' + (100 - (radius * Math.sin(angle)))));
+	document.getElementById('circle_' + id).setAttribute('d', ('M 100 ' + (100 - radius) + ' A ' + radius + ' ' + radius + ' 0 ' + ((alpha > 180) ? 1 : 0) + ' 1 ' + (100 + (radius * Math.cos(angle))) + ' ' + (100 - (radius * Math.sin(angle)))));
 }
 
-document.addEventListener('ClockMinuteChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateTheme);
+document.addEventListener('ClockThemeChanged', setupClock);
 </script>
 </body>
 </html>

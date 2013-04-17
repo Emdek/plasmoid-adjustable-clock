@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+	<entry name="themeTextColor" type="Color">
+		<label>Text color:</label>
+		<default>invalid</default>
+	</entry>
+	<entry name="hoursColor" type="Color">
+		<label>Hours circle color:</label>
+		<default>0,0,0,204</default>
+	</entry>
+	<entry name="minutesColor" type="Color">
+		<label>Minutes circle color:</label>
+		<default>0,0,0,153</default>
+	</entry>
+	<entry name="secondsColor" type="Color">
+		<label>Seconds circle color:</label>
+		<default>0,0,0,102</default>
+	</entry>
+	<entry name="showSeconds" type="Bool">
+		<label>Show seconds:</label>
+		<default>false</default>
+	</entry>
+	<entry name="alternativeHoursMode" type="Bool">
+		<label>24 hours mode:</label>
+		<default>false</default>
+	</entry>
+</kcfg>

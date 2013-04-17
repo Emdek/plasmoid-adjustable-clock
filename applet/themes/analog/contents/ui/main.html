@@ -95,7 +95,7 @@ var showSeconds = true;
 
 function setupClock()
 {
-	showSeconds = (Clock.getOption('showSeconds', 'true') == 'true');
+	showSeconds = boolVal(Clock.getOption('showSeconds', 'true'));
 
 	document.getElementById('second').style.display = (showSeconds ? 'block' : 'none');
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
