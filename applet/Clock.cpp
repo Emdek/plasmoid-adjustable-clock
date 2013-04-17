@@ -285,6 +285,10 @@ void Clock::updateTimeZone()
         }
     }
 
+    updateComponent(TimeZoneNameComponent);
+    updateComponent(TimeZoneAbbreviationComponent);
+    updateComponent(TimeZoneOffsetComponent);
+
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
 }
 
