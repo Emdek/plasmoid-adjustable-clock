@@ -16,9 +16,9 @@ body > div
 	position: relative;
 }
 
-.ticks div
+#ticks_inner div, #ticks_outer div
 {
-	width: 50px;
+	width: 40px;
 	height: 1px;
 	border-right: 3px solid #000;
 	position: absolute;
@@ -27,13 +27,18 @@ body > div
 	-webkit-transform-origin: left center;
 }
 
-.ticks div:nth-child(3n + 1)
+#ticks_outer div
+{
+	width: 50px;
+}
+
+#ticks_outer div:nth-child(3n + 1)
 {
 	height: 2px;
 	border-right: 5px solid #000;
 }
 
-.hands div
+#hands div
 {
 	width: 0;
 	height: 2px;
@@ -63,7 +68,7 @@ body > div
 
 #minute
 {
-	border-right: 40px solid #000;
+	border-right: 35px solid #000;
 }
 
 #second
@@ -74,7 +79,33 @@ body > div
 </head>
 <body>
 <div>
-	<div class="ticks">
+	<div id="ticks_inner">
+		<div style="-webkit-transform: rotate(0deg);"></div>
+		<div style="-webkit-transform: rotate(15deg);"></div>
+		<div style="-webkit-transform: rotate(30deg);"></div>
+		<div style="-webkit-transform: rotate(45deg);"></div>
+		<div style="-webkit-transform: rotate(60deg);"></div>
+		<div style="-webkit-transform: rotate(75deg);"></div>
+		<div style="-webkit-transform: rotate(90deg);"></div>
+		<div style="-webkit-transform: rotate(105deg);"></div>
+		<div style="-webkit-transform: rotate(120deg);"></div>
+		<div style="-webkit-transform: rotate(135deg);"></div>
+		<div style="-webkit-transform: rotate(150deg);"></div>
+		<div style="-webkit-transform: rotate(165deg);"></div>
+		<div style="-webkit-transform: rotate(180deg);"></div>
+		<div style="-webkit-transform: rotate(195deg);"></div>
+		<div style="-webkit-transform: rotate(210deg);"></div>
+		<div style="-webkit-transform: rotate(225deg);"></div>
+		<div style="-webkit-transform: rotate(240deg);"></div>
+		<div style="-webkit-transform: rotate(255deg);"></div>
+		<div style="-webkit-transform: rotate(270deg);"></div>
+		<div style="-webkit-transform: rotate(285deg);"></div>
+		<div style="-webkit-transform: rotate(300deg);"></div>
+		<div style="-webkit-transform: rotate(315deg);"></div>
+		<div style="-webkit-transform: rotate(330deg);"></div>
+		<div style="-webkit-transform: rotate(345deg);"></div>
+	</div>
+	<div id="ticks_outer">
 		<div style="-webkit-transform: rotate(0deg);"></div>
 		<div style="-webkit-transform: rotate(30deg);"></div>
 		<div style="-webkit-transform: rotate(60deg);"></div>
@@ -88,7 +119,7 @@ body > div
 		<div style="-webkit-transform: rotate(300deg);"></div>
 		<div style="-webkit-transform: rotate(330deg);"></div>
 	</div>
-	<div class="hands">
+	<div id="hands">
 		<div id="hour"></div>
 		<div id="minute"></div>
 		<div id="second"></div>
@@ -97,12 +128,15 @@ body > div
 </div>
 <script type="text/javascript">
 var showSeconds = true;
+var alternativeHoursMode = false;
 
 function setupClock()
 {
 	showSeconds = boolVal(Clock.getOption('showSeconds', 'true'));
+	alternativeHoursMode = boolVal(Clock.getOption('alternativeHoursMode', 'false'));
 
 	document.getElementById('second').style.display = (showSeconds ? 'block' : 'none');
+	document.getElementById('ticks_inner').style.display = (alternativeHoursMode ? 'block' : 'none');
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
 }
 
@@ -110,11 +144,11 @@ function updateClock()
 {
 	if (showSeconds)
 	{
-		document.getElementById('second').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Second) * -6)) + 'deg)';
+		document.getElementById('second').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Second, {'short': true}) * -6)) + 'deg)';
 	}
 
-	document.getElementById('minute').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Minute) * -6)) + 'deg)';
-	document.getElementById('hour').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Hour, {'alternative': true}) * -30)) + 'deg)';
+	document.getElementById('minute').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Minute, {'short': true}) * -6)) + 'deg)';
+	document.getElementById('hour').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Hour, {'short': true, 'alternative': !alternativeHoursMode}) * (alternativeHoursMode ? -15 : -30))) + 'deg)';
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);

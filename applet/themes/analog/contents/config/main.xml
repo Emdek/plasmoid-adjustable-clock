@@ -4,4 +4,8 @@
 		<label>Show seconds hand:</label>
 		<default>true</default>
 	</entry>
+	<entry name="alternativeHoursMode" type="Bool">
+		<label>24 hours mode:</label>
+		<default>false</default>
+	</entry>
 </kcfg>
