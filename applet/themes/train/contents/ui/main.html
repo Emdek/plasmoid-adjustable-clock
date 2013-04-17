@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <style type="text/css">
+body
+{
+	text-align: center;
+}
+
 body > div
 {
 	padding: 8px;
@@ -147,9 +152,9 @@ var initialized = false;
 
 function setupClock()
 {
-	Clock.setRuleStyle(0, 'background', Clock.getOption('backgroundColor', '#202020'));
-	Clock.setRuleStyle(0, 'color', Clock.getOption('textColor', '#DCDCDC'));
-	Clock.setRuleStyle(3, 'background-color', Clock.getOption('cardColor', '#000'));
+	Clock.setRuleStyle(1, 'background', Clock.getOption('backgroundColor', '#202020'));
+	Clock.setRuleStyle(1, 'color', Clock.getOption('textColor', '#DCDCDC'));
+	Clock.setRuleStyle(4, 'background-color', Clock.getOption('cardColor', '#000'));
 
 	var showSeconds = boolVal(Clock.getOption('showSeconds', 'false'));
 
