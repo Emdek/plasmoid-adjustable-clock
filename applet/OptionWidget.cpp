@@ -20,6 +20,7 @@
 
 #include "OptionWidget.h"
 
+#include <QtCore/qmath.h>
 #include <QtGui/QBoxLayout>
 
 #include <Plasma/Theme>
@@ -62,7 +63,7 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
                 m_widget = m_slider = new QSlider(Qt::Horizontal, this);
                 m_slider->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
                 m_slider->setTickPosition(QSlider::TicksBothSides);
-                m_slider->setTickInterval(m_option->maxValue().toInt() / 10);
+                m_slider->setTickInterval(qCeil(m_option->maxValue().toInt() / 10.0));
 
                 connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             } else {
