@@ -18,24 +18,32 @@ body > div
 
 #ticks_inner div, #ticks_outer div
 {
-	width: 40px;
+	width: 80px;
 	height: 1px;
 	border-right: 3px solid #000;
+	border-left: 3px solid #000;
 	position: absolute;
 	top: 60px;
 	left: 60px;
-	-webkit-transform-origin: left center;
+	-webkit-transform-origin: center;
 }
 
 #ticks_outer div
 {
-	width: 50px;
+	width: 100px;
 }
 
 #ticks_outer div:nth-child(3n + 1)
 {
+	margin: 0 0 0 -2px;
 	height: 2px;
 	border-right: 5px solid #000;
+	border-left: 5px solid #000;
+}
+
+#ticks_outer div:first-child
+{
+	top: 59.5px;
 }
 
 #hands div
@@ -43,8 +51,8 @@ body > div
 	width: 0;
 	height: 2px;
 	position: absolute;
-	top: 60px;
-	left: 60px;
+	top: 59.5px;
+	left: 63px;
 	-webkit-transform-origin: left center;
 	box-shadow: 0 0 3px #888;
 }
@@ -55,8 +63,8 @@ body > div
 	height: 6px;
 	border-radius: 3px;
 	position: absolute;
-	top: 58px;
-	left: 57px;
+	top: 57.5px;
+	left: 60px;
 	z-index: 10;
 	background: #000;
 }
@@ -79,46 +87,8 @@ body > div
 </head>
 <body>
 <div>
-	<div id="ticks_inner">
-		<div style="-webkit-transform: rotate(0deg);"></div>
-		<div style="-webkit-transform: rotate(15deg);"></div>
-		<div style="-webkit-transform: rotate(30deg);"></div>
-		<div style="-webkit-transform: rotate(45deg);"></div>
-		<div style="-webkit-transform: rotate(60deg);"></div>
-		<div style="-webkit-transform: rotate(75deg);"></div>
-		<div style="-webkit-transform: rotate(90deg);"></div>
-		<div style="-webkit-transform: rotate(105deg);"></div>
-		<div style="-webkit-transform: rotate(120deg);"></div>
-		<div style="-webkit-transform: rotate(135deg);"></div>
-		<div style="-webkit-transform: rotate(150deg);"></div>
-		<div style="-webkit-transform: rotate(165deg);"></div>
-		<div style="-webkit-transform: rotate(180deg);"></div>
-		<div style="-webkit-transform: rotate(195deg);"></div>
-		<div style="-webkit-transform: rotate(210deg);"></div>
-		<div style="-webkit-transform: rotate(225deg);"></div>
-		<div style="-webkit-transform: rotate(240deg);"></div>
-		<div style="-webkit-transform: rotate(255deg);"></div>
-		<div style="-webkit-transform: rotate(270deg);"></div>
-		<div style="-webkit-transform: rotate(285deg);"></div>
-		<div style="-webkit-transform: rotate(300deg);"></div>
-		<div style="-webkit-transform: rotate(315deg);"></div>
-		<div style="-webkit-transform: rotate(330deg);"></div>
-		<div style="-webkit-transform: rotate(345deg);"></div>
-	</div>
-	<div id="ticks_outer">
-		<div style="-webkit-transform: rotate(0deg);"></div>
-		<div style="-webkit-transform: rotate(30deg);"></div>
-		<div style="-webkit-transform: rotate(60deg);"></div>
-		<div style="-webkit-transform: rotate(90deg);"></div>
-		<div style="-webkit-transform: rotate(120deg);"></div>
-		<div style="-webkit-transform: rotate(150deg);"></div>
-		<div style="-webkit-transform: rotate(180deg);"></div>
-		<div style="-webkit-transform: rotate(210deg);"></div>
-		<div style="-webkit-transform: rotate(240deg);"></div>
-		<div style="-webkit-transform: rotate(270deg);"></div>
-		<div style="-webkit-transform: rotate(300deg);"></div>
-		<div style="-webkit-transform: rotate(330deg);"></div>
-	</div>
+	<div id="ticks_inner"></div>
+	<div id="ticks_outer"></div>
 	<div id="hands">
 		<div id="hour"></div>
 		<div id="minute"></div>
@@ -129,6 +99,26 @@ body > div
 <script type="text/javascript">
 var showSeconds = true;
 var alternativeHoursMode = false;
+
+document.getElementById('ticks_outer').innerHTML = '';
+
+for (var i = 0; i < 6; ++i)
+{
+	var tick = document.createElement('div');
+	tick.style.setProperty('-webkit-transform', 'translate(-50px, 0) rotate(' + (i * 30) + 'deg)');
+
+	document.getElementById('ticks_outer').appendChild(tick);
+}
+
+document.getElementById('ticks_inner').innerHTML = '';
+
+for (var i = 0; i < 12; ++i)
+{
+	var tick = document.createElement('div');
+	tick.style.setProperty('-webkit-transform', 'translate(-40px, 0px) rotate(' + (i * 15) + 'deg)');
+
+	document.getElementById('ticks_inner').appendChild(tick);
+}
 
 function setupClock()
 {
