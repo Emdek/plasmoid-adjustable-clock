@@ -170,6 +170,33 @@ body
 <script type="text/javascript">
 var blankSegmentsOpacity = 0;
 
+function setupClock()
+{
+	var color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	var rules = document.styleSheets[0].cssRules;
+
+	Clock.setStyle(document.body, 'color', color);
+
+	blankSegmentsOpacity = parseInt(Clock.getOption('blankSegmentsOpacity', '0'));
+
+	if (blankSegmentsOpacity > 0 && blankSegmentsOpacity < 10)
+	{
+		blankSegmentsOpacity = ('0' + blankSegmentsOpacity);
+	}
+
+	blankSegmentsOpacity = ('0.' + blankSegmentsOpacity);
+
+	for (var index in rules)
+	{
+		if (rules[index].style && rules[index].style.getPropertyValue('border-color'))
+		{
+			rules[index].style.setProperty('border-color', rules[index].style.getPropertyValue('border-color').replace(/rgb\([0-9, ]+\)/, color));
+		}
+	}
+
+	updateClock();
+}
+
 function updateClock()
 {
 	var hour = Clock.getValue(Clock.Hour);
@@ -192,35 +219,8 @@ function updateClock()
 	}
 }
 
-function updateTheme()
-{
-	var color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	var rules = document.styleSheets[0].cssRules;
-
-	Clock.setStyle(document.body, 'color', color);
-
-	blankSegmentsOpacity = Clock.getOption('blankSegmentsOpacity', '0');
-
-	if (blankSegmentsOpacity > 0 && blankSegmentsOpacity < 10)
-	{
-		blankSegmentsOpacity = ('0' + blankSegmentsOpacity);
-	}
-
-	blankSegmentsOpacity = ('0.' + blankSegmentsOpacity);
-
-	for (var index in rules)
-	{
-		if (rules[index].style && rules[index].style.getPropertyValue('border-color'))
-		{
-			rules[index].style.setProperty('border-color', rules[index].style.getPropertyValue('border-color').replace(/rgb\([0-9, ]+\)/, color));
-		}
-	}
-
-	updateClock();
-}
-
 document.addEventListener('ClockSecondChanged', updateClock);
-document.addEventListener('ClockThemeChanged', updateTheme);
+document.addEventListener('ClockThemeChanged', setupClock);
 </script>
 </body>
 </html>

@@ -16,7 +16,7 @@
 		<label>Text color:</label>
 		<default>invalid</default>
 	</entry>
-	<entry name="themeOpacity" type="Int">
+	<entry name="textOpacity" type="Int">
 		<label>Opacity:</label>
 		<default>85</default>
 		<min>25</min>
