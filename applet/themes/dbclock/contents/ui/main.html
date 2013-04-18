@@ -34,7 +34,7 @@ div
 function setupClock()
 {
 	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	document.body.style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.body.style.font = ((parseBool(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (parseBool(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);

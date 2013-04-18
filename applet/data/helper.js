@@ -1,4 +1,4 @@
-function boolVal(value)
+function parseBool(value)
 {
 	return (value == 'true');
 }

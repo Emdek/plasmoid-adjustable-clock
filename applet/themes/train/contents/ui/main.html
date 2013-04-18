@@ -156,7 +156,7 @@ function setupClock()
 	Clock.setRuleStyle(1, 'color', Clock.getOption('textColor', '#DCDCDC'));
 	Clock.setRuleStyle(4, 'background-color', Clock.getOption('cardColor', '#000'));
 
-	var showSeconds = boolVal(Clock.getOption('showSeconds', 'false'));
+	var showSeconds = parseBool(Clock.getOption('showSeconds', 'false'));
 
 	if (!showSeconds)
 	{

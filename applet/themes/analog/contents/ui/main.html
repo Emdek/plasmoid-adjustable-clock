@@ -110,8 +110,8 @@ var alternativeHoursMode = false;
 
 function setupClock()
 {
-	showSeconds = boolVal(Clock.getOption('showSeconds', 'true'));
-	alternativeHoursMode = boolVal(Clock.getOption('alternativeHoursMode', 'false'));
+	showSeconds = parseBool(Clock.getOption('showSeconds', 'true'));
+	alternativeHoursMode = parseBool(Clock.getOption('alternativeHoursMode', 'false'));
 	var ticksDensity = parseInt(Clock.getOption('ticksDensity', '2'));
 
 	document.getElementById('ticks_inner').innerHTML = '';

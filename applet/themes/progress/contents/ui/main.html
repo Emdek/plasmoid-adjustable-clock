@@ -84,7 +84,7 @@ function setupClock()
 	var shadowColor = Clock.getOption('shadowColor', 'rgba(0, 0, 0, 0.3)');
 
 	document.body.style.color = Clock.getOption('textColor', '#FFF');
-	document.body.style.font = ((boolVal(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (boolVal(Clock.getOption('fontBold', 'true')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
+	document.body.style.font = ((parseBool(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (parseBool(Clock.getOption('fontBold', 'true')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
 	document.body.style.textShadow = ('2px 2px ' + shadowColor);
 
 	Clock.setRuleStyle(6, 'box-shadow', ('2px 2px 0 ' + shadowColor));
