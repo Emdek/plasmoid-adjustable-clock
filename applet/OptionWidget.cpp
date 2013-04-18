@@ -59,11 +59,11 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
 
             break;
         case QVariant::Int:
-            if (m_option->minValue().toInt() == 0 && m_option->minValue().toInt() != m_option->maxValue().toInt() && m_option->maxValue().toInt() < 101) {
+            if (m_option->minValue().toInt() == 0 && m_option->minValue().toInt() != m_option->maxValue().toInt() && m_option->maxValue().toInt() < 11) {
                 m_widget = m_slider = new QSlider(Qt::Horizontal, this);
                 m_slider->setRange(m_option->minValue().toInt(), m_option->maxValue().toInt());
                 m_slider->setTickPosition(QSlider::TicksBothSides);
-                m_slider->setTickInterval(qCeil(m_option->maxValue().toInt() / 10.0));
+                m_slider->setTickInterval(qCeil(m_option->maxValue().toInt() / 5.0));
 
                 connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue()));
             } else {
