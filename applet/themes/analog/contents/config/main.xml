@@ -8,4 +8,10 @@
 		<label>24 hours mode:</label>
 		<default>false</default>
 	</entry>
+	<entry name="ticksDensity" type="Int">
+		<label>Ticks density:</label>
+		<default>2</default>
+		<min>0</min>
+		<max>3</max>
+	</entry>
 </kcfg>
