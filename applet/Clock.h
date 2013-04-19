@@ -75,7 +75,7 @@ class ClockObject : public QObject
         explicit ClockObject(Clock *clock, bool constant, const QString &theme = QString());
 
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
-        Q_INVOKABLE QString getValue(int component, const QVariantMap &options = QVariantMap()) const;
+        Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
         bool isConstant() const;
 
     private:
@@ -97,7 +97,7 @@ class Clock : public QObject
         ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;
-        QString getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
+        QVariant getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
         static QString getComponentName(ClockComponent component);
         static QLatin1String getComponentString(ClockComponent component);
 

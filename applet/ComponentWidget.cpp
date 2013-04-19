@@ -135,7 +135,7 @@ void ComponentWidget::selectComponent(QAction *action)
 
 void ComponentWidget::updatePreview()
 {
-    const QString preview = m_clock->getValue(m_component, m_options, true);
+    const QString preview = m_clock->getValue(m_component, m_options, true).toString();
 
     m_componentUi.previewLabel->setText(preview);
     m_componentUi.previewLabel->setToolTip(preview);
