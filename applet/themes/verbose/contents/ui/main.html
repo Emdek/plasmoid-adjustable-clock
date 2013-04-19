@@ -9,11 +9,11 @@
 <script type="text/javascript">
 function setupClock()
 {
-	var opacity = parseInt(Clock.getOption('textOpacity', '85'));
+	var opacity = Clock.getOption('textOpacity', 85);
 
 	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
 	document.body.style.opacity = ((opacity == 100) ? '1' : ('0.' + opacity));
-	document.body.style.font = ((parseBool(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (parseBool(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);

@@ -68,8 +68,8 @@ var alternativeHoursMode = false;
 
 function setupClock()
 {
-	var showSeconds = parseBool(Clock.getOption('showSeconds', 'false'));
-	alternativeHoursMode = parseBool(Clock.getOption('alternativeHoursMode', 'false'));
+	var showSeconds = Clock.getOption('showSeconds', false);
+	alternativeHoursMode = Clock.getOption('alternativeHoursMode', false);
 
 	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
 	document.getElementById('circle_seconds').setAttribute('stroke', Clock.getOption('secondsColor', 'rgba(0, 0, 0, 0.4)'));

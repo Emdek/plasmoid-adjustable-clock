@@ -110,9 +110,9 @@ var alternativeHoursMode = false;
 
 function setupClock()
 {
-	showSeconds = parseBool(Clock.getOption('showSeconds', 'true'));
-	alternativeHoursMode = parseBool(Clock.getOption('alternativeHoursMode', 'false'));
-	var ticksDensity = parseInt(Clock.getOption('ticksDensity', '2'));
+	showSeconds = Clock.getOption('showSeconds', true);
+	alternativeHoursMode = Clock.getOption('alternativeHoursMode', false);
+	var ticksDensity = Clock.getOption('ticksDensity', 2);
 
 	document.getElementById('ticks_inner').innerHTML = '';
 	document.getElementById('ticks_outer').innerHTML = '';

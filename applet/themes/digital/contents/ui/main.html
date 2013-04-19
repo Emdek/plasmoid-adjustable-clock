@@ -23,10 +23,10 @@ body
 function setupClock()
 {
 	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	document.getElementById('time').style.font = ((parseBool(Clock.getOption('fontItalic', 'false')) ? 'italic ' : '') + (parseBool(Clock.getOption('fontBold', 'false')) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
-	document.getElementById('second').style.display = (parseBool(Clock.getOption('showSeconds', 'true')) ? 'inline' : 'none');
-	document.getElementById('date').style.display = (parseBool(Clock.getOption('showDate', 'true')) ? 'block' : 'none');
-	document.getElementById('timezone').style.display = (parseBool(Clock.getOption('showTimeZone', 'false')) ? 'block' : 'none');
+	document.getElementById('time').style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.getElementById('second').style.display = (Clock.getOption('showSeconds', true) ? 'inline' : 'none');
+	document.getElementById('date').style.display = (Clock.getOption('showDate', true) ? 'block' : 'none');
+	document.getElementById('timezone').style.display = (Clock.getOption('showTimeZone', false) ? 'block' : 'none');
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);

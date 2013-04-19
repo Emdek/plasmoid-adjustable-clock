@@ -177,7 +177,7 @@ function setupClock()
 
 	Clock.setStyle(document.body, 'color', color);
 
-	blankSegmentsOpacity = parseInt(Clock.getOption('blankSegmentsOpacity', '0'));
+	blankSegmentsOpacity = Clock.getOption('blankSegmentsOpacity', 0);
 
 	if (blankSegmentsOpacity > 0 && blankSegmentsOpacity < 10)
 	{

@@ -41,7 +41,7 @@ ClockObject::ClockObject(Clock *clock, bool constant, const QString &theme) : QO
 {
 }
 
-QString ClockObject::getOption(const QString &key, const QString &defaultValue) const
+QVariant ClockObject::getOption(const QString &key, const QVariant &defaultValue) const
 {
     return m_clock->getOption(key, defaultValue, m_theme);
 }
@@ -336,21 +336,23 @@ QString Clock::formatNumber(int number, int length)
     return QString("%1").arg(number, length, 10, QChar('0'));
 }
 
-QString Clock::getOption(const QString &key, const QString &defaultValue, const QString &theme) const
+QVariant Clock::getOption(const QString &key, const QVariant &defaultValue, const QString &theme) const
 {
     const QString themeGroup = ("theme-" + (theme.isEmpty() ? m_applet->config().readEntry("theme", "digital") : theme));
-    const QString value = m_applet->config().group(themeGroup).readEntry(key, defaultValue);
+    const QVariant value = m_applet->config().group(themeGroup).readEntry(key, defaultValue);
 
     if (key == "themeFont" && m_applet->config().group(themeGroup).readEntry(key, QString()).isEmpty()) {
         return Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family();
-    } else if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value)) {
-        if (value.count(QChar(',')) == 3) {
-            const QStringList values = value.split(QChar(','));
+    } else if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value.toString())) {
+        const QString color = value.toString();
+
+        if (color.count(QChar(',')) == 3) {
+            const QStringList values = color.split(QChar(','));
 
             return QString("rgba(%1,%2,%3,%4)").arg(values.at(0)).arg(values.at(1)).arg(values.at(2)).arg(values.at(3).toDouble() / 255);
         }
 
-        return QString("rgb(%1)").arg(value);
+        return QString("rgb(%1)").arg(color);
     }
 
     return value;

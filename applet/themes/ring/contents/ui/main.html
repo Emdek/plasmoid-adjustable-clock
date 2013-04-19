@@ -160,7 +160,7 @@ var digits = [];
 
 function setupClock()
 {
-	var showSeconds = parseBool(Clock.getOption('showSeconds', 'true'));
+	var showSeconds = Clock.getOption('showSeconds', true);
 
 	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
 	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));

@@ -1,8 +1,3 @@
-function parseBool(value)
-{
-	return (value == 'true');
-}
-
 Clock.setStyle = function (object, property, value)
 {
 	object.style.setProperty(property, value);
