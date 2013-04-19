@@ -550,6 +550,7 @@ void Configuration::richTextChanged()
 {
     QWebPage page;
     page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml());
+    page.mainFrame()->findFirstElement("#theme_css").removeFromDocument();
 
     const QWebElementCollection elements = page.mainFrame()->findAllElements("[component]");
 
@@ -557,7 +558,7 @@ void Configuration::richTextChanged()
         elements.at(i).removeAttribute("title");
     }
 
-    const QString html = page.mainFrame()->toHtml().remove(QRegExp("<head></head>"));
+    const QString html = page.mainFrame()->toHtml();
 
     if (m_document) {
         m_document->setText(html);
