@@ -30,7 +30,7 @@ Clock.setStyle = function (object, property, value)
 
 Clock.setRuleStyle = function (rule, property, value)
 {
-	document.styleSheets[0].cssRules[rule].style.setProperty(property, value);
+	document.styleSheets[1].cssRules[rule].style.setProperty(property, value);
 }
 
 Clock.getStyle = function (object, property)
