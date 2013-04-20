@@ -33,11 +33,11 @@ div
 <script type="text/javascript">
 function setupClock()
 {
-	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.getElementsByTagName('div')[0].style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.getElementsByTagName('div')[0].style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
 }
 
-document.addEventListener('ClockOptionsChanged', setupClock);
+document.addEventListener('ClockThemeChanged', setupClock);
 </script>
 </body>
 </html>

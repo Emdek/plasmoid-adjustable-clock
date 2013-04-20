@@ -3,20 +3,22 @@
 <head>
 <meta charset="utf-8">
 </head>
-<body style="opacity: 0.85; text-align: center;">
-<span style="font-size: 30px;"><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></span><br>
-<span style="font-size: 12px;"><span component="DayOfWeek" options="'text': true">Saturday</span>, <span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></span>
+<body>
+<div style="opacity: 0.85; text-align: center;">
+	<span style="font-size: 30px;"><span component="Hour">12</span>:<span component="Minute">30</span>:<span component="Second">15</span></span><br>
+	<span style="font-size: 12px;"><span component="DayOfWeek" options="'text': true">Saturday</span>, <span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></span>
+</div>
 <script type="text/javascript">
 function setupClock()
 {
 	var opacity = Clock.getOption('textOpacity', 85);
 
-	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	document.body.style.opacity = ((opacity == 100) ? '1' : ('0.' + opacity));
-	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.getElementsByTagName('div')[0].style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.getElementsByTagName('div')[0].style.opacity = ((opacity == 100) ? '1' : ('0.' + opacity));
+	document.getElementsByTagName('div')[0].style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
 }
 
-document.addEventListener('ClockOptionsChanged', setupClock);
+document.addEventListener('ClockThemeChanged', setupClock);
 </script>
 </body>
 </html>
