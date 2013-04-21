@@ -109,10 +109,6 @@ EditorWidget::EditorWidget(const QString &theme, Clock *clock, QWidget *parent) 
 
     sourceChanged(theme);
 
-    if (m_document) {
-        connect(m_document, SIGNAL(textChanged(KTextEditor::Document*)), this, SLOT(themeChanged()));
-    }
-
     connect(m_editorUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
     connect(m_editorUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
