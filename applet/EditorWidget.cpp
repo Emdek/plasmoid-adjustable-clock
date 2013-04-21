@@ -74,7 +74,7 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_editorUi.componentButton->setIcon(KIcon("chronometer"));
     m_editorUi.identifierLineEdit->setText(identifier);
-    m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\-]"), this));
+    m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
     m_editorUi.descriptionLineEdit->setText(metaData.description());
     m_editorUi.authorLineEdit->setText(metaData.author());
