@@ -38,7 +38,7 @@
 namespace AdjustableClock
 {
 
-EditorWidget::EditorWidget(const QString &theme, Clock *clock, QWidget *parent) : QWidget(parent),
+EditorWidget::EditorWidget(const QString &identifier, const QString &theme, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
     m_componentWidget(NULL),
     m_document(NULL)
@@ -73,6 +73,15 @@ EditorWidget::EditorWidget(const QString &theme, Clock *clock, QWidget *parent) 
     m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_editorUi.componentButton->setIcon(KIcon("chronometer"));
+    m_editorUi.identifierLineEdit->setText(identifier);
+    m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\-]"), this));
+    m_editorUi.nameLineEdit->setText(metaData.name());
+    m_editorUi.descriptionLineEdit->setText(metaData.description());
+    m_editorUi.authorLineEdit->setText(metaData.author());
+    m_editorUi.emailLineEdit->setText(metaData.email());
+    m_editorUi.websiteLineEdit->setText(metaData.website());
+    m_editorUi.licenseLineEdit->setText(metaData.license());
+    m_editorUi.versionLineEdit->setText(metaData.version());
 
     KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
 
@@ -339,6 +348,25 @@ void EditorWidget::setZoom(int zoom)
 QString EditorWidget::getTheme() const
 {
     return (m_document ? m_document->text() : m_editorUi.webView->page()->mainFrame()->toHtml());
+}
+
+QString EditorWidget::getIdentifier() const
+{
+    return m_editorUi.identifierLineEdit->text();
+}
+
+Plasma::PackageMetadata EditorWidget::getMetaData() const
+{
+    Plasma::PackageMetadata metaData;
+    metaData.setName(m_editorUi.nameLineEdit->text());
+    metaData.setDescription(m_editorUi.descriptionLineEdit->text());
+    metaData.setAuthor(m_editorUi.authorLineEdit->text());
+    metaData.setEmail(m_editorUi.emailLineEdit->text());
+    metaData.setWebsite(m_editorUi.websiteLineEdit->text());
+    metaData.setLicense(m_editorUi.licenseLineEdit->text());
+    metaData.setVersion(m_editorUi.versionLineEdit->text());
+
+    return metaData;
 }
 
 }

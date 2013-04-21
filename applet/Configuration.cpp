@@ -317,7 +317,7 @@ void Configuration::showEditor(const QString &theme)
         }
     }
 
-    EditorWidget *editor = new EditorWidget(item->data(HtmlRole).toString(), m_applet->getClock(), m_appearanceUi.themesView);
+    EditorWidget *editor = new EditorWidget(item->data(IdRole).toString(), item->data(HtmlRole).toString(), m_metaData[item->data(IdRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);
@@ -328,7 +328,26 @@ void Configuration::showEditor(const QString &theme)
         return;
     }
 
+    if (editor->getIdentifier().isEmpty() || (editor->getIdentifier() != item->data(IdRole).toString() && findRow(editor->getIdentifier(), IdRole) >= 0)) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid theme identifier."));
+    } else {
+        const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+
+        if (editor->getIdentifier() != item->data(IdRole).toString() && !QDir().rename(QString("%1/%2").arg(item->data(PathRole).toString()).arg(item->data(IdRole).toString()), QString("%1/%2").arg(path).arg(editor->getIdentifier()))) {
+            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
+        } else {
+            item->setData(editor->getIdentifier(), IdRole);
+            item->setData(path, PathRole);
+        }
+    }
+
+    const Plasma::PackageMetadata metaData = editor->getMetaData();
+
+    item->setData(metaData.name(), TitleRole);
+    item->setData(metaData.description(), CommentRole);
     item->setData(editor->getTheme(), HtmlRole);
+
+    m_metaData[item->data(IdRole).toString()] = metaData;
 
     if (saveTheme(item, (item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()))) {
         modify();
@@ -582,7 +601,7 @@ bool Configuration::copyTheme(QStandardItem *item)
     const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdRole).toString());
 
     if (QFile::exists(sourcePath)) {
-        QDir(destinationPath).mkpath(destinationPath);
+        QDir().mkpath(destinationPath);
         QFile::copy(sourcePath, (destinationPath + "main.xml"));
     }
 
@@ -602,7 +621,7 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
     const QString dataPath = QString(packagePath).append("contents/ui/");
 
     if (!QFile::exists(dataPath)) {
-        QDir(dataPath).mkpath(dataPath);
+        QDir().mkpath(dataPath);
     }
 
     QFile file(dataPath + "main.html");

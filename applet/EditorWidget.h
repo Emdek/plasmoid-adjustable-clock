@@ -23,6 +23,8 @@
 
 #include <KTextEditor/Document>
 
+#include <Plasma/Package>
+
 #include "ui_editor.h"
 
 namespace AdjustableClock
@@ -36,9 +38,11 @@ class EditorWidget : public QWidget
     Q_OBJECT
 
     public:
-        explicit EditorWidget(const QString &theme, Clock *clock, QWidget *parent);
+        explicit EditorWidget(const QString &identifier, const QString &theme, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent);
 
         QString getTheme() const;
+        QString getIdentifier() const;
+        Plasma::PackageMetadata getMetaData() const;
 
     protected:
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");
