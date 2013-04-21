@@ -25,8 +25,6 @@
 
 #include <KConfigDialog>
 
-#include <KTextEditor/Document>
-
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
 
@@ -47,7 +45,7 @@ enum ModelRole
     LicenseRole,
     HtmlRole,
     OptionsRole,
-    ModificationRole
+    WritableRole
 };
 
 class Applet;
@@ -63,9 +61,9 @@ class Configuration : public QObject
         bool eventFilter(QObject *object, QEvent *event);
 
     protected:
-        void setStyle(const QString &property, const QString &value, const QString &tag = "span");
         QString createIdentifier(const QString &base = QString()) const;
         int findRow(const QString &text, int role = TitleRole) const;
+        bool copyTheme(QStandardItem *item);
         bool saveTheme(QStandardItem *item, const QString &path);
 
     protected slots:
@@ -76,18 +74,9 @@ class Configuration : public QObject
         void copyTheme();
         void deleteTheme();
         void renameTheme();
-        void triggerAction();
-        void insertComponent(bool show);
-        void insertComponent(const QString &component, const QString &options);
-        void selectionChanged();
-        void appearanceModeChanged(int mode);
-        void editorModeChanged(int mode);
-        void themeChanged();
-        void richTextChanged();
-        void sourceChanged();
         void showAbout(const QString &theme);
+        void showEditor(const QString &theme);
         void showOptions(const QString &theme);
-        void showEditorContextMenu(const QPoint &position);
         void selectAction(const QModelIndex &index);
         void editAction(QModelIndex index = QModelIndex());
         void insertAction();
@@ -95,18 +84,11 @@ class Configuration : public QObject
         void moveAction(bool up);
         void moveUpAction();
         void moveDownAction();
-        void setBackground(bool enabled);
-        void setColor();
-        void setFontSize(const QString &size);
-        void setFontFamily(const QFont &font);
-        void setZoom(int zoom);
 
     private:
         Applet *m_applet;
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
-        ComponentWidget *m_componentWidget;
-        KTextEditor::Document *m_document;
         QModelIndex m_editedAction;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;

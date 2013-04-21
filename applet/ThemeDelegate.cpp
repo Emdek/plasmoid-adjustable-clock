@@ -132,6 +132,8 @@ void ThemeDelegate::propagateSignal()
 
     if (name.startsWith("about-")) {
         emit showAbout(name.mid(6));
+    } else if (name.startsWith("edit-")) {
+        emit showEditor(name.mid(5));
     } else if (name.startsWith("options-")) {
         emit showOptions(name.mid(8));
     }
@@ -141,17 +143,13 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 {
     Q_UNUSED(option)
 
-    if (!index.data(OptionsRole).toBool() && index.data(AuthorRole).toString().isEmpty()) {
-        return NULL;
-    }
-
     QWidget *widget = new QWidget(parent);
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, widget);
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     if (index.data(OptionsRole).toBool()) {
         QPushButton *optionsButton = new QPushButton(KIcon("configure"), QString(), widget);
-        optionsButton->setToolTip(i18n("Options"));
+        optionsButton->setToolTip(i18n("Options..."));
         optionsButton->setObjectName("options-" + index.data(IdRole).toString());
 
         layout->addWidget(optionsButton);
@@ -160,9 +158,18 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
         connect(optionsButton, SIGNAL(clicked()), this, SLOT(propagateSignal()));
     }
 
+    QPushButton *editButton = new QPushButton(KIcon("document-edit"), QString(), widget);
+    editButton->setToolTip(index.data(WritableRole).toBool() ? i18n("Edit...") : i18n("Copy and Edit..."));
+    editButton->setObjectName("edit-" + index.data(IdRole).toString());
+
+    layout->addWidget(editButton);
+    layout->setAlignment(editButton, Qt::AlignBottom);
+
+    connect(editButton, SIGNAL(clicked()), this, SLOT(propagateSignal()));
+
     if (!index.data(AuthorRole).toString().isEmpty()) {
         QPushButton *aboutButton = new QPushButton(KIcon("help-about"), QString(), widget);
-        aboutButton->setToolTip(i18n("About"));
+        aboutButton->setToolTip(i18n("About..."));
         aboutButton->setObjectName("about-" + index.data(IdRole).toString());
 
         layout->addWidget(aboutButton);
@@ -179,7 +186,7 @@ QSize ThemeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIn
     Q_UNUSED(option)
     Q_UNUSED(index)
 
-    return QSize(500, 100);
+    return QSize(400, 100);
 }
 
 }

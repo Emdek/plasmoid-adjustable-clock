@@ -7,7 +7,7 @@ add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 
-set(adjustableclock_SRCS Applet.cpp Clock.cpp Configuration.cpp ComponentWidget.cpp OptionWidget.cpp ThemeDelegate.cpp ExpressionDelegate.cpp ExpressionLineEdit.cpp)
+set(adjustableclock_SRCS Applet.cpp Clock.cpp Configuration.cpp EditorWidget.cpp ComponentWidget.cpp OptionWidget.cpp ThemeDelegate.cpp ExpressionDelegate.cpp ExpressionLineEdit.cpp)
 
 add_subdirectory(locale)
 
@@ -18,7 +18,7 @@ foreach(_current_theme ${_themes})
 endforeach(_current_theme)
 
 qt4_add_resources(adjustableclock_RESOURCES_RCC data/resources.qrc)
-kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/component.ui)
+kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/editor.ui ui/component.ui)
 kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS} ${adjustableclock_RESOURCES_RCC})
 
 target_link_libraries(plasma_applet_adjustableclock

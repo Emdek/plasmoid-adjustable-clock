@@ -18,41 +18,51 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKTHEMEDELEGATE_HEADER
-#define ADJUSTABLECLOCKTHEMEDELEGATE_HEADER
+#ifndef ADJUSTABLECLOCKEDITORWIDGET_HEADER
+#define ADJUSTABLECLOCKEDITORWIDGET_HEADER
 
-#include <QtGui/QStyledItemDelegate>
+#include <KTextEditor/Document>
+
+#include "ui_editor.h"
 
 namespace AdjustableClock
 {
 
 class Clock;
+class ComponentWidget;
 
-class ThemeDelegate : public QStyledItemDelegate
+class EditorWidget : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit ThemeDelegate(Clock *clock, QObject *parent = NULL);
-        ~ThemeDelegate();
+        explicit EditorWidget(const QString &theme, Clock *clock, QWidget *parent);
 
-        void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-        QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        QString getTheme() const;
 
-    public slots:
-        void clear();
+    protected:
+        void setStyle(const QString &property, const QString &value, const QString &tag = "span");
 
     protected slots:
-        void propagateSignal();
+        void triggerAction();
+        void toggleComponentBar(bool show);
+        void insertComponent(const QString &component, const QString &options);
+        void selectionChanged();
+        void modeChanged(int mode);
+        void richTextChanged();
+        void sourceChanged(const QString &theme = QString());
+        void showEditorContextMenu(const QPoint &position);
+        void setBackground(bool enabled);
+        void setColor();
+        void setFontSize(const QString &size);
+        void setFontFamily(const QFont &font);
+        void setZoom(int zoom);
 
     private:
         Clock *m_clock;
-
-    signals:
-        void showAbout(QString theme);
-        void showEditor(QString theme);
-        void showOptions(QString theme);
+        ComponentWidget *m_componentWidget;
+        KTextEditor::Document *m_document;
+        Ui::editor m_editorUi;
 };
 
 }

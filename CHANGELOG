@@ -1,3 +1,6 @@
+4.1 (--.05.2013):
+- move theme editor to own dialog.
+
 4.0 (20.04.2013):
 - replaced parser by scripting API;
 - improved theme previews (better contrast for some Plasma theme and applications style combinations);

@@ -21,30 +21,21 @@
 #include "Configuration.h"
 #include "Applet.h"
 #include "Clock.h"
+#include "EditorWidget.h"
 #include "OptionWidget.h"
-#include "ComponentWidget.h"
 #include "ThemeDelegate.h"
 #include "ExpressionDelegate.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtGui/QFormLayout>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebElementCollection>
 
-#include <KMenu>
 #include <KLocale>
 #include <KMessageBox>
-#include <KColorDialog>
 #include <KDesktopFile>
 #include <KInputDialog>
 #include <KStandardDirs>
 #include <KAboutApplicationDialog>
-
-#include <KTextEditor/View>
-#include <KTextEditor/Editor>
-#include <KTextEditor/EditorChooser>
-#include <KTextEditor/ConfigInterface>
 
 #include <Plasma/Theme>
 #include <Plasma/Package>
@@ -56,9 +47,7 @@ namespace AdjustableClock
 Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
     m_themesModel(new QStandardItemModel(this)),
-    m_actionsModel(new QStandardItemModel(this)),
-    m_componentWidget(NULL),
-    m_document(NULL)
+    m_actionsModel(new QStandardItemModel(this))
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardConfiguration = new QWidget();
@@ -95,7 +84,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
             item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-License", QString()), LicenseRole);
             item->setData(stream.readAll(), HtmlRole);
             item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(locations.at(i)).arg(themes.at(j))), OptionsRole);
-            item->setData(false, ModificationRole);
+            item->setData(QFileInfo(locations.at(i)).isWritable(), WritableRole);
 
             m_themesModel->appendRow(item);
         }
@@ -122,34 +111,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_appearanceUi.themesView->setItemDelegate(delegate);
     m_appearanceUi.themesView->installEventFilter(this);
     m_appearanceUi.themesView->viewport()->installEventFilter(this);
-    m_appearanceUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
-    m_appearanceUi.webView->page()->setContentEditable(true);
-    m_appearanceUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
-    m_appearanceUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
-    m_appearanceUi.webView->page()->action(QWebPage::Redo)->setText(i18n("Redo"));
-    m_appearanceUi.webView->page()->action(QWebPage::Redo)->setIcon(KIcon("edit-redo"));
-    m_appearanceUi.webView->page()->action(QWebPage::Cut)->setText(i18n("Cut"));
-    m_appearanceUi.webView->page()->action(QWebPage::Cut)->setIcon(KIcon("edit-cut"));
-    m_appearanceUi.webView->page()->action(QWebPage::Copy)->setText(i18n("Copy"));
-    m_appearanceUi.webView->page()->action(QWebPage::Copy)->setIcon(KIcon("edit-copy"));
-    m_appearanceUi.webView->page()->action(QWebPage::Paste)->setText(i18n("Paste"));
-    m_appearanceUi.webView->page()->action(QWebPage::Paste)->setIcon(KIcon("edit-paste"));
-    m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
-    m_appearanceUi.webView->page()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
-    m_appearanceUi.boldButton->setDefaultAction(new QAction(KIcon("format-text-bold"), i18n("Bold"), this));
-    m_appearanceUi.boldButton->defaultAction()->setData(QWebPage::ToggleBold);
-    m_appearanceUi.italicButton->setDefaultAction(new QAction(KIcon("format-text-italic"), i18n("Italic"), this));
-    m_appearanceUi.italicButton->defaultAction()->setData(QWebPage::ToggleItalic);
-    m_appearanceUi.underlineButton->setDefaultAction(new QAction(KIcon("format-text-underline"), i18n("Underline"), this));
-    m_appearanceUi.underlineButton->defaultAction()->setData(QWebPage::ToggleUnderline);
-    m_appearanceUi.justifyLeftButton->setDefaultAction(new QAction(KIcon("format-justify-left"), i18n("Justify Left"), this));
-    m_appearanceUi.justifyLeftButton->defaultAction()->setData(QWebPage::AlignLeft);
-    m_appearanceUi.justifyCenterButton->setDefaultAction(new QAction(KIcon("format-justify-center"), i18n("Justify Center"), this));
-    m_appearanceUi.justifyCenterButton->defaultAction()->setData(QWebPage::AlignCenter);
-    m_appearanceUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
-    m_appearanceUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
-    m_appearanceUi.backgroundButton->setIcon(KIcon("games-config-background"));
-    m_appearanceUi.componentButton->setIcon(KIcon("chronometer"));
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
@@ -172,28 +133,11 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(parent, SIGNAL(applyClicked()), this, SLOT(save()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
     connect(m_actionsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(modify()));
-    connect(m_appearanceUi.mainTabWidget, SIGNAL(currentChanged(int)), this, SLOT(appearanceModeChanged(int)));
-    connect(m_appearanceUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(editorModeChanged(int)));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
     connect(m_appearanceUi.copyButton, SIGNAL(clicked()), this, SLOT(copyTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
-    connect(m_appearanceUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
-    connect(m_appearanceUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(m_appearanceUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
-    connect(m_appearanceUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
-    connect(m_appearanceUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.underlineButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_appearanceUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
-    connect(m_appearanceUi.backgroundButton, SIGNAL(clicked(bool)), this, SLOT(setBackground(bool)));
-    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
-    connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-    connect(m_appearanceUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(insertComponent(bool)));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editAction()));
@@ -203,6 +147,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.actionsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(editAction(QModelIndex)));
     connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
     connect(delegate, SIGNAL(showAbout(QString)), this, SLOT(showAbout(QString)));
+    connect(delegate, SIGNAL(showEditor(QString)), this, SLOT(showEditor(QString)));
     connect(delegate, SIGNAL(showOptions(QString)), this, SLOT(showOptions(QString)));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
@@ -211,14 +156,6 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
 void Configuration::save()
 {
-    if (m_appearanceUi.mainTabWidget->currentIndex() == 1) {
-        if (m_appearanceUi.editorTabWidget->currentIndex() == 1) {
-            sourceChanged();
-        }
-
-        editorModeChanged(m_appearanceUi.mainTabWidget->currentIndex());
-    }
-
     if (m_editedAction.isValid()) {
         m_clipboardUi.actionsView->closePersistentEditor(m_editedAction);
     }
@@ -232,21 +169,6 @@ void Configuration::save()
     m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
     m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
-
-    const QString dataPath = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
-    QStringList failed;
-
-    for (int i = 0; i < m_themesModel->rowCount(); ++i) {
-        QStandardItem *item = m_themesModel->item(i);
-
-        if (item->data(ModificationRole).toBool() && !saveTheme(item, (item->data(PathRole).toString().isEmpty() ? dataPath : item->data(PathRole).toString()))) {
-            failed.append(item->data(TitleRole).toString());
-        }
-    }
-
-    if (!failed.isEmpty()) {
-        KMessageBox::errorList(m_appearanceUi.themesView, i18n("Failed saving the following themes:"), failed);
-    }
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
 
@@ -268,13 +190,12 @@ void Configuration::selectTheme(const QModelIndex &index)
         m_appearanceUi.themesView->setCurrentIndex(index);
     }
 
-    const bool writable = (index.data(ModificationRole).toBool() || QFileInfo(index.data(PathRole).toString()).isWritable());
+    const bool writable = index.data(WritableRole).toBool();
 
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
     m_appearanceUi.deleteButton->setEnabled(writable);
     m_appearanceUi.renameButton->setEnabled(writable);
-    m_appearanceUi.mainTabWidget->setTabEnabled(1, writable);
 }
 
 void Configuration::createTheme()
@@ -289,7 +210,7 @@ void Configuration::createTheme()
     QStandardItem *item = new QStandardItem();
     item->setData(createIdentifier(), IdRole);
     item->setData(title, TitleRole);
-    item->setData(true, ModificationRole);
+    item->setData(true, WritableRole);
 
     m_themesModel->appendRow(item);
     m_appearanceUi.themesView->openPersistentEditor(item->index());
@@ -299,53 +220,7 @@ void Configuration::createTheme()
 
 void Configuration::copyTheme()
 {
-    QStandardItem *item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row())->clone();
-    QString title = item->data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
-    int i = 2;
-
-    while (findRow(title.arg(i)) >= 0) {
-        ++i;
-    }
-
-    title = title.arg(i);
-
-    bool ok;
-
-    title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
-
-    if (!ok) {
-        return;
-    }
-
-    const QString identifier = item->data(IdRole).toString();
-
-    item->setData(createIdentifier(item->data(IdRole).toString()), IdRole);
-    item->setData(title, TitleRole);
-
-    const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
-
-    if (!saveTheme(item, path)) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
-
-        delete item;
-
-        return;
-    }
-
-    const QString sourcePath = QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(identifier);
-    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdRole).toString());
-
-    if (QFile::exists(sourcePath)) {
-        QDir(destinationPath).mkpath(destinationPath);
-        QFile::copy(sourcePath, (destinationPath + "main.xml"));
-    }
-
-    item->setData(path, PathRole);
-
-    m_themesModel->appendRow(item);
-    m_appearanceUi.themesView->openPersistentEditor(item->index());
-
-    selectTheme(item->index());
+    copyTheme(m_themesModel->item(m_appearanceUi.themesView->currentIndex().row())->clone());
 }
 
 void Configuration::deleteTheme()
@@ -383,212 +258,11 @@ void Configuration::renameTheme()
     modify();
 }
 
-void Configuration::triggerAction()
-{
-    QToolButton *button = qobject_cast<QToolButton*>(sender());
-
-    if (!button) {
-        return;
-    }
-
-    const QWebPage::WebAction action = static_cast<QWebPage::WebAction>(button->defaultAction()->data().toInt());
-
-    if (action == QWebPage::ToggleBold) {
-        setStyle("font-weight", (button->isChecked() ? "normal" : "bold"));
-    } else if (action == QWebPage::ToggleItalic) {
-        setStyle("font-style", (button->isChecked() ? "normal" : "italic"));
-    } else if (action == QWebPage::ToggleItalic) {
-        setStyle("text-decoration", (button->isChecked() ? "none" : "underline"));
-    } else {
-        if (m_appearanceUi.editorTabWidget->currentIndex() == 0) {
-            m_appearanceUi.webView->page()->triggerAction(action);
-        } else {
-            setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
-        }
-    }
-}
-
-void Configuration::insertComponent(bool show)
-{
-    if (!m_componentWidget) {
-        m_componentWidget = new ComponentWidget(m_applet->getClock(), m_appearanceUi.componentButton);
-
-        m_appearanceUi.headerLayout->addWidget(m_componentWidget);
-
-        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
-    }
-
-    m_componentWidget->setVisible(show);
-}
-
-void Configuration::insertComponent(const QString &component, const QString &options)
-{
-    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(component)).toInt()));
-    const QString value = m_applet->getClock()->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
-
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0) {
-        const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
-
-        if (m_document) {
-            m_document->activeView()->insertText(html);
-        }
-
-        sourceChanged();
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
-    }
-}
-
-void Configuration::selectionChanged()
-{
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("fixSelection()");
-
-    QRegExp expression = QRegExp("rgb\\((\\d+), (\\d+), (\\d+)\\)");
-    expression.indexIn(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('color')").toString());
-
-    const QStringList rgb = expression.capturedTexts();
-
-    QPalette palette = m_appearanceUi.colorButton->palette();
-    palette.setBrush(QPalette::Button, QColor(rgb.at(1).toInt(), rgb.at(2).toInt(), rgb.at(3).toInt()));
-
-    m_appearanceUi.colorButton->setPalette(palette);
-
-    disconnect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
-    disconnect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-
-    m_appearanceUi.fontSizeComboBox->setEditText(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-size')").toString().remove("px"));
-    m_appearanceUi.fontFamilyComboBox->setCurrentFont(QFont(m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-family')").toString()));
-
-    connect(m_appearanceUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
-    connect(m_appearanceUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-
-    m_appearanceUi.boldButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleBold)->isChecked());
-    m_appearanceUi.italicButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleItalic)->isChecked());
-    m_appearanceUi.underlineButton->setChecked(m_appearanceUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
-}
-
-void Configuration::appearanceModeChanged(int mode)
-{
-    if (mode == 0) {
-        return;
-    }
-
-    KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
-
-    if (editor) {
-        if (m_document) {
-            m_document->activeView()->deleteLater();
-            m_document->deleteLater();
-        }
-
-        m_document = editor->createDocument(this);
-        m_document->setHighlightingMode("html");
-
-        KTextEditor::View *view = m_document->createView(m_appearanceUi.sourceTab);
-        view->setContextMenu(view->defaultContextMenu());
-
-        KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
-
-        if (configuration) {
-            configuration->setConfigValue("line-numbers", true);
-            configuration->setConfigValue("folding-bar", false);
-            configuration->setConfigValue("dynamic-word-wrap", false);
-        }
-
-        m_appearanceUi.sourceLayout->addWidget(view);
-    } else {
-        m_appearanceUi.editorTabWidget->setTabEnabled(1, false);
-    }
-
-    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
-
-    if (m_document) {
-        m_document->setText(index.data(HtmlRole).toString());
-    }
-
-    m_appearanceUi.backgroundButton->setChecked(m_appearanceUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
-
-    sourceChanged();
-
-    if (m_document) {
-        connect(m_document, SIGNAL(textChanged(KTextEditor::Document*)), this, SLOT(themeChanged()));
-    }
-
-    editorModeChanged(m_appearanceUi.editorTabWidget->currentIndex());
-}
-
-void Configuration::editorModeChanged(int mode)
-{
-    m_appearanceUi.boldButton->setCheckable(mode == 0);
-    m_appearanceUi.italicButton->setCheckable(mode == 0);
-    m_appearanceUi.underlineButton->setCheckable(mode == 0);
-
-    if (mode == 1) {
-        richTextChanged();
-    } else {
-        sourceChanged();
-
-        m_appearanceUi.webView->setFocus(Qt::OtherFocusReason);
-
-        QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
-
-        QCoreApplication::sendEvent(m_appearanceUi.webView, &event);
-    }
-}
-
-void Configuration::themeChanged()
-{
-    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), (m_document ? m_document->text() : m_appearanceUi.webView->page()->mainFrame()->toHtml()), HtmlRole);
-    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), true, ModificationRole);
-
-    modify();
-
-    emit clearCache();
-}
-
-void Configuration::richTextChanged()
-{
-    QWebPage page;
-    page.mainFrame()->setHtml(m_appearanceUi.webView->page()->mainFrame()->toHtml());
-    page.mainFrame()->findFirstElement("#theme_css").removeFromDocument();
-
-    const QWebElementCollection elements = page.mainFrame()->findAllElements("[component]");
-
-    for (int i = 0; i < elements.count(); ++i) {
-        elements.at(i).removeAttribute("title");
-    }
-
-    const QString html = page.mainFrame()->toHtml();
-
-    if (m_document) {
-        m_document->setText(html);
-    }
-}
-
-void Configuration::sourceChanged()
-{
-    QFile file(":/editor.js");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    Clock::setupClock(m_appearanceUi.webView->page()->mainFrame(), m_applet->getClock()->createClock(), (m_document ? m_document->text() : m_appearanceUi.themesView->currentIndex().data(HtmlRole).toString()));
-
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
-
-    const QWebElementCollection elements = m_appearanceUi.webView->page()->mainFrame()->findAllElements("[component]");
-
-    for (int i = 0; i < elements.count(); ++i) {
-        elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_applet->getClock()->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
-    }
-}
-
 void Configuration::showAbout(const QString &theme)
 {
     QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
 
-    if (item->data(AuthorRole).toString().isEmpty()) {
+    if (!item || item->data(AuthorRole).toString().isEmpty()) {
         return;
     }
 
@@ -607,11 +281,49 @@ void Configuration::showAbout(const QString &theme)
     KAboutApplicationDialog(&aboutData, m_appearanceUi.themesView).exec();
 }
 
+void Configuration::showEditor(const QString &theme)
+{
+    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
+
+    if (!item) {
+        return;
+    }
+
+    if (!item->data(WritableRole).toBool()) {
+        item = item->clone();
+
+        if (!copyTheme(item)) {
+            return;
+        }
+    }
+
+    EditorWidget *editor = new EditorWidget(item->data(HtmlRole).toString(), m_applet->getClock(), m_appearanceUi.themesView);
+    KDialog editorDialog;
+    editorDialog.setMainWidget(editor);
+    editorDialog.setModal(true);
+    editorDialog.setButtons(KDialog::Ok | KDialog::Cancel);
+    editorDialog.setWindowTitle(i18n("\"%1\" Editor").arg(item->data(TitleRole).toString()));
+
+    if (editorDialog.exec() == QDialog::Rejected) {
+        return;
+    }
+
+    item->setData(editor->getTheme(), HtmlRole);
+
+    if (saveTheme(item, (item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()))) {
+        modify();
+
+        emit clearCache();
+    } else {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to save theme."));
+    }
+}
+
 void Configuration::showOptions(const QString &theme)
 {
     QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
 
-    if (!item->data(OptionsRole).toBool()) {
+    if (!item || !item->data(OptionsRole).toBool()) {
         return;
     }
 
@@ -665,54 +377,33 @@ void Configuration::showOptions(const QString &theme)
 
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    if (configDialog.exec() == QDialog::Accepted) {
-        for (int i = 0; i < items.count(); ++i) {
-            OptionWidget *widget = widgets[items.at(i)->key()];
+    if (configDialog.exec() == QDialog::Rejected) {
+        return;
+    }
 
-            if (!widget) {
-                continue;
-            }
+    for (int i = 0; i < items.count(); ++i) {
+        OptionWidget *widget = widgets[items.at(i)->key()];
 
-            if (items.at(i)->key() == "themeTextColor" && widget->getValue().value<QColor>() == themeTextColor) {
-                m_applet->config().group(configName).deleteEntry(items.at(i)->key());
-            } else if (items.at(i)->key() == "themeBackgroundColor" && widget->getValue().value<QColor>() == themeBackgroundColor) {
-                m_applet->config().group(configName).deleteEntry(items.at(i)->key());
-            } else if (items.at(i)->key() == "themeFont" && widget->getValue().value<QFont>() == themeFont) {
-                m_applet->config().group(configName).deleteEntry(items.at(i)->key());
-            } else if (widget->getValue().type() == QVariant::Font) {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QFont>().family());
-            } else {
-                m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue());
-            }
+        if (!widget) {
+            continue;
         }
 
-        item->setData(ModificationRole, true);
-
-        modify();
-
-        emit clearCache();
+        if (items.at(i)->key() == "themeTextColor" && widget->getValue().value<QColor>() == themeTextColor) {
+            m_applet->config().group(configName).deleteEntry(items.at(i)->key());
+        } else if (items.at(i)->key() == "themeBackgroundColor" && widget->getValue().value<QColor>() == themeBackgroundColor) {
+            m_applet->config().group(configName).deleteEntry(items.at(i)->key());
+        } else if (items.at(i)->key() == "themeFont" && widget->getValue().value<QFont>() == themeFont) {
+            m_applet->config().group(configName).deleteEntry(items.at(i)->key());
+        } else if (widget->getValue().type() == QVariant::Font) {
+            m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue().value<QFont>().family());
+        } else {
+            m_applet->config().group(configName).writeEntry(items.at(i)->key(), widget->getValue());
+        }
     }
-}
 
-void Configuration::showEditorContextMenu(const QPoint &position)
-{
-    KMenu menu(m_appearanceUi.webView);
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Undo));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Redo));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Cut));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Copy));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::Paste));
-    menu.addAction(m_appearanceUi.webView->page()->action(QWebPage::SelectAll));
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.boldButton->defaultAction());
-    menu.addAction(m_appearanceUi.italicButton->defaultAction());
-    menu.addAction(m_appearanceUi.underlineButton->defaultAction());
-    menu.addSeparator();
-    menu.addAction(m_appearanceUi.justifyLeftButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyCenterButton->defaultAction());
-    menu.addAction(m_appearanceUi.justifyRightButton->defaultAction());
-    menu.exec(m_appearanceUi.webView->mapToGlobal(position));
+    modify();
+
+    emit clearCache();
 }
 
 void Configuration::selectAction(const QModelIndex &index)
@@ -791,55 +482,6 @@ void Configuration::moveDownAction()
     moveAction(false);
 }
 
-void Configuration::setStyle(const QString &property, const QString &value, const QString &tag)
-{
-    if (m_appearanceUi.editorTabWidget->currentIndex() > 0 && m_document) {
-        m_document->activeView()->insertText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document->activeView()->selectionText()));
-    } else {
-        m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
-    }
-
-    modify();
-}
-
-void Configuration::setBackground(bool enabled)
-{
-    m_appearanceUi.webView->page()->mainFrame()->evaluateJavaScript(enabled ? "document.body.setAttribute('background', 'true')" : "document.body.removeAttribute('background')");
-}
-
-void Configuration::setColor()
-{
-    KColorDialog colorDialog;
-    colorDialog.setAlphaChannelEnabled(true);
-    colorDialog.setColor(m_appearanceUi.colorButton->palette().button().color());
-    colorDialog.setButtons(KDialog::Ok | KDialog::Cancel);
-
-    if (colorDialog.exec() == QDialog::Accepted) {
-        QPalette palette = m_appearanceUi.colorButton->palette();
-        palette.setBrush(QPalette::Button, colorDialog.color());
-
-        m_appearanceUi.colorButton->setPalette(palette);
-
-        setStyle("color", colorDialog.color().name());
-    }
-}
-
-void Configuration::setFontSize(const QString &size)
-{
-    setStyle("font-size", QString("%1px").arg(size));
-}
-
-void Configuration::setFontFamily(const QFont &font)
-{
-    setStyle("font-family", font.family());
-}
-
-void Configuration::setZoom(int zoom)
-{
-    m_appearanceUi.webView->setZoomFactor((qreal) zoom / 100);
-    m_appearanceUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
-}
-
 QString Configuration::createIdentifier(const QString &base) const
 {
     QString identifier = QString("custom-%1");
@@ -876,6 +518,61 @@ int Configuration::findRow(const QString &text, int role) const
     return -1;
 }
 
+bool Configuration::copyTheme(QStandardItem *item)
+{
+    QString title = item->data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
+    int i = 2;
+
+    while (findRow(title.arg(i)) >= 0) {
+        ++i;
+    }
+
+    title = title.arg(i);
+
+    bool ok;
+
+    title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
+
+    if (!ok) {
+        delete item;
+
+        return false;
+    }
+
+    const QString identifier = item->data(IdRole).toString();
+
+    item->setData(createIdentifier(item->data(IdRole).toString()), IdRole);
+    item->setData(title, TitleRole);
+    item->setData(true, WritableRole);
+
+    const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+
+    if (!saveTheme(item, path)) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
+
+        delete item;
+
+        return false;
+    }
+
+    const QString sourcePath = QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(identifier);
+    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdRole).toString());
+
+    if (QFile::exists(sourcePath)) {
+        QDir(destinationPath).mkpath(destinationPath);
+        QFile::copy(sourcePath, (destinationPath + "main.xml"));
+    }
+
+    item->setData(path, PathRole);
+
+    m_themesModel->appendRow(item);
+    m_appearanceUi.themesView->openPersistentEditor(item->index());
+
+    selectTheme(item->index());
+
+    return true;
+}
+
 bool Configuration::saveTheme(QStandardItem *item, const QString &path)
 {
     const QString packagePath = QString("%1/%2/").arg(path).arg(item->data(IdRole).toString());
@@ -907,8 +604,6 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
     desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Version", item->data(VersionRole).toString());
     desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Website", item->data(WebsiteRole).toString());
     desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-License", item->data(LicenseRole).toString());
-
-    item->setData(false, ModificationRole);
 
     return true;
 }
