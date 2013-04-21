@@ -167,7 +167,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 
     connect(editButton, SIGNAL(clicked()), this, SLOT(propagateSignal()));
 
-    if (!index.data(AuthorRole).toString().isEmpty()) {
+    if (index.data(AboutRole).toBool()) {
         QPushButton *aboutButton = new QPushButton(KIcon("help-about"), QString(), widget);
         aboutButton->setToolTip(i18n("About..."));
         aboutButton->setObjectName("about-" + index.data(IdRole).toString());

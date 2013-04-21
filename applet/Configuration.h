@@ -25,6 +25,8 @@
 
 #include <KConfigDialog>
 
+#include <Plasma/Package>
+
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
 
@@ -38,12 +40,8 @@ enum ModelRole
     SortRole,
     TitleRole,
     CommentRole,
-    AuthorRole,
-    EmailRole,
-    WebsiteRole,
-    VersionRole,
-    LicenseRole,
     HtmlRole,
+    AboutRole,
     OptionsRole,
     WritableRole
 };
@@ -91,6 +89,7 @@ class Configuration : public QObject
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
         QModelIndex m_editedAction;
+        QHash<QString, Plasma::PackageMetadata> m_metaData;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

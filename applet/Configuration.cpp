@@ -33,13 +33,11 @@
 #include <KLocale>
 #include <KFileDialog>
 #include <KMessageBox>
-#include <KDesktopFile>
 #include <KInputDialog>
 #include <KStandardDirs>
 #include <KAboutApplicationDialog>
 
 #include <Plasma/Theme>
-#include <Plasma/Package>
 #include <Plasma/ConfigLoader>
 
 namespace AdjustableClock
@@ -62,32 +60,30 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
         for (int j = 0; j < themes.count(); ++j) {
-            KDesktopFile desktopFile("data", QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
             QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
 
             if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 continue;
             }
 
+            Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
             QTextStream stream(&file);
             stream.setCodec("UTF-8");
 
             QStandardItem *item = new QStandardItem();
             item->setData(themes.at(j), IdRole);
             item->setData(locations.at(i), PathRole);
-            item->setData(desktopFile.readName().toLower(), SortRole);
-            item->setData(desktopFile.readName(), TitleRole);
-            item->setData(desktopFile.readComment(), CommentRole);
-            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Author", QString()), AuthorRole);
-            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Email", QString()), EmailRole);
-            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Website", QString()), WebsiteRole);
-            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-Version", QString()), VersionRole);
-            item->setData(desktopFile.desktopGroup().readEntry("X-KDE-PluginInfo-License", QString()), LicenseRole);
+            item->setData(metaData.name().toLower(), SortRole);
+            item->setData(metaData.name(), TitleRole);
+            item->setData(metaData.description(), CommentRole);
             item->setData(stream.readAll(), HtmlRole);
+            item->setData(!metaData.author().isEmpty(), AboutRole);
             item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(locations.at(i)).arg(themes.at(j))), OptionsRole);
             item->setData(QFileInfo(locations.at(i)).isWritable(), WritableRole);
 
             m_themesModel->appendRow(item);
+
+            m_metaData[themes.at(j)] = metaData;
         }
     }
 
@@ -256,6 +252,7 @@ void Configuration::deleteTheme()
             return;
         }
 
+        m_metaData.remove(index.data(IdRole).toString());
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
@@ -267,32 +264,35 @@ void Configuration::deleteTheme()
 void Configuration::renameTheme()
 {
     bool ok;
-    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), m_appearanceUi.themesView->currentIndex().data(TitleRole).toString(), &ok);
+    QStandardItem *item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
+    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), item->data(TitleRole).toString(), &ok);
 
     if (!ok) {
         return;
     }
 
-    m_themesModel->setData(m_appearanceUi.themesView->currentIndex(), title, TitleRole);
+    item->setData(title, TitleRole);
+    m_metaData[item->data(IdRole).toString()].setName(title);
 
-    modify();
+    saveTheme(item, item->data(PathRole).toString());
 }
 
 void Configuration::showAbout(const QString &theme)
 {
     QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
 
-    if (!item || item->data(AuthorRole).toString().isEmpty()) {
+    if (!item || !item->data(AboutRole).toBool()) {
         return;
     }
 
-    const QStringList authors = item->data(AuthorRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    const QStringList emails = item->data(EmailRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    const QStringList websites = item->data(WebsiteRole).toString().split(QChar(','), QString::KeepEmptyParts);
-    KAboutData aboutData(item->data(IdRole).toByteArray(), QByteArray(), ki18n(item->data(TitleRole).toString().toUtf8().data()), item->data(VersionRole).toByteArray());
+    const Plasma::PackageMetadata metaData = m_metaData[item->data(IdRole).toString()];
+    const QStringList authors = metaData.author().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList emails = metaData.email().split(QChar(','), QString::KeepEmptyParts);
+    const QStringList websites = metaData.website().split(QChar(','), QString::KeepEmptyParts);
+    KAboutData aboutData(item->data(IdRole).toByteArray(), QByteArray(), ki18n(metaData.name().toUtf8().data()), metaData.version().toUtf8());
     aboutData.setProgramIconName("chronometer");
-    aboutData.setLicense(KAboutLicense::byKeyword(item->data(LicenseRole).toString()).key());
-    aboutData.setShortDescription(ki18n(item->data(CommentRole).toString().toUtf8().data()));
+    aboutData.setLicense(KAboutLicense::byKeyword(metaData.license()).key());
+    aboutData.setShortDescription(ki18n(metaData.description().toUtf8().data()));
 
     for (int i = 0; i < authors.count(); ++i) {
         aboutData.addCredit(ki18n(authors.at(i).toUtf8().data()), KLocalizedString(), emails.value(i).toUtf8(), websites.value(i).toUtf8());
@@ -567,6 +567,9 @@ bool Configuration::copyTheme(QStandardItem *item)
 
     const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
 
+    m_metaData[item->data(IdRole).toString()] = m_metaData[identifier];
+    m_metaData[item->data(IdRole).toString()].setName(title);
+
     if (!saveTheme(item, path)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
 
@@ -612,18 +615,11 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
     stream.setCodec("UTF-8");
     stream << item->data(HtmlRole).toString();
 
-    KDesktopFile desktopFile("data", (packagePath + "metadata.desktop"));
-    desktopFile.desktopGroup().writeEntry("Name", item->data(TitleRole).toString());
-    desktopFile.desktopGroup().writeEntry("Comment", item->data(CommentRole).toString());
-    desktopFile.desktopGroup().writeEntry("Type", "Service");
-    desktopFile.desktopGroup().writeEntry("ServiceTypes", "Plasma/AdjustableClock");
-    desktopFile.desktopGroup().writeEntry("X-KDE-Library", ("adjustableclock_theme_" + item->data(IdRole).toString()));
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Name", item->data(IdRole).toString());
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Author", item->data(AuthorRole).toString());
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Email", item->data(EmailRole).toString());
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Version", item->data(VersionRole).toString());
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-Website", item->data(WebsiteRole).toString());
-    desktopFile.desktopGroup().writeEntry("X-KDE-PluginInfo-License", item->data(LicenseRole).toString());
+    Plasma::PackageMetadata metaData = m_metaData[item->data(IdRole).toString()];
+    metaData.setPluginName(item->data(IdRole).toString());
+    metaData.setType("Service");
+    metaData.setServiceType("Plasma/AdjustableClock");
+    metaData.write(packagePath + "metadata.desktop");
 
     return true;
 }
