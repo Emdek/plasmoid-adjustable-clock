@@ -1,5 +1,6 @@
 4.1 (--.05.2013):
-- move theme editor to own dialog.
+- move theme editor to own dialog;
+- added ability to export theme (Plasma Package ZIP).
 
 4.0 (20.04.2013):
 - replaced parser by scripting API;

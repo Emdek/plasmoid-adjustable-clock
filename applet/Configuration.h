@@ -72,6 +72,7 @@ class Configuration : public QObject
         void selectTheme(const QModelIndex &index);
         void createTheme();
         void copyTheme();
+        void exportTheme();
         void deleteTheme();
         void renameTheme();
         void showAbout(const QString &theme);

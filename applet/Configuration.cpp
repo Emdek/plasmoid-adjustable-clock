@@ -31,6 +31,7 @@
 #include <QtGui/QFormLayout>
 
 #include <KLocale>
+#include <KFileDialog>
 #include <KMessageBox>
 #include <KDesktopFile>
 #include <KInputDialog>
@@ -136,6 +137,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
     connect(m_appearanceUi.copyButton, SIGNAL(clicked()), this, SLOT(copyTheme()));
+    connect(m_appearanceUi.exportButton, SIGNAL(clicked()), this, SLOT(exportTheme()));
     connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
     connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
@@ -221,6 +223,24 @@ void Configuration::createTheme()
 void Configuration::copyTheme()
 {
     copyTheme(m_themesModel->item(m_appearanceUi.themesView->currentIndex().row())->clone());
+}
+
+void Configuration::exportTheme()
+{
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+
+    KFileDialog exportDialog(KUrl(QString("~/%1.zip").arg(index.data(IdRole).toString())), QString(), NULL);
+    exportDialog.setWindowModality(Qt::NonModal);
+    exportDialog.setMode(KFile::Files);
+    exportDialog.setOperationMode(KFileDialog::Saving);
+
+    if (exportDialog.exec() == QDialog::Accepted) {
+        const QString path = QString("%1/%2/").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString());
+
+        if (!Plasma::Package::createPackage(Plasma::PackageMetadata(path + "metadata.desktop"), (path + "contents/"), exportDialog.selectedFile())) {
+            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to export theme."));
+        }
+    }
 }
 
 void Configuration::deleteTheme()
