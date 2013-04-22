@@ -46,9 +46,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="newButton">
+      <widget class="QPushButton" name="createButton">
        <property name="text">
-        <string>New...</string>
+        <string>Create Theme...</string>
        </property>
       </widget>
      </item>

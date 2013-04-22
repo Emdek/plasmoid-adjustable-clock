@@ -133,7 +133,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_actionsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(modify()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.themesView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-    connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
+    connect(m_appearanceUi.createButton, SIGNAL(clicked()), this, SLOT(createTheme()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editAction()));
@@ -193,7 +193,7 @@ void Configuration::selectTheme(const QModelIndex &index)
 void Configuration::createTheme()
 {
     bool ok;
-    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
+    const QString title = KInputDialog::getText(i18n("Create new theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
 
     if (!ok) {
         return;
