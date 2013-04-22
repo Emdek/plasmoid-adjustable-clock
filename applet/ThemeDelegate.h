@@ -37,6 +37,7 @@ class ThemeDelegate : public QStyledItemDelegate
         ~ThemeDelegate();
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        void setEditorData(QWidget *editor, const QModelIndex &index) const;
         QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
         QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 

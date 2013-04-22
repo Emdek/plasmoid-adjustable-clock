@@ -139,6 +139,15 @@ void ThemeDelegate::propagateSignal()
     }
 }
 
+void ThemeDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    const QList<QPushButton*> buttons = editor->findChildren<QPushButton*>();
+
+    for (int i = 0; i < buttons.count(); ++i) {
+        buttons.at(i)->setObjectName(buttons.at(i)->objectName().replace(QRegExp("(options|edit|about)-.+"), ("\\1-" + index.data(IdRole).toString())));
+    }
+}
+
 QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
