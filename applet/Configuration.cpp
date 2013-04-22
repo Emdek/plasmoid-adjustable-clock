@@ -205,7 +205,7 @@ void Configuration::installTheme()
 void Configuration::createTheme()
 {
     bool ok;
-    const QString title = KInputDialog::getText(i18n("Create new theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
+    const QString title = KInputDialog::getText(i18n("Create Theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
 
     if (!ok) {
         return;
@@ -271,7 +271,7 @@ void Configuration::renameTheme()
 {
     bool ok;
     QStandardItem *item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
-    const QString title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), item->data(TitleRole).toString(), &ok);
+    const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), item->data(TitleRole).toString(), &ok);
 
     if (!ok) {
         return;
@@ -631,7 +631,7 @@ bool Configuration::copyTheme(QStandardItem *item)
 
     bool ok;
 
-    title = KInputDialog::getText(i18n("Add new theme"), i18n("Theme name:"), title, &ok);
+    title = KInputDialog::getText(i18n("Copy Theme"), i18n("Theme name:"), title, &ok);
 
     if (!ok) {
         delete item;
