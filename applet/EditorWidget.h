@@ -55,7 +55,7 @@ class EditorWidget : public QWidget
         void modeChanged(int mode);
         void richTextChanged();
         void sourceChanged(const QString &theme = QString());
-        void showEditorContextMenu(const QPoint &position);
+        void showContextMenu(const QPoint &position);
         void setBackground(bool enabled);
         void setColor();
         void setFontSize(const QString &size);

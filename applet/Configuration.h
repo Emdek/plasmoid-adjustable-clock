@@ -73,9 +73,10 @@ class Configuration : public QObject
         void exportTheme();
         void deleteTheme();
         void renameTheme();
-        void showAbout(const QString &theme);
-        void showEditor(const QString &theme);
-        void showOptions(const QString &theme);
+        void aboutTheme(const QString &theme = QString());
+        void editTheme(const QString &theme = QString());
+        void configureTheme(const QString &theme = QString());
+        void showContextMenu(const QPoint &position);
         void selectAction(const QModelIndex &index);
         void editAction(QModelIndex index = QModelIndex());
         void insertAction();

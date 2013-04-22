@@ -30,6 +30,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QFormLayout>
 
+#include <KMenu>
 #include <KLocale>
 #include <KFileDialog>
 #include <KMessageBox>
@@ -131,11 +132,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(parent, SIGNAL(okClicked()), this, SLOT(save()));
     connect(m_actionsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(modify()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
+    connect(m_appearanceUi.themesView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_appearanceUi.newButton, SIGNAL(clicked()), this, SLOT(createTheme()));
-    connect(m_appearanceUi.copyButton, SIGNAL(clicked()), this, SLOT(copyTheme()));
-    connect(m_appearanceUi.exportButton, SIGNAL(clicked()), this, SLOT(exportTheme()));
-    connect(m_appearanceUi.renameButton, SIGNAL(clicked()), this, SLOT(renameTheme()));
-    connect(m_appearanceUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteTheme()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editAction()));
@@ -144,9 +142,9 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_clipboardUi.actionsView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectAction(QModelIndex)));
     connect(m_clipboardUi.actionsView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(editAction(QModelIndex)));
     connect(m_clipboardUi.fastCopyExpressionEdit, SIGNAL(textChanged(QString)), this, SLOT(modify()));
-    connect(delegate, SIGNAL(showAbout(QString)), this, SLOT(showAbout(QString)));
-    connect(delegate, SIGNAL(showEditor(QString)), this, SLOT(showEditor(QString)));
-    connect(delegate, SIGNAL(showOptions(QString)), this, SLOT(showOptions(QString)));
+    connect(delegate, SIGNAL(showAbout(QString)), this, SLOT(aboutTheme(QString)));
+    connect(delegate, SIGNAL(showEditor(QString)), this, SLOT(editTheme(QString)));
+    connect(delegate, SIGNAL(showOptions(QString)), this, SLOT(configureTheme(QString)));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), delegate, SLOT(clear()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), m_appearanceUi.themesView->viewport(), SLOT(repaint()));
     connect(this, SIGNAL(clearCache()), delegate, SLOT(clear()));
@@ -188,12 +186,8 @@ void Configuration::selectTheme(const QModelIndex &index)
         m_appearanceUi.themesView->setCurrentIndex(index);
     }
 
-    const bool writable = index.data(WritableRole).toBool();
-
     m_appearanceUi.themesView->setCurrentIndex(index);
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
-    m_appearanceUi.deleteButton->setEnabled(writable);
-    m_appearanceUi.renameButton->setEnabled(writable);
 }
 
 void Configuration::createTheme()
@@ -277,9 +271,9 @@ void Configuration::renameTheme()
     saveTheme(item, item->data(PathRole).toString());
 }
 
-void Configuration::showAbout(const QString &theme)
+void Configuration::aboutTheme(const QString &theme)
 {
-    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
 
     if (!item || !item->data(AboutRole).toBool()) {
         return;
@@ -301,9 +295,9 @@ void Configuration::showAbout(const QString &theme)
     KAboutApplicationDialog(&aboutData, m_appearanceUi.themesView).exec();
 }
 
-void Configuration::showEditor(const QString &theme)
+void Configuration::editTheme(const QString &theme)
 {
-    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
 
     if (!item) {
         return;
@@ -358,9 +352,9 @@ void Configuration::showEditor(const QString &theme)
     }
 }
 
-void Configuration::showOptions(const QString &theme)
+void Configuration::configureTheme(const QString &theme)
 {
-    QStandardItem *item = m_themesModel->item(findRow(theme, IdRole));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
 
     if (!item || !item->data(OptionsRole).toBool()) {
         return;
@@ -443,6 +437,31 @@ void Configuration::showOptions(const QString &theme)
     modify();
 
     emit clearCache();
+}
+
+void Configuration::showContextMenu(const QPoint &position)
+{
+    const QModelIndex index = m_appearanceUi.themesView->indexAt(position);
+
+    if (!index.isValid()) {
+        return;
+    }
+
+    KMenu menu(m_appearanceUi.themesView);
+    menu.addAction(KIcon("help-about"), i18n("About..."), this, SLOT(aboutTheme()));
+    menu.addSeparator();
+    menu.addAction(KIcon("configure"), i18n("Options..."), this, SLOT(configureTheme()));
+    menu.addAction(KIcon("edit-copy"), i18n("Copy..."), this, SLOT(copyTheme()));
+    menu.addAction(KIcon("document-export"), i18n("Export..."), this, SLOT(exportTheme()));
+
+    if (index.data(WritableRole).toBool()) {
+        menu.addAction(KIcon("document-rename"), i18n("Rename..."), this, SLOT(renameTheme()));
+        menu.addAction(KIcon("document-edit"), i18n("Edit..."), this, SLOT(editTheme()));
+        menu.addSeparator();
+        menu.addAction(KIcon("edit-delete"), i18n("Delete..."), this, SLOT(deleteTheme()));
+    }
+
+    menu.exec(m_appearanceUi.themesView->viewport()->mapToGlobal(position));
 }
 
 void Configuration::selectAction(const QModelIndex &index)

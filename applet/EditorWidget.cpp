@@ -119,7 +119,7 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
     sourceChanged(theme);
 
     connect(m_editorUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
-    connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showEditorContextMenu(QPoint)));
+    connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_editorUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_editorUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_editorUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
@@ -277,7 +277,7 @@ void EditorWidget::sourceChanged(const QString &theme)
     }
 }
 
-void EditorWidget::showEditorContextMenu(const QPoint &position)
+void EditorWidget::showContextMenu(const QPoint &position)
 {
     KMenu menu(m_editorUi.webView);
     menu.addAction(m_editorUi.webView->page()->action(QWebPage::Undo));
