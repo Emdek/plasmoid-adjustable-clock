@@ -61,30 +61,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
         for (int j = 0; j < themes.count(); ++j) {
-            QFile file(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
-
-            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                continue;
-            }
-
-            Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(locations.at(i)).arg(themes.at(j)));
-            QTextStream stream(&file);
-            stream.setCodec("UTF-8");
-
-            QStandardItem *item = new QStandardItem();
-            item->setData(themes.at(j), IdRole);
-            item->setData(locations.at(i), PathRole);
-            item->setData(metaData.name().toLower(), SortRole);
-            item->setData(metaData.name(), TitleRole);
-            item->setData(metaData.description(), CommentRole);
-            item->setData(stream.readAll(), HtmlRole);
-            item->setData(!metaData.author().isEmpty(), AboutRole);
-            item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(locations.at(i)).arg(themes.at(j))), OptionsRole);
-            item->setData(QFileInfo(locations.at(i)).isWritable(), WritableRole);
-
-            m_themesModel->appendRow(item);
-
-            m_metaData[themes.at(j)] = metaData;
+            loadTheme(locations.at(i), themes.at(j));
         }
     }
 
@@ -133,6 +110,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_actionsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(modify()));
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.themesView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(m_appearanceUi.installButton, SIGNAL(clicked()), this, SLOT(installTheme()));
     connect(m_appearanceUi.createButton, SIGNAL(clicked()), this, SLOT(createTheme()));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
@@ -190,6 +168,40 @@ void Configuration::selectTheme(const QModelIndex &index)
     m_appearanceUi.themesView->scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
+void Configuration::installTheme()
+{
+    KFileDialog installDialog(KUrl("~/"), QString(), NULL);
+    installDialog.setWindowModality(Qt::NonModal);
+    installDialog.setMode(KFile::File);
+    installDialog.setOperationMode(KFileDialog::Opening);
+
+    if (installDialog.exec() == QDialog::Rejected) {
+        return;
+    }
+
+    const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+
+    if (Plasma::Package::installPackage(installDialog.selectedFile(), path, QString())) {
+        const QStringList themes = Plasma::Package::listInstalled(path);
+
+        for (int i = 0; i < themes.count(); ++i) {
+            if (findRow(themes.at(i), IdRole) < 0) {
+                loadTheme(path, themes.at(i));
+
+                const QModelIndex index = m_themesModel->index((m_themesModel->rowCount() - 1), 0);
+
+                selectTheme(index);
+
+                m_appearanceUi.themesView->openPersistentEditor(index);
+
+                return;
+            }
+        }
+    } else {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to install theme."));
+    }
+}
+
 void Configuration::createTheme()
 {
     bool ok;
@@ -221,7 +233,7 @@ void Configuration::exportTheme()
 
     KFileDialog exportDialog(KUrl(QString("~/%1.zip").arg(index.data(IdRole).toString())), QString(), NULL);
     exportDialog.setWindowModality(Qt::NonModal);
-    exportDialog.setMode(KFile::Files);
+    exportDialog.setMode(KFile::File);
     exportDialog.setOperationMode(KFileDialog::Saving);
 
     if (exportDialog.exec() == QDialog::Accepted) {
@@ -574,6 +586,36 @@ int Configuration::findRow(const QString &text, int role) const
     }
 
     return -1;
+}
+
+bool Configuration::loadTheme(const QString &path, const QString &identifier)
+{
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(path).arg(identifier));
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    QStandardItem *item = new QStandardItem();
+    item->setData(identifier, IdRole);
+    item->setData(path, PathRole);
+    item->setData(metaData.name().toLower(), SortRole);
+    item->setData(metaData.name(), TitleRole);
+    item->setData(metaData.description(), CommentRole);
+    item->setData(stream.readAll(), HtmlRole);
+    item->setData(!metaData.author().isEmpty(), AboutRole);
+    item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(path).arg(identifier)), OptionsRole);
+    item->setData(QFileInfo(path).isWritable(), WritableRole);
+
+    m_themesModel->appendRow(item);
+
+    m_metaData[identifier] = metaData;
+
+    return true;
 }
 
 bool Configuration::copyTheme(QStandardItem *item)

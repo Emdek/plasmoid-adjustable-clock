@@ -46,6 +46,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="installButton">
+       <property name="text">
+        <string>Install Theme...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="createButton">
        <property name="text">
         <string>Create Theme...</string>

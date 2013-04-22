@@ -61,6 +61,7 @@ class Configuration : public QObject
     protected:
         QString createIdentifier(const QString &base = QString()) const;
         int findRow(const QString &text, int role = TitleRole) const;
+        bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
         bool saveTheme(QStandardItem *item, const QString &path);
 
@@ -68,6 +69,7 @@ class Configuration : public QObject
         void save();
         void modify();
         void selectTheme(const QModelIndex &index);
+        void installTheme();
         void createTheme();
         void copyTheme();
         void exportTheme();
