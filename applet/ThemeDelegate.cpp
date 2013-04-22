@@ -61,7 +61,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
     QPixmap pixmap;
 
-    if (!m_cache->find((index.data(IdRole).toString()), pixmap)) {
+    if (!m_cache->find((index.data(IdentifierRole).toString()), pixmap)) {
         pixmap = QPixmap(180, 90);
         pixmap.fill(Qt::transparent);
 
@@ -73,7 +73,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
-        Clock::setupClock(page.mainFrame(), m_clock->createClock(index.data(IdRole).toString()), index.data(HtmlRole).toString());
+        Clock::setupClock(page.mainFrame(), m_clock->createClock(index.data(IdentifierRole).toString()), index.data(ContentsRole).toString());
 
         if (page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
             Plasma::FrameSvg background;
@@ -101,7 +101,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
         page.mainFrame()->render(&pixmapPainter, QWebFrame::ContentsLayer);
 
-        m_cache->insert((index.data(IdRole).toString()), pixmap);
+        m_cache->insert((index.data(IdentifierRole).toString()), pixmap);
     }
 
     QFont font = painter->font();
@@ -113,12 +113,12 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     font.setBold(true);
 
     painter->setFont(font);
-    painter->drawText(QRectF(210, (option.rect.y() + 10), (option.rect.width() - 215), 20), (Qt::AlignLeft | Qt::AlignVCenter), index.data(TitleRole).toString());
+    painter->drawText(QRectF(210, (option.rect.y() + 10), (option.rect.width() - 215), 20), (Qt::AlignLeft | Qt::AlignVCenter), index.data(NameRole).toString());
 
     font.setBold(false);
 
     painter->setFont(font);
-    painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(CommentRole).toString());
+    painter->drawText(QRectF(210, (option.rect.y() + 35), (option.rect.width() - 215), 70), (Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap), index.data(DescriptionRole).toString());
 }
 
 void ThemeDelegate::clear()
@@ -144,7 +144,7 @@ void ThemeDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
     const QList<QPushButton*> buttons = editor->findChildren<QPushButton*>();
 
     for (int i = 0; i < buttons.count(); ++i) {
-        buttons.at(i)->setObjectName(buttons.at(i)->objectName().replace(QRegExp("(options|edit|about)-.+"), ("\\1-" + index.data(IdRole).toString())));
+        buttons.at(i)->setObjectName(buttons.at(i)->objectName().replace(QRegExp("(options|edit|about)-.+"), ("\\1-" + index.data(IdentifierRole).toString())));
     }
 }
 
@@ -159,7 +159,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     if (index.data(OptionsRole).toBool()) {
         QPushButton *optionsButton = new QPushButton(KIcon("configure"), QString(), widget);
         optionsButton->setToolTip(i18n("Options..."));
-        optionsButton->setObjectName("options-" + index.data(IdRole).toString());
+        optionsButton->setObjectName("options-" + index.data(IdentifierRole).toString());
 
         layout->addWidget(optionsButton);
         layout->setAlignment(optionsButton, Qt::AlignBottom);
@@ -169,7 +169,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 
     QPushButton *editButton = new QPushButton(KIcon("document-edit"), QString(), widget);
     editButton->setToolTip(index.data(WritableRole).toBool() ? i18n("Edit...") : i18n("Copy and Edit..."));
-    editButton->setObjectName("edit-" + index.data(IdRole).toString());
+    editButton->setObjectName("edit-" + index.data(IdentifierRole).toString());
 
     layout->addWidget(editButton);
     layout->setAlignment(editButton, Qt::AlignBottom);
@@ -179,7 +179,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     if (index.data(AboutRole).toBool()) {
         QPushButton *aboutButton = new QPushButton(KIcon("help-about"), QString(), widget);
         aboutButton->setToolTip(i18n("About..."));
-        aboutButton->setObjectName("about-" + index.data(IdRole).toString());
+        aboutButton->setObjectName("about-" + index.data(IdentifierRole).toString());
 
         layout->addWidget(aboutButton);
         layout->setAlignment(aboutButton, Qt::AlignBottom);

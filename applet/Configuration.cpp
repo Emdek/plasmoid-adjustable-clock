@@ -140,7 +140,7 @@ void Configuration::save()
         clipboardExpressions.append(m_actionsModel->index(i, 0).data(Qt::EditRole).toString());
     }
 
-    m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdRole).toString());
+    m_applet->config().writeEntry("theme", m_appearanceUi.themesView->currentIndex().data(IdentifierRole).toString());
     m_applet->config().writeEntry("clipboardExpressions", clipboardExpressions);
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
@@ -185,7 +185,7 @@ void Configuration::installTheme()
         const QStringList themes = Plasma::Package::listInstalled(path);
 
         for (int i = 0; i < themes.count(); ++i) {
-            if (findRow(themes.at(i), IdRole) < 0) {
+            if (findRow(themes.at(i), IdentifierRole) < 0) {
                 loadTheme(path, themes.at(i));
 
                 const QModelIndex index = m_themesModel->index((m_themesModel->rowCount() - 1), 0);
@@ -212,8 +212,8 @@ void Configuration::createTheme()
     }
 
     QStandardItem *item = new QStandardItem();
-    item->setData(createIdentifier(), IdRole);
-    item->setData(title, TitleRole);
+    item->setData(createIdentifier(), IdentifierRole);
+    item->setData(title, NameRole);
     item->setData(true, WritableRole);
 
     m_themesModel->appendRow(item);
@@ -231,13 +231,13 @@ void Configuration::exportTheme()
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    KFileDialog exportDialog(KUrl(QString("~/%1.zip").arg(index.data(IdRole).toString())), QString(), NULL);
+    KFileDialog exportDialog(KUrl(QString("~/%1.zip").arg(index.data(IdentifierRole).toString())), QString(), NULL);
     exportDialog.setWindowModality(Qt::NonModal);
     exportDialog.setMode(KFile::File);
     exportDialog.setOperationMode(KFileDialog::Saving);
 
     if (exportDialog.exec() == QDialog::Accepted) {
-        const QString path = QString("%1/%2/").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString());
+        const QString path = QString("%1/%2/").arg(index.data(PathRole).toString()).arg(index.data(IdentifierRole).toString());
 
         if (!Plasma::Package::createPackage(Plasma::PackageMetadata(path + "metadata.desktop"), (path + "contents/"), exportDialog.selectedFile())) {
             KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to export theme."));
@@ -249,16 +249,16 @@ void Configuration::deleteTheme()
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(TitleRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
+    if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(NameRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
         const int row = index.row();
 
-        if (QFile::exists(QString("%1/%2").arg(index.data(PathRole).toString()).arg(index.data(IdRole).toString())) && !Plasma::Package::uninstallPackage(index.data(IdRole).toString(), index.data(PathRole).toString(), "plasma-adjustable-clock-addon-")) {
+        if (QFile::exists(QString("%1/%2").arg(index.data(PathRole).toString()).arg(index.data(IdentifierRole).toString())) && !Plasma::Package::uninstallPackage(index.data(IdentifierRole).toString(), index.data(PathRole).toString(), "plasma-adjustable-clock-addon-")) {
             KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to delete theme."));
 
             return;
         }
 
-        m_metaData.remove(index.data(IdRole).toString());
+        m_metaData.remove(index.data(IdentifierRole).toString());
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
@@ -271,31 +271,31 @@ void Configuration::renameTheme()
 {
     bool ok;
     QStandardItem *item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
-    const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), item->data(TitleRole).toString(), &ok);
+    const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), item->data(NameRole).toString(), &ok);
 
     if (!ok) {
         return;
     }
 
-    item->setData(title, TitleRole);
-    m_metaData[item->data(IdRole).toString()].setName(title);
+    item->setData(title, NameRole);
+    m_metaData[item->data(IdentifierRole).toString()].setName(title);
 
     saveTheme(item, item->data(PathRole).toString());
 }
 
 void Configuration::aboutTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item || !item->data(AboutRole).toBool()) {
         return;
     }
 
-    const Plasma::PackageMetadata metaData = m_metaData[item->data(IdRole).toString()];
+    const Plasma::PackageMetadata metaData = m_metaData[item->data(IdentifierRole).toString()];
     const QStringList authors = metaData.author().split(QChar(','), QString::KeepEmptyParts);
     const QStringList emails = metaData.email().split(QChar(','), QString::KeepEmptyParts);
     const QStringList websites = metaData.website().split(QChar(','), QString::KeepEmptyParts);
-    KAboutData aboutData(item->data(IdRole).toByteArray(), QByteArray(), ki18n(metaData.name().toUtf8().data()), metaData.version().toUtf8());
+    KAboutData aboutData(item->data(IdentifierRole).toByteArray(), QByteArray(), ki18n(metaData.name().toUtf8().data()), metaData.version().toUtf8());
     aboutData.setProgramIconName("chronometer");
     aboutData.setLicense(KAboutLicense::byKeyword(metaData.license()).key());
     aboutData.setShortDescription(ki18n(metaData.description().toUtf8().data()));
@@ -309,7 +309,7 @@ void Configuration::aboutTheme(const QString &theme)
 
 void Configuration::editTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item) {
         return;
@@ -323,37 +323,37 @@ void Configuration::editTheme(const QString &theme)
         }
     }
 
-    EditorWidget *editor = new EditorWidget(item->data(IdRole).toString(), item->data(HtmlRole).toString(), m_metaData[item->data(IdRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
+    EditorWidget *editor = new EditorWidget(item->data(IdentifierRole).toString(), item->data(ContentsRole).toString(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);
     editorDialog.setButtons(KDialog::Ok | KDialog::Cancel);
-    editorDialog.setWindowTitle(i18n("\"%1\" Editor").arg(item->data(TitleRole).toString()));
+    editorDialog.setWindowTitle(i18n("\"%1\" Editor").arg(item->data(NameRole).toString()));
 
     if (editorDialog.exec() == QDialog::Rejected) {
         return;
     }
 
-    if (editor->getIdentifier().isEmpty() || (editor->getIdentifier() != item->data(IdRole).toString() && findRow(editor->getIdentifier(), IdRole) >= 0)) {
+    if (editor->getIdentifier().isEmpty() || (editor->getIdentifier() != item->data(IdentifierRole).toString() && findRow(editor->getIdentifier(), IdentifierRole) >= 0)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid theme identifier."));
     } else {
         const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
 
-        if (editor->getIdentifier() != item->data(IdRole).toString() && !QDir().rename(QString("%1/%2").arg(item->data(PathRole).toString()).arg(item->data(IdRole).toString()), QString("%1/%2").arg(path).arg(editor->getIdentifier()))) {
+        if (editor->getIdentifier() != item->data(IdentifierRole).toString() && !QDir().rename(QString("%1/%2").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2").arg(path).arg(editor->getIdentifier()))) {
             KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
         } else {
-            item->setData(editor->getIdentifier(), IdRole);
+            item->setData(editor->getIdentifier(), IdentifierRole);
             item->setData(path, PathRole);
         }
     }
 
     const Plasma::PackageMetadata metaData = editor->getMetaData();
 
-    item->setData(metaData.name(), TitleRole);
-    item->setData(metaData.description(), CommentRole);
-    item->setData(editor->getTheme(), HtmlRole);
+    item->setData(metaData.name(), NameRole);
+    item->setData(metaData.description(), DescriptionRole);
+    item->setData(editor->getTheme(), ContentsRole);
 
-    m_metaData[item->data(IdRole).toString()] = metaData;
+    m_metaData[item->data(IdentifierRole).toString()] = metaData;
 
     if (saveTheme(item, (item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()))) {
         modify();
@@ -366,16 +366,16 @@ void Configuration::editTheme(const QString &theme)
 
 void Configuration::configureTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item || !item->data(OptionsRole).toBool()) {
         return;
     }
 
-    QFile file(QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(item->data(IdRole).toString()));
+    QFile file(QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()));
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    const QString configName = ("theme-" + item->data(IdRole).toString());
+    const QString configName = ("theme-" + item->data(IdentifierRole).toString());
     KConfigGroup configGroup = m_applet->config().group(configName);
     Plasma::ConfigLoader configLoader(&configGroup, &file);
 
@@ -392,7 +392,7 @@ void Configuration::configureTheme(const QString &theme)
     configDialog.setMainWidget(mainWidget);
     configDialog.setModal(true);
     configDialog.setButtons(KDialog::Ok | KDialog::Default | KDialog::Cancel);
-    configDialog.setWindowTitle(i18n("\"%1\" Options").arg(item->data(TitleRole).toString()));
+    configDialog.setWindowTitle(i18n("\"%1\" Options").arg(item->data(NameRole).toString()));
 
     const QColor themeTextColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
     const QColor themeBackgroundColor = Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor);
@@ -570,7 +570,7 @@ QString Configuration::createIdentifier(const QString &base) const
 
     int i = 1;
 
-    while (findRow(identifier.arg(i), IdRole) >= 0) {
+    while (findRow(identifier.arg(i), IdentifierRole) >= 0) {
        ++i;
     }
 
@@ -601,12 +601,12 @@ bool Configuration::loadTheme(const QString &path, const QString &identifier)
     stream.setCodec("UTF-8");
 
     QStandardItem *item = new QStandardItem();
-    item->setData(identifier, IdRole);
+    item->setData(identifier, IdentifierRole);
     item->setData(path, PathRole);
     item->setData(metaData.name().toLower(), SortRole);
-    item->setData(metaData.name(), TitleRole);
-    item->setData(metaData.description(), CommentRole);
-    item->setData(stream.readAll(), HtmlRole);
+    item->setData(metaData.name(), NameRole);
+    item->setData(metaData.description(), DescriptionRole);
+    item->setData(stream.readAll(), ContentsRole);
     item->setData(!metaData.author().isEmpty(), AboutRole);
     item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(path).arg(identifier)), OptionsRole);
     item->setData(QFileInfo(path).isWritable(), WritableRole);
@@ -620,7 +620,7 @@ bool Configuration::loadTheme(const QString &path, const QString &identifier)
 
 bool Configuration::copyTheme(QStandardItem *item)
 {
-    QString title = item->data(TitleRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
+    QString title = item->data(NameRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
     int i = 2;
 
     while (findRow(title.arg(i)) >= 0) {
@@ -639,16 +639,16 @@ bool Configuration::copyTheme(QStandardItem *item)
         return false;
     }
 
-    const QString identifier = item->data(IdRole).toString();
+    const QString identifier = item->data(IdentifierRole).toString();
 
-    item->setData(createIdentifier(item->data(IdRole).toString()), IdRole);
-    item->setData(title, TitleRole);
+    item->setData(createIdentifier(item->data(IdentifierRole).toString()), IdentifierRole);
+    item->setData(title, NameRole);
     item->setData(true, WritableRole);
 
     const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
 
-    m_metaData[item->data(IdRole).toString()] = m_metaData[identifier];
-    m_metaData[item->data(IdRole).toString()].setName(title);
+    m_metaData[item->data(IdentifierRole).toString()] = m_metaData[identifier];
+    m_metaData[item->data(IdentifierRole).toString()].setName(title);
 
     if (!saveTheme(item, path)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
@@ -659,7 +659,7 @@ bool Configuration::copyTheme(QStandardItem *item)
     }
 
     const QString sourcePath = QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(identifier);
-    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdRole).toString());
+    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdentifierRole).toString());
 
     if (QFile::exists(sourcePath)) {
         QDir().mkpath(destinationPath);
@@ -678,7 +678,7 @@ bool Configuration::copyTheme(QStandardItem *item)
 
 bool Configuration::saveTheme(QStandardItem *item, const QString &path)
 {
-    const QString packagePath = QString("%1/%2/").arg(path).arg(item->data(IdRole).toString());
+    const QString packagePath = QString("%1/%2/").arg(path).arg(item->data(IdentifierRole).toString());
     const QString dataPath = QString(packagePath).append("contents/ui/");
 
     if (!QFile::exists(dataPath)) {
@@ -693,10 +693,10 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
 
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
-    stream << item->data(HtmlRole).toString();
+    stream << item->data(ContentsRole).toString();
 
-    Plasma::PackageMetadata metaData = m_metaData[item->data(IdRole).toString()];
-    metaData.setPluginName(item->data(IdRole).toString());
+    Plasma::PackageMetadata metaData = m_metaData[item->data(IdentifierRole).toString()];
+    metaData.setPluginName(item->data(IdentifierRole).toString());
     metaData.setType("Service");
     metaData.setServiceType("Plasma/AdjustableClock");
     metaData.write(packagePath + "metadata.desktop");
@@ -707,7 +707,7 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
 bool Configuration::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_appearanceUi.themesView && event->type() == QEvent::Paint && !m_appearanceUi.themesView->currentIndex().isValid()) {
-        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "digital"), IdRole), 0), 0));
+        selectTheme(m_themesModel->index(qMax(findRow(m_applet->config().readEntry("theme", "digital"), IdentifierRole), 0), 0));
     } else if (event->type() == QEvent::MouseButtonDblClick && object == m_appearanceUi.themesView->viewport()) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 

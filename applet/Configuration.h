@@ -35,12 +35,12 @@ namespace AdjustableClock
 
 enum ModelRole
 {
-    IdRole = (Qt::UserRole + 1),
+    IdentifierRole = (Qt::UserRole + 1),
     PathRole,
     SortRole,
-    TitleRole,
-    CommentRole,
-    HtmlRole,
+    NameRole,
+    DescriptionRole,
+    ContentsRole,
     AboutRole,
     OptionsRole,
     WritableRole
@@ -60,7 +60,7 @@ class Configuration : public QObject
 
     protected:
         QString createIdentifier(const QString &base = QString()) const;
-        int findRow(const QString &text, int role = TitleRole) const;
+        int findRow(const QString &text, int role = NameRole) const;
         bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
         bool saveTheme(QStandardItem *item, const QString &path);
