@@ -52,7 +52,7 @@ class Applet : public ClockApplet
         void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
-        QString readTheme(const QString &path) const;
+        QString readTheme(const QString &path, const QString &identifier) const;
         QList<QAction*> contextualActions();
 
     protected slots:

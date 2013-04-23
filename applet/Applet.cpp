@@ -143,13 +143,13 @@ void Applet::clockConfigChanged()
 
             for (int j = 0; j < themes.count(); ++j) {
                 if (themes.at(j) == id) {
-                    html = readTheme(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
+                    html = readTheme(locations.at(i), themes.at(j));
 
                     break;
                 }
 
                 if (themes.at(j) == "digital") {
-                    fallback = readTheme(QString("%1/%2/contents/ui/main.html").arg(locations.at(i)).arg(themes.at(j)));
+                    fallback = readTheme(locations.at(i), themes.at(j));
                 }
             }
         }
@@ -285,9 +285,9 @@ Clock* Applet::getClock() const
     return m_clock;
 }
 
-QString Applet::readTheme(const QString &path) const
+QString Applet::readTheme(const QString &path, const QString &identifier) const
 {
-    QFile file(path);
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QTextStream stream(&file);
