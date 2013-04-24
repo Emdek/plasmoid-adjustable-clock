@@ -54,7 +54,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setHasConfigurationInterface(true);
-    resize(120, 80);
+    resize(150, 100);
 }
 
 void Applet::init()
@@ -320,7 +320,7 @@ QList<QAction*> Applet::contextualActions()
 
     if (!m_clipboardAction) {
         m_clipboardAction = new QAction(SmallIcon("edit-copy"), i18n("C&opy to Clipboard"), this);
-        m_clipboardAction->setMenu(new KMenu);
+        m_clipboardAction->setMenu(new KMenu());
 
         connect(this, SIGNAL(destroyed()), m_clipboardAction->menu(), SLOT(deleteLater()));
         connect(m_clipboardAction->menu(), SIGNAL(aboutToShow()), this, SLOT(updateClipboardMenu()));
