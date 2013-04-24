@@ -22,7 +22,6 @@
 #include "Applet.h"
 
 #include <QtWebKit/QWebPage>
-#include <QtWebKit/QWebElementCollection>
 
 #include <KDateTime>
 #include <KCalendarSystem>
@@ -106,7 +105,7 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
     for (int i = 1; i < LastComponent; ++i) {
-        updateComponent(document, clock, static_cast<ClockComponent>(i));
+        updateComponent(document, static_cast<ClockComponent>(i));
     }
 }
 
@@ -286,28 +285,14 @@ void Clock::updateTimeZone()
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
 }
 
-void Clock::updateComponent(QWebFrame *document, ClockObject *clock, ClockComponent component)
+void Clock::updateComponent(QWebFrame *document, ClockComponent component)
 {
-    const QLatin1String componentString = getComponentString(component);
-    const QWebElementCollection elements = document->findAllElements(QString("[component=%1]").arg(componentString));
-
-    for (int i = 0; i < elements.count(); ++i) {
-        const QVariantMap options = (elements.at(i).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(i).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
-        const QString value = clock->getValue(component, options).toString();
-
-        if (elements.at(i).hasAttribute("attribute")) {
-            elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
-        } else {
-            elements.at(i).setInnerXml(value);
-        }
-    }
-
-    document->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
+    document->evaluateJavaScript(QString("Clock.updateComponent('%1')").arg(getComponentString(component)));
 }
 
 void Clock::updateComponent(ClockComponent component)
 {
-    updateComponent(m_document, m_clock, component);
+    updateComponent(m_document, component);
 }
 
 void Clock::updateTheme()

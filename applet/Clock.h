@@ -104,7 +104,7 @@ class Clock : public QObject
     protected:
         static void setupEngine(QScriptEngine *engine, ClockObject *clock);
         static void setupTheme(QWebFrame *document);
-        static void updateComponent(QWebFrame *document, ClockObject *clock, ClockComponent component);
+        static void updateComponent(QWebFrame *document, ClockComponent component);
         void updateComponent(ClockComponent component);
         static QString formatNumber(int number, int length);
 

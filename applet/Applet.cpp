@@ -54,7 +54,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
 
-    m_widget->setQmlPath("view.qml");
+    m_widget->setQmlPath("/home/michal/Programowanie/plasma/adjustableclock/adjustableclock/applet/data/view.qml");
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     layout->setSpacing(0);
