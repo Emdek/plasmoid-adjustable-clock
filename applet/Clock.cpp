@@ -291,14 +291,14 @@ void Clock::updateComponent(QWebFrame *document, ClockObject *clock, ClockCompon
     const QLatin1String componentString = getComponentString(component);
     const QWebElementCollection elements = document->findAllElements(QString("[component=%1]").arg(componentString));
 
-    for (int j = 0; j < elements.count(); ++j) {
-        const QVariantMap options = (elements.at(j).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(j).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
+    for (int i = 0; i < elements.count(); ++i) {
+        const QVariantMap options = (elements.at(i).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(i).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
         const QString value = clock->getValue(component, options).toString();
 
-        if (elements.at(j).hasAttribute("attribute")) {
-            elements.at(j).setAttribute(elements.at(j).attribute("attribute"), value);
+        if (elements.at(i).hasAttribute("attribute")) {
+            elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
         } else {
-            elements.at(j).setInnerXml(value);
+            elements.at(i).setInnerXml(value);
         }
     }
 

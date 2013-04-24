@@ -26,6 +26,7 @@
 #include <QtWebKit/QWebPage>
 
 #include <Plasma/Applet>
+#include <Plasma/DeclarativeWidget>
 
 #include <plasmaclock/clockapplet.h>
 
@@ -48,8 +49,6 @@ class Applet : public ClockApplet
     protected:
         void constraintsEvent(Plasma::Constraints constraints);
         void resizeEvent(QGraphicsSceneResizeEvent *event);
-        void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
         QString readTheme(const QString &path, const QString &identifier) const;
@@ -60,17 +59,15 @@ class Applet : public ClockApplet
         void clockConfigAccepted();
         void copyToClipboard();
         void copyToClipboard(QAction *action);
-        void repaint();
         void toolTipAboutToShow();
         void toolTipHidden();
         void updateToolTipContent();
         void updateClipboardMenu();
-        void updateSize();
 
     private:
+        Plasma::DeclarativeWidget *m_widget;
         Clock *m_clock;
         QAction *m_clipboardAction;
-        QWebPage m_page;
 };
 
 }
