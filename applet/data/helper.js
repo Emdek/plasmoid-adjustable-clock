@@ -4,7 +4,7 @@ Clock.updateComponent = function (component)
 
 	for (var i = 0; i < elements.length; ++i)
 	{
-		var value = Clock.getValue(component, (elements[i].hasAttribute('options') ? JSON.parse('{' + elements[i].getAttribute('options').replace('\'', '"') + '}') : {});
+		var value = Clock.getValue(component, (elements[i].hasAttribute('options') ? JSON.parse('{' + elements[i].getAttribute('options').replace('\'', '"') + '}') : {}));
 
 		if (elements[i].hasAttribute('attribute'))
 		{
