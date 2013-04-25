@@ -23,6 +23,7 @@ kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS} ${adjustab
 
 target_link_libraries(plasma_applet_adjustableclock
 	plasmaclock
+	${QT_QTDECLARATIVE_LIBRARY}
 	${QT_QTSCRIPT_LIBRARY}
 	${QT_QTWEBKIT_LIBRARY}
 	${KDE4_PLASMA_LIBS}

@@ -23,8 +23,9 @@
 #include "Configuration.h"
 
 #include <QtCore/QFile>
-#include <QtCore/QTimer>
 #include <QtCore/QTextStream>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsLinearLayout>
@@ -47,13 +48,14 @@ namespace AdjustableClock
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_widget(new Plasma::DeclarativeWidget(this)),
-    m_clock(NULL),
+    m_clock(new Clock(this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
 
+    m_widget->engine()->rootContext()->setContextProperty("adjustableClock", new ClockObject(m_clock, false));
     m_widget->setQmlPath("/home/michal/Programowanie/plasma/adjustableclock/adjustableclock/applet/data/view.qml");
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
@@ -69,13 +71,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 
 void Applet::init()
 {
-//     if (!m_clock) {
-//         m_clock = new Clock(this, m_page.mainFrame());
-//     }
-
     ClockApplet::init();
-
-    QTimer::singleShot(100, this, SLOT(configChanged()));
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
 }
@@ -109,16 +105,6 @@ void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 //     } else {
 //         ClockApplet::mousePressEvent(event);
 //     }
-// }
-//
-// void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
-// {
-//     Q_UNUSED(option)
-//     Q_UNUSED(contentsRect)
-//
-//     painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-//
-//     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 // }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
@@ -165,9 +151,7 @@ void Applet::clockConfigChanged()
         html = fallback;
     }
 
-    m_widget->rootObject()->setProperty("html", html);
-
-//     m_clock->setTheme(html);
+    m_clock->setTheme(m_widget->rootObject(), html);
 
     constraintsEvent(Plasma::SizeConstraint);
 //     updateSize();

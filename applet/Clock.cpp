@@ -21,7 +21,7 @@
 #include "Clock.h"
 #include "Applet.h"
 
-#include <QtWebKit/QWebPage>
+#include <QtWebKit/QWebFrame>
 
 #include <KDateTime>
 #include <KCalendarSystem>
@@ -55,9 +55,9 @@ bool ClockObject::isConstant() const
     return m_constant;
 }
 
-Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
+Clock::Clock(Applet *applet) : QObject(applet),
     m_applet(applet),
-    m_document(document),
+    m_document(NULL),
     m_clock(new ClockObject(this, false)),
     m_constantClock(NULL)
 {
@@ -74,6 +74,11 @@ Clock::Clock(Applet *applet, QWebFrame *document) : QObject(applet),
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
+void Clock::evaluate(QObject *document, const QString &script)
+{
+    QMetaObject::invokeMethod(document, "evaluateJavaScript", Q_ARG(QString, script));
+}
+
 void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
 {
     engine->globalObject().setProperty("Clock", engine->newQObject(clock), QScriptValue::Undeletable);
@@ -83,13 +88,19 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
     }
 }
 
-void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html)
+void Clock::setupClock(QObject *document, ClockObject *clock, const QString &html)
 {
-    document->setHtml(html);
-    document->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
+    QWebFrame *frame = qobject_cast<QWebFrame*>(document);
+
+    if (frame) {
+        frame->setHtml(html);
+        frame->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
+    } else {
+        document->setProperty("html", html);
+    }
 
     for (int i = 1; i < LastComponent; ++i) {
-        document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
+        evaluate(document, QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 
     QFile file(":/helper.js");
@@ -98,21 +109,19 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    document->evaluateJavaScript(stream.readAll());
-
+    evaluate(document, stream.readAll());
     setupTheme(document);
-
-    document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
+    evaluate(document, "Clock.sendEvent('ClockOptionsChanged')");
 
     for (int i = 1; i < LastComponent; ++i) {
         updateComponent(document, static_cast<ClockComponent>(i));
     }
 }
 
-void Clock::setupTheme(QWebFrame *document)
+void Clock::setupTheme(QObject *document)
 {
-    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1')").arg(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; padding: 3px; font-family: '%1', sans; color: %2;} [component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
-    document->evaluateJavaScript("Clock.sendEvent('ClockThemeChanged')");
+    evaluate(document, QString("Clock.setStyleSheet('%1')").arg(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; padding: 3px; font-family: '%1', sans; color: %2;} [component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
+    evaluate(document, "Clock.sendEvent('ClockThemeChanged')");
 }
 
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)
@@ -285,24 +294,30 @@ void Clock::updateTimeZone()
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
 }
 
-void Clock::updateComponent(QWebFrame *document, ClockComponent component)
+void Clock::updateComponent(QObject *document, ClockComponent component)
 {
-    document->evaluateJavaScript(QString("Clock.updateComponent('%1')").arg(getComponentString(component)));
+    evaluate(document, QString("Clock.updateComponent('%1')").arg(getComponentString(component)));
 }
 
 void Clock::updateComponent(ClockComponent component)
 {
-    updateComponent(m_document, component);
+    if (m_document) {
+        updateComponent(m_document, component);
+    }
 }
 
 void Clock::updateTheme()
 {
-    setupTheme(m_document);
+    if (m_document) {
+        setupTheme(m_document);
+    }
 }
 
-void Clock::setTheme(const QString &html)
+void Clock::setTheme(QObject *document, const QString &html)
 {
-    setupClock(m_document, m_clock, html);
+    m_document = document;
+
+    setupClock(document, m_clock, html);
 }
 
 ClockObject* Clock::createClock(const QString &theme)
