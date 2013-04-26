@@ -36,7 +36,6 @@ class WebView : public QDeclarativeItem
     public:
         explicit WebView(QDeclarativeItem *parent = NULL);
 
-        Q_INVOKABLE void evaluateJavaScript(const QString &script);
         Q_INVOKABLE void setClock(Clock *clock);
         Q_INVOKABLE void setHtml(const QString &html);
         bool eventFilter(QObject *object, QEvent *event);
@@ -44,6 +43,9 @@ class WebView : public QDeclarativeItem
     protected:
         void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
         void updateZoom();
+
+    protected slots:
+        void updateTheme();
 
     private:
         QGraphicsWebView *m_webView;

@@ -25,6 +25,8 @@
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtWebKit/QWebFrame>
 
+#include <Plasma/Theme>
+
 namespace AdjustableClock
 {
 
@@ -39,6 +41,10 @@ WebView::WebView(QDeclarativeItem *parent) : QDeclarativeItem(parent),
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     m_webView->installEventFilter(this);
+
+    updateTheme();
+
+    connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
 void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -46,6 +52,11 @@ void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeomet
     QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
 
     updateZoom();
+}
+
+void WebView::updateTheme()
+{
+    Clock::setupTheme(m_webView->page()->mainFrame());
 }
 
 void WebView::updateZoom()
@@ -59,11 +70,6 @@ void WebView::updateZoom()
     m_webView->page()->mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
     m_webView->page()->setViewportSize(boundingRect().size().toSize());
     m_webView->resize(boundingRect().size());
-}
-
-void WebView::evaluateJavaScript(const QString &script)
-{
-    m_webView->page()->mainFrame()->evaluateJavaScript(script);
 }
 
 void WebView::setClock(Clock *clock)

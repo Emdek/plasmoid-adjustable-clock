@@ -22,6 +22,7 @@
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
 #include <QtScript/QScriptEngine>
+#include <QtWebKit/QWebFrame>
 
 #include <Plasma/DataEngine>
 
@@ -91,8 +92,8 @@ class Clock : public QObject
         explicit Clock(Applet *applet);
 
         void updateTimeZone();
-        void setTheme(QObject *document, const QString &html);
-        static void setupClock(QObject *document, ClockObject *clock, const QString &html);
+        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html);
+        static void setupTheme(QWebFrame *document);
         ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;
@@ -102,19 +103,15 @@ class Clock : public QObject
 
     protected:
         static void setupEngine(QScriptEngine *engine, ClockObject *clock);
-        static void setupTheme(QObject *document);
-        static void updateComponent(QObject *document, ClockComponent component);
-        static void evaluate(QObject *document, const QString &script);
+        static void updateComponent(QWebFrame *document, ClockComponent component);
         void updateComponent(ClockComponent component);
         static QString formatNumber(int number, int length);
 
     protected slots:
         void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool reload = false);
-        void updateTheme();
 
     private:
         Applet *m_applet;
-        QObject *m_document;
         ClockObject *m_clock;
         ClockObject *m_constantClock;
         QScriptEngine m_engine;

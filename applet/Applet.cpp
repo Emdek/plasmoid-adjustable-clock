@@ -133,10 +133,9 @@ void Applet::clockConfigChanged()
         html = fallback;
     }
 
-    m_clock->setTheme(m_widget->rootObject(), html);
+    QMetaObject::invokeMethod(m_widget->rootObject(), "setHtml", Q_ARG(QString, html));
 
     constraintsEvent(Plasma::SizeConstraint);
-//     updateSize();
 }
 
 void Applet::clockConfigAccepted()
