@@ -106,7 +106,6 @@ class Clock : public QObject
         static QLatin1String getComponentString(ClockComponent component);
 
     protected:
-        static void setupEngine(QScriptEngine *engine, ClockObject *clock);
         static QString formatNumber(int number, int length);
 
     protected slots:
@@ -114,9 +113,6 @@ class Clock : public QObject
 
     private:
         Applet *m_applet;
-        ClockObject *m_clock;
-        ClockObject *m_constantClock;
-        QScriptEngine m_engine;
         QDateTime m_dateTime;
         QDateTime m_constantDateTime;
         QTime m_sunrise;

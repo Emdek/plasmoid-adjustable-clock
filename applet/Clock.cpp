@@ -88,9 +88,7 @@ bool ClockObject::isConstant() const
 }
 
 Clock::Clock(Applet *applet) : QObject(applet),
-    m_applet(applet),
-    m_clock(new ClockObject(this, false)),
-    m_constantClock(NULL)
+    m_applet(applet)
 {
     m_constantDateTime = QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15));
 
@@ -98,17 +96,7 @@ Clock::Clock(Applet *applet) : QObject(applet),
 
     m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
-    setupEngine(&m_engine, m_clock);
     updateTimeZone();
-}
-
-void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
-{
-    engine->globalObject().setProperty("Clock", engine->newQObject(clock), QScriptValue::Undeletable);
-
-    for (int i = 1; i < LastComponent; ++i) {
-        engine->evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-    }
 }
 
 void Clock::setupClock(QWebFrame *document, Clock *clock, const QString &theme, const QString &html, const QString &css)
@@ -438,19 +426,15 @@ QVariant Clock::getValue(ClockComponent component, const QVariantMap &options, b
 
 QString Clock::evaluate(const QString &script, bool constant)
 {
-    if (constant) {
-        QScriptEngine engine;
+    ClockObject clock(this, constant);
+    QScriptEngine engine;
+    engine.globalObject().setProperty("Clock", engine.newQObject(&clock), QScriptValue::Undeletable);
 
-        if (!m_constantClock) {
-            m_constantClock = new ClockObject(this, true);
-        }
-
-        setupEngine(&engine, m_constantClock);
-
-        return engine.evaluate(script).toString();
+    for (int i = 1; i < LastComponent; ++i) {
+        engine.evaluate(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
     }
 
-    return m_engine.evaluate(script).toString();
+    return engine.evaluate(script).toString();
 }
 
 QString Clock::getComponentName(ClockComponent component)
