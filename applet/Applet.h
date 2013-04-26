@@ -23,7 +23,6 @@
 
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
-#include <QtWebKit/QWebPage>
 
 #include <Plasma/Applet>
 #include <Plasma/DeclarativeWidget>
@@ -47,8 +46,8 @@ class Applet : public ClockApplet
         QStringList getClipboardExpressions() const;
 
     protected:
+        void mousePressEvent(QGraphicsSceneMouseEvent *event);
         void constraintsEvent(Plasma::Constraints constraints);
-        void resizeEvent(QGraphicsSceneResizeEvent *event);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
         QString readTheme(const QString &path, const QString &identifier) const;

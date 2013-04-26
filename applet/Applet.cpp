@@ -21,17 +21,12 @@
 #include "Applet.h"
 #include "Clock.h"
 #include "Configuration.h"
+#include "WebView.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
 #include <QtGui/QClipboard>
-#include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsLinearLayout>
-#include <QtWebKit/QWebPage>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebElement>
 
 #include <KMenu>
 #include <KLocale>
@@ -39,7 +34,6 @@
 #include <KStandardDirs>
 
 #include <Plasma/Package>
-#include <Plasma/Containment>
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
@@ -55,8 +49,11 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
 
-    m_widget->engine()->rootContext()->setContextProperty("adjustableClock", new ClockObject(m_clock, false));
+    qmlRegisterType<WebView>("org.kde.plasma.adjustableclock", 1, 0, "ClockWebView");
+
     m_widget->setQmlPath("/home/michal/Programowanie/plasma/adjustableclock/adjustableclock/applet/data/view.qml");
+
+    QMetaObject::invokeMethod(m_widget->rootObject(), "setClock", Q_ARG(Clock*, m_clock));
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     layout->setSpacing(0);
@@ -76,36 +73,21 @@ void Applet::init()
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
 }
 
+void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->buttons() == Qt::MidButton) {
+        copyToClipboard();
+    } else {
+        ClockApplet::mousePressEvent(event);
+    }
+}
+
 void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
 //     setBackgroundHints((m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") ? DefaultBackground : NoBackground);
 }
-
-void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
-{
-    ClockApplet::resizeEvent(event);
-
-///TODO
-}
-
-// void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
-// {
-//     if (event->buttons() == Qt::MidButton) {
-//         copyToClipboard();
-//     }
-//
-//     const QUrl url = m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl();
-//
-//     if (url.isValid() && event->button() == Qt::LeftButton) {
-//         QDesktopServices::openUrl(url);
-//
-//         event->ignore();
-//     } else {
-//         ClockApplet::mousePressEvent(event);
-//     }
-// }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
