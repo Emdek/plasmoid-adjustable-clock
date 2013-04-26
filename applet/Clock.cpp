@@ -47,11 +47,6 @@ QVariant ClockObject::getValue(int component, const QVariantMap &options) const
     return m_clock->getValue(static_cast<ClockComponent>(component), options, m_constant);
 }
 
-bool ClockObject::isConstant() const
-{
-    return m_constant;
-}
-
 Clock::Clock(Applet *applet) : QObject(applet),
     m_applet(applet)
 {

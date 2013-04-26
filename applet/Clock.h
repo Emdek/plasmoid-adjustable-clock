@@ -75,7 +75,6 @@ class ClockObject : public QObject
 
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
         Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
-        bool isConstant() const;
 
     private:
         Clock *m_clock;
