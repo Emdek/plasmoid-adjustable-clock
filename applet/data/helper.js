@@ -27,7 +27,7 @@ Clock.sendEvent = function (name)
 	document.dispatchEvent(event);
 }
 
-Clock.setStyleSheet = function (url)
+Clock.setStyleSheet = function (data)
 {
 	var link = document.getElementById('theme_css');
 
@@ -41,7 +41,7 @@ Clock.setStyleSheet = function (url)
 		document.head.insertBefore(link, document.head.firstChild);
 	}
 
-	link.setAttribute('href', url);
+	link.setAttribute('href', ('data:text/css;charset=utf-8;base64,' + window.btoa('html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle;} html {display: table;} body {display: table-cell; padding: 3px;} ' + data)));
 }
 
 Clock.setStyle = function (object, property, value)

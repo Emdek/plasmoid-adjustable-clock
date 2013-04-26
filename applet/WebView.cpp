@@ -56,7 +56,7 @@ void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeomet
 
 void WebView::updateTheme()
 {
-    Clock::setupTheme(m_webView->page()->mainFrame());
+    Clock::setupTheme(m_webView->page()->mainFrame(), "body {cursor: default;}");
 }
 
 void WebView::updateZoom()

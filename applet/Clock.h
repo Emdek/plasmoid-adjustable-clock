@@ -92,8 +92,8 @@ class Clock : public QObject
         explicit Clock(Applet *applet);
 
         void updateTimeZone();
-        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html);
-        static void setupTheme(QWebFrame *document);
+        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
+        static void setupTheme(QWebFrame *document, const QString &css = QString());
         ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;

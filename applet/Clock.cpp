@@ -76,16 +76,10 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
     }
 }
 
-void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html)
+void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
 {
-    QWebFrame *frame = qobject_cast<QWebFrame*>(document);
-
-    if (frame) {
-        frame->setHtml(html);
-        frame->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
-    } else {
-        QMetaObject::invokeMethod(document, "setHtml", Q_ARG(QString, html));
-    }
+    document->setHtml(html);
+    document->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
 
     for (int i = 1; i < LastComponent; ++i) {
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
@@ -98,7 +92,9 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     stream.setCodec("UTF-8");
 
     document->evaluateJavaScript(stream.readAll());
-    setupTheme(document);
+
+    setupTheme(document, css);
+
     document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
     for (int i = 1; i < LastComponent; ++i) {
@@ -106,10 +102,9 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     }
 }
 
-void Clock::setupTheme(QWebFrame *document)
+void Clock::setupTheme(QWebFrame *document, const QString &css)
 {
-    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1')").arg(QString("data:text/css;charset=utf-8;base64,").append(QString("html, body {margin: 0; padding: 0; height: 100%; width: 100%; vertical-align: middle; cursor: default;} html {display: table;} body {display: table-cell; padding: 3px; font-family: '%1', sans; color: %2;} [component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()).toAscii().toBase64())));
-    document->evaluateJavaScript("Clock.sendEvent('ClockThemeChanged')");
+    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + css));
 }
 
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)
