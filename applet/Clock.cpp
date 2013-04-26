@@ -30,11 +30,28 @@
 namespace AdjustableClock
 {
 
-ClockObject::ClockObject(Clock *clock, bool constant, const QString &theme) : QObject(clock),
+ClockObject::ClockObject(Clock *clock, bool constant) : QObject(clock),
+    m_clock(clock),
+    m_constant(constant)
+{
+}
+
+ClockObject::ClockObject(QWebFrame *document, Clock *clock, bool constant, const QString &theme) : QObject(document),
+    m_document(document),
     m_clock(clock),
     m_theme(theme),
     m_constant(constant)
 {
+    if (!m_constant) {
+        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
+    }
+}
+
+void ClockObject::updateComponent(ClockComponent component)
+{
+    if (m_document) {
+        m_document->evaluateJavaScript(QString("Clock.updateComponent('%1')").arg(Clock::getComponentString(component)));
+    }
 }
 
 QVariant ClockObject::getOption(const QString &key, const QVariant &defaultValue) const
@@ -76,10 +93,12 @@ void Clock::setupEngine(QScriptEngine *engine, ClockObject *clock)
     }
 }
 
-void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
+void Clock::setupClock(QWebFrame *document, Clock *clock, const QString &theme, const QString &html, const QString &css)
 {
+    ClockObject *clockObject = new ClockObject(document, clock, false, theme);
+
     document->setHtml(html);
-    document->addToJavaScriptWindowObject("Clock", clock, (clock->isConstant() ? QScriptEngine::ScriptOwnership : QScriptEngine::QtOwnership));
+    document->addToJavaScriptWindowObject("Clock", clockObject, QScriptEngine::ScriptOwnership);
 
     for (int i = 1; i < LastComponent; ++i) {
         document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
@@ -98,7 +117,7 @@ void Clock::setupClock(QWebFrame *document, ClockObject *clock, const QString &h
     document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
     for (int i = 1; i < LastComponent; ++i) {
-        updateComponent(document, static_cast<ClockComponent>(i));
+        clockObject->updateComponent(static_cast<ClockComponent>(i));
     }
 }
 
@@ -113,7 +132,7 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
         m_events.clear();
 
         if (data.isEmpty()) {
-            updateComponent(EventsComponent);
+            emit componentChanged(EventsComponent);
 
             return;
         }
@@ -150,7 +169,7 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
             }
         }
 
-        updateComponent(EventsComponent);
+        emit componentChanged(EventsComponent);
 
         return;
     }
@@ -159,10 +178,10 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
 
     emit tick();
 
-    updateComponent(SecondComponent);
-    updateComponent(TimestampComponent);
-    updateComponent(TimeComponent);
-    updateComponent(DateTimeComponent);
+    emit componentChanged(SecondComponent);
+    emit componentChanged(TimestampComponent);
+    emit componentChanged(TimeComponent);
+    emit componentChanged(DateTimeComponent);
 
     if (m_dateTime.time().second() == 0 || reload) {
         if (m_dateTime.time().minute() == 0 || reload) {
@@ -171,10 +190,10 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
             if (hour == 0 || reload) {
                 if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
                     if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
-                        updateComponent(YearComponent);
+                        emit componentChanged(YearComponent);
                     }
 
-                    updateComponent(MonthComponent);
+                    emit componentChanged(MonthComponent);
                 }
 
                 m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
@@ -203,23 +222,23 @@ void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &d
                     }
                 }
 
-                updateComponent(DayOfWeekComponent);
-                updateComponent(DayOfMonthComponent);
-                updateComponent(DayOfYearComponent);
-                updateComponent(DateComponent);
-                updateComponent(SunriseComponent);
-                updateComponent(SunsetComponent);
-                updateComponent(HolidaysComponent);
+                emit componentChanged(DayOfWeekComponent);
+                emit componentChanged(DayOfMonthComponent);
+                emit componentChanged(DayOfYearComponent);
+                emit componentChanged(DateComponent);
+                emit componentChanged(SunriseComponent);
+                emit componentChanged(SunsetComponent);
+                emit componentChanged(HolidaysComponent);
             }
 
             if (hour == 0 || hour == 12) {
-                updateComponent(TimeOfDayComponent);
+                emit componentChanged(TimeOfDayComponent);
             }
 
-            updateComponent(HourComponent);
+            emit componentChanged(HourComponent);
         }
 
-        updateComponent(MinuteComponent);
+        emit componentChanged(MinuteComponent);
     }
 }
 
@@ -270,28 +289,11 @@ void Clock::updateTimeZone()
         }
     }
 
-    updateComponent(TimeZoneNameComponent);
-    updateComponent(TimeZoneAbbreviationComponent);
-    updateComponent(TimeZoneOffsetComponent);
+    emit componentChanged(TimeZoneNameComponent);
+    emit componentChanged(TimeZoneAbbreviationComponent);
+    emit componentChanged(TimeZoneOffsetComponent);
 
     dataUpdated(QString(), m_applet->dataEngine("time")->query(m_applet->currentTimezone()), true);
-}
-
-void Clock::updateComponent(QWebFrame *document, ClockComponent component)
-{
-    document->evaluateJavaScript(QString("Clock.updateComponent('%1')").arg(getComponentString(component)));
-}
-
-void Clock::updateComponent(ClockComponent component)
-{
-//     if (m_document) {
-//         updateComponent(m_document, component);
-//     }
-}
-
-ClockObject* Clock::createClock(const QString &theme)
-{
-    return new ClockObject(this, true, theme);
 }
 
 QString Clock::formatNumber(int number, int length)

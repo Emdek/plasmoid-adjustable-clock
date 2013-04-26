@@ -72,13 +72,18 @@ class ClockObject : public QObject
     Q_OBJECT
 
     public:
-        explicit ClockObject(Clock *clock, bool constant, const QString &theme = QString());
+        explicit ClockObject(Clock *clock, bool constant);
+        explicit ClockObject(QWebFrame *document, Clock *clock, bool constant, const QString &theme = QString());
 
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
         Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
         bool isConstant() const;
 
+    public slots:
+        void updateComponent(ClockComponent component);
+
     private:
+        QWebFrame *m_document;
         Clock *m_clock;
         QString m_theme;
         bool m_constant;
@@ -92,9 +97,8 @@ class Clock : public QObject
         explicit Clock(Applet *applet);
 
         void updateTimeZone();
-        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
+        static void setupClock(QWebFrame *document, Clock *clock, const QString &theme, const QString &html, const QString &css = QString());
         static void setupTheme(QWebFrame *document, const QString &css = QString());
-        ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;
         QVariant getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
@@ -103,8 +107,6 @@ class Clock : public QObject
 
     protected:
         static void setupEngine(QScriptEngine *engine, ClockObject *clock);
-        static void updateComponent(QWebFrame *document, ClockComponent component);
-        void updateComponent(ClockComponent component);
         static QString formatNumber(int number, int length);
 
     protected slots:
@@ -130,6 +132,7 @@ class Clock : public QObject
 
     signals:
         void tick();
+        void componentChanged(ClockComponent component);
 };
 
 }

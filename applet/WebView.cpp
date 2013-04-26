@@ -79,7 +79,7 @@ void WebView::setClock(Clock *clock)
 
 void WebView::setHtml(const QString &html)
 {
-    Clock::setupClock(m_webView->page()->mainFrame(), m_clock->createClock(), html);
+    Clock::setupClock(m_webView->page()->mainFrame(), m_clock, QString(), html);
 
     updateZoom();
 }

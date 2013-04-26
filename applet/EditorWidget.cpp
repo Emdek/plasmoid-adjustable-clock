@@ -266,7 +266,7 @@ void EditorWidget::sourceChanged(const QString &theme)
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    Clock::setupClock(m_editorUi.webView->page()->mainFrame(), m_clock->createClock(), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
+    Clock::setupClock(m_editorUi.webView->page()->mainFrame(), m_clock, QString(), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
 
     m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 
