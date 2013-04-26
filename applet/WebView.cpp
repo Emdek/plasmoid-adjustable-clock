@@ -24,6 +24,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtWebKit/QWebFrame>
+#include <QtWebKit/QWebElement>
 
 #include <Plasma/Theme>
 
@@ -82,6 +83,11 @@ void WebView::setHtml(const QString &html)
     Clock::setupClock(m_webView->page()->mainFrame(), m_clock, QString(), html);
 
     updateZoom();
+}
+
+bool WebView::getBackgroundFlag() const
+{
+    return (m_webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 }
 
 bool WebView::eventFilter(QObject *object, QEvent *event)

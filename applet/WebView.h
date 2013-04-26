@@ -38,6 +38,7 @@ class WebView : public QDeclarativeItem
 
         Q_INVOKABLE void setClock(Clock *clock);
         Q_INVOKABLE void setHtml(const QString &html);
+        Q_INVOKABLE bool getBackgroundFlag() const;
         bool eventFilter(QObject *object, QEvent *event);
 
     protected:

@@ -86,7 +86,11 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-//     setBackgroundHints((m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") ? DefaultBackground : NoBackground);
+    bool result;
+
+    QMetaObject::invokeMethod(m_widget->rootObject(), "getBackgroundFlag", Q_RETURN_ARG(bool, result));
+
+    setBackgroundHints(result ? DefaultBackground : NoBackground);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
