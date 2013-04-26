@@ -19,7 +19,6 @@
 ***********************************************************************************/
 
 #include "WebView.h"
-#include "Clock.h"
 
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -48,6 +47,37 @@ WebView::WebView(QDeclarativeItem *parent) : QDeclarativeItem(parent),
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
+void WebView::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
+{
+    document->setHtml(html);
+    document->addToJavaScriptWindowObject("Clock", clock, QScriptEngine::ScriptOwnership);
+
+    for (int i = 1; i < LastComponent; ++i) {
+        document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(Clock::getComponentString(static_cast<ClockComponent>(i))).arg(i));
+    }
+
+    QFile file(":/helper.js");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    document->evaluateJavaScript(stream.readAll());
+
+    setupTheme(document, css);
+
+    document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
+
+    for (int i = 1; i < LastComponent; ++i) {
+        updateComponent(document, static_cast<ClockComponent>(i));
+    }
+}
+
+void WebView::setupTheme(QWebFrame *document, const QString &css)
+{
+    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + css));
+}
+
 void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
     QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
@@ -55,9 +85,32 @@ void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeomet
     updateZoom();
 }
 
+void WebView::updateComponent(ClockComponent component)
+{
+    updateComponent(m_webView->page()->mainFrame(), component);
+}
+
+void WebView::updateComponent(QWebFrame *document, ClockComponent component)
+{
+    const QLatin1String componentString = Clock::getComponentString(component);
+    const QWebElementCollection elements = document->findAllElements(QString("[component=%1]").arg(componentString));
+
+    for (int i = 0; i < elements.count(); ++i) {
+        const QString value = document->evaluateJavaScript(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"'))).toString();
+
+        if (elements.at(i).hasAttribute("attribute")) {
+            elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
+        } else {
+            elements.at(i).setInnerXml(value);
+        }
+    }
+
+    document->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
+}
+
 void WebView::updateTheme()
 {
-    Clock::setupTheme(m_webView->page()->mainFrame(), "body {cursor: default;}");
+    setupTheme(m_webView->page()->mainFrame(), "body {cursor: default;}");
 }
 
 void WebView::updateZoom()
@@ -76,12 +129,13 @@ void WebView::updateZoom()
 void WebView::setClock(Clock *clock)
 {
     m_clock = clock;
+
+    connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
 }
 
 void WebView::setHtml(const QString &html)
 {
-    Clock::setupClock(m_webView->page()->mainFrame(), m_clock, QString(), html);
-
+    setupClock(m_webView->page()->mainFrame(), new ClockObject(m_clock, false), html);
     updateZoom();
 }
 

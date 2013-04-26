@@ -20,7 +20,7 @@
 
 #include "ThemeDelegate.h"
 #include "Applet.h"
-#include "Clock.h"
+#include "WebView.h"
 #include "Configuration.h"
 
 #include <QtGui/QStyle>
@@ -73,7 +73,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         page.setViewportSize(QSize(0, 0));
         page.mainFrame()->setZoomFactor(1);
 
-        Clock::setupClock(page.mainFrame(), m_clock, index.data(IdentifierRole).toString(), index.data(ContentsRole).toString());
+        WebView::setupClock(page.mainFrame(), new ClockObject(m_clock, true, index.data(IdentifierRole).toString()), index.data(ContentsRole).toString());
 
         if (page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
             Plasma::FrameSvg background;

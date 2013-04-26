@@ -21,13 +21,13 @@
 #ifndef ADJUSTABLECLOCKWEBVIEW_HEADER
 #define ADJUSTABLECLOCKWEBVIEW_HEADER
 
+#include "Clock.h"
+
 #include <QtDeclarative/QDeclarativeItem>
 #include <QtWebKit/QGraphicsWebView>
 
 namespace AdjustableClock
 {
-
-class Clock;
 
 class WebView : public QDeclarativeItem
 {
@@ -36,6 +36,8 @@ class WebView : public QDeclarativeItem
     public:
         explicit WebView(QDeclarativeItem *parent = NULL);
 
+        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
+        static void setupTheme(QWebFrame *document, const QString &css = QString());
         Q_INVOKABLE void setClock(Clock *clock);
         Q_INVOKABLE void setHtml(const QString &html);
         Q_INVOKABLE bool getBackgroundFlag() const;
@@ -43,9 +45,11 @@ class WebView : public QDeclarativeItem
 
     protected:
         void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+        static void updateComponent(QWebFrame *document, ClockComponent component);
         void updateZoom();
 
     protected slots:
+        void updateComponent(ClockComponent component);
         void updateTheme();
 
     private:

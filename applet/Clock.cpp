@@ -21,8 +21,6 @@
 #include "Clock.h"
 #include "Applet.h"
 
-#include <QtWebKit/QWebElementCollection>
-
 #include <KDateTime>
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
@@ -32,44 +30,11 @@
 namespace AdjustableClock
 {
 
-ClockObject::ClockObject(Clock *clock, bool constant) : QObject(clock),
-    m_clock(clock),
-    m_constant(constant)
-{
-}
-
-ClockObject::ClockObject(QWebFrame *document, Clock *clock, bool constant, const QString &theme) : QObject(document),
-    m_document(document),
+ClockObject::ClockObject(Clock *clock, bool constant, const QString &theme) : QObject(clock),
     m_clock(clock),
     m_theme(theme),
     m_constant(constant)
 {
-    if (!m_constant) {
-        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
-    }
-}
-
-void ClockObject::updateComponent(ClockComponent component)
-{
-    if (!m_document) {
-        return;
-    }
-
-    const QLatin1String componentString = Clock::getComponentString(component);
-    const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(componentString));
-
-    for (int i = 0; i < elements.count(); ++i) {
-        const QVariantMap options = (elements.at(i).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(i).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
-        const QString value = getValue(component, options).toString();
-
-        if (elements.at(i).hasAttribute("attribute")) {
-            elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
-        } else {
-            elements.at(i).setInnerXml(value);
-        }
-    }
-
-    m_document->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
 }
 
 QVariant ClockObject::getOption(const QString &key, const QVariant &defaultValue) const
@@ -97,39 +62,6 @@ Clock::Clock(Applet *applet) : QObject(applet),
     m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
 
     updateTimeZone();
-}
-
-void Clock::setupClock(QWebFrame *document, Clock *clock, const QString &theme, const QString &html, const QString &css)
-{
-    ClockObject *clockObject = new ClockObject(document, clock, false, theme);
-
-    document->setHtml(html);
-    document->addToJavaScriptWindowObject("Clock", clockObject, QScriptEngine::ScriptOwnership);
-
-    for (int i = 1; i < LastComponent; ++i) {
-        document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(getComponentString(static_cast<ClockComponent>(i))).arg(i));
-    }
-
-    QFile file(":/helper.js");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    document->evaluateJavaScript(stream.readAll());
-
-    setupTheme(document, css);
-
-    document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
-
-    for (int i = 1; i < LastComponent; ++i) {
-        clockObject->updateComponent(static_cast<ClockComponent>(i));
-    }
-}
-
-void Clock::setupTheme(QWebFrame *document, const QString &css)
-{
-    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + css));
 }
 
 void Clock::dataUpdated(const QString &source, const Plasma::DataEngine::Data &data, bool reload)

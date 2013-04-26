@@ -61,8 +61,8 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
     layout->addItem(m_widget);
 
     setLayout(layout);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setHasConfigurationInterface(true);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     resize(120, 80);
 }
 

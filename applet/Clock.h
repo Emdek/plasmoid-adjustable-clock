@@ -22,7 +22,6 @@
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
 #include <QtScript/QScriptEngine>
-#include <QtWebKit/QWebFrame>
 
 #include <Plasma/DataEngine>
 
@@ -72,18 +71,13 @@ class ClockObject : public QObject
     Q_OBJECT
 
     public:
-        explicit ClockObject(Clock *clock, bool constant);
-        explicit ClockObject(QWebFrame *document, Clock *clock, bool constant, const QString &theme = QString());
+        explicit ClockObject(Clock *clock, bool constant, const QString &theme = QString());
 
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
         Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
         bool isConstant() const;
 
-    public slots:
-        void updateComponent(ClockComponent component);
-
     private:
-        QWebFrame *m_document;
         Clock *m_clock;
         QString m_theme;
         bool m_constant;
@@ -97,8 +91,6 @@ class Clock : public QObject
         explicit Clock(Applet *applet);
 
         void updateTimeZone();
-        static void setupClock(QWebFrame *document, Clock *clock, const QString &theme, const QString &html, const QString &css = QString());
-        static void setupTheme(QWebFrame *document, const QString &css = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;
         QVariant getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
@@ -127,8 +119,8 @@ class Clock : public QObject
         QMap<QString, QString> m_timeZones;
 
     signals:
-        void tick();
         void componentChanged(ClockComponent component);
+        void tick();
 };
 
 }
