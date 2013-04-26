@@ -1,24 +1,3 @@
-Clock.updateComponent = function (component)
-{
-	var elements = document.querySelector('[component=' + component + ']');
-
-	for (var i = 0; i < elements.length; ++i)
-	{
-		var value = Clock.getValue(component, (elements[i].hasAttribute('options') ? JSON.parse('{' + elements[i].getAttribute('options').replace('\'', '"') + '}') : {}));
-
-		if (elements[i].hasAttribute('attribute'))
-		{
-			elements[i].setAttribute(elements[i].getAttribute('attribute'), value);
-		}
-		else
-		{
-			elements[i].innerHTML = value;
-		}
-	}
-
-	Clock.sendEvent('Clock' + component + 'Changed');
-}
-
 Clock.sendEvent = function (name)
 {
 	var event = document.createEvent('Event');

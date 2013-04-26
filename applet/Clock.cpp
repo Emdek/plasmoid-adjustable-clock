@@ -21,6 +21,8 @@
 #include "Clock.h"
 #include "Applet.h"
 
+#include <QtWebKit/QWebElementCollection>
+
 #include <KDateTime>
 #include <KCalendarSystem>
 #include <KSystemTimeZones>
@@ -49,9 +51,25 @@ ClockObject::ClockObject(QWebFrame *document, Clock *clock, bool constant, const
 
 void ClockObject::updateComponent(ClockComponent component)
 {
-    if (m_document) {
-        m_document->evaluateJavaScript(QString("Clock.updateComponent('%1')").arg(Clock::getComponentString(component)));
+    if (!m_document) {
+        return;
     }
+
+    const QLatin1String componentString = Clock::getComponentString(component);
+    const QWebElementCollection elements = m_document->findAllElements(QString("[component=%1]").arg(componentString));
+
+    for (int i = 0; i < elements.count(); ++i) {
+        const QVariantMap options = (elements.at(i).hasAttribute("options") ? QScriptEngine().evaluate(QString("JSON.parse('{%1}')").arg(elements.at(i).attribute("options").replace('\'', '"'))).toVariant().toMap() : QVariantMap());
+        const QString value = getValue(component, options).toString();
+
+        if (elements.at(i).hasAttribute("attribute")) {
+            elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
+        } else {
+            elements.at(i).setInnerXml(value);
+        }
+    }
+
+    m_document->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
 }
 
 QVariant ClockObject::getOption(const QString &key, const QVariant &defaultValue) const
