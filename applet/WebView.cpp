@@ -127,17 +127,16 @@ void WebView::updateZoom()
     m_webView->resize(boundingRect().size());
 }
 
-void WebView::setClock(Clock *clock)
+void WebView::setTheme(Clock *clock, const QString &theme, const QString &html, bool constant)
 {
     m_clock = clock;
 
-    connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
-}
-
-void WebView::setHtml(const QString &html)
-{
-    setupClock(m_webView->page()->mainFrame(), new ClockObject(m_clock, false), html);
+    setupClock(m_webView->page()->mainFrame(), new ClockObject(m_clock, constant, theme), html);
     updateZoom();
+
+    if (!constant) {
+        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
+    }
 }
 
 bool WebView::getBackgroundFlag() const

@@ -40,7 +40,7 @@ namespace AdjustableClock
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clock(new Clock(this)),
-    m_widget(new DeclarativeWidget(m_clock, this)),
+    m_widget(new DeclarativeWidget(m_clock, false, this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
@@ -106,7 +106,7 @@ void Applet::clockConfigChanged()
         const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
         for (int j = 0; j < themes.count(); ++j) {
-            if (themes.at(j) == id && m_widget->setTheme(QString("%1/%2/").arg(locations.at(i)).arg(themes.at(j)))) {
+            if (themes.at(j) == id && m_widget->setTheme(locations.at(i), themes.at(j))) {
                 constraintsEvent(Plasma::SizeConstraint);
 
                 return;
@@ -114,7 +114,7 @@ void Applet::clockConfigChanged()
         }
     }
 
-    if (!m_widget->setTheme(KGlobal::dirs()->findDirs("data", "plasma/adjustableclock/digital/").first())) {
+    if (!m_widget->setTheme(locations.first(), "digital")) {
         m_widget->setHtml("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
 

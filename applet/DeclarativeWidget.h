@@ -33,10 +33,10 @@ class DeclarativeWidget : public Plasma::DeclarativeWidget
     Q_OBJECT
 
     public:
-        explicit DeclarativeWidget(Clock *clock, QGraphicsWidget *parent = NULL);
+        explicit DeclarativeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
-        void setHtml(const QString &html);
-        bool setTheme(const QString &path);
+        void setHtml(const QString &html, const QString &theme = QString());
+        bool setTheme(const QString &path, const QString &identifier);
         bool getBackgroundFlag() const;
 
     protected:
@@ -45,6 +45,7 @@ class DeclarativeWidget : public Plasma::DeclarativeWidget
     private:
         Clock *m_clock;
         QObject *m_rootObject;
+        bool m_constant;
 };
 
 }

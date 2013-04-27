@@ -28,9 +28,10 @@
 namespace AdjustableClock
 {
 
-DeclarativeWidget::DeclarativeWidget(Clock *clock, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
+DeclarativeWidget::DeclarativeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
     m_clock(clock),
-    m_rootObject(NULL)
+    m_rootObject(NULL),
+    m_constant(constant)
 {
 }
 
@@ -44,7 +45,7 @@ void DeclarativeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
     }
 }
 
-void DeclarativeWidget::setHtml(const QString &html)
+void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
 {
     if (m_rootObject) {
         m_rootObject->deleteLater();
@@ -57,16 +58,16 @@ void DeclarativeWidget::setHtml(const QString &html)
     m_rootObject = mainComponent()->create(engine()->rootContext());
     dynamic_cast<QGraphicsItem*>(m_rootObject)->setParentItem(this);
 
-    QMetaObject::invokeMethod(m_rootObject, "setClock", Q_ARG(Clock*, m_clock));
-    QMetaObject::invokeMethod(m_rootObject, "setHtml", Q_ARG(QString, html));
+    QMetaObject::invokeMethod(m_rootObject, "setTheme", Q_ARG(Clock*, m_clock), Q_ARG(QString, theme), Q_ARG(QString, html), Q_ARG(bool, m_constant));
 
     m_rootObject->setProperty("width", size().width());
     m_rootObject->setProperty("height", size().height());
 }
 
-bool DeclarativeWidget::setTheme(const QString &path)
+bool DeclarativeWidget::setTheme(const QString &path, const QString &identifier)
 {
-    const QString qmlPath = (path + "contents/ui/main.qml");
+    const QString packagePath = QString("%1/%2/").arg(path).arg(identifier);
+    const QString qmlPath = (packagePath + "contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
         setQmlPath(qmlPath);
@@ -76,7 +77,7 @@ bool DeclarativeWidget::setTheme(const QString &path)
         return true;
     }
 
-    QFile file(path + "contents/ui/main.html");
+    QFile file(packagePath + "contents/ui/main.html");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QTextStream stream(&file);
