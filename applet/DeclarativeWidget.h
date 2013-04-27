@@ -18,54 +18,33 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKAPPLET_HEADER
-#define ADJUSTABLECLOCKAPPLET_HEADER
+#ifndef ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
+#define ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
 
-#include <QtCore/QList>
-#include <QtCore/QDateTime>
-
-#include <Plasma/Applet>
-
-#include <plasmaclock/clockapplet.h>
+#include <Plasma/DeclarativeWidget>
 
 namespace AdjustableClock
 {
 
 class Clock;
-class DeclarativeWidget;
 
-class Applet : public ClockApplet
+class DeclarativeWidget : public Plasma::DeclarativeWidget
 {
     Q_OBJECT
 
     public:
-        explicit Applet(QObject *parent, const QVariantList &args);
+        explicit DeclarativeWidget(Clock *clock, QGraphicsWidget *parent = NULL);
 
-        void init();
-        Clock* getClock() const;
-        QStringList getClipboardExpressions() const;
+        void setHtml(const QString &html);
+        bool setTheme(const QString &path);
+        bool getBackgroundFlag() const;
 
     protected:
-        void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        void constraintsEvent(Plasma::Constraints constraints);
-        void createClockConfigurationInterface(KConfigDialog *parent);
-        void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
-        QList<QAction*> contextualActions();
-
-    protected slots:
-        void clockConfigChanged();
-        void clockConfigAccepted();
-        void copyToClipboard();
-        void copyToClipboard(QAction *action);
-        void toolTipAboutToShow();
-        void toolTipHidden();
-        void updateToolTipContent();
-        void updateClipboardMenu();
+        void resizeEvent(QGraphicsSceneResizeEvent *event);
 
     private:
         Clock *m_clock;
-        DeclarativeWidget *m_widget;
-        QAction *m_clipboardAction;
+        QObject *m_rootObject;
 };
 
 }

@@ -20,11 +20,9 @@
 
 #include "Applet.h"
 #include "Clock.h"
+#include "DeclarativeWidget.h"
 #include "Configuration.h"
-#include "WebView.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
 #include <QtGui/QClipboard>
 #include <QtGui/QGraphicsLinearLayout>
 
@@ -41,19 +39,13 @@ namespace AdjustableClock
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_widget(new Plasma::DeclarativeWidget(this)),
     m_clock(new Clock(this)),
+    m_widget(new DeclarativeWidget(m_clock, this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
-
-    qmlRegisterType<WebView>("org.kde.plasma.adjustableclock", 1, 0, "ClockWebView");
-
-    m_widget->setQmlPath("/home/michal/Programowanie/plasma/adjustableclock/adjustableclock/applet/data/view.qml");
-
-    QMetaObject::invokeMethod(m_widget->rootObject(), "setClock", Q_ARG(Clock*, m_clock));
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     layout->setSpacing(0);
@@ -86,11 +78,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
     Q_UNUSED(constraints)
 
-    bool result;
-
-    QMetaObject::invokeMethod(m_widget->rootObject(), "getBackgroundFlag", Q_RETURN_ARG(bool, result));
-
-    setBackgroundHints(result ? DefaultBackground : NoBackground);
+    setBackgroundHints(m_widget->getBackgroundFlag() ? DefaultBackground : NoBackground);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
@@ -103,41 +91,32 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
+    if (!config().readEntry("themeHtml", QString()).isEmpty()) {
+        m_widget->setHtml(config().readEntry("themeHtml", QString()));
+
+        constraintsEvent(Plasma::SizeConstraint);
+
+        return;
+    }
+
     const QString id = config().readEntry("theme", "digital");
-    QString fallback = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
-    QString html;
+    const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
-    if (config().readEntry("themeHtml", QString()).isEmpty()) {
-        const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
+    for (int i = 0; i < locations.count(); ++i) {
+        const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
-        for (int i = 0; i < locations.count(); ++i) {
-            if (!html.isEmpty()) {
-                break;
-            }
+        for (int j = 0; j < themes.count(); ++j) {
+            if (themes.at(j) == id && m_widget->setTheme(QString("%1/%2/").arg(locations.at(i)).arg(themes.at(j)))) {
+                constraintsEvent(Plasma::SizeConstraint);
 
-            const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
-
-            for (int j = 0; j < themes.count(); ++j) {
-                if (themes.at(j) == id) {
-                    html = readTheme(locations.at(i), themes.at(j));
-
-                    break;
-                }
-
-                if (themes.at(j) == "digital") {
-                    fallback = readTheme(locations.at(i), themes.at(j));
-                }
+                return;
             }
         }
-    } else {
-        html = config().readEntry("themeHtml", QString());
     }
 
-    if (html.isEmpty()) {
-        html = fallback;
+    if (!m_widget->setTheme(KGlobal::dirs()->findDirs("data", "plasma/adjustableclock/digital/").first())) {
+        m_widget->setHtml("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
-
-    QMetaObject::invokeMethod(m_widget->rootObject(), "setHtml", Q_ARG(QString, html));
 
     constraintsEvent(Plasma::SizeConstraint);
 }
@@ -218,17 +197,6 @@ void Applet::updateClipboardMenu()
 Clock* Applet::getClock() const
 {
     return m_clock;
-}
-
-QString Applet::readTheme(const QString &path, const QString &identifier) const
-{
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    return stream.readAll();
 }
 
 QStringList Applet::getClipboardExpressions() const
