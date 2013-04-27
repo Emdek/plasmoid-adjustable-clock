@@ -66,29 +66,29 @@ void DeclarativeWidget::setHtml(const QString &html)
 
 bool DeclarativeWidget::setTheme(const QString &path)
 {
-    const QString htmlPath = (path + "contents/ui/main.html");
+    const QString qmlPath = (path + "contents/ui/main.qml");
 
-    if (QFile::exists(htmlPath)) {
-        QFile file(path + "contents/ui/main.html");
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (QFile::exists(qmlPath)) {
+        setQmlPath(qmlPath);
 
-        QTextStream stream(&file);
-        stream.setCodec("UTF-8");
-
-        const QString html = stream.readAll();
-
-        if (html.isEmpty()) {
-            return false;
-        }
-
-        setHtml(html);
+        m_rootObject = rootObject();
 
         return true;
     }
 
-    setQmlPath(path + "contents/ui/main.qml");
+    QFile file(path + "contents/ui/main.html");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    m_rootObject = rootObject();
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    const QString html = stream.readAll();
+
+    if (html.isEmpty()) {
+        return false;
+    }
+
+    setHtml(html);
 
     return true;
 }
