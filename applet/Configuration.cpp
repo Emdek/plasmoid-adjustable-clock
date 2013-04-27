@@ -204,8 +204,23 @@ void Configuration::installTheme()
 
 void Configuration::createTheme()
 {
+    QString title = i18n("New Theme");
+
+    if (findRow(title) >= 0) {
+        int i = 2;
+
+        title.append(" (%1)");
+
+        while (findRow(title.arg(i)) >= 0) {
+            ++i;
+        }
+
+        title = title.arg(i);
+    }
+
     bool ok;
-    const QString title = KInputDialog::getText(i18n("Create Theme"), i18n("Theme name:"), i18n("New Theme"), &ok);
+
+    title = KInputDialog::getText(i18n("Create Theme"), i18n("Theme name:"), title, &ok);
 
     if (!ok) {
         return;
