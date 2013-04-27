@@ -40,6 +40,7 @@ WebView::WebView(QDeclarativeItem *parent) : QDeclarativeItem(parent),
     m_webView->setPalette(palette);
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+    m_webView->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
     m_webView->installEventFilter(this);
 
     updateTheme();
