@@ -38,11 +38,11 @@ class EditorWidget : public QWidget
     Q_OBJECT
 
     public:
-        explicit EditorWidget(const QString &identifier, const QString &theme, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent);
+        explicit EditorWidget(const QString &path, const QString &identifier, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent);
 
-        QString getTheme() const;
         QString getIdentifier() const;
         Plasma::PackageMetadata getMetaData() const;
+        bool saveTheme() const;
 
     protected:
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");
@@ -66,6 +66,7 @@ class EditorWidget : public QWidget
         Clock *m_clock;
         ComponentWidget *m_componentWidget;
         KTextEditor::Document *m_document;
+        QString m_path;
         Ui::editor m_editorUi;
 };
 

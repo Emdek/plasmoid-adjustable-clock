@@ -63,7 +63,6 @@ class Configuration : public QObject
         bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
         bool saveTheme(const QString &path, const QString &identifier);
-        bool saveTheme(const QString &path, const QString &identifier, const QString &contents);
         static bool copyDirectory(const QString &source, const QString &destination);
 
     protected slots:

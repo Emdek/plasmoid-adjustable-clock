@@ -336,17 +336,15 @@ void Configuration::editTheme(const QString &theme)
         return;
     }
 
-    if (!item->data(WritableRole).toBool() && !copyTheme(item)) {
-        return;
+    if (!item->data(WritableRole).toBool()) {
+        if (!copyTheme(item)) {
+            return;
+        }
+
+        item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
     }
 
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    EditorWidget *editor = new EditorWidget(item->data(IdentifierRole).toString(), stream.readAll(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
+    EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), item->data(IdentifierRole).toString(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);
@@ -359,27 +357,25 @@ void Configuration::editTheme(const QString &theme)
 
     if (editor->getIdentifier().isEmpty() || (editor->getIdentifier() != item->data(IdentifierRole).toString() && findRow(editor->getIdentifier(), IdentifierRole) >= 0)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Invalid theme identifier."));
-    } else {
-        const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
 
-        if (editor->getIdentifier() != item->data(IdentifierRole).toString() && !QDir().rename(QString("%1/%2").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2").arg(path).arg(editor->getIdentifier()))) {
-            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
-        } else {
-            item->setData(editor->getIdentifier(), IdentifierRole);
-            item->setData(path, PathRole);
-        }
+        return;
+    }
+
+    if (editor->getIdentifier() != item->data(IdentifierRole).toString() && !QDir().rename(QString("%1/%2").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2").arg(item->data(PathRole).toString()).arg(editor->getIdentifier()))) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
+
+        return;
     }
 
     const Plasma::PackageMetadata metaData = editor->getMetaData();
 
+    item->setData(editor->getIdentifier(), IdentifierRole);
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
 
     m_metaData[item->data(IdentifierRole).toString()] = metaData;
 
-    if (saveTheme((item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()), item->data(IdentifierRole).toString(), editor->getTheme())) {
-        modify();
-
+    if (saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString()) && editor->saveTheme()) {
         emit clearCache();
     } else {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to save theme."));
@@ -689,25 +685,6 @@ bool Configuration::saveTheme(const QString &path, const QString &identifier)
     metaData.setType("Service");
     metaData.setServiceType("Plasma/AdjustableClock");
     metaData.write(packagePath + "metadata.desktop");
-
-    return true;
-}
-
-bool Configuration::saveTheme(const QString &path, const QString &identifier, const QString &contents)
-{
-    if (!saveTheme(path, identifier)) {
-        return false;
-    }
-
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
-
-    if (!file.open(QIODevice::WriteOnly)) {
-        return false;
-    }
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-    stream << contents;
 
     return true;
 }

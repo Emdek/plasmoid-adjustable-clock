@@ -38,10 +38,11 @@
 namespace AdjustableClock
 {
 
-EditorWidget::EditorWidget(const QString &identifier, const QString &theme, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
+EditorWidget::EditorWidget(const QString &path, const QString &identifier, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
     m_componentWidget(NULL),
-    m_document(NULL)
+    m_document(NULL),
+    m_path(path)
 {
     m_editorUi.setupUi(this);
 
@@ -86,11 +87,6 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
     KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
 
     if (editor) {
-        if (m_document) {
-            m_document->activeView()->deleteLater();
-            m_document->deleteLater();
-        }
-
         m_document = editor->createDocument(this);
         m_document->setHighlightingMode("html");
 
@@ -110,13 +106,21 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
         m_editorUi.editorTabWidget->setTabEnabled(1, false);
     }
 
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    const QString contents = stream.readAll();
+
     if (m_document) {
-        m_document->setText(theme);
+        m_document->setText(contents);
     }
 
     m_editorUi.backgroundButton->setChecked(m_editorUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 
-    sourceChanged(theme);
+    sourceChanged(contents);
 
     connect(m_editorUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
@@ -345,9 +349,19 @@ void EditorWidget::setZoom(int zoom)
     m_editorUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
-QString EditorWidget::getTheme() const
+bool EditorWidget::saveTheme() const
 {
-    return (m_document ? m_document->text() : m_editorUi.webView->page()->mainFrame()->toHtml());
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(m_path).arg(getIdentifier()));
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+    stream << (m_document ? m_document->text() : m_editorUi.webView->page()->mainFrame()->toHtml());
+
+    return true;
 }
 
 QString EditorWidget::getIdentifier() const
