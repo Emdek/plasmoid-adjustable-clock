@@ -157,7 +157,7 @@ bool WebView::eventFilter(QObject *object, QEvent *event)
         }
 
         mouseEvent->ignore();
-    } else if (object == m_webView && event->type() == QEvent::GraphicsSceneContextMenu) {
+    } else if (object == m_webView && (event->type() == QEvent::GraphicsSceneContextMenu || event->type() == QEvent::GraphicsSceneWheel)) {
         event->ignore();
 
         return true;
