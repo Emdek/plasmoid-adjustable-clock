@@ -20,7 +20,7 @@
 
 #include "ThemeDelegate.h"
 #include "Applet.h"
-#include "WebView.h"
+#include "DeclarativeWidget.h"
 #include "Configuration.h"
 
 #include <QtGui/QStyle>
@@ -28,9 +28,6 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QPushButton>
 #include <QtGui/QApplication>
-#include <QtWebKit/QWebPage>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebElement>
 
 #include <KLocale>
 #include <KPixmapCache>
@@ -62,51 +59,44 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     QPixmap pixmap;
 
     if (!m_cache->find((index.data(IdentifierRole).toString()), pixmap)) {
-        pixmap = QPixmap(180, 90);
+        pixmap = QPixmap(200, 100);
         pixmap.fill(Qt::transparent);
 
-        QSizeF size(180, 90);
+        QRectF rectangle(0, 0, 200, 100);
         QPainter pixmapPainter(&pixmap);
-        pixmapPainter.setRenderHints(QPainter::SmoothPixmapTransform | QPainter::Antialiasing);
+        pixmapPainter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
-        QWebPage page;
-        page.setViewportSize(QSize(0, 0));
-        page.mainFrame()->setZoomFactor(1);
+        QGraphicsScene scene;
+        DeclarativeWidget widget(m_clock);
+        widget.setTheme(QString("%1/%2/").arg(index.data(PathRole).toString()).arg(index.data(IdentifierRole).toString()));
 
-        WebView::setupClock(page.mainFrame(), new ClockObject(m_clock, true, index.data(IdentifierRole).toString()), index.data(ContentsRole).toString());
-
-        if (page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
+        if (widget.getBackgroundFlag()) {
             Plasma::FrameSvg background;
             background.setImagePath(Plasma::Theme::defaultTheme()->imagePath("widgets/background"));
             background.setEnabledBorders(Plasma::FrameSvg::AllBorders);
-            background.resizeFrame(size);
+            background.resizeFrame(rectangle.size());
             background.paintFrame(&pixmapPainter);
 
-            size = background.contentsRect().size();
+            rectangle = background.contentsRect();
         } else {
             pixmapPainter.setOpacity(0.1);
             pixmapPainter.setBrush(QBrush(Plasma::Theme::defaultTheme()->color(Plasma::Theme::BackgroundColor)));
             pixmapPainter.setPen(QPen(Qt::transparent));
-            pixmapPainter.drawRoundedRect(QRect(QPoint(0, 0), size.toSize()), 10, 10);
+            pixmapPainter.drawRoundedRect(rectangle.toRect(), 10, 10);
             pixmapPainter.setOpacity(1);
         }
 
-        const qreal widthFactor = (size.width() / page.mainFrame()->contentsSize().width());
-        const qreal heightFactor = (size.height() / page.mainFrame()->contentsSize().height());
-        QPalette palette = page.palette();
-        palette.setBrush(QPalette::Base, Qt::transparent);
+        widget.resize(rectangle.size());
 
-        page.setPalette(palette);
-        page.setViewportSize(pixmap.size());
-        page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-        page.mainFrame()->render(&pixmapPainter, QWebFrame::ContentsLayer);
+        scene.addItem(&widget);
+        scene.render(&pixmapPainter, rectangle);
 
         m_cache->insert((index.data(IdentifierRole).toString()), pixmap);
     }
 
     QFont font = painter->font();
 
-    painter->drawPixmap(QRect((option.rect.x() + 5), (option.rect.y() + 5), 180, 90), pixmap, QRect(0, 0, 180, 90));
+    painter->drawPixmap(option.rect.topLeft(), pixmap);
     painter->setRenderHints(QPainter::TextAntialiasing);
     painter->setPen(option.palette.color(QPalette::WindowText));
 
