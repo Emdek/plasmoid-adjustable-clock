@@ -211,15 +211,21 @@ void Configuration::createTheme()
         return;
     }
 
+    const QString identifier = createIdentifier();
     QStandardItem *item = new QStandardItem();
-    item->setData(createIdentifier(), IdentifierRole);
+    item->setData(identifier, IdentifierRole);
     item->setData(title, NameRole);
     item->setData(true, WritableRole);
+
+    m_metaData[identifier] = Plasma::PackageMetadata();
+    m_metaData[identifier].setName(title);
 
     m_themesModel->appendRow(item);
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     selectTheme(item->index());
+
+    editTheme(identifier);
 }
 
 void Configuration::copyTheme()
