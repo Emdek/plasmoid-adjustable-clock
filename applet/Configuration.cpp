@@ -224,7 +224,7 @@ void Configuration::createTheme()
 
 void Configuration::copyTheme()
 {
-    copyTheme(m_themesModel->item(m_appearanceUi.themesView->currentIndex().row())->clone());
+    copyTheme(m_themesModel->item(m_appearanceUi.themesView->currentIndex().row()));
 }
 
 void Configuration::exportTheme()
@@ -280,7 +280,7 @@ void Configuration::renameTheme()
     item->setData(title, NameRole);
     m_metaData[item->data(IdentifierRole).toString()].setName(title);
 
-    saveTheme(item, item->data(PathRole).toString());
+    saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString());
 }
 
 void Configuration::aboutTheme(const QString &theme)
@@ -315,15 +315,17 @@ void Configuration::editTheme(const QString &theme)
         return;
     }
 
-    if (!item->data(WritableRole).toBool()) {
-        item = item->clone();
-
-        if (!copyTheme(item)) {
-            return;
-        }
+    if (!item->data(WritableRole).toBool() && !copyTheme(item)) {
+        return;
     }
 
-    EditorWidget *editor = new EditorWidget(item->data(IdentifierRole).toString(), item->data(ContentsRole).toString(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()));
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    EditorWidget *editor = new EditorWidget(item->data(IdentifierRole).toString(), stream.readAll(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);
@@ -351,11 +353,10 @@ void Configuration::editTheme(const QString &theme)
 
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
-    item->setData(editor->getTheme(), ContentsRole);
 
     m_metaData[item->data(IdentifierRole).toString()] = metaData;
 
-    if (saveTheme(item, (item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()))) {
+    if (saveTheme((item->data(PathRole).toString().isEmpty() ? KStandardDirs::locateLocal("data", "plasma/adjustableclock") : item->data(PathRole).toString()), item->data(IdentifierRole).toString(), editor->getTheme())) {
         modify();
 
         emit clearCache();
@@ -590,23 +591,13 @@ int Configuration::findRow(const QString &text, int role) const
 
 bool Configuration::loadTheme(const QString &path, const QString &identifier)
 {
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-    }
-
     Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(path).arg(identifier));
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
     QStandardItem *item = new QStandardItem();
     item->setData(identifier, IdentifierRole);
     item->setData(path, PathRole);
     item->setData(metaData.name().toLower(), SortRole);
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
-    item->setData(stream.readAll(), ContentsRole);
     item->setData(!metaData.author().isEmpty(), AboutRole);
     item->setData(QFile::exists(QString("%1/%2/contents/config/main.xml").arg(path).arg(identifier)), OptionsRole);
     item->setData(QFileInfo(path).isWritable(), WritableRole);
@@ -634,58 +625,60 @@ bool Configuration::copyTheme(QStandardItem *item)
     title = KInputDialog::getText(i18n("Copy Theme"), i18n("Theme name:"), title, &ok);
 
     if (!ok) {
-        delete item;
-
         return false;
     }
 
-    const QString identifier = item->data(IdentifierRole).toString();
-
-    item->setData(createIdentifier(item->data(IdentifierRole).toString()), IdentifierRole);
-    item->setData(title, NameRole);
-    item->setData(true, WritableRole);
-
+    const QString identifier = createIdentifier(item->data(IdentifierRole).toString());
     const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
 
-    m_metaData[item->data(IdentifierRole).toString()] = m_metaData[identifier];
-    m_metaData[item->data(IdentifierRole).toString()].setName(title);
-
-    if (!saveTheme(item, path)) {
+    if (!copyDirectory(QString("%1/%2/contents/").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2/contents/").arg(path).arg(identifier)) || !saveTheme(path, identifier)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
-
-        delete item;
 
         return false;
     }
 
-    const QString sourcePath = QString("%1/%2/contents/config/main.xml").arg(item->data(PathRole).toString()).arg(identifier);
-    const QString destinationPath = QString("%1/%2/contents/config/").arg(path).arg(item->data(IdentifierRole).toString());
+    QStandardItem *clonedItem = item->clone();
+    clonedItem->setData(identifier, IdentifierRole);
+    clonedItem->setData(title, NameRole);
+    clonedItem->setData(path, PathRole);
+    clonedItem->setData(true, WritableRole);
 
-    if (QFile::exists(sourcePath)) {
-        QDir().mkpath(destinationPath);
-        QFile::copy(sourcePath, (destinationPath + "main.xml"));
-    }
+    m_metaData[identifier] = m_metaData[item->data(IdentifierRole).toString()];
+    m_metaData[identifier].setName(title);
 
-    item->setData(path, PathRole);
+    m_themesModel->appendRow(clonedItem);
+    m_appearanceUi.themesView->openPersistentEditor(clonedItem->index());
 
-    m_themesModel->appendRow(item);
-    m_appearanceUi.themesView->openPersistentEditor(item->index());
-
-    selectTheme(item->index());
+    selectTheme(clonedItem->index());
 
     return true;
 }
 
-bool Configuration::saveTheme(QStandardItem *item, const QString &path)
+bool Configuration::saveTheme(const QString &path, const QString &identifier)
 {
-    const QString packagePath = QString("%1/%2/").arg(path).arg(item->data(IdentifierRole).toString());
+    const QString packagePath = QString("%1/%2/").arg(path).arg(identifier);
     const QString dataPath = QString(packagePath).append("contents/ui/");
 
-    if (!QFile::exists(dataPath)) {
-        QDir().mkpath(dataPath);
+    if (!QFile::exists(dataPath) && !QDir().mkpath(dataPath)) {
+        return false;
     }
 
-    QFile file(dataPath + "main.html");
+    Plasma::PackageMetadata metaData = m_metaData[identifier];
+    metaData.setPluginName(identifier);
+    metaData.setType("Service");
+    metaData.setServiceType("Plasma/AdjustableClock");
+    metaData.write(packagePath + "metadata.desktop");
+
+    return true;
+}
+
+bool Configuration::saveTheme(const QString &path, const QString &identifier, const QString &contents)
+{
+    if (!saveTheme(path, identifier)) {
+        return false;
+    }
+
+    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
 
     if (!file.open(QIODevice::WriteOnly)) {
         return false;
@@ -693,13 +686,27 @@ bool Configuration::saveTheme(QStandardItem *item, const QString &path)
 
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
-    stream << item->data(ContentsRole).toString();
+    stream << contents;
 
-    Plasma::PackageMetadata metaData = m_metaData[item->data(IdentifierRole).toString()];
-    metaData.setPluginName(item->data(IdentifierRole).toString());
-    metaData.setType("Service");
-    metaData.setServiceType("Plasma/AdjustableClock");
-    metaData.write(packagePath + "metadata.desktop");
+    return true;
+}
+
+bool Configuration::copyDirectory(const QString &source, const QString &destination)
+{
+    if (!QDir(destination).mkpath(destination)) {
+        return false;
+    }
+
+    QDir sourceDirectory(source);
+
+    foreach (const QFileInfo &entry, sourceDirectory.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+        const QString sourceEntry = (source + QDir::separator() + entry.fileName());
+        const QString destinationEntry = (destination + QDir::separator() + entry.fileName());
+
+        if ((entry.isDir() && !copyDirectory(sourceEntry, destinationEntry)) || (entry.isFile() && !QFile::copy(sourceEntry, destinationEntry))) {
+            return false;
+        }
+    }
 
     return true;
 }

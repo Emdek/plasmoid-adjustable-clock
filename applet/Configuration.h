@@ -40,7 +40,6 @@ enum ModelRole
     SortRole,
     NameRole,
     DescriptionRole,
-    ContentsRole,
     AboutRole,
     OptionsRole,
     WritableRole
@@ -63,7 +62,9 @@ class Configuration : public QObject
         int findRow(const QString &text, int role = NameRole) const;
         bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
-        bool saveTheme(QStandardItem *item, const QString &path);
+        bool saveTheme(const QString &path, const QString &identifier);
+        bool saveTheme(const QString &path, const QString &identifier, const QString &contents);
+        static bool copyDirectory(const QString &source, const QString &destination);
 
     protected slots:
         void save();
