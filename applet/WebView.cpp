@@ -34,10 +34,10 @@ WebView::WebView(QDeclarativeItem *parent) : QDeclarativeItem(parent),
     m_webView(new QGraphicsWebView(this)),
     m_clock(NULL)
 {
-    QPalette palette = m_webView->page()->palette();
+    QPalette palette = m_webView->palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
 
-    m_webView->page()->setPalette(palette);
+    m_webView->setPalette(palette);
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     m_webView->installEventFilter(this);
