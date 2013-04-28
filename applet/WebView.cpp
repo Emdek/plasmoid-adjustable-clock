@@ -20,6 +20,7 @@
 
 #include "WebView.h"
 
+#include <QtGui/QPainter>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtWebKit/QWebFrame>
@@ -31,21 +32,52 @@ namespace AdjustableClock
 {
 
 WebView::WebView(QDeclarativeItem *parent) : QDeclarativeItem(parent),
-    m_webView(new QGraphicsWebView(this)),
     m_clock(NULL)
 {
-    QPalette palette = m_webView->palette();
+    QPalette palette = m_page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
 
-    m_webView->setPalette(palette);
-    m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    m_webView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-    m_webView->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-    m_webView->installEventFilter(this);
+    m_page.setPalette(palette);
 
+    setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setFlag(QGraphicsItem::ItemHasNoContents, false);
     updateTheme();
 
+    connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint(QRect)));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
+}
+
+void WebView::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    setCursor(m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl().isValid() ? Qt::PointingHandCursor : Qt::ArrowCursor);
+
+    QMouseEvent mouseEvent = QMouseEvent(QEvent::MouseMove, event->pos().toPoint(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+
+    m_page.event(&mouseEvent);
+}
+
+void WebView::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    const QUrl url = m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl();
+
+    if (url.isValid()) {
+        QDesktopServices::openUrl(url);
+
+        event->accept();
+    } else {
+        QDeclarativeItem::mousePressEvent(event);
+    }
+}
+
+void WebView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
+
+    painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+
+    m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
 void WebView::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
@@ -86,9 +118,14 @@ void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeomet
     updateZoom();
 }
 
+void WebView::repaint(const QRect &rectangle)
+{
+    update(QRectF(rectangle));
+}
+
 void WebView::updateComponent(ClockComponent component)
 {
-    updateComponent(m_webView->page()->mainFrame(), component);
+    updateComponent(m_page.mainFrame(), component);
 }
 
 void WebView::updateComponent(QWebFrame *document, ClockComponent component)
@@ -111,27 +148,26 @@ void WebView::updateComponent(QWebFrame *document, ClockComponent component)
 
 void WebView::updateTheme()
 {
-    setupTheme(m_webView->page()->mainFrame(), "body {cursor: default;}");
+    setupTheme(m_page.mainFrame());
 }
 
 void WebView::updateZoom()
 {
-    m_webView->page()->setViewportSize(QSize(0, 0));
-    m_webView->page()->mainFrame()->setZoomFactor(1);
+    m_page.setViewportSize(QSize(0, 0));
+    m_page.mainFrame()->setZoomFactor(1);
 
-    const qreal widthFactor = (boundingRect().width() / m_webView->page()->mainFrame()->contentsSize().width());
-    const qreal heightFactor = (boundingRect().height() / m_webView->page()->mainFrame()->contentsSize().height());
+    const qreal widthFactor = (boundingRect().width() / m_page.mainFrame()->contentsSize().width());
+    const qreal heightFactor = (boundingRect().height() / m_page.mainFrame()->contentsSize().height());
 
-    m_webView->page()->mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-    m_webView->page()->setViewportSize(boundingRect().size().toSize());
-    m_webView->resize(boundingRect().size());
+    m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
+    m_page.setViewportSize(boundingRect().size().toSize());
 }
 
 void WebView::setTheme(Clock *clock, const QString &theme, const QString &html, bool constant)
 {
     m_clock = clock;
 
-    setupClock(m_webView->page()->mainFrame(), new ClockObject(m_clock, constant, theme), html);
+    setupClock(m_page.mainFrame(), new ClockObject(m_clock, constant, theme), html);
     updateZoom();
 
     if (!constant) {
@@ -141,10 +177,10 @@ void WebView::setTheme(Clock *clock, const QString &theme, const QString &html, 
 
 QSize WebView::getPreferredSize(const QSize &constraints)
 {
-    m_webView->page()->setViewportSize(QSize(0, 0));
-    m_webView->page()->mainFrame()->setZoomFactor(1);
+    m_page.setViewportSize(QSize(0, 0));
+    m_page.mainFrame()->setZoomFactor(1);
 
-    const QSize contents = m_webView->page()->mainFrame()->contentsSize();
+    const QSize contents = m_page.mainFrame()->contentsSize();
     QSize size;
 
     if (constraints.width() > -1) {
@@ -160,29 +196,7 @@ QSize WebView::getPreferredSize(const QSize &constraints)
 
 bool WebView::getBackgroundFlag() const
 {
-    return (m_webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
-}
-
-bool WebView::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == m_webView && event->type() == QEvent::GraphicsSceneMousePress) {
-        QGraphicsSceneMouseEvent *mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent*>(event);
-        const QUrl url = m_webView->page()->mainFrame()->hitTestContent(mouseEvent->pos().toPoint()).linkUrl();
-
-        if (url.isValid() && mouseEvent->button() == Qt::LeftButton) {
-            QDesktopServices::openUrl(url);
-
-            return true;
-        }
-
-        mouseEvent->ignore();
-    } else if (object == m_webView && (event->type() == QEvent::GraphicsSceneContextMenu || event->type() == QEvent::GraphicsSceneWheel)) {
-        event->ignore();
-
-        return true;
-    }
-
-    return QObject::eventFilter(object, event);
+    return (m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 }
 
 }

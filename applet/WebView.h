@@ -24,7 +24,7 @@
 #include "Clock.h"
 
 #include <QtDeclarative/QDeclarativeItem>
-#include <QtWebKit/QGraphicsWebView>
+#include <QtWebKit/QWebPage>
 
 namespace AdjustableClock
 {
@@ -41,19 +41,22 @@ class WebView : public QDeclarativeItem
         Q_INVOKABLE void setTheme(Clock *clock, const QString &theme, const QString &html, bool constant);
         Q_INVOKABLE QSize getPreferredSize(const QSize &constraints);
         Q_INVOKABLE bool getBackgroundFlag() const;
-        bool eventFilter(QObject *object, QEvent *event);
 
     protected:
+        void mousePressEvent(QGraphicsSceneMouseEvent *event);
+        void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
         void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
         static void updateComponent(QWebFrame *document, ClockComponent component);
         void updateZoom();
 
     protected slots:
+        void repaint(const QRect &rectangle);
         void updateComponent(ClockComponent component);
         void updateTheme();
 
     private:
-        QGraphicsWebView *m_webView;
+        QWebPage m_page;
         Clock *m_clock;
 };
 
