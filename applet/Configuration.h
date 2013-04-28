@@ -58,11 +58,11 @@ class Configuration : public QObject
 
     protected:
         QString createIdentifier(const QString &base = QString()) const;
-        Plasma::PackageMetadata getMetaData(const QString &path, const QString &identifier) const;
+        Plasma::PackageMetadata getMetaData(const QString &path) const;
         int findRow(const QString &text, int role = NameRole) const;
-        bool loadTheme(const QString &path, const QString &identifier);
+        bool loadTheme(const QString &path);
         bool copyTheme(QStandardItem *item);
-        bool saveTheme(const QString &path, const QString &identifier, Plasma::PackageMetadata metaData);
+        bool saveTheme(const QString &path, Plasma::PackageMetadata metaData);
         static bool copyDirectory(const QString &source, const QString &destination);
 
     protected slots:

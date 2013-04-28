@@ -65,10 +65,9 @@ void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
     m_rootObject->setProperty("height", size().height());
 }
 
-bool DeclarativeWidget::setTheme(const QString &path, const QString &identifier)
+bool DeclarativeWidget::setTheme(const QString &path)
 {
-    const QString packagePath = QString("%1/%2/").arg(path).arg(identifier);
-    const QString qmlPath = (packagePath + "contents/ui/main.qml");
+    const QString qmlPath = (path + "/contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
         setQmlPath(qmlPath);
@@ -78,7 +77,7 @@ bool DeclarativeWidget::setTheme(const QString &path, const QString &identifier)
         return true;
     }
 
-    QFile file(packagePath + "contents/ui/main.html");
+    QFile file(path + "/contents/ui/main.html");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QTextStream stream(&file);

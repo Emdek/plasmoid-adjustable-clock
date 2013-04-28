@@ -21,6 +21,7 @@
 #include "EditorWidget.h"
 #include "WebView.h"
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QMouseEvent>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElementCollection>
@@ -37,12 +38,12 @@
 namespace AdjustableClock
 {
 
-EditorWidget::EditorWidget(const QString &path, const QString &identifier, Clock *clock, QWidget *parent) : QWidget(parent),
+EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
     m_document(NULL),
     m_path(path)
 {
-    const Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(path).arg(identifier));
+    const Plasma::PackageMetadata metaData(path + "/metadata.desktop");
 
     m_editorUi.setupUi(this);
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
@@ -73,7 +74,7 @@ EditorWidget::EditorWidget(const QString &path, const QString &identifier, Clock
     m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_editorUi.componentWidget->setClock(m_clock);
-    m_editorUi.identifierLineEdit->setText(identifier);
+    m_editorUi.identifierLineEdit->setText(QFileInfo(path).completeBaseName());
     m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
     m_editorUi.descriptionLineEdit->setText(metaData.description());
@@ -92,10 +93,10 @@ EditorWidget::EditorWidget(const QString &path, const QString &identifier, Clock
         return;
     }
 
-    const bool qml = QFile::exists(QString("%1/%2/contents/ui/main.qml").arg(path).arg(identifier));
+    const bool qml = QFile::exists(path + "/contents/ui/main.qml");
 
     m_document = editor->createDocument(this);
-    m_document->openUrl(KUrl(QString("%1/%2/contents/ui/main.%3").arg(path).arg(identifier).arg(qml ? "qml" : "html")));
+    m_document->openUrl(KUrl(path + "/contents/ui/main." + (qml ? "qml" : "html")));
     m_document->setHighlightingMode(qml ? "qml" : "html");
 
     KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);

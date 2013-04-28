@@ -68,7 +68,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
         QGraphicsScene scene;
         DeclarativeWidget widget(m_clock);
-        widget.setTheme(index.data(PathRole).toString(), index.data(IdentifierRole).toString());
+        widget.setTheme(index.data(PathRole).toString());
 
         if (widget.getBackgroundFlag()) {
             Plasma::FrameSvg background;

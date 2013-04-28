@@ -23,6 +23,7 @@
 #include "DeclarativeWidget.h"
 #include "Configuration.h"
 
+#include <QtCore/QDir>
 #include <QtGui/QClipboard>
 #include <QtGui/QGraphicsLinearLayout>
 
@@ -106,7 +107,7 @@ void Applet::clockConfigChanged()
         const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
         for (int j = 0; j < themes.count(); ++j) {
-            if (themes.at(j) == id && m_widget->setTheme(locations.at(i), themes.at(j))) {
+            if (themes.at(j) == id && m_widget->setTheme(locations.at(i) + QDir::separator() + themes.at(j))) {
                 constraintsEvent(Plasma::SizeConstraint);
 
                 return;
@@ -114,7 +115,7 @@ void Applet::clockConfigChanged()
         }
     }
 
-    if (!m_widget->setTheme(locations.first(), "digital")) {
+    if (!m_widget->setTheme(locations.first() + QDir::separator() + "digital")) {
         m_widget->setHtml("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
 
