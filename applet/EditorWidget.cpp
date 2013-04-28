@@ -47,6 +47,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
 
     m_editorUi.setupUi(this);
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
+    m_editorUi.webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     m_editorUi.webView->page()->setContentEditable(true);
     m_editorUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_editorUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
