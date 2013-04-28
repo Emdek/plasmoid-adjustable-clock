@@ -56,6 +56,7 @@ void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
     mainComponent()->setData("import QtQuick 1.0\nimport org.kde.plasma.adjustableclock 1.0\nClockWebView{}", QUrl());
 
     m_rootObject = mainComponent()->create(engine()->rootContext());
+
     dynamic_cast<QGraphicsItem*>(m_rootObject)->setParentItem(this);
 
     QMetaObject::invokeMethod(m_rootObject, "setTheme", Q_ARG(Clock*, m_clock), Q_ARG(QString, theme), Q_ARG(QString, html), Q_ARG(bool, m_constant));

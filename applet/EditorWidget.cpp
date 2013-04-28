@@ -20,7 +20,6 @@
 
 #include "EditorWidget.h"
 #include "WebView.h"
-#include "ComponentWidget.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtWebKit/QWebFrame>
@@ -40,7 +39,6 @@ namespace AdjustableClock
 
 EditorWidget::EditorWidget(const QString &path, const QString &identifier, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
-    m_componentWidget(NULL),
     m_document(NULL),
     m_path(path)
 {
@@ -73,7 +71,7 @@ EditorWidget::EditorWidget(const QString &path, const QString &identifier, const
     m_editorUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
     m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
-    m_editorUi.componentButton->setIcon(KIcon("chronometer"));
+    m_editorUi.componentWidget->setClock(m_clock);
     m_editorUi.identifierLineEdit->setText(identifier);
     m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
@@ -133,11 +131,11 @@ EditorWidget::EditorWidget(const QString &path, const QString &identifier, const
     connect(m_editorUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_editorUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_editorUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_editorUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_editorUi.backgroundButton, SIGNAL(clicked(bool)), this, SLOT(setBackground(bool)));
+    connect(m_editorUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_editorUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_editorUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-    connect(m_editorUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(toggleComponentBar(bool)));
+    connect(m_editorUi.componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 }
 
 void EditorWidget::triggerAction()
@@ -163,19 +161,6 @@ void EditorWidget::triggerAction()
             setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
         }
     }
-}
-
-void EditorWidget::toggleComponentBar(bool show)
-{
-    if (!m_componentWidget) {
-        m_componentWidget = new ComponentWidget(m_clock, m_editorUi.componentButton);
-
-        m_editorUi.headerLayout->addWidget(m_componentWidget);
-
-        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
-    }
-
-    m_componentWidget->setVisible(show);
 }
 
 void EditorWidget::insertComponent(const QString &component, const QString &options)

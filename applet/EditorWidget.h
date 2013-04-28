@@ -31,7 +31,6 @@ namespace AdjustableClock
 {
 
 class Clock;
-class ComponentWidget;
 
 class EditorWidget : public QWidget
 {
@@ -49,7 +48,6 @@ class EditorWidget : public QWidget
 
     protected slots:
         void triggerAction();
-        void toggleComponentBar(bool show);
         void insertComponent(const QString &component, const QString &options);
         void selectionChanged();
         void modeChanged(int mode);
@@ -64,7 +62,6 @@ class EditorWidget : public QWidget
 
     private:
         Clock *m_clock;
-        ComponentWidget *m_componentWidget;
         KTextEditor::Document *m_document;
         QString m_path;
         Ui::editor m_editorUi;

@@ -35,7 +35,9 @@ class ComponentWidget : public QWidget
     Q_OBJECT
 
     public:
-        explicit ComponentWidget(Clock *clock, QWidget *parent = NULL);
+        explicit ComponentWidget(QWidget *parent, Clock *clock = NULL);
+
+        void setClock(Clock *clock);
 
     public slots:
         void insertComponent();

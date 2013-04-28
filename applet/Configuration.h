@@ -46,7 +46,6 @@ enum ModelRole
 };
 
 class Applet;
-class ComponentWidget;
 
 class Configuration : public QObject
 {

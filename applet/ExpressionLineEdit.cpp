@@ -38,19 +38,21 @@ ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
 void ExpressionLineEdit::insertComponent()
 {
     if (m_clock) {
-        ComponentWidget *componentWidget = new ComponentWidget(m_clock);
-        KDialog *dialog = new KDialog(this);
-        dialog->setMainWidget(componentWidget);
-        dialog->setModal(false);
-        dialog->setButtons(KDialog::Apply | KDialog::Close);
-        dialog->button(KDialog::Apply)->setText(i18n("Insert"));
-        dialog->button(KDialog::Apply)->setEnabled(false);
-        dialog->show();
-
-        connect(dialog->button(KDialog::Apply), SIGNAL(clicked()), componentWidget, SLOT(insertComponent()));
-        connect(componentWidget, SIGNAL(componentChanged(bool)), dialog->button(KDialog::Apply), SLOT(setEnabled(bool)));
-        connect(componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
+        return;
     }
+
+    ComponentWidget *componentWidget = new ComponentWidget(NULL, m_clock);
+    KDialog *dialog = new KDialog(this);
+    dialog->setMainWidget(componentWidget);
+    dialog->setModal(false);
+    dialog->setButtons(KDialog::Apply | KDialog::Close);
+    dialog->button(KDialog::Apply)->setText(i18n("Insert"));
+    dialog->button(KDialog::Apply)->setEnabled(false);
+    dialog->show();
+
+    connect(dialog->button(KDialog::Apply), SIGNAL(clicked()), componentWidget, SLOT(insertComponent()));
+    connect(componentWidget, SIGNAL(componentChanged(bool)), dialog->button(KDialog::Apply), SLOT(setEnabled(bool)));
+    connect(componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 }
 
 void ExpressionLineEdit::insertComponent(const QString &component, const QString &options)
