@@ -614,24 +614,6 @@ int Configuration::findRow(const QString &text, int role) const
     return -1;
 }
 
-bool Configuration::loadTheme(const QString &path)
-{
-    Plasma::PackageMetadata metaData(path + "/metadata.desktop");
-    QStandardItem *item = new QStandardItem();
-    item->setData(QFileInfo(path).completeBaseName(), IdentifierRole);
-    item->setData(path, PathRole);
-    item->setData(metaData.name().toLower(), SortRole);
-    item->setData(metaData.name(), NameRole);
-    item->setData(metaData.description(), DescriptionRole);
-    item->setData(!metaData.author().isEmpty(), AboutRole);
-    item->setData(QFile::exists(path + "/contents/config/main.xml"), OptionsRole);
-    item->setData(QFileInfo(path).isWritable(), WritableRole);
-
-    m_themesModel->appendRow(item);
-
-    return true;
-}
-
 bool Configuration::copyTheme(QStandardItem *item)
 {
     QString title = item->data(NameRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
@@ -676,6 +658,24 @@ bool Configuration::copyTheme(QStandardItem *item)
     return true;
 }
 
+bool Configuration::loadTheme(const QString &path)
+{
+    Plasma::PackageMetadata metaData(path + "/metadata.desktop");
+    QStandardItem *item = new QStandardItem();
+    item->setData(QFileInfo(path).completeBaseName(), IdentifierRole);
+    item->setData(path, PathRole);
+    item->setData(metaData.name().toLower(), SortRole);
+    item->setData(metaData.name(), NameRole);
+    item->setData(metaData.description(), DescriptionRole);
+    item->setData(!metaData.author().isEmpty(), AboutRole);
+    item->setData(QFile::exists(path + "/contents/config/main.xml"), OptionsRole);
+    item->setData(QFileInfo(path).isWritable(), WritableRole);
+
+    m_themesModel->appendRow(item);
+
+    return true;
+}
+
 bool Configuration::saveTheme(const QString &path, Plasma::PackageMetadata metaData)
 {
     if (!QDir().mkpath(path + "/contents/ui/")) {
@@ -685,7 +685,7 @@ bool Configuration::saveTheme(const QString &path, Plasma::PackageMetadata metaD
     metaData.setPluginName(QFileInfo(path).completeBaseName());
     metaData.setType("Service");
     metaData.setServiceType("Plasma/AdjustableClock");
-    metaData.write(path + "metadata.desktop");
+    metaData.write(path + "/metadata.desktop");
 
     return true;
 }

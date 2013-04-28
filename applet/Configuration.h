@@ -60,8 +60,8 @@ class Configuration : public QObject
         QString createIdentifier(const QString &base = QString()) const;
         Plasma::PackageMetadata getMetaData(const QString &path) const;
         int findRow(const QString &text, int role = NameRole) const;
-        bool loadTheme(const QString &path);
         bool copyTheme(QStandardItem *item);
+        bool loadTheme(const QString &path);
         bool saveTheme(const QString &path, Plasma::PackageMetadata metaData);
         static bool copyDirectory(const QString &source, const QString &destination);
 
