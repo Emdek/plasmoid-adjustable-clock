@@ -360,23 +360,29 @@ void Configuration::editTheme(const QString &theme)
         return;
     }
 
-    if (editor->getIdentifier() != item->data(IdentifierRole).toString() && !QDir().rename(item->data(PathRole).toString(), (QFileInfo(item->data(PathRole).toString()).canonicalPath() + QDir::separator() + editor->getIdentifier()))) {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
+    const Plasma::PackageMetadata metaData = editor->getMetaData();
+
+    item->setData(metaData.name(), NameRole);
+    item->setData(metaData.description(), DescriptionRole);
+
+    if (!saveTheme(item->data(PathRole).toString(), metaData) || !editor->saveTheme()) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to save theme."));
 
         return;
     }
 
-    const Plasma::PackageMetadata metaData = editor->getMetaData();
+    const QString path = (QFileInfo(item->data(PathRole).toString()).canonicalPath() + QDir::separator() + editor->getIdentifier());
 
-    item->setData(editor->getIdentifier(), IdentifierRole);
-    item->setData(metaData.name(), NameRole);
-    item->setData(metaData.description(), DescriptionRole);
-
-    if (saveTheme(item->data(PathRole).toString(), metaData) && editor->saveTheme()) {
-        emit clearCache();
-    } else {
-        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to save theme."));
+    if (path != item->data(PathRole).toString()) {
+        if (QDir().rename(item->data(PathRole).toString(), path) && saveTheme(path, metaData)) {
+            item->setData(editor->getIdentifier(), IdentifierRole);
+            item->setData(path, PathRole);
+        } else {
+            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to change theme identifier."));
+        }
     }
+
+    emit clearCache();
 }
 
 void Configuration::configureTheme(const QString &theme)
