@@ -240,6 +240,7 @@ void EditorWidget::richTextChanged()
 
     if (m_document) {
         m_document->setText(html);
+        m_document->activeView()->setCursorPosition(KTextEditor::Cursor(0, 0));
     }
 }
 
