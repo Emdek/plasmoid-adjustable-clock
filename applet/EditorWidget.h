@@ -41,7 +41,7 @@ class EditorWidget : public QWidget
 
         QString getIdentifier() const;
         Plasma::PackageMetadata getMetaData() const;
-        bool saveTheme() const;
+        bool saveTheme();
 
     protected:
         void setStyle(const QString &property, const QString &value, const QString &tag = "span");

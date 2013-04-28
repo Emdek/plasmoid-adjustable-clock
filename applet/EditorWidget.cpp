@@ -332,8 +332,12 @@ void EditorWidget::setZoom(int zoom)
     m_editorUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
-bool EditorWidget::saveTheme() const
+bool EditorWidget::saveTheme()
 {
+    if (m_editorUi.tabWidget->currentIndex() == 0) {
+        richTextChanged();
+    }
+
     if (m_document) {
         return m_document->documentSave();
     }
