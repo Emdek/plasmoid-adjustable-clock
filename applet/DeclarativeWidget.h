@@ -35,6 +35,7 @@ class DeclarativeWidget : public Plasma::DeclarativeWidget
     public:
         explicit DeclarativeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
+        void updateSize();
         void setHtml(const QString &html, const QString &theme = QString());
         QSize getPreferredSize(const QSize &constraints) const;
         bool setTheme(const QString &path);

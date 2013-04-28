@@ -39,6 +39,11 @@ void DeclarativeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     QGraphicsWidget::resizeEvent(event);
 
+    updateSize();
+}
+
+void DeclarativeWidget::updateSize()
+{
     if (m_rootObject) {
         m_rootObject->setProperty("pos", contentsRect().topLeft());
         m_rootObject->setProperty("width", contentsRect().width());
@@ -62,9 +67,7 @@ void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
 
     QMetaObject::invokeMethod(m_rootObject, "setTheme", Q_ARG(Clock*, m_clock), Q_ARG(QString, theme), Q_ARG(QString, html), Q_ARG(bool, m_constant));
 
-    m_rootObject->setProperty("pos", contentsRect().topLeft());
-    m_rootObject->setProperty("width", contentsRect().width());
-    m_rootObject->setProperty("height", contentsRect().height());
+    updateSize();
 }
 
 QSize DeclarativeWidget::getPreferredSize(const QSize &constraints) const
