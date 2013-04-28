@@ -639,7 +639,7 @@ bool Configuration::copyTheme(QStandardItem *item)
     Plasma::PackageMetadata metaData = getMetaData(item->data(PathRole).toString());
     metaData.setName(title);
 
-    if (!copyDirectory((item->data(PathRole).toString() + "/contents/"), path) || !saveTheme(path, metaData)) {
+    if (!copyDirectory((item->data(PathRole).toString() + "/contents/"), (path + "/contents/")) || !saveTheme(path, metaData)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
 
         return false;
