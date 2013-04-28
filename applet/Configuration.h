@@ -58,10 +58,11 @@ class Configuration : public QObject
 
     protected:
         QString createIdentifier(const QString &base = QString()) const;
+        Plasma::PackageMetadata getMetaData(const QString &path, const QString &identifier) const;
         int findRow(const QString &text, int role = NameRole) const;
         bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
-        bool saveTheme(const QString &path, const QString &identifier);
+        bool saveTheme(const QString &path, const QString &identifier, Plasma::PackageMetadata metaData);
         static bool copyDirectory(const QString &source, const QString &destination);
 
     protected slots:
@@ -91,7 +92,6 @@ class Configuration : public QObject
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
         QModelIndex m_editedAction;
-        QHash<QString, Plasma::PackageMetadata> m_metaData;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

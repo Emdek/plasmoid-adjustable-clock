@@ -37,7 +37,7 @@ class EditorWidget : public QWidget
     Q_OBJECT
 
     public:
-        explicit EditorWidget(const QString &path, const QString &identifier, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent);
+        explicit EditorWidget(const QString &path, const QString &identifier, Clock *clock, QWidget *parent);
 
         QString getIdentifier() const;
         Plasma::PackageMetadata getMetaData() const;

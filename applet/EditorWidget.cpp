@@ -37,13 +37,14 @@
 namespace AdjustableClock
 {
 
-EditorWidget::EditorWidget(const QString &path, const QString &identifier, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
+EditorWidget::EditorWidget(const QString &path, const QString &identifier, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
     m_document(NULL),
     m_path(path)
 {
-    m_editorUi.setupUi(this);
+    const Plasma::PackageMetadata metaData(QString("%1/%2/metadata.desktop").arg(path).arg(identifier));
 
+    m_editorUi.setupUi(this);
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_editorUi.webView->page()->setContentEditable(true);
     m_editorUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));

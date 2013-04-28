@@ -227,19 +227,21 @@ void Configuration::createTheme()
     }
 
     const QString identifier = createIdentifier();
+    const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
     QStandardItem *item = new QStandardItem();
     item->setData(identifier, IdentifierRole);
+    item->setData(path, PathRole);
     item->setData(title, NameRole);
     item->setData(true, WritableRole);
 
-    m_metaData[identifier] = Plasma::PackageMetadata();
-    m_metaData[identifier].setName(title);
+    Plasma::PackageMetadata metaData = getMetaData(path, identifier);
+    metaData.setName(title);
 
     m_themesModel->appendRow(item);
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
+    saveTheme(path, identifier, metaData);
     selectTheme(item->index());
-
     editTheme(identifier);
 }
 
@@ -279,7 +281,6 @@ void Configuration::deleteTheme()
             return;
         }
 
-        m_metaData.remove(index.data(IdentifierRole).toString());
         m_themesModel->removeRow(row);
 
         selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
@@ -299,9 +300,11 @@ void Configuration::renameTheme()
     }
 
     item->setData(title, NameRole);
-    m_metaData[item->data(IdentifierRole).toString()].setName(title);
 
-    saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString());
+    Plasma::PackageMetadata metaData = getMetaData(item->data(PathRole).toString(), item->data(IdentifierRole).toString());
+    metaData.setName(title);
+
+    saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString(), metaData);
 }
 
 void Configuration::aboutTheme(const QString &theme)
@@ -312,7 +315,7 @@ void Configuration::aboutTheme(const QString &theme)
         return;
     }
 
-    const Plasma::PackageMetadata metaData = m_metaData[item->data(IdentifierRole).toString()];
+    const Plasma::PackageMetadata metaData = getMetaData(item->data(PathRole).toString(), item->data(IdentifierRole).toString());
     const QStringList authors = metaData.author().split(QChar(','), QString::KeepEmptyParts);
     const QStringList emails = metaData.email().split(QChar(','), QString::KeepEmptyParts);
     const QStringList websites = metaData.website().split(QChar(','), QString::KeepEmptyParts);
@@ -344,7 +347,7 @@ void Configuration::editTheme(const QString &theme)
         item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
     }
 
-    EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), item->data(IdentifierRole).toString(), m_metaData[item->data(IdentifierRole).toString()], m_applet->getClock(), m_appearanceUi.themesView);
+    EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), item->data(IdentifierRole).toString(), m_applet->getClock(), m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);
@@ -373,9 +376,7 @@ void Configuration::editTheme(const QString &theme)
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
 
-    m_metaData[item->data(IdentifierRole).toString()] = metaData;
-
-    if (saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString()) && editor->saveTheme()) {
+    if (saveTheme(item->data(PathRole).toString(), item->data(IdentifierRole).toString(), metaData) && editor->saveTheme()) {
         emit clearCache();
     } else {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to save theme."));
@@ -595,6 +596,11 @@ QString Configuration::createIdentifier(const QString &base) const
     return identifier.arg(i);
 }
 
+Plasma::PackageMetadata Configuration::getMetaData(const QString &path, const QString &identifier) const
+{
+    return Plasma::PackageMetadata(QString("%1/%2/metadata.desktop").arg(path).arg(identifier));
+}
+
 int Configuration::findRow(const QString &text, int role) const
 {
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {
@@ -621,8 +627,6 @@ bool Configuration::loadTheme(const QString &path, const QString &identifier)
 
     m_themesModel->appendRow(item);
 
-    m_metaData[identifier] = metaData;
-
     return true;
 }
 
@@ -647,8 +651,10 @@ bool Configuration::copyTheme(QStandardItem *item)
 
     const QString identifier = createIdentifier(item->data(IdentifierRole).toString());
     const QString path = KStandardDirs::locateLocal("data", "plasma/adjustableclock");
+    Plasma::PackageMetadata metaData = getMetaData(item->data(PathRole).toString(), item->data(IdentifierRole).toString());
+    metaData.setName(title);
 
-    if (!copyDirectory(QString("%1/%2/contents/").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2/contents/").arg(path).arg(identifier)) || !saveTheme(path, identifier)) {
+    if (!copyDirectory(QString("%1/%2/contents/").arg(item->data(PathRole).toString()).arg(item->data(IdentifierRole).toString()), QString("%1/%2/contents/").arg(path).arg(identifier)) || !saveTheme(path, identifier, metaData)) {
         KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to copy theme."));
 
         return false;
@@ -660,9 +666,6 @@ bool Configuration::copyTheme(QStandardItem *item)
     clonedItem->setData(path, PathRole);
     clonedItem->setData(true, WritableRole);
 
-    m_metaData[identifier] = m_metaData[item->data(IdentifierRole).toString()];
-    m_metaData[identifier].setName(title);
-
     m_themesModel->appendRow(clonedItem);
     m_appearanceUi.themesView->openPersistentEditor(clonedItem->index());
 
@@ -671,16 +674,14 @@ bool Configuration::copyTheme(QStandardItem *item)
     return true;
 }
 
-bool Configuration::saveTheme(const QString &path, const QString &identifier)
+bool Configuration::saveTheme(const QString &path, const QString &identifier, Plasma::PackageMetadata metaData)
 {
     const QString packagePath = QString("%1/%2/").arg(path).arg(identifier);
-    const QString dataPath = QString(packagePath).append("contents/ui/");
 
-    if (!QFile::exists(dataPath) && !QDir().mkpath(dataPath)) {
+    if (!QDir().mkpath(packagePath + "contents/ui/")) {
         return false;
     }
 
-    Plasma::PackageMetadata metaData = m_metaData[identifier];
     metaData.setPluginName(identifier);
     metaData.setType("Service");
     metaData.setServiceType("Plasma/AdjustableClock");
