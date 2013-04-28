@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>editor</class>
  <widget class="QWidget" name="editor">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>670</width>
-    <height>287</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Editor</string>
   </property>
@@ -180,7 +172,7 @@
         <widget class="AdjustableClock::ComponentWidget" name="componentWidget" native="true"/>
        </item>
        <item>
-        <widget class="KTabWidget" name="editorTabWidget">
+        <widget class="KTabWidget" name="tabWidget">
          <property name="tabPosition">
           <enum>QTabWidget::West</enum>
          </property>
@@ -227,8 +219,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>

@@ -84,43 +84,37 @@ EditorWidget::EditorWidget(const QString &path, const QString &identifier, const
 
     KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
 
-    if (editor) {
-        m_document = editor->createDocument(this);
-        m_document->setHighlightingMode("html");
+    if (!editor) {
+        m_editorUi.toolBox->setCurrentIndex(1);
+        m_editorUi.toolBox->setItemEnabled(0, false);
 
-        KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
-        view->setContextMenu(view->defaultContextMenu());
-
-        KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
-
-        if (configuration) {
-            configuration->setConfigValue("line-numbers", true);
-            configuration->setConfigValue("folding-bar", false);
-            configuration->setConfigValue("dynamic-word-wrap", false);
-        }
-
-        m_editorUi.sourceLayout->addWidget(view);
-    } else {
-        m_editorUi.editorTabWidget->setTabEnabled(1, false);
+        return;
     }
 
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    const bool qml = QFile::exists(QString("%1/%2/contents/ui/main.qml").arg(path).arg(identifier));
 
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
+    m_document = editor->createDocument(this);
+    m_document->openUrl(KUrl(QString("%1/%2/contents/ui/main.%3").arg(path).arg(identifier).arg(qml ? "qml" : "html")));
+    m_document->setHighlightingMode(qml ? "qml" : "html");
 
-    const QString contents = stream.readAll();
+    KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
+    view->setContextMenu(view->defaultContextMenu());
 
-    if (m_document) {
-        m_document->setText(contents);
+    KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
+
+    if (configuration) {
+        configuration->setConfigValue("line-numbers", true);
+        configuration->setConfigValue("folding-bar", false);
+        configuration->setConfigValue("dynamic-word-wrap", false);
     }
+
+    m_editorUi.sourceLayout->addWidget(view);
+
+    sourceChanged(m_document->text());
 
     m_editorUi.backgroundButton->setChecked(m_editorUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 
-    sourceChanged(contents);
-
-    connect(m_editorUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
+    connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_editorUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_editorUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
@@ -155,7 +149,7 @@ void EditorWidget::triggerAction()
     } else if (action == QWebPage::ToggleItalic) {
         setStyle("text-decoration", (button->isChecked() ? "none" : "underline"));
     } else {
-        if (m_editorUi.editorTabWidget->currentIndex() == 0) {
+        if (m_editorUi.tabWidget->currentIndex() == 0) {
             m_editorUi.webView->page()->triggerAction(action);
         } else {
             setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
@@ -168,7 +162,7 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
     const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
     const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
 
-    if (m_editorUi.editorTabWidget->currentIndex() > 0) {
+    if (m_editorUi.tabWidget->currentIndex() > 0) {
         const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
         if (m_document) {
@@ -289,7 +283,7 @@ void EditorWidget::showContextMenu(const QPoint &position)
 
 void EditorWidget::setStyle(const QString &property, const QString &value, const QString &tag)
 {
-    if (m_editorUi.editorTabWidget->currentIndex() > 0 && m_document) {
+    if (m_editorUi.tabWidget->currentIndex() > 0 && m_document) {
         m_document->activeView()->insertText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document->activeView()->selectionText()));
     } else {
         m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
@@ -336,15 +330,9 @@ void EditorWidget::setZoom(int zoom)
 
 bool EditorWidget::saveTheme() const
 {
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(m_path).arg(getIdentifier()));
-
-    if (!file.open(QIODevice::WriteOnly)) {
-        return false;
+    if (m_document) {
+        return m_document->documentSave();
     }
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-    stream << (m_document ? m_document->text() : m_editorUi.webView->page()->mainFrame()->toHtml());
 
     return true;
 }
