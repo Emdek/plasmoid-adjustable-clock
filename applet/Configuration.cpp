@@ -241,6 +241,7 @@ void Configuration::createTheme()
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     saveTheme(path, metaData);
+    QFile::copy(":/template.html", (path + "/contents/ui/main.html"));
     selectTheme(item->index());
     editTheme(identifier);
 }

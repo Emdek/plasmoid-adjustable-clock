@@ -1,6 +1,7 @@
 <RCC>
-    <qresource prefix="/">
-        <file>editor.js</file>
-        <file>helper.js</file>
-    </qresource>
+	<qresource prefix="/">
+		<file>editor.js</file>
+		<file>helper.js</file>
+		<file>template.html</file>
+	</qresource>
 </RCC>
