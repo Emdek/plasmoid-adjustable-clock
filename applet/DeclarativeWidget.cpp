@@ -40,8 +40,9 @@ void DeclarativeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
     QGraphicsWidget::resizeEvent(event);
 
     if (m_rootObject) {
-        m_rootObject->setProperty("width", size().width());
-        m_rootObject->setProperty("height", size().height());
+        m_rootObject->setProperty("pos", contentsRect().topLeft());
+        m_rootObject->setProperty("width", contentsRect().width());
+        m_rootObject->setProperty("height", contentsRect().height());
     }
 }
 
@@ -61,8 +62,18 @@ void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
 
     QMetaObject::invokeMethod(m_rootObject, "setTheme", Q_ARG(Clock*, m_clock), Q_ARG(QString, theme), Q_ARG(QString, html), Q_ARG(bool, m_constant));
 
-    m_rootObject->setProperty("width", size().width());
-    m_rootObject->setProperty("height", size().height());
+    m_rootObject->setProperty("pos", contentsRect().topLeft());
+    m_rootObject->setProperty("width", contentsRect().width());
+    m_rootObject->setProperty("height", contentsRect().height());
+}
+
+QSize DeclarativeWidget::getPreferredSize(const QSize &constraints) const
+{
+    QSize size;
+
+    QMetaObject::invokeMethod(m_rootObject, "getPreferredSize", Q_RETURN_ARG(QSize, size), Q_ARG(QSize, constraints));
+
+    return size;
 }
 
 bool DeclarativeWidget::setTheme(const QString &path)

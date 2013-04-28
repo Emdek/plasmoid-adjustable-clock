@@ -139,6 +139,25 @@ void WebView::setTheme(Clock *clock, const QString &theme, const QString &html, 
     }
 }
 
+QSize WebView::getPreferredSize(const QSize &constraints)
+{
+    m_webView->page()->setViewportSize(QSize(0, 0));
+    m_webView->page()->mainFrame()->setZoomFactor(1);
+
+    const QSize contents = m_webView->page()->mainFrame()->contentsSize();
+    QSize size;
+
+    if (constraints.width() > -1) {
+        size.setHeight(contents.height() * ((qreal) constraints.width() / contents.width()));
+    } else if (constraints.height() > -1) {
+        size.setWidth(contents.width() * ((qreal) constraints.height() / contents.height()));
+    }
+
+    updateZoom();
+
+    return size;
+}
+
 bool WebView::getBackgroundFlag() const
 {
     return (m_webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
