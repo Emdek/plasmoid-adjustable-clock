@@ -662,7 +662,7 @@ bool Configuration::loadTheme(const QString &path)
 {
     Plasma::PackageMetadata metaData(path + "/metadata.desktop");
     QStandardItem *item = new QStandardItem();
-    item->setData(QFileInfo(path).completeBaseName(), IdentifierRole);
+    item->setData(QFileInfo(path).fileName(), IdentifierRole);
     item->setData(path, PathRole);
     item->setData(metaData.name().toLower(), SortRole);
     item->setData(metaData.name(), NameRole);
@@ -682,7 +682,7 @@ bool Configuration::saveTheme(const QString &path, Plasma::PackageMetadata metaD
         return false;
     }
 
-    metaData.setPluginName(QFileInfo(path).completeBaseName());
+    metaData.setPluginName(QFileInfo(path).fileName());
     metaData.setType("Service");
     metaData.setServiceType("Plasma/AdjustableClock");
     metaData.write(path + "/metadata.desktop");

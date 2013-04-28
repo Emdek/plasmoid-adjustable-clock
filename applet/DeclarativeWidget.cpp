@@ -21,7 +21,7 @@
 #include "DeclarativeWidget.h"
 #include "WebView.h"
 
-#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtDeclarative/QDeclarativeEngine>
 
@@ -89,7 +89,7 @@ bool DeclarativeWidget::setTheme(const QString &path)
         return false;
     }
 
-    setHtml(html);
+    setHtml(html, QFileInfo(path).fileName());
 
     return true;
 }

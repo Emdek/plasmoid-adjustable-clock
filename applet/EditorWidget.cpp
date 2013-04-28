@@ -74,7 +74,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_editorUi.componentWidget->setClock(m_clock);
-    m_editorUi.identifierLineEdit->setText(QFileInfo(path).completeBaseName());
+    m_editorUi.identifierLineEdit->setText(QFileInfo(path).fileName());
     m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
     m_editorUi.descriptionLineEdit->setText(metaData.description());
