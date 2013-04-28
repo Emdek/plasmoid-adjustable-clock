@@ -664,7 +664,7 @@ bool Configuration::loadTheme(const QString &path)
     Plasma::PackageMetadata metaData(path + "/metadata.desktop");
     QStandardItem *item = new QStandardItem();
     item->setData(QFileInfo(path).fileName(), IdentifierRole);
-    item->setData(path, PathRole);
+    item->setData(QFileInfo(path).canonicalFilePath(), PathRole);
     item->setData(metaData.name().toLower(), SortRole);
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
