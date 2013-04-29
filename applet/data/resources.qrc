@@ -3,5 +3,6 @@
 		<file>editor.js</file>
 		<file>helper.js</file>
 		<file>template.html</file>
+		<file>template.qml</file>
 	</qresource>
 </RCC>

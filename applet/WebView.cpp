@@ -80,6 +80,18 @@ void WebView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
+void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
+
+    updateZoom();
+}
+
+void WebView::repaint(const QRect &rectangle)
+{
+    update(QRectF(rectangle));
+}
+
 void WebView::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
 {
     document->setHtml(html);
@@ -109,18 +121,6 @@ void WebView::setupClock(QWebFrame *document, ClockObject *clock, const QString 
 void WebView::setupTheme(QWebFrame *document, const QString &css)
 {
     document->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + css));
-}
-
-void WebView::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
-{
-    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
-
-    updateZoom();
-}
-
-void WebView::repaint(const QRect &rectangle)
-{
-    update(QRectF(rectangle));
 }
 
 void WebView::updateComponent(ClockComponent component)

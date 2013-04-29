@@ -81,11 +81,15 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     }
 
     ThemeDelegate *delegate = new ThemeDelegate(m_applet->getClock(), m_appearanceUi.themesView);
+    KMenu *createMenu = new KMenu(m_appearanceUi.createButton);
+    createMenu->addAction(i18n("HTML"))->setData("html");
+    createMenu->addAction(i18n("QML"))->setData("qml");
 
     m_appearanceUi.themesView->setModel(m_themesModel);
     m_appearanceUi.themesView->setItemDelegate(delegate);
     m_appearanceUi.themesView->installEventFilter(this);
     m_appearanceUi.themesView->viewport()->installEventFilter(this);
+    m_appearanceUi.createButton->setMenu(createMenu);
 
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
@@ -111,7 +115,7 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     connect(m_appearanceUi.themesView, SIGNAL(clicked(QModelIndex)), this, SLOT(selectTheme(QModelIndex)));
     connect(m_appearanceUi.themesView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_appearanceUi.installButton, SIGNAL(clicked()), this, SLOT(installTheme()));
-    connect(m_appearanceUi.createButton, SIGNAL(clicked()), this, SLOT(createTheme()));
+    connect(createMenu, SIGNAL(triggered(QAction*)), this, SLOT(createTheme(QAction*)));
     connect(m_clipboardUi.addButton, SIGNAL(clicked()), this, SLOT(insertAction()));
     connect(m_clipboardUi.deleteButton, SIGNAL(clicked()), this, SLOT(deleteAction()));
     connect(m_clipboardUi.editButton, SIGNAL(clicked()), this, SLOT(editAction()));
@@ -202,8 +206,9 @@ void Configuration::installTheme()
     }
 }
 
-void Configuration::createTheme()
+void Configuration::createTheme(QAction *action)
 {
+    const bool qml = (action && action->data().toString() == "qml");
     QString title = i18n("New Theme");
 
     if (findRow(title) >= 0) {
@@ -226,6 +231,7 @@ void Configuration::createTheme()
         return;
     }
 
+    const QString extension = (qml ? "qml" : "html");
     const QString identifier = createIdentifier();
     const QString path = KStandardDirs::locateLocal("data", ("plasma/adjustableclock/" + identifier));
     QStandardItem *item = new QStandardItem();
@@ -241,7 +247,7 @@ void Configuration::createTheme()
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     saveTheme(path, metaData);
-    QFile::copy(":/template.html", (path + "/contents/ui/main.html"));
+    QFile::copy((":/template." + extension), (path + "/contents/ui/main." + extension));
     selectTheme(item->index());
     editTheme(identifier);
 }
@@ -718,7 +724,7 @@ bool Configuration::eventFilter(QObject *object, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         if (!m_appearanceUi.themesView->indexAt(mouseEvent->pos()).isValid()) {
-            createTheme();
+            m_appearanceUi.createButton->menu()->exec(m_appearanceUi.themesView->mapToGlobal(mouseEvent->pos()));
         }
     } else if ((event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) && object == m_clipboardUi.actionsView->viewport()) {
         if (event->type() == QEvent::MouseButtonPress && m_editedAction.isValid()) {
