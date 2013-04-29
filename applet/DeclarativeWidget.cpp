@@ -84,6 +84,10 @@ bool DeclarativeWidget::setTheme(const QString &path)
     const QString qmlPath = (path + "/contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
+        if (m_rootObject) {
+            m_rootObject->deleteLater();
+        }
+
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
