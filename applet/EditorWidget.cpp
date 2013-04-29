@@ -19,9 +19,9 @@
 ***********************************************************************************/
 
 #include "EditorWidget.h"
-#include "Clock.h"
-#include "ComponentWidget.h"
+#include "WebView.h"
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QMouseEvent>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElementCollection>
@@ -38,14 +38,17 @@
 namespace AdjustableClock
 {
 
-EditorWidget::EditorWidget(const QString &identifier, const QString &theme, const Plasma::PackageMetadata &metaData, Clock *clock, QWidget *parent) : QWidget(parent),
+EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
-    m_componentWidget(NULL),
-    m_document(NULL)
+    m_document(NULL),
+    m_path(path),
+    m_qml(QFile::exists(path + "/contents/ui/main.qml"))
 {
-    m_editorUi.setupUi(this);
+    const Plasma::PackageMetadata metaData(path + "/metadata.desktop");
 
+    m_editorUi.setupUi(this);
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
+    m_editorUi.webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     m_editorUi.webView->page()->setContentEditable(true);
     m_editorUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
     m_editorUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
@@ -72,8 +75,8 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
     m_editorUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
     m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
-    m_editorUi.componentButton->setIcon(KIcon("chronometer"));
-    m_editorUi.identifierLineEdit->setText(identifier);
+    m_editorUi.componentWidget->setClock(m_clock);
+    m_editorUi.identifierLineEdit->setText(QFileInfo(path).fileName());
     m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
     m_editorUi.descriptionLineEdit->setText(metaData.description());
@@ -85,40 +88,41 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
 
     KTextEditor::Editor *editor = KTextEditor::EditorChooser::editor();
 
-    if (editor) {
-        if (m_document) {
-            m_document->activeView()->deleteLater();
-            m_document->deleteLater();
-        }
+    if (!editor) {
+        m_editorUi.toolBox->setCurrentIndex(1);
+        m_editorUi.toolBox->setItemEnabled(0, false);
 
-        m_document = editor->createDocument(this);
-        m_document->setHighlightingMode("html");
-
-        KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
-        view->setContextMenu(view->defaultContextMenu());
-
-        KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
-
-        if (configuration) {
-            configuration->setConfigValue("line-numbers", true);
-            configuration->setConfigValue("folding-bar", false);
-            configuration->setConfigValue("dynamic-word-wrap", false);
-        }
-
-        m_editorUi.sourceLayout->addWidget(view);
-    } else {
-        m_editorUi.editorTabWidget->setTabEnabled(1, false);
+        return;
     }
 
-    if (m_document) {
-        m_document->setText(theme);
+    m_document = editor->createDocument(this);
+    m_document->openUrl(KUrl(path + "/contents/ui/main." + (m_qml ? "qml" : "html")));
+    m_document->setHighlightingMode(m_qml ? "qml" : "html");
+
+    KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
+    view->setContextMenu(view->defaultContextMenu());
+
+    KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
+
+    if (configuration) {
+        configuration->setConfigValue("line-numbers", true);
+        configuration->setConfigValue("folding-bar", false);
+        configuration->setConfigValue("dynamic-word-wrap", false);
+    }
+
+    m_editorUi.sourceLayout->addWidget(view);
+
+    if (m_qml) {
+        m_editorUi.tabWidget->setCurrentIndex(1);
+        m_editorUi.tabWidget->setTabEnabled(0, false);
+        m_editorUi.controlsWidget->setVisible(false);
+    } else {
+        sourceChanged(m_document->text());
     }
 
     m_editorUi.backgroundButton->setChecked(m_editorUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 
-    sourceChanged(theme);
-
-    connect(m_editorUi.editorTabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
+    connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_editorUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_editorUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
@@ -129,11 +133,11 @@ EditorWidget::EditorWidget(const QString &identifier, const QString &theme, cons
     connect(m_editorUi.justifyLeftButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_editorUi.justifyCenterButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_editorUi.justifyRightButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
-    connect(m_editorUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_editorUi.backgroundButton, SIGNAL(clicked(bool)), this, SLOT(setBackground(bool)));
+    connect(m_editorUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_editorUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_editorUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-    connect(m_editorUi.componentButton, SIGNAL(toggled(bool)), this, SLOT(toggleComponentBar(bool)));
+    connect(m_editorUi.componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 }
 
 void EditorWidget::triggerAction()
@@ -153,7 +157,7 @@ void EditorWidget::triggerAction()
     } else if (action == QWebPage::ToggleItalic) {
         setStyle("text-decoration", (button->isChecked() ? "none" : "underline"));
     } else {
-        if (m_editorUi.editorTabWidget->currentIndex() == 0) {
+        if (m_editorUi.tabWidget->currentIndex() == 0) {
             m_editorUi.webView->page()->triggerAction(action);
         } else {
             setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
@@ -161,25 +165,12 @@ void EditorWidget::triggerAction()
     }
 }
 
-void EditorWidget::toggleComponentBar(bool show)
-{
-    if (!m_componentWidget) {
-        m_componentWidget = new ComponentWidget(m_clock, m_editorUi.componentButton);
-
-        m_editorUi.headerLayout->addWidget(m_componentWidget);
-
-        connect(m_componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
-    }
-
-    m_componentWidget->setVisible(show);
-}
-
 void EditorWidget::insertComponent(const QString &component, const QString &options)
 {
     const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
     const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
 
-    if (m_editorUi.editorTabWidget->currentIndex() > 0) {
+    if (m_editorUi.tabWidget->currentIndex() > 0) {
         const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
         if (m_document) {
@@ -255,6 +246,7 @@ void EditorWidget::richTextChanged()
 
     if (m_document) {
         m_document->setText(html);
+        m_document->activeView()->setCursorPosition(KTextEditor::Cursor(0, 0));
     }
 }
 
@@ -266,7 +258,7 @@ void EditorWidget::sourceChanged(const QString &theme)
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    Clock::setupClock(m_editorUi.webView->page()->mainFrame(), m_clock->createClock(), (m_document ? m_document->text() : theme));
+    WebView::setupClock(m_editorUi.webView->page()->mainFrame(), new ClockObject(m_clock, true), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
 
     m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 
@@ -300,7 +292,7 @@ void EditorWidget::showContextMenu(const QPoint &position)
 
 void EditorWidget::setStyle(const QString &property, const QString &value, const QString &tag)
 {
-    if (m_editorUi.editorTabWidget->currentIndex() > 0 && m_document) {
+    if (m_editorUi.tabWidget->currentIndex() > 0 && m_document) {
         m_document->activeView()->insertText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document->activeView()->selectionText()));
     } else {
         m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
@@ -345,9 +337,17 @@ void EditorWidget::setZoom(int zoom)
     m_editorUi.zoomSlider->setToolTip(i18n("Zoom: %1%").arg(zoom));
 }
 
-QString EditorWidget::getTheme() const
+bool EditorWidget::saveTheme()
 {
-    return (m_document ? m_document->text() : m_editorUi.webView->page()->mainFrame()->toHtml());
+    if (m_editorUi.tabWidget->currentIndex() == 0) {
+        richTextChanged();
+    }
+
+    if (m_document) {
+        return m_document->documentSave();
+    }
+
+    return true;
 }
 
 QString EditorWidget::getIdentifier() const

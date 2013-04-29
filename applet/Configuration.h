@@ -40,14 +40,11 @@ enum ModelRole
     SortRole,
     NameRole,
     DescriptionRole,
-    ContentsRole,
     AboutRole,
-    OptionsRole,
-    WritableRole
+    EditableRole
 };
 
 class Applet;
-class ComponentWidget;
 
 class Configuration : public QObject
 {
@@ -60,17 +57,19 @@ class Configuration : public QObject
 
     protected:
         QString createIdentifier(const QString &base = QString()) const;
+        Plasma::PackageMetadata getMetaData(const QString &path) const;
         int findRow(const QString &text, int role = NameRole) const;
-        bool loadTheme(const QString &path, const QString &identifier);
         bool copyTheme(QStandardItem *item);
-        bool saveTheme(QStandardItem *item, const QString &path);
+        bool loadTheme(const QString &path);
+        bool saveTheme(const QString &path, Plasma::PackageMetadata metaData);
+        static bool copyDirectory(const QString &source, const QString &destination);
 
     protected slots:
         void save();
         void modify();
         void selectTheme(const QModelIndex &index);
         void installTheme();
-        void createTheme();
+        void createTheme(QAction *action);
         void copyTheme();
         void exportTheme();
         void deleteTheme();
@@ -92,7 +91,6 @@ class Configuration : public QObject
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
         QModelIndex m_editedAction;
-        QHash<QString, Plasma::PackageMetadata> m_metaData;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
 

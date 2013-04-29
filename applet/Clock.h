@@ -22,7 +22,6 @@
 #define ADJUSTABLECLOCKCLOCK_HEADER
 
 #include <QtScript/QScriptEngine>
-#include <QtWebKit/QWebFrame>
 
 #include <Plasma/DataEngine>
 
@@ -76,7 +75,6 @@ class ClockObject : public QObject
 
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
         Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
-        bool isConstant() const;
 
     private:
         Clock *m_clock;
@@ -89,12 +87,9 @@ class Clock : public QObject
     Q_OBJECT
 
     public:
-        explicit Clock(Applet *applet, QWebFrame *document);
+        explicit Clock(Applet *applet);
 
         void updateTimeZone();
-        void setTheme(const QString &html);
-        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html);
-        ClockObject* createClock(const QString &theme = QString());
         QString evaluate(const QString &script, bool constant = false);
         QVariant getOption(const QString &key, const QVariant &defaultValue, const QString &theme = QString()) const;
         QVariant getValue(ClockComponent component, const QVariantMap &options = QVariantMap(), bool constant = false) const;
@@ -102,22 +97,13 @@ class Clock : public QObject
         static QLatin1String getComponentString(ClockComponent component);
 
     protected:
-        static void setupEngine(QScriptEngine *engine, ClockObject *clock);
-        static void setupTheme(QWebFrame *document);
-        static void updateComponent(QWebFrame *document, ClockObject *clock, ClockComponent component);
-        void updateComponent(ClockComponent component);
         static QString formatNumber(int number, int length);
 
     protected slots:
         void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data, bool reload = false);
-        void updateTheme();
 
     private:
         Applet *m_applet;
-        QWebFrame *m_document;
-        ClockObject *m_clock;
-        ClockObject *m_constantClock;
-        QScriptEngine m_engine;
         QDateTime m_dateTime;
         QDateTime m_constantDateTime;
         QTime m_sunrise;
@@ -132,6 +118,7 @@ class Clock : public QObject
         QMap<QString, QString> m_timeZones;
 
     signals:
+        void componentChanged(ClockComponent component);
         void tick();
 };
 

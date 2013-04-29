@@ -18,54 +18,36 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKEDITORWIDGET_HEADER
-#define ADJUSTABLECLOCKEDITORWIDGET_HEADER
+#ifndef ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
+#define ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
 
-#include <KTextEditor/Document>
-
-#include <Plasma/Package>
-
-#include "ui_editor.h"
+#include <Plasma/DeclarativeWidget>
 
 namespace AdjustableClock
 {
 
 class Clock;
 
-class EditorWidget : public QWidget
+class DeclarativeWidget : public Plasma::DeclarativeWidget
 {
     Q_OBJECT
 
     public:
-        explicit EditorWidget(const QString &path, Clock *clock, QWidget *parent);
+        explicit DeclarativeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
-        QString getIdentifier() const;
-        Plasma::PackageMetadata getMetaData() const;
-        bool saveTheme();
+        void updateSize();
+        void setHtml(const QString &html, const QString &theme = QString());
+        QSize getPreferredSize(const QSize &constraints) const;
+        bool setTheme(const QString &path);
+        bool getBackgroundFlag() const;
 
     protected:
-        void setStyle(const QString &property, const QString &value, const QString &tag = "span");
-
-    protected slots:
-        void triggerAction();
-        void insertComponent(const QString &component, const QString &options);
-        void selectionChanged();
-        void modeChanged(int mode);
-        void richTextChanged();
-        void sourceChanged(const QString &theme = QString());
-        void showContextMenu(const QPoint &position);
-        void setBackground(bool enabled);
-        void setColor();
-        void setFontSize(const QString &size);
-        void setFontFamily(const QFont &font);
-        void setZoom(int zoom);
+        void resizeEvent(QGraphicsSceneResizeEvent *event);
 
     private:
         Clock *m_clock;
-        KTextEditor::Document *m_document;
-        QString m_path;
-        bool m_qml;
-        Ui::editor m_editorUi;
+        QObject *m_rootObject;
+        bool m_constant;
 };
 
 }

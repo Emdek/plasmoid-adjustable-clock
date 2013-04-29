@@ -18,56 +18,46 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKAPPLET_HEADER
-#define ADJUSTABLECLOCKAPPLET_HEADER
+#ifndef ADJUSTABLECLOCKWEBVIEW_HEADER
+#define ADJUSTABLECLOCKWEBVIEW_HEADER
 
-#include <QtCore/QList>
-#include <QtCore/QDateTime>
+#include "Clock.h"
 
-#include <Plasma/Applet>
-
-#include <plasmaclock/clockapplet.h>
+#include <QtDeclarative/QDeclarativeItem>
+#include <QtWebKit/QWebPage>
 
 namespace AdjustableClock
 {
 
-class Clock;
-class DeclarativeWidget;
-
-class Applet : public ClockApplet
+class WebView : public QDeclarativeItem
 {
     Q_OBJECT
 
     public:
-        explicit Applet(QObject *parent, const QVariantList &args);
+        explicit WebView(QDeclarativeItem *parent = NULL);
 
-        void init();
-        Clock* getClock() const;
-        QStringList getClipboardExpressions() const;
+        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
+        static void setupTheme(QWebFrame *document, const QString &css = QString());
+        Q_INVOKABLE void setTheme(Clock *clock, const QString &theme, const QString &html, bool constant);
+        Q_INVOKABLE QSize getPreferredSize(const QSize &constraints);
+        Q_INVOKABLE bool getBackgroundFlag() const;
 
     protected:
         void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        void resizeEvent(QGraphicsSceneResizeEvent *event);
-        void constraintsEvent(Plasma::Constraints constraints);
-        void createClockConfigurationInterface(KConfigDialog *parent);
-        void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
-        void updateSize();
-        QList<QAction*> contextualActions();
+        void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
+        void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
+        static void updateComponent(QWebFrame *document, ClockComponent component);
+        void updateZoom();
 
     protected slots:
-        void clockConfigChanged();
-        void clockConfigAccepted();
-        void copyToClipboard();
-        void copyToClipboard(QAction *action);
-        void toolTipAboutToShow();
-        void toolTipHidden();
-        void updateToolTipContent();
-        void updateClipboardMenu();
+        void repaint(const QRect &rectangle);
+        void updateComponent(ClockComponent component);
+        void updateTheme();
 
     private:
+        QWebPage m_page;
         Clock *m_clock;
-        DeclarativeWidget *m_widget;
-        QAction *m_clipboardAction;
 };
 
 }

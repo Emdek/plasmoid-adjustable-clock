@@ -29,7 +29,7 @@
 namespace AdjustableClock
 {
 
-ComponentWidget::ComponentWidget(Clock *clock, QWidget *parent) : QWidget(parent),
+ComponentWidget::ComponentWidget(QWidget *parent, Clock *clock) : QWidget(parent),
     m_clock(clock),
     m_component(InvalidComponent)
 {
@@ -135,7 +135,7 @@ void ComponentWidget::selectComponent(QAction *action)
 
 void ComponentWidget::updatePreview()
 {
-    const QString preview = m_clock->getValue(m_component, m_options, true).toString();
+    const QString preview = (m_clock ? m_clock->getValue(m_component, m_options, true).toString() : QString());
 
     m_componentUi.previewLabel->setText(preview);
     m_componentUi.previewLabel->setToolTip(preview);
@@ -183,6 +183,11 @@ void ComponentWidget::setPossessiveForm(int form)
     }
 
     updatePreview();
+}
+
+void ComponentWidget::setClock(Clock *clock)
+{
+    m_clock = clock;
 }
 
 }

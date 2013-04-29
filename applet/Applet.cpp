@@ -20,16 +20,11 @@
 
 #include "Applet.h"
 #include "Clock.h"
+#include "DeclarativeWidget.h"
 #include "Configuration.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
+#include <QtCore/QDir>
 #include <QtGui/QClipboard>
-#include <QtGui/QDesktopServices>
-#include <QtWebKit/QWebPage>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebElement>
 
 #include <KMenu>
 #include <KLocale>
@@ -37,7 +32,6 @@
 #include <KStandardDirs>
 
 #include <Plasma/Package>
-#include <Plasma/Containment>
 
 K_EXPORT_PLASMA_APPLET(adjustableclock, AdjustableClock::Applet)
 
@@ -45,126 +39,100 @@ namespace AdjustableClock
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_clock(NULL),
+    m_clock(new Clock(this)),
+    m_widget(new DeclarativeWidget(m_clock, false, this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
 
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setHasConfigurationInterface(true);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     resize(150, 100);
 }
 
 void Applet::init()
 {
-    if (!m_clock) {
-        m_clock = new Clock(this, m_page.mainFrame());
-    }
-
     ClockApplet::init();
 
-    QPalette palette = m_page.palette();
-    palette.setBrush(QPalette::Base, Qt::transparent);
-
-    m_page.setPalette(palette);
-
-    QTimer::singleShot(100, this, SLOT(configChanged()));
-
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
-    connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint()));
-}
-
-void Applet::constraintsEvent(Plasma::Constraints constraints)
-{
-    Q_UNUSED(constraints)
-
-    setBackgroundHints((m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") ? DefaultBackground : NoBackground);
-}
-
-void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
-{
-    ClockApplet::resizeEvent(event);
-
-    updateSize();
 }
 
 void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->buttons() == Qt::MidButton) {
         copyToClipboard();
-    }
-
-    const QUrl url = m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl();
-
-    if (url.isValid() && event->button() == Qt::LeftButton) {
-        QDesktopServices::openUrl(url);
-
-        event->ignore();
     } else {
         ClockApplet::mousePressEvent(event);
     }
 }
 
-void Applet::paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
+void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    Q_UNUSED(option)
-    Q_UNUSED(contentsRect)
+    ClockApplet::resizeEvent(event);
 
-    painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    m_widget->resize(event->newSize());
 
-    m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
+    updateSize();
+}
+
+void Applet::constraintsEvent(Plasma::Constraints constraints)
+{
+    const bool drawBackground = m_widget->getBackgroundFlag();
+
+    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && drawBackground) {
+        qreal left, top, right, bottom;
+
+        getContentsMargins(&left, &top, &right, &bottom);
+
+        m_widget->setContentsMargins(left, top, right, bottom);
+    } else {
+        m_widget->setContentsMargins(0, 0, 0, 0);
+    }
+
+    if (constraints & Plasma::SizeConstraint) {
+        updateSize();
+    }
+
+    setBackgroundHints(drawBackground ? DefaultBackground : NoBackground);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
-    Configuration *configuration = new Configuration(this, parent);
-
-    connect(configuration, SIGNAL(accepted()), this, SIGNAL(configNeedsSaving()));
-    connect(configuration, SIGNAL(accepted()), this, SLOT(configChanged()));
+    new Configuration(this, parent);
 }
 
 void Applet::clockConfigChanged()
 {
+    if (!config().readEntry("themeHtml", QString()).isEmpty()) {
+        m_widget->setHtml(config().readEntry("themeHtml", QString()));
+
+        constraintsEvent(Plasma::SizeConstraint);
+
+        return;
+    }
+
     const QString id = config().readEntry("theme", "digital");
-    QString fallback = QString("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
-    QString html;
+    const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
-    if (config().readEntry("themeHtml", QString()).isEmpty()) {
-        const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
+    for (int i = 0; i < locations.count(); ++i) {
+        const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
 
-        for (int i = 0; i < locations.count(); ++i) {
-            if (!html.isEmpty()) {
-                break;
-            }
+        for (int j = 0; j < themes.count(); ++j) {
+            if (themes.at(j) == id && m_widget->setTheme(locations.at(i) + QDir::separator() + themes.at(j))) {
+                constraintsEvent(Plasma::SizeConstraint);
 
-            const QStringList themes = Plasma::Package::listInstalled(locations.at(i));
-
-            for (int j = 0; j < themes.count(); ++j) {
-                if (themes.at(j) == id) {
-                    html = readTheme(locations.at(i), themes.at(j));
-
-                    break;
-                }
-
-                if (themes.at(j) == "digital") {
-                    fallback = readTheme(locations.at(i), themes.at(j));
-                }
+                return;
             }
         }
-    } else {
-        html = config().readEntry("themeHtml", QString());
     }
 
-    if (html.isEmpty()) {
-        html = fallback;
+    if (!m_widget->setTheme(locations.first() + QDir::separator() + "digital")) {
+        m_widget->setHtml("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
-
-    m_clock->setTheme(html);
 
     constraintsEvent(Plasma::SizeConstraint);
-    updateSize();
 }
 
 void Applet::clockConfigAccepted()
@@ -188,11 +156,6 @@ void Applet::copyToClipboard()
 void Applet::copyToClipboard(QAction *action)
 {
     QApplication::clipboard()->setText(action->text());
-}
-
-void Applet::repaint()
-{
-    update();
 }
 
 void Applet::toolTipAboutToShow()
@@ -247,53 +210,28 @@ void Applet::updateClipboardMenu()
 
 void Applet::updateSize()
 {
-    QSizeF size;
+    m_widget->updateSize();
 
-    if (formFactor() == Plasma::Horizontal) {
-        size = QSizeF(containment()->boundingRect().width(), boundingRect().height());
-    } else if (formFactor() == Plasma::Vertical) {
-        size = QSizeF(boundingRect().width(), containment()->boundingRect().height());
-    } else {
-        if (m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true") {
-            size = contentsRect().size();
-        } else {
-            size = boundingRect().size();
-        }
+    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
+        setMinimumSize(-1, -1);
+
+        return;
     }
 
-    m_page.setViewportSize(QSize(0, 0));
-    m_page.mainFrame()->setZoomFactor(1);
-
-    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
-    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
-
-    m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
+    QSize size;
 
     if (formFactor() == Plasma::Horizontal) {
-        setMinimumWidth(m_page.mainFrame()->contentsSize().width());
-        setMinimumHeight(0);
+        size = QSize(-1, boundingRect().height());
     } else if (formFactor() == Plasma::Vertical) {
-        setMinimumHeight(m_page.mainFrame()->contentsSize().height());
-        setMinimumWidth(0);
+        size = QSize(boundingRect().height(), -1);
     }
 
-    m_page.setViewportSize(boundingRect().size().toSize());
+    setMinimumSize(m_widget->getPreferredSize(size));
 }
 
 Clock* Applet::getClock() const
 {
     return m_clock;
-}
-
-QString Applet::readTheme(const QString &path, const QString &identifier) const
-{
-    QFile file(QString("%1/%2/contents/ui/main.html").arg(path).arg(identifier));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    return stream.readAll();
 }
 
 QStringList Applet::getClipboardExpressions() const
