@@ -41,7 +41,7 @@ enum ModelRole
     NameRole,
     DescriptionRole,
     AboutRole,
-    WritableRole
+    EditableRole
 };
 
 class Applet;

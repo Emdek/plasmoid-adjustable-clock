@@ -158,7 +158,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     }
 
     QPushButton *editButton = new QPushButton(KIcon("document-edit"), QString(), widget);
-    editButton->setToolTip(index.data(WritableRole).toBool() ? i18n("Edit...") : i18n("Copy and Edit..."));
+    editButton->setToolTip(index.data(EditableRole).toBool() ? i18n("Edit...") : i18n("Copy and Edit..."));
     editButton->setObjectName("edit-" + index.data(IdentifierRole).toString());
 
     layout->addWidget(editButton);

@@ -232,7 +232,7 @@ void Configuration::createTheme()
     item->setData(identifier, IdentifierRole);
     item->setData(path, PathRole);
     item->setData(title, NameRole);
-    item->setData(true, WritableRole);
+    item->setData(true, EditableRole);
 
     Plasma::PackageMetadata metaData = getMetaData(path);
     metaData.setName(title);
@@ -336,7 +336,7 @@ void Configuration::editTheme(const QString &theme)
         return;
     }
 
-    if (!item->data(WritableRole).toBool()) {
+    if (!item->data(EditableRole).toBool()) {
         if (!copyTheme(item)) {
             return;
         }
@@ -488,7 +488,7 @@ void Configuration::showContextMenu(const QPoint &position)
     menu.addAction(KIcon("edit-copy"), i18n("Copy..."), this, SLOT(copyTheme()));
     menu.addAction(KIcon("document-export"), i18n("Export..."), this, SLOT(exportTheme()));
 
-    if (index.data(WritableRole).toBool()) {
+    if (index.data(EditableRole).toBool()) {
         menu.addAction(KIcon("document-rename"), i18n("Rename..."), this, SLOT(renameTheme()));
         menu.addAction(KIcon("document-edit"), i18n("Edit..."), this, SLOT(editTheme()));
         menu.addSeparator();
@@ -649,7 +649,7 @@ bool Configuration::copyTheme(QStandardItem *item)
     clonedItem->setData(identifier, IdentifierRole);
     clonedItem->setData(path, PathRole);
     clonedItem->setData(title, NameRole);
-    clonedItem->setData(true, WritableRole);
+    clonedItem->setData(true, EditableRole);
 
     m_themesModel->appendRow(clonedItem);
     m_appearanceUi.themesView->openPersistentEditor(clonedItem->index());
@@ -669,7 +669,7 @@ bool Configuration::loadTheme(const QString &path)
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
     item->setData(!metaData.author().isEmpty(), AboutRole);
-    item->setData(QFileInfo(path).isWritable(), WritableRole);
+    item->setData(QFileInfo(path).isWritable(), EditableRole);
 
     m_themesModel->appendRow(item);
 
