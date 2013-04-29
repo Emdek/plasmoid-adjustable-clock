@@ -18,8 +18,8 @@
 *
 ***********************************************************************************/
 
-#ifndef ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
-#define ADJUSTABLECLOCKDECLARATIVEWIDGET_HEADER
+#ifndef ADJUSTABLECLOCKTHEMEWIDGET_HEADER
+#define ADJUSTABLECLOCKTHEMEWIDGET_HEADER
 
 #include <Plasma/DeclarativeWidget>
 
@@ -28,12 +28,12 @@ namespace AdjustableClock
 
 class Clock;
 
-class DeclarativeWidget : public Plasma::DeclarativeWidget
+class ThemeWidget : public Plasma::DeclarativeWidget
 {
     Q_OBJECT
 
     public:
-        explicit DeclarativeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
+        explicit ThemeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
         void updateSize();
         void setHtml(const QString &html, const QString &theme = QString());

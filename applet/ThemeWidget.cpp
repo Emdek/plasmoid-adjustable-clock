@@ -18,7 +18,7 @@
 *
 ***********************************************************************************/
 
-#include "DeclarativeWidget.h"
+#include "ThemeWidget.h"
 #include "WebView.h"
 
 #include <QtCore/QFileInfo>
@@ -28,21 +28,21 @@
 namespace AdjustableClock
 {
 
-DeclarativeWidget::DeclarativeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
+ThemeWidget::ThemeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
     m_clock(clock),
     m_rootObject(NULL),
     m_constant(constant)
 {
 }
 
-void DeclarativeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
+void ThemeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     QGraphicsWidget::resizeEvent(event);
 
     updateSize();
 }
 
-void DeclarativeWidget::updateSize()
+void ThemeWidget::updateSize()
 {
     if (m_rootObject) {
         m_rootObject->setProperty("pos", contentsRect().topLeft());
@@ -51,7 +51,7 @@ void DeclarativeWidget::updateSize()
     }
 }
 
-void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
+void ThemeWidget::setHtml(const QString &html, const QString &theme)
 {
     if (m_rootObject) {
         m_rootObject->deleteLater();
@@ -70,7 +70,7 @@ void DeclarativeWidget::setHtml(const QString &html, const QString &theme)
     updateSize();
 }
 
-QSize DeclarativeWidget::getPreferredSize(const QSize &constraints) const
+QSize ThemeWidget::getPreferredSize(const QSize &constraints) const
 {
     QSize size;
 
@@ -79,7 +79,7 @@ QSize DeclarativeWidget::getPreferredSize(const QSize &constraints) const
     return size;
 }
 
-bool DeclarativeWidget::setTheme(const QString &path)
+bool ThemeWidget::setTheme(const QString &path)
 {
     const QString qmlPath = (path + "/contents/ui/main.qml");
 
@@ -112,7 +112,7 @@ bool DeclarativeWidget::setTheme(const QString &path)
     return true;
 }
 
-bool DeclarativeWidget::getBackgroundFlag() const
+bool ThemeWidget::getBackgroundFlag() const
 {
     bool result;
 

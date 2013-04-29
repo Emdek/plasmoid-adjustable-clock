@@ -32,7 +32,7 @@ namespace AdjustableClock
 {
 
 class Clock;
-class DeclarativeWidget;
+class ThemeWidget;
 
 class Applet : public ClockApplet
 {
@@ -66,7 +66,7 @@ class Applet : public ClockApplet
 
     private:
         Clock *m_clock;
-        DeclarativeWidget *m_widget;
+        ThemeWidget *m_widget;
         QAction *m_clipboardAction;
 };
 

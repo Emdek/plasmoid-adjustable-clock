@@ -20,7 +20,7 @@
 
 #include "Applet.h"
 #include "Clock.h"
-#include "DeclarativeWidget.h"
+#include "ThemeWidget.h"
 #include "Configuration.h"
 
 #include <QtCore/QDir>
@@ -40,7 +40,7 @@ namespace AdjustableClock
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
     m_clock(new Clock(this)),
-    m_widget(new DeclarativeWidget(m_clock, false, this)),
+    m_widget(new ThemeWidget(m_clock, false, this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");

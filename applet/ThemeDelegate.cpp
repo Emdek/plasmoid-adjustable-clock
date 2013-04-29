@@ -20,7 +20,7 @@
 
 #include "ThemeDelegate.h"
 #include "Applet.h"
-#include "DeclarativeWidget.h"
+#include "ThemeWidget.h"
 #include "Configuration.h"
 
 #include <QtGui/QStyle>
@@ -67,7 +67,7 @@ void ThemeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         pixmapPainter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
         QGraphicsScene scene;
-        DeclarativeWidget widget(m_clock);
+        ThemeWidget widget(m_clock);
         widget.setTheme(index.data(PathRole).toString());
 
         if (widget.getBackgroundFlag()) {
