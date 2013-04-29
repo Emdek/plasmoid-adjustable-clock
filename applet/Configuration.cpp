@@ -149,8 +149,6 @@ void Configuration::save()
     m_applet->config().writeEntry("fastCopyExpression", m_clipboardUi.fastCopyExpressionEdit->text());
 
     static_cast<KConfigDialog*>(parent())->enableButtonApply(false);
-
-    emit accepted();
 }
 
 void Configuration::modify()

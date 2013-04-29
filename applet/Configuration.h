@@ -95,7 +95,6 @@ class Configuration : public QObject
         Ui::clipboard m_clipboardUi;
 
     signals:
-        void accepted();
         void clearCache();
 };
 
