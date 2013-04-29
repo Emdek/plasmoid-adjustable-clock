@@ -100,10 +100,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
-    Configuration *configuration = new Configuration(this, parent);
-
-    connect(configuration, SIGNAL(accepted()), this, SIGNAL(configNeedsSaving()));
-    connect(configuration, SIGNAL(accepted()), this, SLOT(configChanged()));
+    new Configuration(this, parent);
 }
 
 void Applet::clockConfigChanged()
