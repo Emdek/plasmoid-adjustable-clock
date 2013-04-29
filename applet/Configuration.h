@@ -41,7 +41,6 @@ enum ModelRole
     NameRole,
     DescriptionRole,
     AboutRole,
-    OptionsRole,
     WritableRole
 };
 

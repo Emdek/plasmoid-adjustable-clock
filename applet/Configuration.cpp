@@ -390,7 +390,7 @@ void Configuration::configureTheme(const QString &theme)
 {
     QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
-    if (!item || !item->data(OptionsRole).toBool()) {
+    if (!item || !QFile::exists(item->data(PathRole).toString() + "/contents/config/main.xml")) {
         return;
     }
 
@@ -669,7 +669,6 @@ bool Configuration::loadTheme(const QString &path)
     item->setData(metaData.name(), NameRole);
     item->setData(metaData.description(), DescriptionRole);
     item->setData(!metaData.author().isEmpty(), AboutRole);
-    item->setData(QFile::exists(path + "/contents/config/main.xml"), OptionsRole);
     item->setData(QFileInfo(path).isWritable(), WritableRole);
 
     m_themesModel->appendRow(item);

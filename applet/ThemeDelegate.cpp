@@ -146,7 +146,7 @@ QWidget* ThemeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, widget);
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    if (index.data(OptionsRole).toBool()) {
+    if (QFile::exists(index.data(PathRole).toString() + "/contents/config/main.xml")) {
         QPushButton *optionsButton = new QPushButton(KIcon("configure"), QString(), widget);
         optionsButton->setToolTip(i18n("Options..."));
         optionsButton->setObjectName("options-" + index.data(IdentifierRole).toString());
