@@ -41,7 +41,8 @@ namespace AdjustableClock
 EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
     m_document(NULL),
-    m_path(path)
+    m_path(path),
+    m_qml(QFile::exists(path + "/contents/ui/main.qml"))
 {
     const Plasma::PackageMetadata metaData(path + "/metadata.desktop");
 
@@ -94,11 +95,9 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
         return;
     }
 
-    const bool qml = QFile::exists(path + "/contents/ui/main.qml");
-
     m_document = editor->createDocument(this);
-    m_document->openUrl(KUrl(path + "/contents/ui/main." + (qml ? "qml" : "html")));
-    m_document->setHighlightingMode(qml ? "qml" : "html");
+    m_document->openUrl(KUrl(path + "/contents/ui/main." + (m_qml ? "qml" : "html")));
+    m_document->setHighlightingMode(m_qml ? "qml" : "html");
 
     KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
     view->setContextMenu(view->defaultContextMenu());
@@ -113,7 +112,13 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
 
     m_editorUi.sourceLayout->addWidget(view);
 
-    sourceChanged(m_document->text());
+    if (m_qml) {
+        m_editorUi.tabWidget->setCurrentIndex(1);
+        m_editorUi.tabWidget->setTabEnabled(0, false);
+        m_editorUi.controlsWidget->setVisible(false);
+    } else {
+        sourceChanged(m_document->text());
+    }
 
     m_editorUi.backgroundButton->setChecked(m_editorUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
 

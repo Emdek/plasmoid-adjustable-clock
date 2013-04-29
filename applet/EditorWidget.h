@@ -64,6 +64,7 @@ class EditorWidget : public QWidget
         Clock *m_clock;
         KTextEditor::Document *m_document;
         QString m_path;
+        bool m_qml;
         Ui::editor m_editorUi;
 };
 
