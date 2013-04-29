@@ -231,9 +231,10 @@ void Configuration::createTheme(QAction *action)
         return;
     }
 
-    const QString extension = (qml ? "qml" : "html");
     const QString identifier = createIdentifier();
     const QString path = KStandardDirs::locateLocal("data", ("plasma/adjustableclock/" + identifier));
+    const QString extension = (qml ? "qml" : "html");
+    const QString destination = (path + "/contents/ui/main." + extension);
     QStandardItem *item = new QStandardItem();
     item->setData(identifier, IdentifierRole);
     item->setData(path, PathRole);
@@ -247,7 +248,8 @@ void Configuration::createTheme(QAction *action)
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     saveTheme(path, metaData);
-    QFile::copy((":/template." + extension), (path + "/contents/ui/main." + extension));
+    QFile::copy((":/template." + extension), destination);
+    QFile::setPermissions(destination, (QFile::permissions(destination) | QFile::WriteOwner));
     selectTheme(item->index());
     editTheme(identifier);
 }
