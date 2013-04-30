@@ -59,7 +59,6 @@ class Configuration : public QObject
         QString createIdentifier(const QString &base = QString()) const;
         Plasma::PackageMetadata getMetaData(const QString &path) const;
         int findRow(const QString &text, int role = NameRole) const;
-        bool copyTheme(QStandardItem *item);
         bool loadTheme(const QString &path);
         bool saveTheme(const QString &path, Plasma::PackageMetadata metaData);
         static bool copyDirectory(const QString &source, const QString &destination);
@@ -70,7 +69,6 @@ class Configuration : public QObject
         void selectTheme(const QModelIndex &index);
         void installTheme();
         void createTheme(QAction *action);
-        void copyTheme();
         void exportTheme();
         void deleteTheme();
         void renameTheme();
@@ -85,6 +83,7 @@ class Configuration : public QObject
         void moveAction(bool up);
         void moveUpAction();
         void moveDownAction();
+        bool copyTheme(QStandardItem *item = NULL);
 
     private:
         Applet *m_applet;

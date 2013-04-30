@@ -252,11 +252,6 @@ void Configuration::createTheme(QAction *action)
     editTheme(identifier);
 }
 
-void Configuration::copyTheme()
-{
-    copyTheme(m_themesModel->item(m_appearanceUi.themesView->currentIndex().row()));
-}
-
 void Configuration::exportTheme()
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
@@ -295,7 +290,7 @@ void Configuration::deleteTheme()
 void Configuration::renameTheme()
 {
     bool ok;
-    QStandardItem *item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
+    QStandardItem *item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row());
     const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), item->data(NameRole).toString(), &ok);
 
     if (!ok) {
@@ -312,7 +307,7 @@ void Configuration::renameTheme()
 
 void Configuration::aboutTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->item(m_appearanceUi.themesView->currentIndex().row()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item || !item->data(AboutRole).toBool()) {
         return;
@@ -336,7 +331,7 @@ void Configuration::aboutTheme(const QString &theme)
 
 void Configuration::editTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->item(m_appearanceUi.themesView->currentIndex().row()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item) {
         return;
@@ -347,7 +342,7 @@ void Configuration::editTheme(const QString &theme)
             return;
         }
 
-        item = m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex());
+        item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row());
     }
 
     EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), m_applet->getClock(), m_appearanceUi.themesView);
@@ -394,7 +389,7 @@ void Configuration::editTheme(const QString &theme)
 
 void Configuration::configureTheme(const QString &theme)
 {
-    QStandardItem *item = (theme.isEmpty() ? m_themesModel->itemFromIndex(m_appearanceUi.themesView->currentIndex()) : m_themesModel->item(findRow(theme, IdentifierRole)));
+    QStandardItem *item = (theme.isEmpty() ? m_themesModel->item(m_appearanceUi.themesView->currentIndex().row()) : m_themesModel->item(findRow(theme, IdentifierRole)));
 
     if (!item || !QFile::exists(item->data(PathRole).toString() + "/contents/config/main.xml")) {
         return;
@@ -623,6 +618,10 @@ int Configuration::findRow(const QString &text, int role) const
 
 bool Configuration::copyTheme(QStandardItem *item)
 {
+    if (!item) {
+        item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row());
+    }
+
     QString title = item->data(NameRole).toString().replace(QRegExp("\\s+\\(\\d+\\)$"), QString()).append(" (%1)");
     int i = 2;
 
