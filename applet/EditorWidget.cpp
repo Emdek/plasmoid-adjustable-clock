@@ -19,7 +19,7 @@
 ***********************************************************************************/
 
 #include "EditorWidget.h"
-#include "WebView.h"
+#include "ThemeWidget.h"
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QMouseEvent>
@@ -258,7 +258,7 @@ void EditorWidget::sourceChanged(const QString &theme)
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    WebView::setupClock(m_editorUi.webView->page()->mainFrame(), new ClockObject(m_clock, true), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
+    ThemeWidget::setupClock(m_editorUi.webView->page()->mainFrame(), new ClockObject(m_clock, true), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
 
     m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
 

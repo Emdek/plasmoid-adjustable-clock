@@ -21,12 +21,14 @@
 #ifndef ADJUSTABLECLOCKTHEMEWIDGET_HEADER
 #define ADJUSTABLECLOCKTHEMEWIDGET_HEADER
 
+#include "Clock.h"
+
+#include <QtWebKit/QWebPage>
+
 #include <Plasma/DeclarativeWidget>
 
 namespace AdjustableClock
 {
-
-class Clock;
 
 class ThemeWidget : public Plasma::DeclarativeWidget
 {
@@ -35,18 +37,30 @@ class ThemeWidget : public Plasma::DeclarativeWidget
     public:
         explicit ThemeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
-        void updateSize();
+        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
+        static void setupTheme(QWebFrame *document, const QString &css = QString());
         void setHtml(const QString &html, const QString &theme = QString());
-        QSize getPreferredSize(const QSize &constraints) const;
+        QSize getPreferredSize(const QSize &constraints);
         bool setTheme(const QString &path);
         bool getBackgroundFlag() const;
 
     protected:
         void resizeEvent(QGraphicsSceneResizeEvent *event);
+        void mousePressEvent(QGraphicsSceneMouseEvent *event);
+        void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
+        static void updateComponent(QWebFrame *document, ClockComponent component);
+        void updateZoom();
+
+    protected slots:
+        void repaint(const QRect &rectangle);
+        void updateComponent(ClockComponent component);
+        void updateTheme();
 
     private:
         Clock *m_clock;
         QObject *m_rootObject;
+        QWebPage m_page;
         bool m_constant;
 };
 

@@ -25,6 +25,7 @@
 
 #include <QtCore/QDir>
 #include <QtGui/QClipboard>
+ #include <QtGui/QGraphicsLinearLayout>
 
 #include <KMenu>
 #include <KLocale>
@@ -47,6 +48,12 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
     KGlobal::locale()->insertCatalog("timezones4");
     KGlobal::locale()->insertCatalog("adjustableclock");
 
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addItem(m_widget);
+
+    setLayout(layout);
     setHasConfigurationInterface(true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     resize(150, 100);
@@ -68,34 +75,13 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void Applet::resizeEvent(QGraphicsSceneResizeEvent *event)
-{
-    ClockApplet::resizeEvent(event);
-
-    m_widget->resize(event->newSize());
-
-    updateSize();
-}
-
 void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
-    const bool drawBackground = m_widget->getBackgroundFlag();
-
-    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && drawBackground) {
-        qreal left, top, right, bottom;
-
-        getContentsMargins(&left, &top, &right, &bottom);
-
-        m_widget->setContentsMargins(left, top, right, bottom);
-    } else {
-        m_widget->setContentsMargins(0, 0, 0, 0);
-    }
-
     if (constraints & Plasma::SizeConstraint) {
         updateSize();
     }
 
-    setBackgroundHints(drawBackground ? DefaultBackground : NoBackground);
+    setBackgroundHints(m_widget->getBackgroundFlag() ? DefaultBackground : NoBackground);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
@@ -210,8 +196,6 @@ void Applet::updateClipboardMenu()
 
 void Applet::updateSize()
 {
-    m_widget->updateSize();
-
     if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
         setMinimumSize(-1, -1);
 
