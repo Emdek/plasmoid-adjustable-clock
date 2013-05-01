@@ -339,7 +339,7 @@ QVariant Clock::getValue(ClockComponent component, const QVariantMap &options, b
 
         return QString();
     case HolidaysComponent:
-        return (options.contains("short") ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n"));
+        return (constant ? QString() : (options.contains("short") ? (m_holidays.isEmpty() ? QString() : m_holidays.last()) : m_holidays.join("<br>\n")));
     case SunriseComponent:
         return KGlobal::locale()->formatTime(m_sunrise, false);
     case SunsetComponent:
