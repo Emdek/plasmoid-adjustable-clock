@@ -50,13 +50,7 @@ void ThemeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     QGraphicsWidget::resizeEvent(event);
 
-    if (m_rootObject) {
-        m_rootObject->setProperty("pos", contentsRect().topLeft());
-        m_rootObject->setProperty("width", contentsRect().width());
-        m_rootObject->setProperty("height", contentsRect().height());
-    } else {
-        updateZoom();
-    }
+    updateSize();
 }
 
 void ThemeWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
@@ -161,8 +155,15 @@ void ThemeWidget::updateTheme()
     setupTheme(m_page.mainFrame());
 }
 
-void ThemeWidget::updateZoom()
+void ThemeWidget::updateSize()
 {
+    if (m_rootObject) {
+        m_rootObject->setProperty("width", boundingRect().width());
+        m_rootObject->setProperty("height", boundingRect().height());
+
+        return;
+    }
+
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
 
@@ -185,7 +186,7 @@ void ThemeWidget::setHtml(const QString &html, const QString &theme)
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setupClock(m_page.mainFrame(), new ClockObject(m_clock, m_constant, theme), html);
-    updateZoom();
+    updateSize();
 
     if (!m_constant) {
         connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
@@ -212,7 +213,7 @@ QSize ThemeWidget::getPreferredSize(const QSize &constraints)
         size.setWidth(contents.width() * ((qreal) constraints.height() / contents.height()));
     }
 
-    updateZoom();
+    updateSize();
 
     return size;
 }
@@ -238,6 +239,8 @@ bool ThemeWidget::setTheme(const QString &path)
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
+
+        updateSize();
 
         return true;
     }

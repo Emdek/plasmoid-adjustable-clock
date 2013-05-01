@@ -81,7 +81,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
         updateSize();
     }
 
-    setBackgroundHints(m_widget->getBackgroundFlag() ? DefaultBackground : NoBackground);
+    setBackgroundHints((formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)

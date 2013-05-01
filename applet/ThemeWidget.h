@@ -50,7 +50,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
         static void updateComponent(QWebFrame *document, ClockComponent component);
-        void updateZoom();
+        void updateSize();
 
     protected slots:
         void repaint(const QRect &rectangle);
