@@ -83,8 +83,6 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
         return;
     }
 
-    m_widget->updateSize();
-
     if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
         setMinimumSize(-1, -1);
 

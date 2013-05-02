@@ -167,6 +167,8 @@ void ThemeWidget::updateSize()
         return;
     }
 
+    disconnect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
+
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
 
@@ -177,6 +179,8 @@ void ThemeWidget::updateSize()
     m_page.setViewportSize(m_page.mainFrame()->contentsSize());
 
     m_offset = QPointF(((size.width() - m_page.mainFrame()->contentsSize().width()) / 2), ((size.height() - m_page.mainFrame()->contentsSize().height()) / 2));
+
+    connect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
 }
 
 void ThemeWidget::setHtml(const QString &html, const QString &theme)

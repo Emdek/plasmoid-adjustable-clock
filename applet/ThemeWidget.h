@@ -39,7 +39,6 @@ class ThemeWidget : public Plasma::DeclarativeWidget
 
         static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
         static void setupTheme(QWebFrame *document, const QString &css = QString());
-        void updateSize();
         void setHtml(const QString &html, const QString &theme = QString());
         QSize getPreferredSize(const QSize &constraints);
         bool setTheme(const QString &path);
@@ -56,6 +55,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         void repaint(const QRect &rectangle);
         void updateComponent(ClockComponent component);
         void updateTheme();
+        void updateSize();
 
     private:
         Clock *m_clock;
