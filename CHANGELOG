@@ -3,7 +3,8 @@
 - added simple file templates for new themes;
 - move theme editor to own dialog;
 - move theme specific actions to context menu;
-- added ability to install and export themes (Plasma Package ZIP).
+- added ability to install and export themes (Plasma Package ZIP);
+- some other improvements and fixes.
 
 4.0 (20.04.2013):
 - replaced parser by scripting API;

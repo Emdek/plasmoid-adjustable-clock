@@ -50,7 +50,6 @@ class Applet : public ClockApplet
         void constraintsEvent(Plasma::Constraints constraints);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
-        void updateSize();
         QList<QAction*> contextualActions();
 
     protected slots:

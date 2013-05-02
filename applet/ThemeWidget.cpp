@@ -57,7 +57,7 @@ void ThemeWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl().isValid() ? Qt::PointingHandCursor : Qt::ArrowCursor);
 
-    QMouseEvent mouseEvent = QMouseEvent(QEvent::MouseMove, event->pos().toPoint(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent mouseEvent(QEvent::MouseMove, event->pos().toPoint(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
 
     m_page.event(&mouseEvent);
 }
@@ -87,13 +87,14 @@ void ThemeWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(widget)
 
     painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    painter->translate(m_offset);
 
     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
 void ThemeWidget::repaint(const QRect &rectangle)
 {
-    update(QRectF(rectangle));
+    update(QRectF(rectangle.translated(m_offset.toPoint())));
 }
 
 void ThemeWidget::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
@@ -157,9 +158,11 @@ void ThemeWidget::updateTheme()
 
 void ThemeWidget::updateSize()
 {
+    const QSizeF size = boundingRect().size();
+
     if (m_rootObject) {
-        m_rootObject->setProperty("width", boundingRect().width());
-        m_rootObject->setProperty("height", boundingRect().height());
+        m_rootObject->setProperty("width", size.width());
+        m_rootObject->setProperty("height", size.height());
 
         return;
     }
@@ -167,11 +170,13 @@ void ThemeWidget::updateSize()
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
 
-    const qreal widthFactor = (boundingRect().width() / m_page.mainFrame()->contentsSize().width());
-    const qreal heightFactor = (boundingRect().height() / m_page.mainFrame()->contentsSize().height());
+    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
+    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
 
     m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-    m_page.setViewportSize(boundingRect().size().toSize());
+    m_page.setViewportSize(m_page.mainFrame()->contentsSize());
+
+    m_offset = QPointF(((size.width() - m_page.mainFrame()->contentsSize().width()) / 2), ((size.height() - m_page.mainFrame()->contentsSize().height()) / 2));
 }
 
 void ThemeWidget::setHtml(const QString &html, const QString &theme)

@@ -77,11 +77,29 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
-    if (constraints & Plasma::SizeConstraint) {
-        updateSize();
+    setBackgroundHints((formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
+
+    if (!(constraints & Plasma::SizeConstraint)) {
+        return;
     }
 
-    setBackgroundHints((formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
+    m_widget->updateSize();
+
+    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
+        setMinimumSize(-1, -1);
+
+        return;
+    }
+
+    QSize size;
+
+    if (formFactor() == Plasma::Horizontal) {
+        size = QSize(-1, boundingRect().height());
+    } else if (formFactor() == Plasma::Vertical) {
+        size = QSize(boundingRect().height(), -1);
+    }
+
+    setMinimumSize(m_widget->getPreferredSize(size));
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
@@ -192,25 +210,6 @@ void Applet::updateClipboardMenu()
             m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardExpressions.at(i)));
         }
     }
-}
-
-void Applet::updateSize()
-{
-    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
-        setMinimumSize(-1, -1);
-
-        return;
-    }
-
-    QSize size;
-
-    if (formFactor() == Plasma::Horizontal) {
-        size = QSize(-1, boundingRect().height());
-    } else if (formFactor() == Plasma::Vertical) {
-        size = QSize(boundingRect().height(), -1);
-    }
-
-    setMinimumSize(m_widget->getPreferredSize(size));
 }
 
 Clock* Applet::getClock() const
