@@ -37,9 +37,8 @@ class ThemeWidget : public Plasma::DeclarativeWidget
     public:
         explicit ThemeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
 
-        static void setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css = QString());
-        static void setupTheme(QWebFrame *document, const QString &css = QString());
-        void setHtml(const QString &html, const QString &theme = QString());
+        void setHtml(const QString &theme, const QString &html, const QString &css = QString());
+        QWebPage* getPage();
         QSize getPreferredSize(const QSize &constraints);
         bool setTheme(const QString &path);
         bool getBackgroundFlag() const;
@@ -49,7 +48,6 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         void mousePressEvent(QGraphicsSceneMouseEvent *event);
         void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
-        static void updateComponent(QWebFrame *document, ClockComponent component);
 
     protected slots:
         void update();
@@ -62,6 +60,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         QObject *m_rootObject;
         QWebPage m_page;
         QPointF m_offset;
+        QString m_css;
         bool m_constant;
 };
 

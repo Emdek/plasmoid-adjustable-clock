@@ -31,6 +31,7 @@ namespace AdjustableClock
 {
 
 class Clock;
+class ThemeWidget;
 
 class EditorWidget : public QWidget
 {
@@ -62,6 +63,7 @@ class EditorWidget : public QWidget
 
     private:
         Clock *m_clock;
+        ThemeWidget *m_widget;
         KTextEditor::Document *m_document;
         QString m_path;
         bool m_qml;

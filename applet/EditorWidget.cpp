@@ -40,6 +40,7 @@ namespace AdjustableClock
 
 EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) : QWidget(parent),
     m_clock(clock),
+    m_widget(NULL),
     m_document(NULL),
     m_path(path),
     m_qml(QFile::exists(path + "/contents/ui/main.qml"))
@@ -47,35 +48,6 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     const Plasma::PackageMetadata metaData(path + "/metadata.desktop");
 
     m_editorUi.setupUi(this);
-    m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
-    m_editorUi.webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    m_editorUi.webView->page()->setContentEditable(true);
-    m_editorUi.webView->page()->action(QWebPage::Undo)->setText(i18n("Undo"));
-    m_editorUi.webView->page()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
-    m_editorUi.webView->page()->action(QWebPage::Redo)->setText(i18n("Redo"));
-    m_editorUi.webView->page()->action(QWebPage::Redo)->setIcon(KIcon("edit-redo"));
-    m_editorUi.webView->page()->action(QWebPage::Cut)->setText(i18n("Cut"));
-    m_editorUi.webView->page()->action(QWebPage::Cut)->setIcon(KIcon("edit-cut"));
-    m_editorUi.webView->page()->action(QWebPage::Copy)->setText(i18n("Copy"));
-    m_editorUi.webView->page()->action(QWebPage::Copy)->setIcon(KIcon("edit-copy"));
-    m_editorUi.webView->page()->action(QWebPage::Paste)->setText(i18n("Paste"));
-    m_editorUi.webView->page()->action(QWebPage::Paste)->setIcon(KIcon("edit-paste"));
-    m_editorUi.webView->page()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
-    m_editorUi.webView->page()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
-    m_editorUi.boldButton->setDefaultAction(new QAction(KIcon("format-text-bold"), i18n("Bold"), this));
-    m_editorUi.boldButton->defaultAction()->setData(QWebPage::ToggleBold);
-    m_editorUi.italicButton->setDefaultAction(new QAction(KIcon("format-text-italic"), i18n("Italic"), this));
-    m_editorUi.italicButton->defaultAction()->setData(QWebPage::ToggleItalic);
-    m_editorUi.underlineButton->setDefaultAction(new QAction(KIcon("format-text-underline"), i18n("Underline"), this));
-    m_editorUi.underlineButton->defaultAction()->setData(QWebPage::ToggleUnderline);
-    m_editorUi.justifyLeftButton->setDefaultAction(new QAction(KIcon("format-justify-left"), i18n("Justify Left"), this));
-    m_editorUi.justifyLeftButton->defaultAction()->setData(QWebPage::AlignLeft);
-    m_editorUi.justifyCenterButton->setDefaultAction(new QAction(KIcon("format-justify-center"), i18n("Justify Center"), this));
-    m_editorUi.justifyCenterButton->defaultAction()->setData(QWebPage::AlignCenter);
-    m_editorUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
-    m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
-    m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
-    m_editorUi.componentWidget->setClock(m_clock);
     m_editorUi.identifierLineEdit->setText(QFileInfo(path).fileName());
     m_editorUi.identifierLineEdit->setValidator(new QRegExpValidator(QRegExp("[0-9a-z\\-_]+"), this));
     m_editorUi.nameLineEdit->setText(metaData.name());
@@ -111,21 +83,58 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     }
 
     m_editorUi.sourceLayout->addWidget(view);
+    m_editorUi.componentWidget->setClock(m_clock);
+
+    connect(m_editorUi.componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 
     if (m_qml) {
         m_editorUi.tabWidget->setCurrentIndex(1);
         m_editorUi.tabWidget->setTabEnabled(0, false);
         m_editorUi.controlsWidget->setVisible(false);
-    } else {
-        sourceChanged(m_document->text());
+
+        return;
     }
 
-    m_editorUi.backgroundButton->setChecked(m_editorUi.webView->page()->mainFrame()->findFirstElement("body").attribute("background").toLower() == "true");
+    m_widget = new ThemeWidget(m_clock);
+    m_widget->getPage()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    m_widget->getPage()->setContentEditable(true);
+    m_widget->getPage()->action(QWebPage::Undo)->setText(i18n("Undo"));
+    m_widget->getPage()->action(QWebPage::Undo)->setIcon(KIcon("edit-undo"));
+    m_widget->getPage()->action(QWebPage::Redo)->setText(i18n("Redo"));
+    m_widget->getPage()->action(QWebPage::Redo)->setIcon(KIcon("edit-redo"));
+    m_widget->getPage()->action(QWebPage::Cut)->setText(i18n("Cut"));
+    m_widget->getPage()->action(QWebPage::Cut)->setIcon(KIcon("edit-cut"));
+    m_widget->getPage()->action(QWebPage::Copy)->setText(i18n("Copy"));
+    m_widget->getPage()->action(QWebPage::Copy)->setIcon(KIcon("edit-copy"));
+    m_widget->getPage()->action(QWebPage::Paste)->setText(i18n("Paste"));
+    m_widget->getPage()->action(QWebPage::Paste)->setIcon(KIcon("edit-paste"));
+    m_widget->getPage()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
+    m_widget->getPage()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
+    m_widget->setParent(this);
 
+    m_editorUi.webView->setPage(m_widget->getPage());
+    m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
+    m_editorUi.boldButton->setDefaultAction(new QAction(KIcon("format-text-bold"), i18n("Bold"), this));
+    m_editorUi.boldButton->defaultAction()->setData(QWebPage::ToggleBold);
+    m_editorUi.italicButton->setDefaultAction(new QAction(KIcon("format-text-italic"), i18n("Italic"), this));
+    m_editorUi.italicButton->defaultAction()->setData(QWebPage::ToggleItalic);
+    m_editorUi.underlineButton->setDefaultAction(new QAction(KIcon("format-text-underline"), i18n("Underline"), this));
+    m_editorUi.underlineButton->defaultAction()->setData(QWebPage::ToggleUnderline);
+    m_editorUi.justifyLeftButton->setDefaultAction(new QAction(KIcon("format-justify-left"), i18n("Justify Left"), this));
+    m_editorUi.justifyLeftButton->defaultAction()->setData(QWebPage::AlignLeft);
+    m_editorUi.justifyCenterButton->setDefaultAction(new QAction(KIcon("format-justify-center"), i18n("Justify Center"), this));
+    m_editorUi.justifyCenterButton->defaultAction()->setData(QWebPage::AlignCenter);
+    m_editorUi.justifyRightButton->setDefaultAction(new QAction(KIcon("format-justify-right"), i18n("Justify Right"), this));
+    m_editorUi.justifyRightButton->defaultAction()->setData(QWebPage::AlignRight);
+    m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
+    m_editorUi.backgroundButton->setChecked(m_widget->getBackgroundFlag());
+
+    sourceChanged(m_document->text());
+
+    connect(m_widget->getPage(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(m_widget->getPage(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-    connect(m_editorUi.webView->page(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(m_editorUi.webView->page(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
     connect(m_editorUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_editorUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
     connect(m_editorUi.italicButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -137,7 +146,6 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     connect(m_editorUi.colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(m_editorUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_editorUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
-    connect(m_editorUi.componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 }
 
 void EditorWidget::triggerAction()
@@ -158,7 +166,7 @@ void EditorWidget::triggerAction()
         setStyle("text-decoration", (button->isChecked() ? "none" : "underline"));
     } else {
         if (m_editorUi.tabWidget->currentIndex() == 0) {
-            m_editorUi.webView->page()->triggerAction(action);
+            m_widget->getPage()->triggerAction(action);
         } else {
             setStyle("text-align", ((action == QWebPage::AlignLeft) ? "left" : ((action == QWebPage::AlignRight) ? "right" : "center")), "div");
         }
@@ -179,16 +187,16 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
 
         sourceChanged();
     } else {
-        m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
+        m_widget->getPage()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
     }
 }
 
 void EditorWidget::selectionChanged()
 {
-    m_editorUi.webView->page()->mainFrame()->evaluateJavaScript("fixSelection()");
+    m_widget->getPage()->mainFrame()->evaluateJavaScript("fixSelection()");
 
     QRegExp expression = QRegExp("rgb\\((\\d+), (\\d+), (\\d+)\\)");
-    expression.indexIn(m_editorUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('color')").toString());
+    expression.indexIn(m_widget->getPage()->mainFrame()->evaluateJavaScript("getStyle('color')").toString());
 
     const QStringList rgb = expression.capturedTexts();
 
@@ -200,15 +208,15 @@ void EditorWidget::selectionChanged()
     disconnect(m_editorUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     disconnect(m_editorUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
 
-    m_editorUi.fontSizeComboBox->setEditText(m_editorUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-size')").toString().remove("px"));
-    m_editorUi.fontFamilyComboBox->setCurrentFont(QFont(m_editorUi.webView->page()->mainFrame()->evaluateJavaScript("getStyle('font-family')").toString()));
+    m_editorUi.fontSizeComboBox->setEditText(m_widget->getPage()->mainFrame()->evaluateJavaScript("getStyle('font-size')").toString().remove("px"));
+    m_editorUi.fontFamilyComboBox->setCurrentFont(QFont(m_widget->getPage()->mainFrame()->evaluateJavaScript("getStyle('font-family')").toString()));
 
     connect(m_editorUi.fontSizeComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(setFontSize(QString)));
     connect(m_editorUi.fontFamilyComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setFontFamily(QFont)));
 
-    m_editorUi.boldButton->setChecked(m_editorUi.webView->page()->action(QWebPage::ToggleBold)->isChecked());
-    m_editorUi.italicButton->setChecked(m_editorUi.webView->page()->action(QWebPage::ToggleItalic)->isChecked());
-    m_editorUi.underlineButton->setChecked(m_editorUi.webView->page()->action(QWebPage::ToggleUnderline)->isChecked());
+    m_editorUi.boldButton->setChecked(m_widget->getPage()->action(QWebPage::ToggleBold)->isChecked());
+    m_editorUi.italicButton->setChecked(m_widget->getPage()->action(QWebPage::ToggleItalic)->isChecked());
+    m_editorUi.underlineButton->setChecked(m_widget->getPage()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
 void EditorWidget::modeChanged(int mode)
@@ -233,7 +241,7 @@ void EditorWidget::modeChanged(int mode)
 void EditorWidget::richTextChanged()
 {
     QWebPage page;
-    page.mainFrame()->setHtml(m_editorUi.webView->page()->mainFrame()->toHtml());
+    page.mainFrame()->setHtml(m_widget->getPage()->mainFrame()->toHtml());
     page.mainFrame()->findFirstElement("#theme_css").removeFromDocument();
 
     const QWebElementCollection elements = page.mainFrame()->findAllElements("[component]");
@@ -258,11 +266,10 @@ void EditorWidget::sourceChanged(const QString &theme)
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
 
-    ThemeWidget::setupClock(m_editorUi.webView->page()->mainFrame(), new ClockObject(m_clock, true), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
+    m_widget->setHtml(QString(), (m_document ? m_document->text() : theme), "[component] {-webkit-transition: background 0.2s;} [component]:hover {background: rgba(252, 255, 225, 0.8); box-shadow: 0 0 0 2px #F5C800;}");
+    m_widget->getPage()->mainFrame()->evaluateJavaScript(stream.readAll());
 
-    m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(stream.readAll());
-
-    const QWebElementCollection elements = m_editorUi.webView->page()->mainFrame()->findAllElements("[component]");
+    const QWebElementCollection elements = m_widget->getPage()->mainFrame()->findAllElements("[component]");
 
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).setAttribute("title", Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(elements.at(i).attribute("component"))).toInt())));
@@ -272,13 +279,13 @@ void EditorWidget::sourceChanged(const QString &theme)
 void EditorWidget::showContextMenu(const QPoint &position)
 {
     KMenu menu(m_editorUi.webView);
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::Undo));
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::Redo));
+    menu.addAction(m_widget->getPage()->action(QWebPage::Undo));
+    menu.addAction(m_widget->getPage()->action(QWebPage::Redo));
     menu.addSeparator();
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::Cut));
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::Copy));
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::Paste));
-    menu.addAction(m_editorUi.webView->page()->action(QWebPage::SelectAll));
+    menu.addAction(m_widget->getPage()->action(QWebPage::Cut));
+    menu.addAction(m_widget->getPage()->action(QWebPage::Copy));
+    menu.addAction(m_widget->getPage()->action(QWebPage::Paste));
+    menu.addAction(m_widget->getPage()->action(QWebPage::SelectAll));
     menu.addSeparator();
     menu.addAction(m_editorUi.boldButton->defaultAction());
     menu.addAction(m_editorUi.italicButton->defaultAction());
@@ -295,13 +302,13 @@ void EditorWidget::setStyle(const QString &property, const QString &value, const
     if (m_editorUi.tabWidget->currentIndex() > 0 && m_document) {
         m_document->activeView()->insertText(QString("<%1 style=\"%2:%3;\">%4</%1>").arg(tag).arg(property).arg(value).arg(m_document->activeView()->selectionText()));
     } else {
-        m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
+        m_widget->getPage()->mainFrame()->evaluateJavaScript(QString("setStyle('%1', '%2')").arg(property).arg(QString(value).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")));
     }
 }
 
 void EditorWidget::setBackground(bool enabled)
 {
-    m_editorUi.webView->page()->mainFrame()->evaluateJavaScript(enabled ? "document.body.setAttribute('background', 'true')" : "document.body.removeAttribute('background')");
+    m_widget->getPage()->mainFrame()->evaluateJavaScript(enabled ? "document.body.setAttribute('background', 'true')" : "document.body.removeAttribute('background')");
 }
 
 void EditorWidget::setColor()

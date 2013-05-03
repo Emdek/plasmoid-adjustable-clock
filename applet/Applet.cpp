@@ -108,7 +108,7 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 void Applet::clockConfigChanged()
 {
     if (!config().readEntry("themeHtml", QString()).isEmpty()) {
-        m_widget->setHtml(config().readEntry("themeHtml", QString()));
+        m_widget->setHtml(QString(), config().readEntry("themeHtml", QString()));
 
         constraintsEvent(Plasma::SizeConstraint);
 
@@ -131,7 +131,7 @@ void Applet::clockConfigChanged()
     }
 
     if (!m_widget->setTheme(locations.first() + QDir::separator() + "digital")) {
-        m_widget->setHtml("<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
+        m_widget->setHtml(QString(), "<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
 
     constraintsEvent(Plasma::SizeConstraint);

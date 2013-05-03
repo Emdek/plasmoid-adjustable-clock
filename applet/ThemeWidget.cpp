@@ -99,49 +99,13 @@ void ThemeWidget::update()
     Plasma::DeclarativeWidget::update();
 }
 
-void ThemeWidget::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)
-{
-    document->setHtml(html);
-    document->addToJavaScriptWindowObject("Clock", clock, QScriptEngine::ScriptOwnership);
-
-    for (int i = 1; i < LastComponent; ++i) {
-        document->evaluateJavaScript(QString("Clock.%1 = %2;").arg(Clock::getComponentString(static_cast<ClockComponent>(i))).arg(i));
-    }
-
-    QFile file(":/helper.js");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    document->evaluateJavaScript(stream.readAll());
-
-    setupTheme(document, css);
-
-    document->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
-
-    for (int i = 1; i < LastComponent; ++i) {
-        updateComponent(document, static_cast<ClockComponent>(i));
-    }
-}
-
-void ThemeWidget::setupTheme(QWebFrame *document, const QString &css)
-{
-    document->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + css));
-}
-
 void ThemeWidget::updateComponent(ClockComponent component)
 {
-    updateComponent(m_page.mainFrame(), component);
-}
-
-void ThemeWidget::updateComponent(QWebFrame *document, ClockComponent component)
-{
     const QLatin1String componentString = Clock::getComponentString(component);
-    const QWebElementCollection elements = document->findAllElements(QString("[component=%1]").arg(componentString));
+    const QWebElementCollection elements = m_page.mainFrame()->findAllElements(QString("[component=%1]").arg(componentString));
 
     for (int i = 0; i < elements.count(); ++i) {
-        const QString value = document->evaluateJavaScript(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"'))).toString();
+        const QString value = m_page.mainFrame()->evaluateJavaScript(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"'))).toString();
 
         if (elements.at(i).hasAttribute("attribute")) {
             elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
@@ -150,12 +114,12 @@ void ThemeWidget::updateComponent(QWebFrame *document, ClockComponent component)
         }
     }
 
-    document->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
+    m_page.mainFrame()->evaluateJavaScript(QString("Clock.sendEvent('Clock%1Changed')").arg(componentString));
 }
 
 void ThemeWidget::updateTheme()
 {
-    setupTheme(m_page.mainFrame());
+    m_page.mainFrame()->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + m_css));
 }
 
 void ThemeWidget::updateSize()
@@ -185,7 +149,7 @@ void ThemeWidget::updateSize()
     connect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
 }
 
-void ThemeWidget::setHtml(const QString &html, const QString &theme)
+void ThemeWidget::setHtml(const QString &theme, const QString &html, const QString &css)
 {
     if (m_rootObject) {
         m_rootObject->deleteLater();
@@ -193,17 +157,45 @@ void ThemeWidget::setHtml(const QString &html, const QString &theme)
         m_rootObject = NULL;
     }
 
+    m_css = css;
+
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    setupClock(m_page.mainFrame(), new ClockObject(m_clock, m_constant, theme), html);
-    updateSize();
+
+    m_page.mainFrame()->setHtml(html);
+    m_page.mainFrame()->addToJavaScriptWindowObject("Clock", new ClockObject(m_clock, m_constant, theme), QScriptEngine::ScriptOwnership);
+
+    for (int i = 1; i < LastComponent; ++i) {
+        m_page.mainFrame()->evaluateJavaScript(QString("Clock.%1 = %2;").arg(Clock::getComponentString(static_cast<ClockComponent>(i))).arg(i));
+    }
+
+    QFile file(":/helper.js");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+
+    m_page.mainFrame()->evaluateJavaScript(stream.readAll());
+
+    updateTheme();
+
+    m_page.mainFrame()->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
+
+    for (int i = 1; i < LastComponent; ++i) {
+        updateComponent(static_cast<ClockComponent>(i));
+    }
 
     if (!m_constant) {
         connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     }
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
+}
+
+QWebPage* ThemeWidget::getPage()
+{
+    return &m_page;
 }
 
 QSize ThemeWidget::getPreferredSize(const QSize &constraints)
@@ -240,6 +232,8 @@ bool ThemeWidget::setTheme(const QString &path)
 
     m_page.mainFrame()->setHtml(QString());
 
+    m_css = QString();
+
     const QString qmlPath = (path + "/contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
@@ -268,7 +262,8 @@ bool ThemeWidget::setTheme(const QString &path)
         return false;
     }
 
-    setHtml(html, QFileInfo(path).fileName());
+    setHtml(QFileInfo(path).fileName(), html);
+    updateSize();
 
     return true;
 }
