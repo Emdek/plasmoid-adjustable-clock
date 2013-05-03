@@ -43,7 +43,7 @@ ThemeWidget::ThemeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) :
 
     m_page.setPalette(palette);
 
-    connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(repaint(QRect)));
+    connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(update()));
 }
 
 void ThemeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -94,9 +94,9 @@ void ThemeWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
-void ThemeWidget::repaint(const QRect &rectangle)
+void ThemeWidget::update()
 {
-    update(QRectF(rectangle.translated(m_offset.toPoint())));
+    Plasma::DeclarativeWidget::update();
 }
 
 void ThemeWidget::setupClock(QWebFrame *document, ClockObject *clock, const QString &html, const QString &css)

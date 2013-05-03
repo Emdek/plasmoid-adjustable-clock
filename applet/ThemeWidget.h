@@ -52,7 +52,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         static void updateComponent(QWebFrame *document, ClockComponent component);
 
     protected slots:
-        void repaint(const QRect &rectangle);
+        void update();
         void updateComponent(ClockComponent component);
         void updateTheme();
         void updateSize();
