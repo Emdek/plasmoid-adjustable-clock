@@ -55,9 +55,11 @@ void ThemeWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 
 void ThemeWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-    setCursor(m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl().isValid() ? Qt::PointingHandCursor : Qt::ArrowCursor);
+    const QPoint position = (event->pos() - m_offset).toPoint();
 
-    QMouseEvent mouseEvent(QEvent::MouseMove, event->pos().toPoint(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    setCursor(m_page.mainFrame()->hitTestContent(position).linkUrl().isValid() ? Qt::PointingHandCursor : Qt::ArrowCursor);
+
+    QMouseEvent mouseEvent(QEvent::MouseMove, position, Qt::NoButton, Qt::NoButton, Qt::NoModifier);
 
     m_page.event(&mouseEvent);
 }
@@ -70,7 +72,7 @@ void ThemeWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    const QUrl url = m_page.mainFrame()->hitTestContent(event->pos().toPoint()).linkUrl();
+    const QUrl url = m_page.mainFrame()->hitTestContent((event->pos() - m_offset).toPoint()).linkUrl();
 
     if (url.isValid()) {
         QDesktopServices::openUrl(url);
