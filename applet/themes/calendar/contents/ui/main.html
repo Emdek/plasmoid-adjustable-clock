@@ -5,14 +5,16 @@
 <style type="text/css">
 body
 {
+	padding: 15px;
+	min-width: 200px;
 	text-align: center;
 }
 
 body > div
 {
-	width: 295px;
-	min-height: 295px;
-	margin: -80px auto 0 auto;
+	width: 200px;
+	min-height: 200px;
+	margin: 0 auto;
 	color: #FFF;
 	text-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
 }
@@ -20,31 +22,30 @@ body > div
 #decor
 {
 	display: table;
-	width: 100%;
-	padding: 0 5px;
-	border-spacing: 26px;
-	position: relative;
-	top: 50px;
+	width: 200px;
+	border-spacing: 18px;
+	position: absolute;
+	top: -18px;
 	z-index: 10;
 }
 
 #decor div
 {
 	display: table-cell;
-	height: 40px;
+	height: 28px;
 	border: 1px solid #999;
-	border-radius: 3px;
+	border-radius: 2px;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #757575), color-stop(0.5, #F7F7F7), color-stop(1, #757575));
 	box-shadow: 0 0 5px rgba(150, 150, 150, 0.8);
 }
 
 #calendar
 {
-	padding: 40px 20px 20px 20px;
-	font-size: 30px;
+	padding: 30px 15px 15px 15px;
+	font-size: 20px;
 	font-weight: bold;
 	background: -webkit-gradient(linear, left top, left bottom, from(#E5702B), to(#A33B03));
-	border-radius: 20px;
+	border-radius: 15px;
 	box-shadow: 5px 5px 15px rgba(100, 100, 100, 0.8);
 	opacity: 0.7;
 }
@@ -62,7 +63,7 @@ body > div
 	</div>
 	<div id="calendar">
 		<span component="DayOfWeek" options="'text': true">Saturday</span><br>
-		<span style="font-size: 130px; line-height: 160px;" component="DayOfMonth" options="'short': true">1</span><br>
+		<span style="font-size: 100px; line-height: 120px;" component="DayOfMonth" options="'short': true">1</span><br>
 		<span style="white-space: nowrap;"><span component="Month" options="'text': true, 'possessive': false">January</span> <span component="Year">2000</span></span><br>
 		<span component="Holidays" options="'short': true">New Year</span>
 	</div>
