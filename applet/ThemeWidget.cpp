@@ -270,7 +270,7 @@ bool ThemeWidget::setTheme(const QString &path)
 
 bool ThemeWidget::getBackgroundFlag() const
 {
-    return (m_rootObject ? true : (m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true"));
+    return (m_rootObject ? m_rootObject->property("background").toBool() : (m_page.mainFrame()->findFirstElement("body").attribute("background").toLower() == "true"));
 }
 
 }
