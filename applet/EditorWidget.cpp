@@ -175,15 +175,22 @@ void EditorWidget::triggerAction()
 
 void EditorWidget::insertComponent(const QString &component, const QString &options)
 {
-    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
+   if (!m_document) {
+        return;
+   }
+
     const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
 
-    if (m_editorUi.tabWidget->currentIndex() > 0) {
-        const QString html = (options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
+    if (m_qml) {
+        m_document->activeView()->insertText(options.isEmpty() ? QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1'}\n\ttext: '%2'\n}\n").arg(component).arg(value) : QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1', options: '%2'}\n\ttext: '%3'\n}\n").arg(component).arg(options).arg(value));
 
-        if (m_document) {
-            m_document->activeView()->insertText(html);
-        }
+        return;
+    }
+
+    const QString title = Clock::getComponentName(static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(component)).toInt()));
+
+    if (m_editorUi.tabWidget->currentIndex() > 0) {
+        m_document->activeView()->insertText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
         sourceChanged();
     } else {
