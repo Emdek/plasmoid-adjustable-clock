@@ -104,7 +104,7 @@ void ThemeWidget::updateComponent(ClockComponent component)
     const QLatin1String componentString = Clock::getComponentString(component);
 
     if (m_rootObject) {
-        const QList<QObject*> elements = m_rootObject->children();
+        const QList<QObject*> elements = m_rootObject->findChildren<QObject*>();
 
         for (int i = 0; i < elements.count(); ++i) {
             const QVariantMap options = elements.at(i)->property("adjustableClock").toMap();
@@ -263,8 +263,6 @@ bool ThemeWidget::setTheme(const QString &path)
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
-
-        return true;
     } else {
         QFile file(path + "/contents/ui/main.html");
         file.open(QIODevice::ReadOnly | QIODevice::Text);
