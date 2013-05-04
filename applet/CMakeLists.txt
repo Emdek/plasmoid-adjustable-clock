@@ -14,7 +14,9 @@ add_subdirectory(locale)
 file(GLOB _themes themes/*)
 
 foreach(_current_theme ${_themes})
-	add_subdirectory(${_current_theme})
+	get_filename_component(_theme_name ${_current_theme} NAME)
+
+	install(DIRECTORY ${_current_theme} DESTINATION ${DATA_INSTALL_DIR}/plasma/adjustableclock)
 endforeach(_current_theme)
 
 qt4_add_resources(adjustableclock_RESOURCES_RCC data/resources.qrc)
@@ -31,8 +33,5 @@ target_link_libraries(plasma_applet_adjustableclock
 	${KDE4_KDEUI_LIBS}
 	)
 
-install(TARGETS plasma_applet_adjustableclock
-	DESTINATION ${PLUGIN_INSTALL_DIR})
-
-install(FILES plasma-applet-adjustableclock.desktop
-	DESTINATION ${SERVICES_INSTALL_DIR})
+install(TARGETS plasma_applet_adjustableclock DESTINATION ${PLUGIN_INSTALL_DIR})
+install(FILES plasma-applet-adjustableclock.desktop DESTINATION ${SERVICES_INSTALL_DIR})
