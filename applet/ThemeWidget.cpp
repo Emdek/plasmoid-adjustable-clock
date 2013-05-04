@@ -199,10 +199,6 @@ void ThemeWidget::setHtml(const QString &theme, const QString &html, const QStri
 
     m_page.mainFrame()->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
-    for (int i = 1; i < LastComponent; ++i) {
-        updateComponent(static_cast<ClockComponent>(i));
-    }
-
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
@@ -268,28 +264,27 @@ bool ThemeWidget::setTheme(const QString &path)
 
         m_rootObject = rootObject();
 
-        for (int i = 1; i < LastComponent; ++i) {
-            updateComponent(static_cast<ClockComponent>(i));
+        return true;
+    } else {
+        QFile file(path + "/contents/ui/main.html");
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        QTextStream stream(&file);
+        stream.setCodec("UTF-8");
+
+        const QString html = stream.readAll();
+
+        if (html.isEmpty()) {
+            return false;
         }
 
-        updateSize();
-
-        return true;
+        setHtml(QFileInfo(path).fileName(), html);
     }
 
-    QFile file(path + "/contents/ui/main.html");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-
-    const QString html = stream.readAll();
-
-    if (html.isEmpty()) {
-        return false;
+    for (int i = 1; i < LastComponent; ++i) {
+        updateComponent(static_cast<ClockComponent>(i));
     }
 
-    setHtml(QFileInfo(path).fileName(), html);
     updateSize();
 
     return true;
