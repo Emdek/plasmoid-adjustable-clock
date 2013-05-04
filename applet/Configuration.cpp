@@ -318,9 +318,11 @@ void Configuration::aboutTheme(const QString &theme)
     const QStringList emails = metaData.email().split(QChar(','), QString::KeepEmptyParts);
     const QStringList websites = metaData.website().split(QChar(','), QString::KeepEmptyParts);
     KAboutData aboutData(item->data(IdentifierRole).toByteArray(), QByteArray(), ki18n(metaData.name().toUtf8().data()), metaData.version().toUtf8());
-    aboutData.setProgramIconName("chronometer");
     aboutData.setLicense(KAboutLicense::byKeyword(metaData.license()).key());
+    aboutData.setProgramIconName("chronometer");
+    aboutData.setProgramName(ki18n(metaData.name().toUtf8().data()));
     aboutData.setShortDescription(ki18n(metaData.description().toUtf8().data()));
+    aboutData.setCatalogName("plasma_applet_adjustableclock");
 
     for (int i = 0; i < authors.count(); ++i) {
         aboutData.addCredit(ki18n(authors.at(i).toUtf8().data()), KLocalizedString(), emails.value(i).toUtf8(), websites.value(i).toUtf8());

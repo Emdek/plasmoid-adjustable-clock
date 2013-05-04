@@ -46,7 +46,7 @@ Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, 
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
     KGlobal::locale()->insertCatalog("timezones4");
-    KGlobal::locale()->insertCatalog("adjustableclock");
+    KGlobal::locale()->insertCatalog("plasma_applet_adjustableclock");
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     layout->setSpacing(0);
