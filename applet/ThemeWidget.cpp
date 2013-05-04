@@ -105,21 +105,22 @@ void ThemeWidget::update()
 
 void ThemeWidget::updateComponent(ClockComponent component)
 {
+    const QLatin1String componentString = Clock::getComponentString(component);
+
     if (m_rootObject) {
         const QList<QObject*> elements = m_rootObject->findChildren<QObject*>();
 
         for (int i = 0; i < elements.count(); ++i) {
             const QVariantMap options = elements.at(i)->property("adjustableClock").toMap();
 
-            if (!options.isEmpty()) {
-                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(options.value("component", "Invalid").toString()).arg(options.value("options").toString().replace('\'', '"')), m_constant));
+            if (!options.isEmpty() && options.value("component").toString() == componentString) {
+                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"')), m_constant));
             }
         }
 
         return;
     }
 
-    const QLatin1String componentString = Clock::getComponentString(component);
     const QWebElementCollection elements = m_page.mainFrame()->findAllElements(QString("[component=%1]").arg(componentString));
 
     for (int i = 0; i < elements.count(); ++i) {
