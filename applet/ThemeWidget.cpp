@@ -200,14 +200,25 @@ QWebPage* ThemeWidget::getPage()
 
 QSize ThemeWidget::getPreferredSize(const QSize &constraints)
 {
+    QSize contents;
+
     if (m_rootObject) {
-        return QSize(-1, -1);
+        contents = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt());
+
+        if (contents.width() <= 0) {
+            contents.setWidth(150);
+        }
+
+        if (contents.height() <= 0) {
+            contents.setHeight(100);
+        }
+    } else {
+        m_page.setViewportSize(QSize(0, 0));
+        m_page.mainFrame()->setZoomFactor(1);
+
+        contents = m_page.mainFrame()->contentsSize();
     }
 
-    m_page.setViewportSize(QSize(0, 0));
-    m_page.mainFrame()->setZoomFactor(1);
-
-    const QSize contents = m_page.mainFrame()->contentsSize();
     QSize size;
 
     if (constraints.width() > -1) {
