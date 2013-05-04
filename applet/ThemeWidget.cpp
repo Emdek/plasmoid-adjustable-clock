@@ -43,6 +43,10 @@ ThemeWidget::ThemeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) :
 
     m_page.setPalette(palette);
 
+    if (!m_constant) {
+        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
+    }
+
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(update()));
 }
 
@@ -101,6 +105,20 @@ void ThemeWidget::update()
 
 void ThemeWidget::updateComponent(ClockComponent component)
 {
+    if (m_rootObject) {
+        const QList<QObject*> elements = m_rootObject->findChildren<QObject*>();
+
+        for (int i = 0; i < elements.count(); ++i) {
+            const QVariantMap options = elements.at(i)->property("adjustableClock").toMap();
+
+            if (!options.isEmpty()) {
+                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(options.value("component", "Invalid").toString()).arg(options.value("options").toString().replace('\'', '"')), m_constant));
+            }
+        }
+
+        return;
+    }
+
     const QLatin1String componentString = Clock::getComponentString(component);
     const QWebElementCollection elements = m_page.mainFrame()->findAllElements(QString("[component=%1]").arg(componentString));
 
@@ -186,10 +204,6 @@ void ThemeWidget::setHtml(const QString &theme, const QString &html, const QStri
         updateComponent(static_cast<ClockComponent>(i));
     }
 
-    if (!m_constant) {
-        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
-    }
-
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
 
@@ -234,7 +248,6 @@ QSize ThemeWidget::getPreferredSize(const QSize &constraints)
 
 bool ThemeWidget::setTheme(const QString &path)
 {
-    disconnect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     disconnect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 
     setAcceptHoverEvents(false);
@@ -255,6 +268,10 @@ bool ThemeWidget::setTheme(const QString &path)
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
+
+        for (int i = 1; i < LastComponent; ++i) {
+            updateComponent(static_cast<ClockComponent>(i));
+        }
 
         updateSize();
 
