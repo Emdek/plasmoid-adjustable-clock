@@ -62,7 +62,7 @@ void ExpressionLineEdit::insertComponent(const QString &component, const QString
 
 void ExpressionLineEdit::updateToolTip(const QString &expression)
 {
-    setToolTip(expression.isEmpty() ? QString() : m_clock->evaluate(expression, true));
+    setToolTip(expression.isEmpty() ? QString() : m_clock->evaluate(expression));
 }
 
 void ExpressionLineEdit::extendContextMenu(QMenu *menu)

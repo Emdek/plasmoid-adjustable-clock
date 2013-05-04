@@ -33,20 +33,16 @@
 namespace AdjustableClock
 {
 
-ThemeWidget::ThemeWidget(Clock *clock, bool constant, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
+ThemeWidget::ThemeWidget(Clock *clock, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
     m_clock(clock),
-    m_rootObject(NULL),
-    m_constant(constant)
+    m_rootObject(NULL)
 {
     QPalette palette = m_page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
 
     m_page.setPalette(palette);
 
-    if (!m_constant) {
-        connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
-    }
-
+    connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(update()));
 }
 
@@ -108,13 +104,13 @@ void ThemeWidget::updateComponent(ClockComponent component)
     const QLatin1String componentString = Clock::getComponentString(component);
 
     if (m_rootObject) {
-        const QList<QObject*> elements = m_rootObject->findChildren<QObject*>();
+        const QList<QObject*> elements = m_rootObject->children();
 
         for (int i = 0; i < elements.count(); ++i) {
             const QVariantMap options = elements.at(i)->property("adjustableClock").toMap();
 
             if (!options.isEmpty() && options.value("component").toString() == componentString) {
-                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"')), m_constant));
+                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"'))));
             }
         }
 
@@ -178,12 +174,14 @@ void ThemeWidget::setHtml(const QString &theme, const QString &html, const QStri
 
     m_css = css;
 
+    m_clock->setTheme(theme);
+
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(QGraphicsItem::ItemHasNoContents, false);
 
     m_page.mainFrame()->setHtml(html);
-    m_page.mainFrame()->addToJavaScriptWindowObject("Clock", new ClockObject(m_clock, m_constant, theme), QScriptEngine::ScriptOwnership);
+    m_page.mainFrame()->addToJavaScriptWindowObject("Clock", m_clock, QScriptEngine::QtOwnership);
 
     for (int i = 1; i < LastComponent; ++i) {
         m_page.mainFrame()->evaluateJavaScript(QString("Clock.%1 = %2;").arg(Clock::getComponentString(static_cast<ClockComponent>(i))).arg(i));

@@ -44,8 +44,9 @@
 namespace AdjustableClock
 {
 
-Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(parent),
+Configuration::Configuration(Applet *applet, Clock *clock, KConfigDialog *parent) : QObject(parent),
     m_applet(applet),
+    m_clock(clock),
     m_themesModel(new QStandardItemModel(this)),
     m_actionsModel(new QStandardItemModel(this))
 {
@@ -54,6 +55,8 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
+
+    m_clock->setParent(this);
 
     const QStringList locations = KGlobal::dirs()->findDirs("data", "plasma/adjustableclock");
 
@@ -74,13 +77,13 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
         QStandardItem *item = new QStandardItem(clipboardExpressions.at(i));
 
         if (!clipboardExpressions.at(i).isEmpty()) {
-            item->setToolTip(m_applet->getClock()->evaluate(clipboardExpressions.at(i), true));
+            item->setToolTip(m_clock->evaluate(clipboardExpressions.at(i)));
         }
 
         m_actionsModel->appendRow(item);
     }
 
-    ThemeDelegate *delegate = new ThemeDelegate(m_applet->getClock(), m_appearanceUi.themesView);
+    ThemeDelegate *delegate = new ThemeDelegate(m_clock);
     KMenu *createMenu = new KMenu(m_appearanceUi.createButton);
     createMenu->addAction(i18n("HTML"))->setData("html");
     createMenu->addAction(i18n("QML"))->setData("qml");
@@ -94,10 +97,10 @@ Configuration::Configuration(Applet *applet, KConfigDialog *parent) : QObject(pa
     m_clipboardUi.moveUpButton->setIcon(KIcon("arrow-up"));
     m_clipboardUi.moveDownButton->setIcon(KIcon("arrow-down"));
     m_clipboardUi.actionsView->setModel(m_actionsModel);
-    m_clipboardUi.actionsView->setItemDelegate(new ExpressionDelegate(m_applet->getClock(), this));
+    m_clipboardUi.actionsView->setItemDelegate(new ExpressionDelegate(m_clock));
     m_clipboardUi.actionsView->viewport()->installEventFilter(this);
     m_clipboardUi.fastCopyExpressionEdit->setText(m_applet->config().readEntry("fastCopyExpression", "Clock.getValue(Clock.Year) + '-' + Clock.getValue(Clock.Month) + '-' + Clock.getValue(Clock.DayOfMonth) + ' ' + Clock.getValue(Clock.Hour) + ':' + Clock.getValue(Clock.Minute) + ':' + Clock.getValue(Clock.Second)"));
-    m_clipboardUi.fastCopyExpressionEdit->setClock(m_applet->getClock());
+    m_clipboardUi.fastCopyExpressionEdit->setClock(m_clock);
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
     parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
@@ -347,7 +350,7 @@ void Configuration::editTheme(const QString &theme)
         item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row());
     }
 
-    EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), m_applet->getClock(), m_appearanceUi.themesView);
+    EditorWidget *editor = new EditorWidget(item->data(PathRole).toString(), m_clock, m_appearanceUi.themesView);
     KDialog editorDialog;
     editorDialog.setMainWidget(editor);
     editorDialog.setModal(true);

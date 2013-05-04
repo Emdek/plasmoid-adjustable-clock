@@ -25,7 +25,7 @@
 
 #include <QtCore/QDir>
 #include <QtGui/QClipboard>
- #include <QtGui/QGraphicsLinearLayout>
+#include <QtGui/QGraphicsLinearLayout>
 
 #include <KMenu>
 #include <KLocale>
@@ -40,8 +40,9 @@ namespace AdjustableClock
 {
 
 Applet::Applet(QObject *parent, const QVariantList &args) : ClockApplet(parent, args),
-    m_clock(new Clock(this)),
-    m_widget(new ThemeWidget(m_clock, false, this)),
+    m_source(new DataSource(this)),
+    m_clock(new Clock(m_source, false)),
+    m_widget(new ThemeWidget(m_clock, this)),
     m_clipboardAction(NULL)
 {
     KGlobal::locale()->insertCatalog("libplasmaclock");
@@ -102,7 +103,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 {
-    new Configuration(this, parent);
+    new Configuration(this, new Clock(m_source, true), parent);
 }
 
 void Applet::clockConfigChanged()
@@ -147,7 +148,7 @@ void Applet::changeEngineTimezone(const QString &oldTimeZone, const QString &new
     Q_UNUSED(oldTimeZone)
     Q_UNUSED(newTimeZone)
 
-    m_clock->updateTimeZone();
+    m_source->updateTimeZone();
 }
 
 void Applet::copyToClipboard()
@@ -167,7 +168,7 @@ void Applet::toolTipAboutToShow()
             return;
         }
 
-        connect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
+        connect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
         updateToolTipContent();
     } else {
@@ -177,7 +178,7 @@ void Applet::toolTipAboutToShow()
 
 void Applet::toolTipHidden()
 {
-    disconnect(m_clock, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
+    disconnect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
 
     Plasma::ToolTipManager::self()->clearContent(this);
 }
@@ -195,11 +196,11 @@ void Applet::updateToolTipContent()
 
 void Applet::updateClipboardMenu()
 {
-    const QStringList clipboardExpressions = getClipboardExpressions();
-
     qDeleteAll(m_clipboardAction->menu()->actions());
 
     m_clipboardAction->menu()->clear();
+
+    const QStringList clipboardExpressions = getClipboardExpressions();
 
     for (int i = 0; i < clipboardExpressions.count(); ++i) {
         if (clipboardExpressions.at(i).isEmpty()) {
@@ -208,11 +209,6 @@ void Applet::updateClipboardMenu()
             m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardExpressions.at(i)));
         }
     }
-}
-
-Clock* Applet::getClock() const
-{
-    return m_clock;
 }
 
 QStringList Applet::getClipboardExpressions() const

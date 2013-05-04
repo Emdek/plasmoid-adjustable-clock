@@ -96,6 +96,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     }
 
     m_widget = new ThemeWidget(m_clock);
+    m_widget->setParent(this);
     m_widget->getPage()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     m_widget->getPage()->setContentEditable(true);
     m_widget->getPage()->action(QWebPage::Undo)->setText(i18n("Undo"));
@@ -110,7 +111,6 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     m_widget->getPage()->action(QWebPage::Paste)->setIcon(KIcon("edit-paste"));
     m_widget->getPage()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
     m_widget->getPage()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
-    m_widget->setParent(this);
 
     m_editorUi.webView->setPage(m_widget->getPage());
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
@@ -179,7 +179,7 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
         return;
    }
 
-    const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)), true);
+    const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)));
 
     if (m_qml) {
         m_document->activeView()->insertText(options.isEmpty() ? QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1'}\n\ttext: '%2'\n}\n").arg(component).arg(value) : QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1', options: '%2'}\n\ttext: '%3'\n}\n").arg(component).arg(options).arg(value));

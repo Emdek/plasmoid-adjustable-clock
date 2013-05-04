@@ -45,13 +45,14 @@ enum ModelRole
 };
 
 class Applet;
+class Clock;
 
 class Configuration : public QObject
 {
     Q_OBJECT
 
     public:
-        explicit Configuration(Applet *applet, KConfigDialog *parent);
+        explicit Configuration(Applet *applet, Clock *clock, KConfigDialog *parent);
 
         bool eventFilter(QObject *object, QEvent *event);
 
@@ -87,6 +88,7 @@ class Configuration : public QObject
 
     private:
         Applet *m_applet;
+        Clock *m_clock;
         QStandardItemModel *m_themesModel;
         QStandardItemModel *m_actionsModel;
         QModelIndex m_editedAction;

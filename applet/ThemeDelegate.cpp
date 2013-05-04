@@ -40,7 +40,7 @@ namespace AdjustableClock
 
 KPixmapCache *m_cache = NULL;
 
-ThemeDelegate::ThemeDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+ThemeDelegate::ThemeDelegate(Clock *clock) : QStyledItemDelegate(clock),
     m_clock(clock)
 {
     m_cache = new KPixmapCache("AdjustableClockPreviews");

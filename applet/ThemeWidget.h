@@ -35,7 +35,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
     Q_OBJECT
 
     public:
-        explicit ThemeWidget(Clock *clock, bool constant = true, QGraphicsWidget *parent = NULL);
+        explicit ThemeWidget(Clock *clock, QGraphicsWidget *parent = NULL);
 
         void setHtml(const QString &theme, const QString &html, const QString &css = QString());
         QWebPage* getPage();
@@ -61,7 +61,6 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         QWebPage m_page;
         QPointF m_offset;
         QString m_css;
-        bool m_constant;
 };
 
 }

@@ -25,7 +25,7 @@
 namespace AdjustableClock
 {
 
-ExpressionDelegate::ExpressionDelegate(Clock *clock, QObject *parent) : QStyledItemDelegate(parent),
+ExpressionDelegate::ExpressionDelegate(Clock *clock) : QStyledItemDelegate(clock),
     m_clock(clock)
 {
 }
@@ -48,7 +48,7 @@ void ExpressionDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
     const QString expression = static_cast<ExpressionLineEdit*>(editor)->text();
 
     model->setData(index, expression, Qt::EditRole);
-    model->setData(index, (expression.isEmpty() ? QString() : m_clock->evaluate(expression, true)), Qt::ToolTipRole);
+    model->setData(index, (expression.isEmpty() ? QString() : m_clock->evaluate(expression)), Qt::ToolTipRole);
 }
 
 QWidget* ExpressionDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -67,7 +67,7 @@ QString ExpressionDelegate::displayText(const QVariant &value, const QLocale &lo
 {
     Q_UNUSED(locale)
 
-    return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString(), true));
+    return (value.toString().isEmpty() ? QString() : m_clock->evaluate(value.toString()));
 }
 
 QSize ExpressionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

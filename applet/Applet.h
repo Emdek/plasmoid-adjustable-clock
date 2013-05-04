@@ -32,6 +32,7 @@ namespace AdjustableClock
 {
 
 class Clock;
+class DataSource;
 class ThemeWidget;
 
 class Applet : public ClockApplet
@@ -42,7 +43,6 @@ class Applet : public ClockApplet
         explicit Applet(QObject *parent, const QVariantList &args);
 
         void init();
-        Clock* getClock() const;
         QStringList getClipboardExpressions() const;
 
     protected:
@@ -63,6 +63,7 @@ class Applet : public ClockApplet
         void updateClipboardMenu();
 
     private:
+        DataSource *m_source;
         Clock *m_clock;
         ThemeWidget *m_widget;
         QAction *m_clipboardAction;
