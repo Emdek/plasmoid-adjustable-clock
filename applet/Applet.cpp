@@ -168,9 +168,9 @@ void Applet::toolTipAboutToShow()
             return;
         }
 
-        connect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
-
         updateToolTipContent();
+
+        connect(m_source, SIGNAL(tick()), this, SLOT(updateToolTipContent()));
     } else {
         ClockApplet::toolTipAboutToShow();
     }
@@ -234,7 +234,7 @@ QList<QAction*> Applet::contextualActions()
     QList<QAction*> actions = ClockApplet::contextualActions();
 
     if (!m_clipboardAction) {
-        m_clipboardAction = new QAction(SmallIcon("edit-copy"), i18n("C&opy to Clipboard"), this);
+        m_clipboardAction = new QAction(KIcon("edit-copy"), i18n("C&opy to Clipboard"), this);
         m_clipboardAction->setMenu(new KMenu());
 
         connect(this, SIGNAL(destroyed()), m_clipboardAction->menu(), SLOT(deleteLater()));

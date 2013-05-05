@@ -24,8 +24,6 @@
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
 
-#include <Plasma/Applet>
-
 #include <plasmaclock/clockapplet.h>
 
 namespace AdjustableClock
