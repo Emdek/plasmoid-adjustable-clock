@@ -9,8 +9,6 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${KDE4_INCLUDES})
 
 set(adjustableclock_SRCS Applet.cpp DataSource.cpp Clock.cpp Configuration.cpp ThemeWidget.cpp EditorWidget.cpp ComponentWidget.cpp OptionWidget.cpp ThemeDelegate.cpp ExpressionDelegate.cpp ExpressionLineEdit.cpp)
 
-add_subdirectory(locale)
-
 file(GLOB _themes themes/*)
 
 foreach(_current_theme ${_themes})
