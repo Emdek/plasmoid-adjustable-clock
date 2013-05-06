@@ -153,6 +153,8 @@ void ThemeWidget::updateSize()
     m_page.setViewportSize(QSize(0, 0));
     m_page.mainFrame()->setZoomFactor(1);
 
+    m_size = m_page.mainFrame()->contentsSize();
+
     const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
     const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
 
@@ -209,34 +211,13 @@ QWebPage* ThemeWidget::getPage()
 
 QSize ThemeWidget::getPreferredSize(const QSize &constraints)
 {
-    QSize contents;
-
-    if (m_rootObject) {
-        contents = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt());
-
-        if (contents.width() <= 0) {
-            contents.setWidth(150);
-        }
-
-        if (contents.height() <= 0) {
-            contents.setHeight(100);
-        }
-    } else {
-        m_page.setViewportSize(QSize(0, 0));
-        m_page.mainFrame()->setZoomFactor(1);
-
-        contents = m_page.mainFrame()->contentsSize();
-    }
-
     QSize size;
 
     if (constraints.width() > -1) {
-        size.setHeight(contents.height() * ((qreal) constraints.width() / contents.width()));
+        size.setHeight(m_size.height() * ((qreal) constraints.width() / m_size.width()));
     } else if (constraints.height() > -1) {
-        size.setWidth(contents.width() * ((qreal) constraints.height() / contents.height()));
+        size.setWidth(m_size.width() * ((qreal) constraints.height() / m_size.height()));
     }
-
-    updateSize();
 
     return size;
 }
@@ -263,6 +244,16 @@ bool ThemeWidget::setTheme(const QString &path)
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
+
+        m_size = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt());
+
+        if (m_size.width() <= 0) {
+            m_size.setWidth(150);
+        }
+
+        if (m_size.height() <= 0) {
+            m_size.setHeight(100);
+        }
     } else {
         QFile file(path + "/contents/ui/main.html");
         file.open(QIODevice::ReadOnly | QIODevice::Text);
