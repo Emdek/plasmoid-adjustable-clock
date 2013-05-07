@@ -264,15 +264,7 @@ bool ThemeWidget::setTheme(const QString &path)
             }
         }
 
-        m_size = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt());
-
-        if (m_size.width() <= 0) {
-            m_size.setWidth(150);
-        }
-
-        if (m_size.height() <= 0) {
-            m_size.setHeight(100);
-        }
+        m_size = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt()).expandedTo(QSize(150, 100));
     } else {
         QFile file(path + "/contents/ui/main.html");
         file.open(QIODevice::ReadOnly | QIODevice::Text);
