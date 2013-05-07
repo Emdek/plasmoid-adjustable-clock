@@ -104,13 +104,13 @@ void ThemeWidget::updateComponent(ClockComponent component)
     const QLatin1String componentString = Clock::getComponentString(component);
 
     if (m_rootObject) {
-        const QList<QObject*> elements = m_rootObject->findChildren<QObject*>();
+        const QList<QPointer<QObject> > objects = m_objects.value(component);
 
-        for (int i = 0; i < elements.count(); ++i) {
-            const QVariantMap options = elements.at(i)->property("adjustableClock").toMap();
+        for (int i = 0; i < objects.count(); ++i) {
+            if (objects.at(i)) {
+                const QVariantMap options = objects.at(i)->property("adjustableClock").toMap();
 
-            if (!options.isEmpty() && options.value("component").toString() == componentString) {
-                elements.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"'))));
+                objects.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"'))));
             }
         }
 
@@ -234,6 +234,8 @@ bool ThemeWidget::setTheme(const QString &path)
 
     m_css = QString();
 
+    m_objects.clear();
+
     const QString qmlPath = (path + "/contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
@@ -244,6 +246,20 @@ bool ThemeWidget::setTheme(const QString &path)
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
+
+        const QList<QObject*> objects = m_rootObject->findChildren<QObject*>();
+
+        for (int i = 0; i < objects.count(); ++i) {
+            const QVariantMap options = objects.at(i)->property("adjustableClock").toMap();
+
+            if (!options.isEmpty()) {
+                const ClockComponent component = static_cast<ClockComponent>(m_clock->evaluate(QString("Clock.%1").arg(options.value("component").toString())).toInt());
+                QList<QPointer <QObject> > list = m_objects.value(component);
+                list.append(objects.at(i));
+
+                m_objects[component] = list;
+            }
+        }
 
         m_size = QSize(m_rootObject->property("minimumWidth").toInt(), m_rootObject->property("minimumHeight").toInt());
 

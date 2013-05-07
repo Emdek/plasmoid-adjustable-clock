@@ -59,6 +59,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         Clock *m_clock;
         QObject *m_rootObject;
         QWebPage m_page;
+        QMap<ClockComponent, QList<QPointer<QObject> > > m_objects;
         QSize m_size;
         QPointF m_offset;
         QString m_css;
