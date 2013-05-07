@@ -94,6 +94,27 @@ void ThemeWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     m_page.mainFrame()->render(painter, QWebFrame::ContentsLayer);
 }
 
+void ThemeWidget::clear()
+{
+    disconnect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
+
+    setAcceptHoverEvents(false);
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+    setFlag(QGraphicsItem::ItemHasNoContents, true);
+
+    m_page.mainFrame()->setHtml(QString());
+
+    m_css = QString();
+
+    m_objects.clear();
+
+    if (m_rootObject) {
+        m_rootObject->deleteLater();
+
+        m_rootObject = NULL;
+    }
+}
+
 void ThemeWidget::update()
 {
     Plasma::DeclarativeWidget::update();
@@ -168,11 +189,7 @@ void ThemeWidget::updateSize()
 
 void ThemeWidget::setHtml(const QString &theme, const QString &html, const QString &css)
 {
-    if (m_rootObject) {
-        m_rootObject->deleteLater();
-
-        m_rootObject = NULL;
-    }
+    clear();
 
     m_css = css;
 
@@ -224,25 +241,11 @@ QSize ThemeWidget::getPreferredSize(const QSize &constraints)
 
 bool ThemeWidget::setTheme(const QString &path)
 {
-    disconnect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
-
-    setAcceptHoverEvents(false);
-    setAcceptedMouseButtons(Qt::LeftButton | Qt::MidButton | Qt::RightButton);
-    setFlag(QGraphicsItem::ItemHasNoContents, true);
-
-    m_page.mainFrame()->setHtml(QString());
-
-    m_css = QString();
-
-    m_objects.clear();
+    clear();
 
     const QString qmlPath = (path + "/contents/ui/main.qml");
 
     if (QFile::exists(qmlPath)) {
-        if (m_rootObject) {
-            m_rootObject->deleteLater();
-        }
-
         setQmlPath(qmlPath);
 
         m_rootObject = rootObject();
