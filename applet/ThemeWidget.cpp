@@ -41,6 +41,7 @@ ThemeWidget::ThemeWidget(Clock *clock, QGraphicsWidget *parent) : Plasma::Declar
     palette.setBrush(QPalette::Base, Qt::transparent);
 
     m_page.setPalette(palette);
+    m_page.settings()->setFontFamily(QWebSettings::StandardFont, "sans");
 
     connect(m_clock, SIGNAL(componentChanged(ClockComponent)), this, SLOT(updateComponent(ClockComponent)));
     connect(&m_page, SIGNAL(repaintRequested(QRect)), this, SLOT(update()));
@@ -141,7 +142,7 @@ void ThemeWidget::updateComponent(ClockComponent component)
     const QWebElementCollection elements = m_page.mainFrame()->findAllElements(QString("[component=%1]").arg(componentString));
 
     for (int i = 0; i < elements.count(); ++i) {
-        const QString value = m_page.mainFrame()->evaluateJavaScript(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"'))).toString();
+        const QString value = m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"')));
 
         if (elements.at(i).hasAttribute("attribute")) {
             elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
@@ -155,7 +156,7 @@ void ThemeWidget::updateComponent(ClockComponent component)
 
 void ThemeWidget::updateTheme()
 {
-    m_page.mainFrame()->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(QString("body {font-family: \\'%1\\', sans; color: %2;}").arg(Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family()).arg(Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor).name()) + m_css));
+    m_page.mainFrame()->evaluateJavaScript(QString("Clock.setStyleSheet('%1'); Clock.sendEvent('ClockThemeChanged');").arg(Plasma::Theme::defaultTheme()->styleSheet().replace('\n', "\\n") + m_css));
 }
 
 void ThemeWidget::updateSize()
