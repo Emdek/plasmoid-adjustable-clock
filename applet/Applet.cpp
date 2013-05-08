@@ -108,6 +108,8 @@ void Applet::createClockConfigurationInterface(KConfigDialog *parent)
 
 void Applet::clockConfigChanged()
 {
+    m_source->updateTimeZone();
+
     if (!config().readEntry("themeHtml", QString()).isEmpty()) {
         m_widget->setHtml(QString(), config().readEntry("themeHtml", QString()));
 
