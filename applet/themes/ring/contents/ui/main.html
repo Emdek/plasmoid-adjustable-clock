@@ -189,6 +189,8 @@ function updateClock()
 		{
 			document.getElementById('digit_' + i).innerHTML = '';
 
+			values[i] = parseInt(values[i]);
+
 			for (var j = 0; j < 4; ++j)
 			{
 				createCard(i, phases[j], (values[i] - 1 + j));
