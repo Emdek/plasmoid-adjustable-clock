@@ -49,6 +49,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = NULL);
         void clear();
+        QString getValue(const QString &component, const QString &options) const;
 
     protected slots:
         void update();

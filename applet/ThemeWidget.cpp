@@ -132,7 +132,7 @@ void ThemeWidget::updateComponent(ClockComponent component)
             if (objects.at(i)) {
                 const QVariantMap options = objects.at(i)->property("adjustableClock").toMap();
 
-                objects.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(options.value("options").toString().replace('\'', '"'))));
+                objects.at(i)->setProperty(options.value("attribute", "text").toString().toLatin1(), getValue(componentString, options.value("options").toString()));
             }
         }
 
@@ -142,7 +142,7 @@ void ThemeWidget::updateComponent(ClockComponent component)
     const QWebElementCollection elements = m_page.mainFrame()->findAllElements(QString("[component=%1]").arg(componentString));
 
     for (int i = 0; i < elements.count(); ++i) {
-        const QString value = m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(componentString).arg(elements.at(i).attribute("options").replace('\'', '"')));
+        const QString value = getValue(componentString, elements.at(i).attribute("options"));
 
         if (elements.at(i).hasAttribute("attribute")) {
             elements.at(i).setAttribute(elements.at(i).attribute("attribute"), value);
@@ -225,6 +225,11 @@ void ThemeWidget::setHtml(const QString &theme, const QString &html, const QStri
 QWebPage* ThemeWidget::getPage()
 {
     return &m_page;
+}
+
+QString ThemeWidget::getValue(const QString &component, const QString &options) const
+{
+    return m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(QString(options).replace('\'', '"')));
 }
 
 QSize ThemeWidget::getPreferredSize(const QSize &constraints)
