@@ -162,9 +162,6 @@ function setupClock()
 {
 	var showSeconds = Clock.getOption('showSeconds', true);
 
-	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
-	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));
-
 	if (!showSeconds)
 	{
 		document.getElementById('digit_4').style.display = 'none';
@@ -172,6 +169,9 @@ function setupClock()
 	}
 
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
+
+	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
+	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));
 }
 
 function updateClock()
