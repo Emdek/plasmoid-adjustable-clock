@@ -5,7 +5,7 @@
 <style type="text/css">
 body
 {
-	padding: 0 10px 0 5px;
+	padding: 0;
 	text-align: center;
 	white-space: nowrap;
 }
@@ -16,11 +16,17 @@ body > div
 	width: 30px;
 	height: 75px;
 	position: relative;
+	overflow: hidden;
 }
 
 body > div:nth-child(2n + 1)
 {
 	margin-left: 5px;
+}
+
+body > div:last-of-type
+{
+	margin-right: 5px;
 }
 
 div > div
@@ -170,8 +176,8 @@ function setupClock()
 
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
 
-	Clock.setRuleStyle(6, 'color', Clock.getOption('textColor', '#FFF'));
-	Clock.setRuleStyle(7, 'background', Clock.getOption('backgroundColor', '#AAA'));
+	Clock.setRuleStyle(7, 'color', Clock.getOption('textColor', '#FFF'));
+	Clock.setRuleStyle(8, 'background', Clock.getOption('backgroundColor', '#AAA'));
 }
 
 function updateClock()
