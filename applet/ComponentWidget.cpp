@@ -92,7 +92,7 @@ void ComponentWidget::selectComponent(QAction *action)
     m_componentUi.componentButton->setText(action->text());
     m_componentUi.optionsButton->menu()->clear();
 
-    if (m_component == SecondComponent || m_component == MinuteComponent || m_component == HourComponent || m_component == DayOfWeekComponent || m_component == DayOfMonthComponent || m_component == DayOfYearComponent || m_component == WeekComponent || m_component == MonthComponent || m_component == YearComponent || m_component == TimeComponent || m_component == DateComponent || m_component == HolidaysComponent || m_component == EventsComponent) {
+    if (m_component == SecondComponent || m_component == MinuteComponent || m_component == HourComponent || m_component == DayOfWeekComponent || m_component == DayOfMonthComponent || m_component == DayOfYearComponent || m_component == WeekComponent || m_component == MonthComponent || m_component == YearComponent || m_component == TimeComponent || m_component == DateComponent || m_component == DateTimeComponent || m_component == HolidaysComponent || m_component == EventsComponent) {
         QCheckBox *checkBox = new QCheckBox(i18n("Short Form"), m_componentUi.optionsButton->menu());
 
         addOption(checkBox);

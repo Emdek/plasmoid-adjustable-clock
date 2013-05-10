@@ -6,7 +6,7 @@ KDE4 >= 4.8
 Features:
 - fully custom date and time using JavaScript API to obtain date and time components;
 - multiple clock themes utilizing various designs;
-- possibility to use rich text editor or edit source directly (HTML and CSS) to adjust theme;
+- possibility to use rich text editor or edit source directly (HTML and CSS or QML) to adjust theme;
 - context menu with actions to copy formatted (adjustable expressions) date and time to clipboard;
 - fast copy to clipboard of adjustable date and time expression after middle mouse click on the clock or activation of keyboard shortcut;
 - adjustable tool tip (hidden option, toolTipExpressionMain and toolTipExpressionSub keys);
