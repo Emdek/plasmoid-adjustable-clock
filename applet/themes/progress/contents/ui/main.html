@@ -83,9 +83,9 @@ function setupClock()
 {
 	var shadowColor = Clock.getOption('shadowColor', 'rgba(0, 0, 0, 0.3)');
 
-	document.getElementsByTagName('div')[0].style.color = Clock.getOption('textColor', '#FFF');
-	document.getElementsByTagName('div')[0].style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', true) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
-	document.getElementsByTagName('div')[0].style.textShadow = ('2px 2px ' + shadowColor);
+	document.body.style.color = Clock.getOption('textColor', '#FFF');
+	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', true) ? 'bold ' : '') + Clock.getStyle(document.body, 'font-size') + ' \'' + Clock.getOption('fontFamily', 'Segoe WP') + '\'');
+	document.body.style.textShadow = ('2px 2px ' + shadowColor);
 
 	Clock.setRuleStyle(6, 'box-shadow', ('2px 2px 0 ' + shadowColor));
 	Clock.setRuleStyle(6, 'background', Clock.getOption('progressColor', '#DDD'));
