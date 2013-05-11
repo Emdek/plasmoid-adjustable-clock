@@ -47,7 +47,7 @@ void Clock::setTheme(const QString &theme)
 
 QVariant Clock::getOption(const QString &key, const QVariant &defaultValue) const
 {
-    const QVariant value = m_source->getOption(key, ((key == "themeFont") ? QVariant() : defaultValue), m_theme);
+    const QVariant value = m_source->getOption(key, ((key == "themeFont") ? QVariant(QString()) : defaultValue), m_theme);
 
     if (key == "themeFont" && value.toString().isEmpty()) {
         return Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family();
