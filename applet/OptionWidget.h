@@ -29,6 +29,7 @@
 
 #include <KColorButton>
 #include <KFontComboBox>
+#include <KUrlRequester>
 #include <KConfigSkeletonItem>
 
 namespace AdjustableClock
@@ -61,6 +62,7 @@ class OptionWidget : public QWidget
         QSlider *m_slider;
         QSpinBox *m_spinBox;
         QPlainTextEdit *m_textEdit;
+        KUrlRequester *m_urlRequester;
         KConfigSkeletonItem *m_option;
         QVariant m_value;
 };

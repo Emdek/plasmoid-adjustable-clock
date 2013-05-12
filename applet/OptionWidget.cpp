@@ -37,10 +37,12 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
     m_slider(NULL),
     m_spinBox(NULL),
     m_textEdit(NULL),
+    m_urlRequester(NULL),
     m_option(option),
     m_value(option->property())
 {
     KCoreConfigSkeleton::ItemEnum *enumOption = dynamic_cast<KCoreConfigSkeleton::ItemEnum*>(m_option);
+    KCoreConfigSkeleton::ItemPath *pathOption = dynamic_cast<KCoreConfigSkeleton::ItemPath*>(m_option);
 
     if (enumOption) {
         m_widget = m_comboBox = new QComboBox(this);
@@ -50,6 +52,10 @@ OptionWidget::OptionWidget(KConfigSkeletonItem *option, QWidget *parent) : QWidg
         }
 
         connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateValue()));
+    } else if (pathOption) {
+        m_widget = m_urlRequester = new KUrlRequester(this);
+
+        connect(m_urlRequester, SIGNAL(textChanged(QString)), this, SLOT(updateValue()));
     } else {
         switch (m_option->property().type()) {
         case QVariant::Bool:
@@ -126,6 +132,8 @@ void OptionWidget::updateValue()
         m_value = QVariant(m_fontComboBox->currentFont());
     } else if (m_textEdit) {
         m_value = QVariant(m_textEdit->toPlainText());
+    } else if (m_urlRequester) {
+        m_value = QVariant(m_urlRequester->url().pathOrUrl());
     }
 }
 
@@ -164,6 +172,8 @@ void OptionWidget::setValue(const QVariant &value)
         m_fontComboBox->setCurrentFont(value.value<QFont>());
     } else if (m_textEdit) {
         m_textEdit->setPlainText(value.toString());
+    } else if (m_urlRequester) {
+        m_urlRequester->setUrl(KUrl(value.toString()));
     }
 }
 
