@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<div id="svg"></div>
+<script type="text/javascript">
+var showSeconds = true;
+var center = [100, 100];
+var transforms = [];
+
+function setupClock()
+{
+	showSeconds = Clock.getOption('showSeconds', true);
+	var path = Clock.getOption('svgPath', 'widgets/clock');
+
+	document.getElementById('svg').innerHTML = ((path == 'widgets/clock') ? Clock.getImage('widgets/clock', false) : Clock.getFile(path, false));
+	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
+
+	transforms['Second'] = document.getElementById('SecondHand').getAttribute('transform');
+	transforms['Minute'] = document.getElementById('MinuteHand').getAttribute('transform');
+	transforms['Hour'] = document.getElementById('HourHand').getAttribute('transform');
+
+	if (!showSeconds)
+	{
+		document.getElementById('SecondHand').style.display = 'none';
+		document.getElementById('SecondHandShadow').style.display = 'none';
+	}
+
+	var face = document.getElementById('ClockFace');
+	center = [(face.getBoundingClientRect().width / 2), (face.getBoundingClientRect().height / 2)];
+
+	updateClock();
+}
+
+function updateClock()
+{
+	if (showSeconds)
+	{
+		rotateHand('Second', (180 - (Clock.getValue(Clock.Second, {'short': true}) * -6)));
+	}
+
+	var minute = Clock.getValue(Clock.Minute, {'short': true});
+
+	rotateHand('Minute', (180 - (minute * -6)));
+	rotateHand('Hour', (180 - ((Clock.getValue(Clock.Hour, {'short': true, 'alternative': true}) * -30) + (minute * -0.5))));
+}
+
+function rotateHand(hand, rotation)
+{
+	document.getElementById(hand + 'Hand').setAttribute('transform', (transforms[hand] ? transforms[hand] : '') + ' rotate(' + rotation + ' ' + center[0] + ' ' + center[1] + ')');
+
+	if (document.getElementById(hand + 'HandShadow'))
+	{
+		document.getElementById(hand + 'HandShadow').setAttribute('transform', (transforms[hand] ? transforms[hand] : '') + ' rotate(' + rotation + ' ' + center[0] + ' ' + center[1] + ')');
+	}
+}
+
+document.addEventListener('ClockThemeChanged', setupClock);
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
-4.1 (--.05.2013):
+4.1 (15.05.2013):
+- added SVG Clock theme (analog clock that uses Plasma theme);
 - added experimental support for QML themes;
 - added simple file templates for new themes;
 - move theme editor to own dialog;

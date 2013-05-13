@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=SVG Analog
+Comment=SVG themed analog clock
+Type=Service
+ServiceTypes=Plasma/AdjustableClock
+
+X-KDE-Library=adjustableclock_theme_svg
+X-KDE-PluginInfo-Name=svg
+X-KDE-PluginInfo-Author=Michał Dutkiewicz
+X-KDE-PluginInfo-Email=emdeck@gmail.com
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Website=http://emdek.pl/
+X-KDE-PluginInfo-License=GPL
