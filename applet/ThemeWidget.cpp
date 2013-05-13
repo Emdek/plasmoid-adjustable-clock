@@ -178,7 +178,7 @@ void ThemeWidget::updateSize()
 
     const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
     const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
-qDebug() << "AAA" << m_size << ((widthFactor > heightFactor) ? heightFactor : widthFactor);
+
     m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
     m_page.setViewportSize(m_page.mainFrame()->contentsSize());
 
