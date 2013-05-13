@@ -23,7 +23,6 @@
 #include <QtGui/QPainter>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElement>
@@ -179,7 +178,7 @@ void ThemeWidget::updateSize()
 
     const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
     const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
-
+qDebug() << "AAA" << m_size << ((widthFactor > heightFactor) ? heightFactor : widthFactor);
     m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
     m_page.setViewportSize(m_page.mainFrame()->contentsSize());
 
@@ -188,13 +187,13 @@ void ThemeWidget::updateSize()
     connect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
 }
 
-void ThemeWidget::setHtml(const QString &theme, const QString &html, const QString &css)
+void ThemeWidget::setHtml(const QString &path, const QString &html, const QString &css)
 {
     clear();
 
     m_css = css;
 
-    m_clock->setTheme(theme);
+    m_clock->setTheme(path, HtmlType);
 
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
@@ -256,6 +255,8 @@ bool ThemeWidget::setTheme(const QString &path)
 
         m_rootObject = rootObject();
 
+        m_clock->setTheme(path, QmlType);
+
         const QList<QObject*> objects = m_rootObject->findChildren<QObject*>();
 
         for (int i = 0; i < objects.count(); ++i) {
@@ -284,7 +285,7 @@ bool ThemeWidget::setTheme(const QString &path)
             return false;
         }
 
-        setHtml(QFileInfo(path).fileName(), html);
+        setHtml(path, html);
     }
 
     for (int i = 1; i < LastComponent; ++i) {

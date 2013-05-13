@@ -20,6 +20,13 @@
 
 #include "Clock.h"
 
+#include <QtCore/QDir>
+#include <QtCore/QBuffer>
+
+#include <KIcon>
+#include <KMimeType>
+#include <KFilterDev>
+
 #include <Plasma/Theme>
 
 namespace AdjustableClock
@@ -27,6 +34,7 @@ namespace AdjustableClock
 
 Clock::Clock(DataSource *source, bool constant) : QObject(source),
     m_source(source),
+    m_type(UnknownType),
     m_constant(constant)
 {
     m_engine.globalObject().setProperty("Clock", m_engine.newQObject(this), QScriptValue::Undeletable);
@@ -40,18 +48,127 @@ Clock::Clock(DataSource *source, bool constant) : QObject(source),
     }
 }
 
-void Clock::setTheme(const QString &theme)
+void Clock::setTheme(const QString &path, ThemeType type)
 {
-    m_theme = theme;
+    m_path = path;
+    m_theme = QFileInfo(path).fileName();
+    m_type = type;
+}
+
+QVariant Clock::getColor(const QString &role) const
+{
+    Plasma::Theme::ColorRole nativeRole = Plasma::Theme::TextColor;
+
+    if (role == "highlight") {
+        nativeRole = Plasma::Theme::HighlightColor;
+    } else if (role == "background") {
+        nativeRole = Plasma::Theme::BackgroundColor;
+    } else if (role == "buttonText") {
+        nativeRole = Plasma::Theme::ButtonTextColor;
+    } else if (role == "buttonBackground") {
+        nativeRole = Plasma::Theme::ButtonBackgroundColor;
+    } else if (role == "link") {
+        nativeRole = Plasma::Theme::LinkColor;
+    } else if (role == "visitedLink") {
+        nativeRole = Plasma::Theme::VisitedLinkColor;
+    } else if (role == "buttonHover") {
+        nativeRole = Plasma::Theme::ButtonHoverColor;
+    } else if (role == "buttonFocus") {
+        nativeRole = Plasma::Theme::ButtonFocusColor;
+    } else if (role == "viewText") {
+        nativeRole = Plasma::Theme::ViewTextColor;
+    } else if (role == "viewBackground") {
+        nativeRole = Plasma::Theme::ViewBackgroundColor;
+    } else if (role == "viewHover") {
+        nativeRole = Plasma::Theme::ViewHoverColor;
+    } else if (role == "viewFocus") {
+        nativeRole = Plasma::Theme::ViewFocusColor;
+    }
+
+    if (m_type == HtmlType) {
+        const QColor color = Plasma::Theme::defaultTheme()->color(nativeRole);
+
+        return QString("rgba(%1,%2,%3,%4)").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alphaF());
+    }
+
+    return Plasma::Theme::defaultTheme()->color(nativeRole);
+}
+
+QVariant Clock::getFile(const QString &path, bool base64) const
+{
+    QString filePath = path;
+
+    if (QFileInfo(filePath).isRelative()) {
+        filePath = QFileInfo(QDir(m_path).absoluteFilePath(filePath)).absolutePath();
+    }
+
+    QScopedPointer<QIODevice> file(KFilterDev::deviceForFile(filePath, "application/x-gzip"));
+    file->open(QIODevice::ReadOnly);
+
+    if (base64) {
+        return QString("data:%1;base64,%2").arg(KMimeType::findByPath(filePath)->name()).arg(QString(file->readAll().toBase64()));
+    }
+
+    QTextStream stream(file.data());
+    stream.setCodec("UTF-8");
+
+    return stream.readAll();
+}
+
+QVariant Clock::getFont(const QString &role) const
+{
+    Plasma::Theme::FontRole nativeRole = Plasma::Theme::DefaultFont;
+
+    if (role == "desktop") {
+        nativeRole = Plasma::Theme::DesktopFont;
+    } else if (role == "smallest") {
+        nativeRole = Plasma::Theme::SmallestFont;
+    }
+
+    if (m_type == HtmlType) {
+        return Plasma::Theme::defaultTheme()->font(nativeRole).family();
+    }
+
+    return Plasma::Theme::defaultTheme()->font(nativeRole);
+}
+
+QVariant Clock::getIcon(const QString &path, int size) const
+{
+    const KIcon icon(path);
+    QByteArray byteArray;
+    QBuffer buffer(&byteArray);
+
+    icon.pixmap(size, size).save(&buffer, "PNG");
+
+    return QString("data:image/png;base64," + byteArray.toBase64());
+}
+
+QVariant Clock::getImage(const QString &path, bool base64) const
+{
+    const QString imagePath = Plasma::Theme::defaultTheme()->imagePath(path);
+
+    if (imagePath.isEmpty()) {
+        return QString();
+    }
+
+    QScopedPointer<QIODevice> file(KFilterDev::deviceForFile(imagePath, "application/x-gzip"));
+    file->open(QIODevice::ReadOnly);
+
+    if (base64) {
+        return QString("data:image/svg+xml;base64," + QString(file->readAll().toBase64()));
+    }
+
+    QTextStream stream(file.data());
+    stream.setCodec("UTF-8");
+
+    return stream.readAll();
 }
 
 QVariant Clock::getOption(const QString &key, const QVariant &defaultValue) const
 {
-    const QVariant value = m_source->getOption(key, ((key == "themeFont") ? QVariant(QString()) : defaultValue), m_theme);
+    const QVariant value = m_source->getOption(key, defaultValue, m_theme);
 
-    if (key == "themeFont" && value.toString().isEmpty()) {
-        return Plasma::Theme::defaultTheme()->font(Plasma::Theme::DefaultFont).family();
-    } else if (key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value.toString())) {
+    if (m_type == HtmlType && key.contains("color", Qt::CaseInsensitive) && QRegExp("\\d+,\\d+,\\d+.*").exactMatch(value.toString())) {
         const QString color = value.toString();
 
         if (color.count(QChar(',')) == 3) {

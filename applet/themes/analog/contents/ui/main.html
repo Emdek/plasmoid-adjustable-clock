@@ -142,6 +142,8 @@ function setupClock()
 	document.getElementById('second').style.display = (showSeconds ? 'block' : 'none');
 	document.getElementById('ticks_inner').style.display = (alternativeHoursMode ? 'block' : 'none');
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
+
+	updateClock();
 }
 
 function updateClock()
@@ -151,8 +153,10 @@ function updateClock()
 		document.getElementById('second').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Second, {'short': true}) * -6)) + 'deg)';
 	}
 
-	document.getElementById('minute').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Minute, {'short': true}) * -6)) + 'deg)';
-	document.getElementById('hour').style.webkitTransform = 'rotate(' + (270 - (Clock.getValue(Clock.Hour, {'short': true, 'alternative': !alternativeHoursMode}) * (alternativeHoursMode ? -15 : -30))) + 'deg)';
+	var minute = Clock.getValue(Clock.Minute, {'short': true});
+
+	document.getElementById('minute').style.webkitTransform = 'rotate(' + (270 - (minute * -6)) + 'deg)';
+	document.getElementById('hour').style.webkitTransform = 'rotate(' + (270 - ((Clock.getValue(Clock.Hour, {'short': true, 'alternative': !alternativeHoursMode}) * (alternativeHoursMode ? -15 : -30)) + (minute * (alternativeHoursMode ? -0.25 : -0.5)))) + 'deg)';
 }
 
 document.addEventListener('ClockOptionsChanged', setupClock);

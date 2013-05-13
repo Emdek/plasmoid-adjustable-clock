@@ -37,7 +37,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
     public:
         explicit ThemeWidget(Clock *clock, QGraphicsWidget *parent = NULL);
 
-        void setHtml(const QString &theme, const QString &html, const QString &css = QString());
+        void setHtml(const QString &path, const QString &html, const QString &css = QString());
         QWebPage* getPage();
         QSize getPreferredSize(const QSize &constraints);
         bool setTheme(const QString &path);

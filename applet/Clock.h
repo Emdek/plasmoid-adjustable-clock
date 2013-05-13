@@ -28,6 +28,13 @@
 namespace AdjustableClock
 {
 
+enum ThemeType
+{
+    UnknownType = 0,
+    HtmlType = 1,
+    QmlType = 2
+};
+
 class Clock : public QObject
 {
     Q_OBJECT
@@ -35,7 +42,12 @@ class Clock : public QObject
     public:
         explicit Clock(DataSource *source, bool constant = false);
 
-        void setTheme(const QString &theme);
+        void setTheme(const QString &path, ThemeType type);
+        Q_INVOKABLE QVariant getColor(const QString &role = QString()) const;
+        Q_INVOKABLE QVariant getFile(const QString &path, bool base64 = true) const;
+        Q_INVOKABLE QVariant getFont(const QString &role = QString()) const;
+        Q_INVOKABLE QVariant getIcon(const QString &path, int size = 64) const;
+        Q_INVOKABLE QVariant getImage(const QString &path, bool base64 = true) const;
         Q_INVOKABLE QVariant getOption(const QString &key, const QVariant &defaultValue = QVariant()) const;
         Q_INVOKABLE QVariant getValue(int component, const QVariantMap &options = QVariantMap()) const;
         QString evaluate(const QString &script);
@@ -45,7 +57,9 @@ class Clock : public QObject
     private:
         DataSource *m_source;
         QScriptEngine m_engine;
+        QString m_path;
         QString m_theme;
+        ThemeType m_type;
         bool m_constant;
 
     signals:
