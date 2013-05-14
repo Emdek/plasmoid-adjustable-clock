@@ -14,7 +14,7 @@ function setupClock()
 	var opacity = Clock.getOption('textOpacity', 85);
 
 	document.body.style.color = Clock.getOption('themeTextColor', Clock.getColor('text'));
-	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getFont()) + '\'');
+	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '12px \'' + Clock.getOption('themeFont', Clock.getFont()) + '\'');
 	document.body.style.opacity = ((opacity == 100) ? '1' : ('0.' + opacity));
 }
 
