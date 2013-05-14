@@ -20,7 +20,7 @@ Clock.setStyleSheet = function (data)
 		document.head.insertBefore(link, document.head.firstChild);
 	}
 
-	link.setAttribute('href', ('data:text/css;charset=utf-8;base64,' + window.btoa('html, body {margin: 0; padding: 0;} body {padding: 3px;} ' + data)));
+	link.setAttribute('href', ('data:text/css;charset=utf-8;base64,' + window.btoa('html, body {margin: 0; padding: 0;} ' + data)));
 }
 
 Clock.setStyle = function (object, property, value)
