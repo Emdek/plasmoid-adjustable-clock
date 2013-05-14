@@ -36,8 +36,8 @@ div
 <script type="text/javascript">
 function setupClock()
 {
-	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
-	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getStyle(document.body, 'font-family')) + '\'');
+	document.body.style.color = Clock.getOption('themeTextColor', Clock.getColor('text'));
+	document.body.style.font = ((Clock.getOption('fontItalic', false) ? 'italic ' : '') + (Clock.getOption('fontBold', false) ? 'bold ' : '') + '25px \'' + Clock.getOption('themeFont', Clock.getFont()) + '\'');
 }
 
 document.addEventListener('ClockThemeChanged', setupClock);

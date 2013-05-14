@@ -71,7 +71,7 @@ function setupClock()
 	var showSeconds = Clock.getOption('showSeconds', false);
 	alternativeHoursMode = Clock.getOption('alternativeHoursMode', false);
 
-	document.body.style.color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	document.body.style.color = Clock.getOption('themeTextColor', Clock.getColor('text'));
 	document.getElementById('circle_seconds').setAttribute('stroke', Clock.getOption('secondsColor', 'rgba(0, 0, 0, 0.4)'));
 	document.getElementById('circle_minutes').setAttribute('stroke', Clock.getOption('minutesColor', 'rgba(0, 0, 0, 0.6)'));
 	document.getElementById('circle_hours').setAttribute('stroke', Clock.getOption('hoursColor', 'rgba(0, 0, 0, 0.8)'));

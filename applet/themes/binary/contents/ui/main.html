@@ -53,7 +53,7 @@ var color = '#000';
 
 function updateTheme()
 {
-	color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	color = Clock.getOption('themeTextColor', Clock.getColor('text'));
 
 	Clock.setRuleStyle(0, 'border-color', Clock.getOption('borderColor', '#DDD'));
 }

@@ -172,7 +172,7 @@ var blankSegmentsOpacity = 0;
 
 function setupClock()
 {
-	var color = Clock.getOption('themeTextColor', Clock.getStyle(document.body, 'color'));
+	var color = Clock.getOption('themeTextColor', Clock.getColor('text'));
 	var rules = document.styleSheets[0].cssRules;
 
 	Clock.setStyle(document.body, 'color', color);
