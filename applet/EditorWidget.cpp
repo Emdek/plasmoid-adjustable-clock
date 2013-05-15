@@ -355,7 +355,7 @@ void EditorWidget::setZoom(int zoom)
 
 bool EditorWidget::saveTheme()
 {
-    if (m_editorUi.tabWidget->currentIndex() == 0) {
+    if (!m_qml && m_editorUi.tabWidget->currentIndex() == 0) {
         richTextChanged();
     }
 
