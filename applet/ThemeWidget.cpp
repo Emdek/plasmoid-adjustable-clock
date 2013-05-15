@@ -24,6 +24,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtCore/QTextStream>
+#include <QtCore/QTimer>
 #include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebElement>
 
@@ -217,6 +218,8 @@ void ThemeWidget::setHtml(const QString &path, const QString &html, const QStrin
     updateTheme();
 
     m_page.mainFrame()->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
+
+    QTimer::singleShot(500, this, SLOT(updateSize()));
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
