@@ -73,6 +73,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
 
     KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
     view->setContextMenu(view->defaultContextMenu());
+    view->setMinimumHeight(200);
 
     KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
 
@@ -82,17 +83,18 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
         configuration->setConfigValue("dynamic-word-wrap", false);
     }
 
-    m_editorUi.sourceLayout->addWidget(view);
     m_editorUi.componentWidget->setClock(m_clock);
 
     connect(m_editorUi.componentWidget, SIGNAL(insertComponent(QString,QString)), this, SLOT(insertComponent(QString,QString)));
 
     if (m_qml) {
-        m_editorUi.tabWidget->setCurrentIndex(1);
-        m_editorUi.tabWidget->setTabEnabled(0, false);
+        m_editorUi.editorLayout->addWidget(view);
+        m_editorUi.tabWidget->setVisible(false);
         m_editorUi.controlsWidget->setVisible(false);
 
         return;
+    } else {
+        m_editorUi.sourceLayout->addWidget(view);
     }
 
     m_widget = new ThemeWidget(m_clock);
