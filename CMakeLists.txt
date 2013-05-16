@@ -4,7 +4,7 @@ include(KDE4Defaults)
 add_subdirectory(applet)
 
 set(MAJOR_VERSION "4")
-set(MINOR_VERSION "1")
+set(MINOR_VERSION "2")
 set(PATCH_VERSION "0")
 
 if (EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
