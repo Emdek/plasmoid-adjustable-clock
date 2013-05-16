@@ -185,6 +185,7 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
 
     if (m_qml) {
         m_document->activeView()->insertText(options.isEmpty() ? QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1'}\n\ttext: '%2'\n}\n").arg(component).arg(value) : QString("Text\n{\n\tproperty variant adjustableClock: {component: '%1', options: '%2'}\n\ttext: '%3'\n}\n").arg(component).arg(options).arg(value));
+        m_document->activeView()->setFocus();
 
         return;
     }
@@ -193,10 +194,13 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
 
     if (m_editorUi.tabWidget->currentIndex() > 0) {
         m_document->activeView()->insertText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
+        m_document->activeView()->setFocus();
 
         updateWebView();
     } else {
         m_widget->getPage()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
+
+        m_editorUi.webView->setFocus();
     }
 }
 
@@ -239,7 +243,7 @@ void EditorWidget::modeChanged(int mode)
     } else {
         updateWebView();
 
-        m_editorUi.webView->setFocus(Qt::OtherFocusReason);
+        m_editorUi.webView->setFocus();
 
         QMouseEvent event(QEvent::MouseButtonPress, QPoint(5, 5), Qt::LeftButton, Qt::LeftButton, 0);
 
