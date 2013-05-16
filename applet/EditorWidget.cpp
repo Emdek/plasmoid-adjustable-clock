@@ -253,6 +253,10 @@ void EditorWidget::modeChanged(int mode)
 
 void EditorWidget::updateEditor()
 {
+    if (!m_document) {
+        return;
+    }
+
     QWebPage page;
     page.mainFrame()->setHtml(m_widget->getPage()->mainFrame()->toHtml());
     page.mainFrame()->findFirstElement("#theme_css").removeFromDocument();
@@ -263,12 +267,8 @@ void EditorWidget::updateEditor()
         elements.at(i).removeAttribute("title");
     }
 
-    const QString html = page.mainFrame()->toHtml();
-
-    if (m_document) {
-        m_document->setText(html);
-        m_document->activeView()->setCursorPosition(KTextEditor::Cursor(0, 0));
-    }
+    m_document->setText(page.mainFrame()->toHtml());
+    m_document->activeView()->setCursorPosition(KTextEditor::Cursor(0, 0));
 }
 
 void EditorWidget::updateWebView(const QString &theme)
