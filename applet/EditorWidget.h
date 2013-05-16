@@ -52,8 +52,8 @@ class EditorWidget : public QWidget
         void insertComponent(const QString &component, const QString &options);
         void selectionChanged();
         void modeChanged(int mode);
-        void richTextChanged();
-        void sourceChanged(const QString &theme = QString());
+        void updateEditor();
+        void updateWebView(const QString &theme = QString());
         void showContextMenu(const QPoint &position);
         void setBackground(bool enabled);
         void setColor();

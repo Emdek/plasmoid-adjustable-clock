@@ -131,10 +131,10 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     m_editorUi.backgroundButton->setIcon(KIcon("games-config-background"));
     m_editorUi.backgroundButton->setChecked(m_widget->getBackgroundFlag());
 
-    sourceChanged(m_document->text());
+    updateWebView(m_document->text());
 
     connect(m_widget->getPage(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(m_widget->getPage(), SIGNAL(contentsChanged()), this, SLOT(richTextChanged()));
+    connect(m_widget->getPage(), SIGNAL(contentsChanged()), this, SLOT(updateEditor()));
     connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_editorUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
@@ -194,7 +194,7 @@ void EditorWidget::insertComponent(const QString &component, const QString &opti
     if (m_editorUi.tabWidget->currentIndex() > 0) {
         m_document->activeView()->insertText(options.isEmpty() ? QString("<span component=\"%1\" title=\"%2\">%3</span>").arg(component).arg(title).arg(value) : QString("<span component=\"%1\" options=\"%2\" title=\"%3\">%4</span>").arg(component).arg(options).arg(title).arg(value));
 
-        sourceChanged();
+        updateWebView();
     } else {
         m_widget->getPage()->mainFrame()->evaluateJavaScript(QString("insertComponent('%1', '%2', '%3', '%4')").arg(component).arg(QString(options).replace(QRegExp("'([a-z]+)'"), "\\'\\1\\'")).arg(title).arg(value));
     }
@@ -235,9 +235,9 @@ void EditorWidget::modeChanged(int mode)
     m_editorUi.underlineButton->setCheckable(mode == 0);
 
     if (mode == 1) {
-        richTextChanged();
+        updateEditor();
     } else {
-        sourceChanged();
+        updateWebView();
 
         m_editorUi.webView->setFocus(Qt::OtherFocusReason);
 
@@ -247,7 +247,7 @@ void EditorWidget::modeChanged(int mode)
     }
 }
 
-void EditorWidget::richTextChanged()
+void EditorWidget::updateEditor()
 {
     QWebPage page;
     page.mainFrame()->setHtml(m_widget->getPage()->mainFrame()->toHtml());
@@ -267,7 +267,7 @@ void EditorWidget::richTextChanged()
     }
 }
 
-void EditorWidget::sourceChanged(const QString &theme)
+void EditorWidget::updateWebView(const QString &theme)
 {
     QFile file(":/editor.js");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -356,7 +356,7 @@ void EditorWidget::setZoom(int zoom)
 bool EditorWidget::saveTheme()
 {
     if (!m_qml && m_editorUi.tabWidget->currentIndex() == 0) {
-        richTextChanged();
+        updateEditor();
     }
 
     if (m_document) {
