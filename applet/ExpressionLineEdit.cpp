@@ -37,7 +37,7 @@ ExpressionLineEdit::ExpressionLineEdit(QWidget *parent) : KLineEdit(parent),
 
 void ExpressionLineEdit::insertComponent()
 {
-    if (m_clock) {
+    if (!m_clock) {
         return;
     }
 
