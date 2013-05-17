@@ -78,17 +78,7 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void Applet::constraintsEvent(Plasma::Constraints constraints)
 {
-    setBackgroundHints((formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
-
-    if (!(constraints & Plasma::SizeConstraint)) {
-        return;
-    }
-
-    if (formFactor() != Plasma::Horizontal && formFactor() != Plasma::Vertical) {
-        setMinimumSize(-1, -1);
-
-        return;
-    }
+    Q_UNUSED(constraints)
 
     QSize size;
 
@@ -98,6 +88,7 @@ void Applet::constraintsEvent(Plasma::Constraints constraints)
         size = QSize(boundingRect().height(), -1);
     }
 
+    setBackgroundHints((!size.isValid() && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
     setMinimumSize(m_widget->getPreferredSize(size));
 }
 
