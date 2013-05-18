@@ -177,9 +177,9 @@ void EditorWidget::triggerAction()
 
 void EditorWidget::insertComponent(const QString &component, const QString &options)
 {
-   if (!m_document) {
+    if (!m_document) {
         return;
-   }
+    }
 
     const QString value = m_clock->evaluate((options.isEmpty() ? QString("Clock.getValue(Clock.%1)").arg(component) : QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(options)));
 
