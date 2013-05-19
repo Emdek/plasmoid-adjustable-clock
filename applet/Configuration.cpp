@@ -246,6 +246,7 @@ void Configuration::createTheme(QAction *action)
     metaData.setName(title);
 
     m_themesModel->appendRow(item);
+
     m_appearanceUi.themesView->openPersistentEditor(item->index());
 
     saveTheme(path, metaData);
@@ -273,39 +274,41 @@ void Configuration::deleteTheme()
 {
     const QModelIndex index = m_appearanceUi.themesView->currentIndex();
 
-    if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(NameRole).toString()), i18n("Delete Theme")) == KMessageBox::Yes) {
-        const int row = index.row();
-
-        if (QFile::exists(index.data(PathRole).toString()) && !Plasma::Package::uninstallPackage(index.data(IdentifierRole).toString(), QFileInfo(index.data(PathRole).toString()).canonicalPath(), "plasma-adjustable-clock-addon-")) {
-            KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to delete theme."));
-
-            return;
-        }
-
-        m_themesModel->removeRow(row);
-
-        selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
-
-        emit clearCache();
+    if (KMessageBox::questionYesNo(m_appearanceUi.themesView, i18n("Do you really want to delete theme \"%1\"?").arg(index.data(NameRole).toString()), i18n("Delete Theme")) == KMessageBox::No) {
+        return;
     }
+
+    const int row = index.row();
+
+    if (QFile::exists(index.data(PathRole).toString()) && !Plasma::Package::uninstallPackage(index.data(IdentifierRole).toString(), QFileInfo(index.data(PathRole).toString()).canonicalPath(), "plasma-adjustable-clock-addon-")) {
+        KMessageBox::error(m_appearanceUi.themesView, i18n("Failed to delete theme."));
+
+        return;
+    }
+
+    m_themesModel->removeRow(row);
+
+    selectTheme(m_themesModel->index(qMax((row - 1), 0), 0));
+
+    emit clearCache();
 }
 
 void Configuration::renameTheme()
 {
     bool ok;
-    QStandardItem *item = m_themesModel->item(m_appearanceUi.themesView->currentIndex().row());
-    const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), item->data(NameRole).toString(), &ok);
+    const QModelIndex index = m_appearanceUi.themesView->currentIndex();
+    const QString title = KInputDialog::getText(i18n("Rename Theme"), i18n("Theme name:"), index.data(NameRole).toString(), &ok);
 
     if (!ok) {
         return;
     }
 
-    item->setData(title, NameRole);
+    m_themesModel->setData(index, title, NameRole);
 
-    Plasma::PackageMetadata metaData = getMetaData(item->data(PathRole).toString());
+    Plasma::PackageMetadata metaData = getMetaData(index.data(PathRole).toString());
     metaData.setName(title);
 
-    saveTheme(item->data(PathRole).toString(), metaData);
+    saveTheme(index.data(PathRole).toString(), metaData);
 }
 
 void Configuration::aboutTheme(const QString &theme)
