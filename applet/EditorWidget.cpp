@@ -73,7 +73,6 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
 
     KTextEditor::View *view = m_document->createView(m_editorUi.sourceTab);
     view->setContextMenu(view->defaultContextMenu());
-    view->setMinimumHeight(200);
 
     KTextEditor::ConfigInterface *configuration = qobject_cast<KTextEditor::ConfigInterface*>(view);
 

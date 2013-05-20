@@ -2,12 +2,26 @@
 <ui version="4.0">
  <class>editor</class>
  <widget class="QWidget" name="editor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>629</width>
+    <height>281</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Editor</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QToolBox" name="toolBox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>300</height>
+      </size>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -16,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>652</width>
-        <height>207</height>
+        <width>611</width>
+        <height>228</height>
        </rect>
       </property>
       <attribute name="label">
@@ -192,12 +206,6 @@
            </property>
            <item>
             <widget class="QWebView" name="webView" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>100</height>
-              </size>
-             </property>
              <property name="contextMenuPolicy">
               <enum>Qt::CustomContextMenu</enum>
              </property>
@@ -269,7 +277,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>635</width>
+        <width>594</width>
         <height>244</height>
        </rect>
       </property>
