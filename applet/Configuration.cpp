@@ -491,9 +491,16 @@ void Configuration::showContextMenu(const QPoint &position)
     }
 
     KMenu menu(m_appearanceUi.themesView);
-    menu.addAction(KIcon("help-about"), i18n("About..."), this, SLOT(aboutTheme()));
-    menu.addSeparator();
-    menu.addAction(KIcon("configure"), i18n("Options..."), this, SLOT(configureTheme()));
+
+    if (index.data(AboutRole).toBool()) {
+        menu.addAction(KIcon("help-about"), i18n("About..."), this, SLOT(aboutTheme()));
+        menu.addSeparator();
+    }
+
+    if (QFile::exists(index.data(PathRole).toString() + "/contents/config/main.xml")) {
+        menu.addAction(KIcon("configure"), i18n("Options..."), this, SLOT(configureTheme()));
+    }
+
     menu.addAction(KIcon("edit-copy"), i18n("Copy..."), this, SLOT(copyTheme()));
     menu.addAction(KIcon("document-export"), i18n("Export..."), this, SLOT(exportTheme()));
 
