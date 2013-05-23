@@ -85,13 +85,13 @@ QVariant Clock::getColor(const QString &role) const
         nativeRole = Plasma::Theme::ViewFocusColor;
     }
 
-    if (m_type == HtmlType) {
-        const QColor color = Plasma::Theme::defaultTheme()->color(nativeRole);
+    const QColor color = Plasma::Theme::defaultTheme()->color(nativeRole);
 
+    if (m_type == HtmlType) {
         return QString("rgba(%1,%2,%3,%4)").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alphaF());
     }
 
-    return Plasma::Theme::defaultTheme()->color(nativeRole);
+    return color;
 }
 
 QVariant Clock::getFile(const QString &path, bool base64) const
