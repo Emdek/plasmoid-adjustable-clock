@@ -219,7 +219,9 @@ void ThemeWidget::setHtml(const QString &path, const QString &html, const QStrin
 
     m_page.mainFrame()->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
-    QTimer::singleShot(500, this, SLOT(updateSize()));
+    if (m_css.isEmpty()) {
+        QTimer::singleShot(500, this, SLOT(updateSize()));
+    }
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));
 }
