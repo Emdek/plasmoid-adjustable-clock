@@ -92,8 +92,6 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
         m_editorUi.controlsWidget->setVisible(false);
 
         return;
-    } else {
-        m_editorUi.sourceLayout->addWidget(view);
     }
 
     m_widget = new ThemeWidget(m_clock);
@@ -113,6 +111,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
     m_widget->getPage()->action(QWebPage::SelectAll)->setText(i18n("Select All"));
     m_widget->getPage()->action(QWebPage::SelectAll)->setIcon(KIcon("select-all"));
 
+    m_editorUi.sourceLayout->addWidget(view);
     m_editorUi.webView->setPage(m_widget->getPage());
     m_editorUi.webView->setAttribute(Qt::WA_OpaquePaintEvent, false);
     m_editorUi.boldButton->setDefaultAction(new QAction(KIcon("format-text-bold"), i18n("Bold"), this));
