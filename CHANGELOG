@@ -1,3 +1,7 @@
+4.1.1 (25.05.2013):
+- fix WYSIWYG editor for HTML themes;
+- fix missing dialog for "Insert Component" actions.
+
 4.1 (15.05.2013):
 - added SVG Clock theme (analog clock that uses Plasma theme);
 - added experimental support for QML themes (alpha state);
