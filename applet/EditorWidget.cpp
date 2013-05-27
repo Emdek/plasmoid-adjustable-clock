@@ -133,7 +133,7 @@ EditorWidget::EditorWidget(const QString &path, Clock *clock, QWidget *parent) :
 
     connect(m_widget->getPage(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_widget->getPage(), SIGNAL(contentsChanged()), this, SLOT(updateEditor()));
-    connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(modeChanged(int)));
+    connect(m_editorUi.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
     connect(m_editorUi.webView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(m_editorUi.zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     connect(m_editorUi.boldButton, SIGNAL(clicked()), this, SLOT(triggerAction()));
@@ -230,13 +230,13 @@ void EditorWidget::selectionChanged()
     m_editorUi.underlineButton->setChecked(m_widget->getPage()->action(QWebPage::ToggleUnderline)->isChecked());
 }
 
-void EditorWidget::modeChanged(int mode)
+void EditorWidget::tabChanged(int tab)
 {
-    m_editorUi.boldButton->setCheckable(mode == 0);
-    m_editorUi.italicButton->setCheckable(mode == 0);
-    m_editorUi.underlineButton->setCheckable(mode == 0);
+    m_editorUi.boldButton->setCheckable(tab == 0);
+    m_editorUi.italicButton->setCheckable(tab == 0);
+    m_editorUi.underlineButton->setCheckable(tab == 0);
 
-    if (mode == 1) {
+    if (tab == 1) {
         updateEditor();
     } else {
         updateWebView();

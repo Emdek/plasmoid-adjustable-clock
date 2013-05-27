@@ -51,7 +51,7 @@ class EditorWidget : public QWidget
         void triggerAction();
         void insertComponent(const QString &component, const QString &options);
         void selectionChanged();
-        void modeChanged(int mode);
+        void tabChanged(int tab);
         void updateEditor();
         void updateWebView(const QString &theme = QString());
         void showContextMenu(const QPoint &position);
