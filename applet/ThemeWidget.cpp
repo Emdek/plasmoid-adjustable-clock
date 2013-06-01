@@ -161,31 +161,40 @@ void ThemeWidget::updateTheme()
 
 void ThemeWidget::updateSize()
 {
-    const QSizeF size = boundingRect().size();
+    const QSizeF constraints = boundingRect().size();
 
     if (m_rootObject) {
-        m_rootObject->setProperty("width", size.width());
-        m_rootObject->setProperty("height", size.height());
+        m_rootObject->setProperty("width", constraints.width());
+        m_rootObject->setProperty("height", constraints.height());
 
         return;
     }
 
+    QWebPage page;
+    page.mainFrame()->setHtml(m_page.mainFrame()->toHtml());
+    page.setViewportSize(QSize(0, 0));
+
+    const QSize size = page.mainFrame()->contentsSize();
+    const qreal widthFactor = (constraints.width() / size.width());
+    const qreal heightFactor = (constraints.height() / size.height());
+
+    page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
+
     disconnect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
 
-    m_page.setViewportSize(QSize(0, 0));
-    m_page.mainFrame()->setZoomFactor(1);
+    const bool changed = (page.mainFrame()->contentsSize() != m_page.viewportSize());
 
-    m_size = m_page.mainFrame()->contentsSize();
+    m_page.setViewportSize(page.mainFrame()->contentsSize());
+    m_page.mainFrame()->setZoomFactor(page.mainFrame()->zoomFactor());
 
-    const qreal widthFactor = (size.width() / m_page.mainFrame()->contentsSize().width());
-    const qreal heightFactor = (size.height() / m_page.mainFrame()->contentsSize().height());
-
-    m_page.mainFrame()->setZoomFactor((widthFactor > heightFactor) ? heightFactor : widthFactor);
-    m_page.setViewportSize(m_page.mainFrame()->contentsSize());
-
-    m_offset = QPointF(((size.width() - m_page.mainFrame()->contentsSize().width()) / 2), ((size.height() - m_page.mainFrame()->contentsSize().height()) / 2));
+    m_size = size;
+    m_offset = QPointF(((constraints.width() - m_page.viewportSize().width()) / 2), ((constraints.height() - m_page.viewportSize().height()) / 2));
 
     connect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
+
+    if (changed) {
+        emit sizeChanged();
+    }
 }
 
 void ThemeWidget::setHtml(const QString &path, const QString &html, const QString &css)
@@ -220,7 +229,7 @@ void ThemeWidget::setHtml(const QString &path, const QString &html, const QStrin
     m_page.mainFrame()->evaluateJavaScript("Clock.sendEvent('ClockOptionsChanged')");
 
     if (m_css.isEmpty()) {
-        QTimer::singleShot(500, this, SLOT(updateSize()));
+        QTimer::singleShot(250, this, SLOT(updateSize()));
     }
 
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), this, SLOT(updateTheme()));

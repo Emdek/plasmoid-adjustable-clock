@@ -65,6 +65,7 @@ void Applet::init()
     ClockApplet::init();
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
+    connect(m_widget, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
 }
 
 void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -74,22 +75,6 @@ void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
     } else {
         ClockApplet::mousePressEvent(event);
     }
-}
-
-void Applet::constraintsEvent(Plasma::Constraints constraints)
-{
-    Q_UNUSED(constraints)
-
-    QSize size;
-
-    if (formFactor() == Plasma::Horizontal) {
-        size = QSize(-1, boundingRect().height());
-    } else if (formFactor() == Plasma::Vertical) {
-        size = QSize(boundingRect().height(), -1);
-    }
-
-    setBackgroundHints((!size.isValid() && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
-    setMinimumSize(m_widget->getPreferredSize(size));
 }
 
 void Applet::createClockConfigurationInterface(KConfigDialog *parent)
@@ -104,8 +89,6 @@ void Applet::clockConfigChanged()
     if (!config().readEntry("themeHtml", QString()).isEmpty()) {
         m_widget->setHtml(QString(), config().readEntry("themeHtml", QString()));
 
-        constraintsEvent(Plasma::SizeConstraint);
-
         return;
     }
 
@@ -117,8 +100,6 @@ void Applet::clockConfigChanged()
 
         for (int j = 0; j < themes.count(); ++j) {
             if (themes.at(j) == id && m_widget->setTheme(locations.at(i) + QDir::separator() + themes.at(j))) {
-                constraintsEvent(Plasma::SizeConstraint);
-
                 return;
             }
         }
@@ -127,8 +108,6 @@ void Applet::clockConfigChanged()
     if (!m_widget->setTheme(locations.first() + QDir::separator() + "digital")) {
         m_widget->setHtml(QString(), "<div style=\"text-align: center;\"><span component=\"Hour\">12</span>:<span component=\"Minute\">30</span></div>");
     }
-
-    constraintsEvent(Plasma::SizeConstraint);
 }
 
 void Applet::clockConfigAccepted()
@@ -202,6 +181,20 @@ void Applet::updateClipboardMenu()
             m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardExpressions.at(i)));
         }
     }
+}
+
+void Applet::updateSize()
+{
+    QSize size;
+
+    if (formFactor() == Plasma::Horizontal) {
+        size = QSize(-1, boundingRect().height());
+    } else if (formFactor() == Plasma::Vertical) {
+        size = QSize(boundingRect().height(), -1);
+    }
+
+    setMinimumSize(m_widget->getPreferredSize(size));
+    setBackgroundHints((!size.isValid() && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
 }
 
 QStringList Applet::getClipboardExpressions() const

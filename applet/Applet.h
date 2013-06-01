@@ -45,7 +45,6 @@ class Applet : public ClockApplet
 
     protected:
         void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        void constraintsEvent(Plasma::Constraints constraints);
         void createClockConfigurationInterface(KConfigDialog *parent);
         void changeEngineTimezone(const QString &oldTimeZone, const QString &newTimeZone);
         QList<QAction*> contextualActions();
@@ -59,6 +58,7 @@ class Applet : public ClockApplet
         void toolTipHidden();
         void updateToolTipContent();
         void updateClipboardMenu();
+        void updateSize();
 
     private:
         DataSource *m_source;

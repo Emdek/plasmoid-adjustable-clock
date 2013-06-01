@@ -65,6 +65,9 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         QSize m_size;
         QPointF m_offset;
         QString m_css;
+
+    signals:
+        void sizeChanged();
 };
 
 }
