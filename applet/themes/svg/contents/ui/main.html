@@ -7,7 +7,7 @@
 <div id="svg"></div>
 <script type="text/javascript">
 var showSeconds = true;
-var center = [100, 100];
+var center = [NaN, NaN];
 var transforms = [];
 
 function setupClock()
@@ -28,14 +28,17 @@ function setupClock()
 		document.getElementById('SecondHandShadow').style.display = 'none';
 	}
 
-	var face = document.getElementById('ClockFace');
-	center = [(face.getBoundingClientRect().width / 2), (face.getBoundingClientRect().height / 2)];
-
 	updateClock();
 }
 
 function updateClock()
 {
+	if (isNaN(center[0]))
+	{
+		var face = document.getElementById('ClockFace');
+		center = [(face.getBoundingClientRect().width / 2), (face.getBoundingClientRect().height / 2)];
+	}
+
 	if (showSeconds)
 	{
 		rotateHand('Second', (180 - (Clock.getValue(Clock.Second, {'short': true}) * -6)));
