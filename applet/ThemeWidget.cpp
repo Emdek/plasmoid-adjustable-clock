@@ -19,6 +19,7 @@
 ***********************************************************************************/
 
 #include "ThemeWidget.h"
+#include "Applet.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QDesktopServices>
@@ -33,7 +34,8 @@
 namespace AdjustableClock
 {
 
-ThemeWidget::ThemeWidget(Clock *clock, QGraphicsWidget *parent) : Plasma::DeclarativeWidget(parent),
+ThemeWidget::ThemeWidget(Clock *clock, Applet *parent) : Plasma::DeclarativeWidget(parent),
+    m_applet(parent),
     m_clock(clock),
     m_rootObject(NULL)
 {
@@ -161,6 +163,18 @@ void ThemeWidget::updateTheme()
 
 void ThemeWidget::updateSize()
 {
+    if (m_applet) {
+        QSizeF size;
+
+        if (m_applet->formFactor() == Plasma::Horizontal) {
+            size.setWidth(m_size.width() * (m_applet->boundingRect().height() / m_size.height()));
+        } else if (m_applet->formFactor() == Plasma::Vertical) {
+            size.setHeight(m_size.height() * (m_applet->boundingRect().width() / m_size.width()));
+        }
+
+        setMinimumSize(size);
+    }
+
     const QSizeF constraints = boundingRect().size();
 
     if (m_rootObject) {
@@ -182,8 +196,6 @@ void ThemeWidget::updateSize()
 
     disconnect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
 
-    const bool changed = (page.mainFrame()->contentsSize() != m_page.viewportSize());
-
     m_page.setViewportSize(page.mainFrame()->contentsSize());
     m_page.mainFrame()->setZoomFactor(page.mainFrame()->zoomFactor());
 
@@ -191,10 +203,6 @@ void ThemeWidget::updateSize()
     m_offset = QPointF(((constraints.width() - m_page.viewportSize().width()) / 2), ((constraints.height() - m_page.viewportSize().height()) / 2));
 
     connect(m_page.mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(updateSize()));
-
-    if (changed) {
-        emit sizeChanged();
-    }
 }
 
 void ThemeWidget::setHtml(const QString &path, const QString &html, const QString &css)
@@ -243,19 +251,6 @@ QWebPage* ThemeWidget::getPage()
 QString ThemeWidget::getValue(const QString &component, const QString &options) const
 {
     return m_clock->evaluate(QString("Clock.getValue(Clock.%1, {%2})").arg(component).arg(QString(options).replace('\'', '"')));
-}
-
-QSize ThemeWidget::getPreferredSize(const QSize &constraints)
-{
-    QSize size;
-
-    if (constraints.width() > -1) {
-        size.setHeight(m_size.height() * ((qreal) constraints.width() / m_size.width()));
-    } else if (constraints.height() > -1) {
-        size.setWidth(m_size.width() * ((qreal) constraints.height() / m_size.height()));
-    }
-
-    return size;
 }
 
 bool ThemeWidget::setTheme(const QString &path)
@@ -307,6 +302,10 @@ bool ThemeWidget::setTheme(const QString &path)
     }
 
     updateSize();
+
+    if (m_applet) {
+        m_applet->setBackgroundHints((m_applet->formFactor() != Plasma::Horizontal && m_applet->formFactor() != Plasma::Vertical && getBackgroundFlag()) ? Plasma::Applet::DefaultBackground : Plasma::Applet::NoBackground);
+    }
 
     return true;
 }

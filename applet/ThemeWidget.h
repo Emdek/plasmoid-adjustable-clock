@@ -35,11 +35,10 @@ class ThemeWidget : public Plasma::DeclarativeWidget
     Q_OBJECT
 
     public:
-        explicit ThemeWidget(Clock *clock, QGraphicsWidget *parent = NULL);
+        explicit ThemeWidget(Clock *clock, Applet *parent = NULL);
 
         void setHtml(const QString &path, const QString &html, const QString &css = QString());
         QWebPage* getPage();
-        QSize getPreferredSize(const QSize &constraints);
         bool setTheme(const QString &path);
         bool getBackgroundFlag() const;
 
@@ -58,6 +57,7 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         void updateSize();
 
     private:
+        Applet *m_applet;
         Clock *m_clock;
         QObject *m_rootObject;
         QWebPage m_page;
@@ -65,9 +65,6 @@ class ThemeWidget : public Plasma::DeclarativeWidget
         QSize m_size;
         QPointF m_offset;
         QString m_css;
-
-    signals:
-        void sizeChanged();
 };
 
 }

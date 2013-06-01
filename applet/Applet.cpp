@@ -65,7 +65,6 @@ void Applet::init()
     ClockApplet::init();
 
     connect(this, SIGNAL(activate()), this, SLOT(copyToClipboard()));
-    connect(m_widget, SIGNAL(sizeChanged()), this, SLOT(updateSize()));
 }
 
 void Applet::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -181,20 +180,6 @@ void Applet::updateClipboardMenu()
             m_clipboardAction->menu()->addAction(m_clock->evaluate(clipboardExpressions.at(i)));
         }
     }
-}
-
-void Applet::updateSize()
-{
-    QSize size;
-
-    if (formFactor() == Plasma::Horizontal) {
-        size = QSize(-1, boundingRect().height());
-    } else if (formFactor() == Plasma::Vertical) {
-        size = QSize(boundingRect().height(), -1);
-    }
-
-    setMinimumSize(m_widget->getPreferredSize(size));
-    setBackgroundHints((!size.isValid() && m_widget->getBackgroundFlag()) ? DefaultBackground : NoBackground);
 }
 
 QStringList Applet::getClipboardExpressions() const

@@ -58,7 +58,6 @@ class Applet : public ClockApplet
         void toolTipHidden();
         void updateToolTipContent();
         void updateClipboardMenu();
-        void updateSize();
 
     private:
         DataSource *m_source;
