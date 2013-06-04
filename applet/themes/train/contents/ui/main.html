@@ -19,17 +19,17 @@ body > div
 	color: #DCDCDC;
 }
 
-.time
+#time
 {
 	display: table;
 }
 
-.time > div
+#time > div
 {
 	display: table-row;
 }
 
-.time > div > div, .card
+#time > div > div, .card
 {
 	display: table-cell;
 	height: 25px;
@@ -42,31 +42,31 @@ body > div
 	background: #000 -webkit-linear-gradient(rgba(120, 120, 120, 0.5), rgba(100, 100, 100, 0.4) 30%, rgba(100, 100, 100, 0.1));
 }
 
-.time > div > div > div
+#time > div > div > div
 {
 	width: 40px;
 	position: absolute;
 }
 
-.time .dots
+#time .dots
 {
 	min-width: 20px;
 	line-height: 25px;
 	font-size: 30px;
 }
 
-.time .hidden > div
+#time .hidden > div
 {
 	height: 0;
 	overflow: visible;
 }
 
-.time .top > div > div
+#time .top > div > div
 {
 	top: 25px;
 }
 
-.date
+#date
 {
 	margin: 3px 0 -3px 0;
 	padding: 0 5px 0 0;
@@ -113,7 +113,7 @@ body > div
 </head>
 <body>
 <div>
-	<div class="time">
+	<div id="time">
 		<div class="hidden">
 			<div><div class="card"><span id="c_0_3">4</span></div></div>
 			<div><div class="card"><span id="c_1_3">4</span></div></div>
@@ -145,7 +145,7 @@ body > div
 			<div class="seconds"><div id="c_5_2">5</div></div>
 		</div>
 	</div>
-	<div class="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': true">of January</span></div>
+	<div id="date"><span component="DayOfMonth" options="'short': true">1</span> <span component="Month" options="'text': true, 'possessive': true">of January</span></div>
 </div>
 <script type="text/javascript">
 var initialized = false;
@@ -160,6 +160,11 @@ function setupClock()
 		{
 			seconds[i].style.display = 'none';
 		}
+	}
+
+	if (!Clock.getOption('showDate', true))
+	{
+		document.getElementById('date').style.display = 'none';
 	}
 
 	Clock.setRuleStyle(1, 'background', Clock.getOption('backgroundColor', '#202020'));

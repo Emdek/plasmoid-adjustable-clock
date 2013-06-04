@@ -16,4 +16,8 @@
 		<label>Show seconds:</label>
 		<default>false</default>
 	</entry>
+	<entry name="showDate" type="Bool">
+		<label>Show date:</label>
+		<default>true</default>
+	</entry>
 </kcfg>
