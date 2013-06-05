@@ -6,6 +6,7 @@
 <body>
 <div id="svg"></div>
 <script type="text/javascript">
+var interval = 0;
 var showSeconds = true;
 var center = [NaN, NaN];
 var transforms = [];
@@ -28,7 +29,7 @@ function setupClock()
 		document.getElementById('SecondHandShadow').style.display = 'none';
 	}
 
-	updateClock();
+	interval = window.setInterval(updateClock, 50);
 }
 
 function updateClock()
@@ -37,6 +38,13 @@ function updateClock()
 	{
 		var face = document.getElementById('ClockFace');
 		center = [(face.getBoundingClientRect().width / 2), (face.getBoundingClientRect().height / 2)];
+
+		if (isNaN(center[0]))
+		{
+			return;
+		}
+
+		clearInterval(interval);
 	}
 
 	if (showSeconds)
