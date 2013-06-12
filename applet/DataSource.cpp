@@ -91,7 +91,6 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
     emit tick();
-
     emit componentChanged(SecondComponent);
     emit componentChanged(TimestampComponent);
     emit componentChanged(TimeComponent);
