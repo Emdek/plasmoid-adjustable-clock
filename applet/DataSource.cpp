@@ -88,6 +88,8 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         return;
     }
 
+    const QDateTime previous = m_dateTime;
+
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
 
     emit tick();
@@ -96,62 +98,59 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
     emit componentChanged(TimeComponent);
     emit componentChanged(DateTimeComponent);
 
-    if (m_dateTime.time().second() == 0 || reload) {
-        if (m_dateTime.time().minute() == 0 || reload) {
-            const int hour = m_dateTime.time().hour();
+    if (reload || m_dateTime.time().minute() != previous.time().minute()) {
+        emit componentChanged(MinuteComponent);
+    }
 
-            if (hour == 0 || reload) {
-                if (m_applet->calendar()->day(m_dateTime.date()) == 1) {
-                    if (m_applet->calendar()->dayOfYear(m_dateTime.date()) == 1) {
-                        emit componentChanged(YearComponent);
-                    }
+    if (reload || m_dateTime.time().hour() != previous.time().hour()) {
+        emit componentChanged(HourComponent);
 
-                    emit componentChanged(MonthComponent);
-                }
+        if (reload || m_dateTime.toString("ap") != previous.toString("ap")) {
+            emit componentChanged(TimeOfDayComponent);
+        }
+    }
 
-                m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
-
-                m_eventsQuery = QString("evens:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
-
-                m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
-
-                const KTimeZone timeZone = KSystemTimeZones::zone(m_applet->isLocalTimezone() ? KSystemTimeZones::local().name() : m_applet->currentTimezone());
-                const Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query((timeZone.latitude() == KTimeZone::UNKNOWN) ? QString("%1|Solar").arg(m_applet->currentTimezone()) : QString("%1|Solar|Latitude=%2|Longitude=%3").arg(m_applet->currentTimezone()).arg(timeZone.latitude()).arg(timeZone.longitude()));
-
-                m_sunrise = sunData["Sunrise"].toDateTime().time();
-                m_sunset = sunData["Sunset"].toDateTime().time();
-
-                const QString region = m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first();
-                const QString key = QString("holidays:%1:%2").arg(region).arg(m_dateTime.date().toString(Qt::ISODate));
-                const Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
-
-                m_holidays.clear();
-
-                if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
-                    const QVariantList holidays = holidaysData[key].toList();
-
-                    for (int i = 0; i < holidays.length(); ++i) {
-                        m_holidays.append(holidays[i].toHash()["Name"].toString());
-                    }
-                }
-
-                emit componentChanged(DayOfWeekComponent);
-                emit componentChanged(DayOfMonthComponent);
-                emit componentChanged(DayOfYearComponent);
-                emit componentChanged(DateComponent);
-                emit componentChanged(SunriseComponent);
-                emit componentChanged(SunsetComponent);
-                emit componentChanged(HolidaysComponent);
+    if (reload || m_dateTime.date() != previous.date()) {
+        if (reload || m_applet->calendar()->month(m_dateTime.date()) != m_applet->calendar()->month(previous.date())) {
+            if (reload || m_applet->calendar()->year(m_dateTime.date()) != m_applet->calendar()->year(previous.date())) {
+                emit componentChanged(YearComponent);
             }
 
-            if (hour == 0 || hour == 12) {
-                emit componentChanged(TimeOfDayComponent);
-            }
-
-            emit componentChanged(HourComponent);
+            emit componentChanged(MonthComponent);
         }
 
-        emit componentChanged(MinuteComponent);
+        m_applet->dataEngine("calendar")->disconnectSource(m_eventsQuery, this);
+
+        m_eventsQuery = QString("evens:%1:%2").arg(QDate::currentDate().toString(Qt::ISODate)).arg(QDate::currentDate().addDays(1).toString(Qt::ISODate));
+
+        m_applet->dataEngine("calendar")->connectSource(m_eventsQuery, this);
+
+        const KTimeZone timeZone = KSystemTimeZones::zone(m_applet->isLocalTimezone() ? KSystemTimeZones::local().name() : m_applet->currentTimezone());
+        const Plasma::DataEngine::Data sunData = m_applet->dataEngine("time")->query((timeZone.latitude() == KTimeZone::UNKNOWN) ? QString("%1|Solar").arg(m_applet->currentTimezone()) : QString("%1|Solar|Latitude=%2|Longitude=%3").arg(m_applet->currentTimezone()).arg(timeZone.latitude()).arg(timeZone.longitude()));
+
+        m_sunrise = sunData["Sunrise"].toDateTime().time();
+        m_sunset = sunData["Sunset"].toDateTime().time();
+
+        const QString key = QString("holidays:%1:%2").arg(m_applet->config().readEntry("holidaysRegions", m_applet->dataEngine("calendar")->query("holidaysDefaultRegion")["holidaysDefaultRegion"]).toString().split(QChar(',')).first()).arg(m_dateTime.date().toString(Qt::ISODate));
+        const Plasma::DataEngine::Data holidaysData = m_applet->dataEngine("calendar")->query(key);
+
+        m_holidays.clear();
+
+        if (!holidaysData.isEmpty() && holidaysData.contains(key)) {
+            const QVariantList holidays = holidaysData[key].toList();
+
+            for (int i = 0; i < holidays.length(); ++i) {
+                m_holidays.append(holidays[i].toHash()["Name"].toString());
+            }
+        }
+
+        emit componentChanged(DayOfWeekComponent);
+        emit componentChanged(DayOfMonthComponent);
+        emit componentChanged(DayOfYearComponent);
+        emit componentChanged(DateComponent);
+        emit componentChanged(SunriseComponent);
+        emit componentChanged(SunsetComponent);
+        emit componentChanged(HolidaysComponent);
     }
 }
 
