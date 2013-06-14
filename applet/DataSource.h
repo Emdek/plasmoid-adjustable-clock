@@ -51,7 +51,17 @@ enum ClockComponent
     HolidaysComponent = 20,
     SunriseComponent = 21,
     SunsetComponent = 22,
-    LastComponent = 23
+    ForecastDurationComponent = 23,
+    TemperatureCurrentComponent = 24,
+    TemperatureMinimumComponent = 25,
+    TemperatureMaximumComponent = 26,
+    ConditionsComponent = 27,
+    WindDirectionComponent = 28,
+    WindSpeedComponent = 29,
+    PressureComponent = 30,
+    HumidityComponent = 31,
+    LocationComponent = 32,
+    LastComponent = 33
 };
 
 struct Event

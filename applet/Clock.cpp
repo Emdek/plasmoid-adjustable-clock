@@ -240,6 +240,26 @@ QString Clock::getComponentName(ClockComponent component)
         return i18n("Sunrise time");
     case SunsetComponent:
         return i18n("Sunset time");
+    case ForecastDurationComponent:
+        return i18n("Forecast availability in days");
+    case TemperatureCurrentComponent:
+        return i18n("Current temperature");
+    case TemperatureMinimumComponent:
+        return i18n("Minimum temperature");
+    case TemperatureMaximumComponent:
+        return i18n("Maximum temperature");
+    case ConditionsComponent:
+        return i18n("Conditions");
+    case WindDirectionComponent:
+        return i18n("Direction of the wind");
+    case WindSpeedComponent:
+        return i18n("Speed of the wind");
+    case PressureComponent:
+        return i18n("Pressure");
+    case HumidityComponent:
+        return i18n("Humidity");
+    case LocationComponent:
+        return i18n("Location");
     default:
         return QString();
     }
@@ -294,6 +314,26 @@ QLatin1String Clock::getComponentString(ClockComponent component)
         return QLatin1String("Sunrise");
     case SunsetComponent:
         return QLatin1String("Sunset");
+    case ForecastDurationComponent:
+        return QLatin1String("ForecastDuration");
+    case TemperatureCurrentComponent:
+        return QLatin1String("TemperatureCurrent");
+    case TemperatureMinimumComponent:
+        return QLatin1String("TemperatureMinimum");
+    case TemperatureMaximumComponent:
+        return QLatin1String("TemperatureMaximum");
+    case ConditionsComponent:
+        return QLatin1String("Conditions");
+    case WindDirectionComponent:
+        return QLatin1String("WindDirection");
+    case WindSpeedComponent:
+        return QLatin1String("WindSpeed");
+    case PressureComponent:
+        return QLatin1String("Pressure");
+    case HumidityComponent:
+        return QLatin1String("Humidity");
+    case LocationComponent:
+        return QLatin1String("Location");
     default:
         return QLatin1String("");
     }
