@@ -18,7 +18,7 @@ foreach(_current_theme ${_themes})
 endforeach(_current_theme)
 
 qt4_add_resources(adjustableclock_RESOURCES_RCC data/resources.qrc)
-kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/editor.ui ui/component.ui)
+kde4_add_ui_files(adjustableclock_SRCS ui/appearance.ui ui/clipboard.ui ui/weather.ui ui/editor.ui ui/component.ui)
 kde4_add_plugin(plasma_applet_adjustableclock ${adjustableclock_SRCS} ${adjustableclock_RESOURCES_RCC})
 
 target_link_libraries(plasma_applet_adjustableclock

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>weather</class>
+ <widget class="QWidget" name="weather">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>340</width>
+    <height>251</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Weather</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="stationGroupBox">
+     <property name="title">
+      <string>Weather Station</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="locationLabel">
+        <property name="text">
+         <string>Location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="KComboBox" name="locationComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="searchButton">
+          <property name="text">
+           <string>Search</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="intervalLabel">
+        <property name="text">
+         <string>Update interval:</string>
+        </property>
+        <property name="buddy">
+         <cstring>intervalSpinBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="intervalSpinBox">
+        <property name="suffix">
+         <string> minutes</string>
+        </property>
+        <property name="minimum">
+         <number>30</number>
+        </property>
+        <property name="maximum">
+         <number>3600</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="unitsGroupBox">
+     <property name="title">
+      <string>Units</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="temperatureLabel">
+        <property name="text">
+         <string>Temperature:</string>
+        </property>
+        <property name="buddy">
+         <cstring>temperatureComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="KComboBox" name="temperatureComboBox">
+        <item>
+         <property name="text">
+          <string>Celsius (℃)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fahrenheit (℉)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Kelvin (K)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="pressureLabel">
+        <property name="text">
+         <string>Pressure:</string>
+        </property>
+        <property name="buddy">
+         <cstring>pressureComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="speedLabel">
+        <property name="text">
+         <string>Wind Speed:</string>
+        </property>
+        <property name="buddy">
+         <cstring>speedComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="KComboBox" name="pressureComboBox">
+        <item>
+         <property name="text">
+          <string>Hectopascals (hPa)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Kilopascals (kPa)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Millibars (mbar)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Inches of Mercury (inHg)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="KComboBox" name="speedComboBox">
+        <item>
+         <property name="text">
+          <string>Meters per Second (m/s)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Kilometers per Hour (km/h)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Miles per Hour (mph)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Knots (kt)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Beaufort scale (bft)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

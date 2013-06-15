@@ -29,6 +29,7 @@
 
 #include "ui_appearance.h"
 #include "ui_clipboard.h"
+#include "ui_weather.h"
 
 namespace AdjustableClock
 {
@@ -94,6 +95,7 @@ class Configuration : public QObject
         QModelIndex m_editedAction;
         Ui::appearance m_appearanceUi;
         Ui::clipboard m_clipboardUi;
+        Ui::weather m_weatherUi;
 
     signals:
         void clearCache();
