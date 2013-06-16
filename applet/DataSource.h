@@ -100,10 +100,21 @@ class DataSource : public QObject
         QString m_timeZoneOffset;
         QString m_timeQuery;
         QString m_eventsQuery;
+        QString m_weatherQuery;
         QString m_timeZoneArea;
+        QString m_location;
+        QString m_conditionsText;
+        QString m_conditionsIcon;
+        QString m_windDirection;
         QStringList m_holidays;
         QList<Event> m_events;
         QMap<QString, QString> m_timeZones;
+        int m_windSpeed;
+        int m_pressure;
+        int m_humidity;
+        int m_temperatureCurrent;
+        int m_temperatureMinimum;
+        int m_temperatureMaximum;
 
     signals:
         void componentChanged(ClockComponent component);
