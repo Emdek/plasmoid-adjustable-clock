@@ -105,7 +105,7 @@ Configuration::Configuration(Applet *applet, Clock *clock, KConfigDialog *parent
     m_clipboardUi.fastCopyExpressionEdit->setClock(m_clock);
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
-    parent->addPage(clipboardConfiguration, i18n("Clipboard actions"), "edit-copy");
+    parent->addPage(clipboardConfiguration, i18n("Clipboard"), "edit-copy");
     parent->addPage(weatherConfiguration, i18n("Weather"), "weather-clear");
     parent->resize(500, 400);
 
