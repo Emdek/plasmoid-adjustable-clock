@@ -88,6 +88,10 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         return;
     }
 
+    if (source == m_weatherQuery && !m_weatherQuery.isEmpty()) {
+        return;
+    }
+
     const QDateTime previous = m_dateTime;
 
     m_dateTime = QDateTime(data["Date"].toDate(), data["Time"].toTime());
