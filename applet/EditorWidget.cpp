@@ -263,6 +263,11 @@ void EditorWidget::updateEditor()
 
     for (int i = 0; i < elements.count(); ++i) {
         elements.at(i).removeAttribute("title");
+
+        if (elements.at(i).findAll("[component]").count() > 0) {
+            elements.at(i).removeAttribute("component");
+            elements.at(i).removeAttribute("options");
+        }
     }
 
     m_document->setText(page.mainFrame()->toHtml());
