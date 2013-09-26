@@ -97,7 +97,7 @@ class DataSource : public QObject
         QTime m_sunrise;
         QTime m_sunset;
         QString m_timeZoneAbbreviation;
-        QString m_timeZoneOffset;
+        QString m_timeZoneOffsetString;
         QString m_timeQuery;
         QString m_eventsQuery;
         QString m_weatherQuery;
@@ -109,6 +109,7 @@ class DataSource : public QObject
         QStringList m_holidays;
         QList<Event> m_events;
         QMap<QString, QString> m_timeZones;
+        int m_timeZoneOffsetSeconds;
         int m_windSpeed;
         int m_pressure;
         int m_humidity;
