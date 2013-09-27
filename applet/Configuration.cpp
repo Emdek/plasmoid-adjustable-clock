@@ -52,11 +52,11 @@ Configuration::Configuration(Applet *applet, Clock *clock, KConfigDialog *parent
 {
     QWidget *appearanceConfiguration = new QWidget();
     QWidget *clipboardConfiguration = new QWidget();
-    QWidget *weatherConfiguration = new QWidget();
+//     QWidget *weatherConfiguration = new QWidget();
 
     m_appearanceUi.setupUi(appearanceConfiguration);
     m_clipboardUi.setupUi(clipboardConfiguration);
-    m_weatherUi.setupUi(weatherConfiguration);
+//     m_weatherUi.setupUi(weatherConfiguration);
 
     m_clock->setParent(this);
 
@@ -106,7 +106,7 @@ Configuration::Configuration(Applet *applet, Clock *clock, KConfigDialog *parent
 
     parent->addPage(appearanceConfiguration, i18n("Appearance"), "preferences-desktop-theme");
     parent->addPage(clipboardConfiguration, i18n("Clipboard"), "edit-copy");
-    parent->addPage(weatherConfiguration, i18n("Weather"), "weather-clear");
+//     parent->addPage(weatherConfiguration, i18n("Weather"), "weather-clear");
     parent->resize(500, 400);
 
     for (int i = 0; i < m_themesModel->rowCount(); ++i) {

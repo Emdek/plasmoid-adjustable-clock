@@ -89,9 +89,9 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         return;
     }
 
-    if (source == m_weatherQuery && !m_weatherQuery.isEmpty()) {
+/*    if (source == m_weatherQuery && !m_weatherQuery.isEmpty()) {
         return;
-    }
+    }*/
 
     const QDateTime previous = m_dateTime;
 

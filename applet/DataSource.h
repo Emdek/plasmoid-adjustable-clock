@@ -51,17 +51,17 @@ enum ClockComponent
     HolidaysComponent = 20,
     SunriseComponent = 21,
     SunsetComponent = 22,
-    ForecastDurationComponent = 23,
-    TemperatureCurrentComponent = 24,
-    TemperatureMinimumComponent = 25,
-    TemperatureMaximumComponent = 26,
-    ConditionsComponent = 27,
-    WindDirectionComponent = 28,
-    WindSpeedComponent = 29,
-    PressureComponent = 30,
-    HumidityComponent = 31,
-    LocationComponent = 32,
-    LastComponent = 33
+//     ForecastDurationComponent = 23,
+//     TemperatureCurrentComponent = 24,
+//     TemperatureMinimumComponent = 25,
+//     TemperatureMaximumComponent = 26,
+//     ConditionsComponent = 27,
+//     WindDirectionComponent = 28,
+//     WindSpeedComponent = 29,
+//     PressureComponent = 30,
+//     HumidityComponent = 31,
+//     LocationComponent = 32,
+    LastComponent = 23
 };
 
 struct Event
@@ -100,22 +100,22 @@ class DataSource : public QObject
         QString m_timeZoneOffsetString;
         QString m_timeQuery;
         QString m_eventsQuery;
-        QString m_weatherQuery;
+//         QString m_weatherQuery;
         QString m_timeZoneArea;
-        QString m_location;
-        QString m_conditionsText;
-        QString m_conditionsIcon;
-        QString m_windDirection;
+//         QString m_location;
+//         QString m_conditionsText;
+//         QString m_conditionsIcon;
+//         QString m_windDirection;
         QStringList m_holidays;
         QList<Event> m_events;
         QMap<QString, QString> m_timeZones;
         int m_timeZoneOffsetSeconds;
-        int m_windSpeed;
-        int m_pressure;
-        int m_humidity;
-        int m_temperatureCurrent;
-        int m_temperatureMinimum;
-        int m_temperatureMaximum;
+//         int m_windSpeed;
+//         int m_pressure;
+//         int m_humidity;
+//         int m_temperatureCurrent;
+//         int m_temperatureMinimum;
+//         int m_temperatureMaximum;
 
     signals:
         void componentChanged(ClockComponent component);
