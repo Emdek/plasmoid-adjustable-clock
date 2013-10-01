@@ -29,8 +29,7 @@ namespace AdjustableClock
 {
 
 DataSource::DataSource(Applet *applet) : QObject(applet),
-    m_applet(applet),
-    m_timeZoneOffsetSeconds(0)
+    m_applet(applet)
 {
     m_constantDateTime = QDateTime(QDate(2000, 1, 1), QTime(12, 30, 15));
 
@@ -197,12 +196,11 @@ void DataSource::updateTimeZone()
             const int hours = abs(seconds / 3600);
             const int minutes = (abs(seconds / 60) - (hours * 60));
 
-            m_timeZoneOffsetString = QString("%1%2").arg((seconds >= 0) ? QChar('+') : QChar('-')).arg(hours);
-            m_timeZoneOffsetSeconds = seconds;
+            m_timeZoneOffset = QString("%1%2").arg((seconds >= 0) ? QChar('+') : QChar('-')).arg(hours);
 
             if (minutes) {
-                m_timeZoneOffsetString.append(QChar(':'));
-                m_timeZoneOffsetString.append(formatNumber(minutes, 2));
+                m_timeZoneOffset.append(QChar(':'));
+                m_timeZoneOffset.append(formatNumber(minutes, 2));
             }
         }
     }
@@ -260,7 +258,7 @@ QVariant DataSource::getValue(ClockComponent component, const QVariantMap &optio
     case YearComponent:
         return m_applet->calendar()->formatDate(dateTime.date(), KLocale::Year, (options.contains("short") ? KLocale::ShortNumber : KLocale::LongNumber));
     case TimestampComponent:
-        return QString::number((dateTime.addSecs(-m_timeZoneOffsetSeconds)).toTime_t());
+        return QString::number(QDateTime::currentDateTimeUtc().toTime_t());
     case TimeComponent:
         return KGlobal::locale()->formatTime(dateTime.time(), !options.contains("short"));
     case DateComponent:
@@ -272,7 +270,7 @@ QVariant DataSource::getValue(ClockComponent component, const QVariantMap &optio
     case TimeZoneAbbreviationComponent:
         return m_timeZoneAbbreviation;
     case TimeZoneOffsetComponent:
-        return m_timeZoneOffsetString;
+        return m_timeZoneOffset;
     case TimeZonesComponent:
         if (m_timeZones.count() > 1) {
             QStringList timeZones;
