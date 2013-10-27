@@ -8,7 +8,6 @@ body
 	text-align: center;
 	white-space: nowrap;
 }
-
 body > div
 {
 	display: inline-block;
@@ -17,17 +16,14 @@ body > div
 	position: relative;
 	overflow: hidden;
 }
-
 body > div:nth-child(2n + 1)
 {
 	margin-left: 5px;
 }
-
 body > div:last-of-type
 {
 	margin-right: 5px;
 }
-
 div > div
 {
 	width: 30px;
@@ -35,12 +31,10 @@ div > div
 	position: absolute;
 	-webkit-transition: all 0.5s ease;
 }
-
 .jump > div
 {
 	-webkit-transition: all 0.2s ease;
 }
-
 div > div div
 {
 	width: 24px;
@@ -48,7 +42,6 @@ div > div div
 	border-radius: 3px;
 	position: absolute;
 }
-
 div > div div:nth-child(1)
 {
 	width: 30px;
@@ -57,95 +50,78 @@ div > div div:nth-child(1)
 	color: #FFF;
 	z-index: 10;
 }
-
 div > div div:nth-child(2), div > div div:nth-child(3)
 {
 	background: #AAA;
 }
-
 div > div div:nth-child(3)
 {
 	left: 6px;
 }
-
 .next
 {
 	top: -7.5px;
 	-webkit-transform: scaleY(0);
 }
-
 .top
 {
 	top: 0;
 	-webkit-transition: all 0.42s 0.03s ease;
 }
-
 .jump .top
 {
 	-webkit-transition: all 0.18s 0.01s ease;
 }
-
 .top, .bottom
 {
 	-webkit-transform: scaleY(0.5);
 }
-
 .top div:nth-child(2)
 {
 	left: 1px;
 	-webkit-transform: skewX(-2deg);
 }
-
 .top div:nth-child(3)
 {
 	left: 5px;
 	-webkit-transform: skewX(2deg);
 }
-
 .middle
 {
 	top: 24px;
 }
-
 .bottom
 {
 	top: 48px;
 }
-
 .bottom div:nth-child(2)
 {
 	left: 1px;
 	-webkit-transform: skewX(2deg);
 }
-
 .bottom div:nth-child(3)
 {
 	left: 5px;
 	-webkit-transform: skewX(-2deg);
 }
-
 .previous
 {
 	top: 55.5px;
 	-webkit-transform: scaleY(0);
 	-webkit-transition: all 0.45s ease;
 }
-
 .jump .previous
 {
 	-webkit-transition: all 0.18s ease;
 }
-
 .previous div:nth-child(2)
 {
 	left: 2px;
 }
-
 .previous div:nth-child(3)
 {
 	left: 3px;
 }
-
 .static *
 {
 	-webkit-transition: none !important;
