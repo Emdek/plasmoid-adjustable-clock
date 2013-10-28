@@ -151,6 +151,7 @@ void DataSource::dataUpdated(const QString &source, const Plasma::DataEngine::Da
         emit componentChanged(DayOfWeekComponent);
         emit componentChanged(DayOfMonthComponent);
         emit componentChanged(DayOfYearComponent);
+        emit componentChanged(WeekComponent);
         emit componentChanged(DateComponent);
         emit componentChanged(SunriseComponent);
         emit componentChanged(SunsetComponent);
