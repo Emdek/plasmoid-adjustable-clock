@@ -45,6 +45,7 @@ void ExpressionLineEdit::insertComponent()
     KDialog *dialog = new KDialog(this);
     dialog->setMainWidget(componentWidget);
     dialog->setModal(false);
+    dialog->setWindowTitle(i18n("Insert Clock Component"));
     dialog->setButtons(KDialog::Apply | KDialog::Close);
     dialog->button(KDialog::Apply)->setText(i18n("Insert"));
     dialog->button(KDialog::Apply)->setEnabled(false);
