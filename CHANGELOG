@@ -1,3 +1,7 @@
+4.1.4 (--.11.2013):
+- fixed week number not being updated;
+- added missing title of "Insert Component" dialog.
+
 4.1.3 (27.09.2013):
 - ensure that component values are always up to date;
 - adjust timestamp for time zone offset;
