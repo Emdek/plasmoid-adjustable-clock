@@ -80,25 +80,34 @@ body > div
 {
 	border-right: 45px solid red;
 }
+#date
+{
+	position: relative;
+	top: 70px;
+	font-size: 10px;
+}
 </style>
 </head>
 <body>
 <div>
-	<div id="ticks_inner"></div>
-	<div id="ticks_outer"></div>
+	<div id="ticks_inner" style="display: none;"><div style="-webkit-transform: translate(-40px, 0px) rotate(0deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(15deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(30deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(45deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(60deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(75deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(90deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(105deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(120deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(135deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(150deg);"></div><div style="-webkit-transform: translate(-40px, 0px) rotate(165deg);"></div></div>
+	<div id="ticks_outer"><div style="-webkit-transform: translate(-50px, 0px) rotate(0deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(6deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(12deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(18deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(24deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(30deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(36deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(42deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(48deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(54deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(60deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(66deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(72deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(78deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(84deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(90deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(96deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(102deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(108deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(114deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(120deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(126deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(132deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(138deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(144deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(150deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(156deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(162deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(168deg); display: block;"></div><div style="-webkit-transform: translate(-50px, 0px) rotate(174deg); display: block;"></div></div>
 	<div id="hands">
-		<div id="hour"></div>
-		<div id="minute"></div>
-		<div id="second"></div>
+		<div id="hour" style="-webkit-transform: rotate(645deg);"></div>
+		<div id="minute" style="-webkit-transform: rotate(450deg);"></div>
+		<div id="second" style="display: block; -webkit-transform: rotate(360deg);"></div>
 	</div>
 	<div id="center"></div>
+	<div id="date"><span component="DayOfMonth">01</span>.<span component="Month">01</span>.<span component="Year">2000</span></div>
 </div>
 <script type="text/javascript">
+var showDate = false;
 var showSeconds = true;
 var alternativeHoursMode = false;
 
 function setupClock()
 {
+	showDate = Clock.getOption('showDate', false);
 	showSeconds = Clock.getOption('showSeconds', true);
 	alternativeHoursMode = Clock.getOption('alternativeHoursMode', false);
 	var ticksDensity = Clock.getOption('ticksDensity', 2);
@@ -128,6 +137,7 @@ function setupClock()
 		}
 	}
 
+	document.getElementById('date').style.display = (showDate ? 'block' : 'none');
 	document.getElementById('second').style.display = (showSeconds ? 'block' : 'none');
 	document.getElementById('ticks_inner').style.display = (alternativeHoursMode ? 'block' : 'none');
 	document.addEventListener((showSeconds ? 'ClockSecondChanged' : 'ClockMinuteChanged'), updateClock);
