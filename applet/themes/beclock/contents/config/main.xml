@@ -24,4 +24,8 @@
 		<label>24 hours mode:</label>
 		<default>false</default>
 	</entry>
+	<entry name="showTimeOfDay" type="Bool">
+		<label>Show time of day (AM/PM):</label>
+		<default>true</default>
+	</entry>
 </kcfg>

@@ -51,7 +51,7 @@ body > div > div
  			<path id="circle_hours" d="" stroke="rgba(0, 0, 0, 0.8)" />
 		</g>
 	</svg>
-	<div class="back" component="TimeOfDay"></div>
+	<div class="back" component="TimeOfDay" id="time_of_day"></div>
 	<div class="front">
 		<span id="hours" component="Hour" options="'alternative': true">12</span>:<span component="Minute">30</span>
 		<div><span component="Year">2000</span>-<span component="Month">01</span>-<span component="DayOfMonth">01</span></div>
@@ -71,6 +71,7 @@ function setupClock()
 	document.getElementById('circle_minutes').setAttribute('stroke', Clock.getOption('minutesColor', 'rgba(0, 0, 0, 0.6)'));
 	document.getElementById('circle_hours').setAttribute('stroke', Clock.getOption('hoursColor', 'rgba(0, 0, 0, 0.8)'));
 	document.getElementById('hours').setAttribute('options', (alternativeHoursMode ? '' : '\'alternative\': true'));
+	document.getElementById('time_of_day').style.display = (Clock.getOption('showTimeOfDay', true) ? 'block' : 'none');
 
 	if (!showSeconds)
 	{
